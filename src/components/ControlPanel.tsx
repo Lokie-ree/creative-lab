@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
+import { Slider } from "@/components/ui/slider"
 
-interface SliderProps {
+interface ParameterSliderProps {
   label: string
   value: number
   min: number
@@ -10,36 +11,21 @@ interface SliderProps {
   formatValue?: (value: number) => string
 }
 
-function Slider({ label, value, min, max, step, onChange, formatValue }: SliderProps) {
+function ParameterSlider({ label, value, min, max, step, onChange, formatValue }: ParameterSliderProps) {
   const displayValue = formatValue ? formatValue(value) : value.toFixed(2)
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between text-sm">
         <label className="text-gray-400">{label}</label>
-        <span className="text-[#c8e44c] font-mono">{displayValue}</span>
+        <span className="text-[#c8e44c] font-mono tabular-nums">{displayValue}</span>
       </div>
-      <input
-        type="range"
+      <Slider
+        value={[value]}
         min={min}
         max={max}
         step={step}
-        value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer
-                   [&::-webkit-slider-thumb]:appearance-none
-                   [&::-webkit-slider-thumb]:w-5
-                   [&::-webkit-slider-thumb]:h-5
-                   [&::-webkit-slider-thumb]:rounded-full
-                   [&::-webkit-slider-thumb]:bg-[#c8e44c]
-                   [&::-webkit-slider-thumb]:cursor-pointer
-                   [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(200,228,76,0.5)]
-                   [&::-moz-range-thumb]:w-5
-                   [&::-moz-range-thumb]:h-5
-                   [&::-moz-range-thumb]:rounded-full
-                   [&::-moz-range-thumb]:bg-[#c8e44c]
-                   [&::-moz-range-thumb]:border-0
-                   [&::-moz-range-thumb]:cursor-pointer"
+        onValueChange={([v]) => onChange(v)}
       />
     </div>
   )
@@ -85,7 +71,7 @@ export function ControlPanel({
         <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
           {/* Sliders */}
           <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            <Slider
+            <ParameterSlider
               label="Amplitude"
               value={amplitude}
               min={0.1}
@@ -93,7 +79,7 @@ export function ControlPanel({
               step={0.1}
               onChange={onAmplitudeChange}
             />
-            <Slider
+            <ParameterSlider
               label="Frequency"
               value={frequency}
               min={0.5}
@@ -101,7 +87,7 @@ export function ControlPanel({
               step={0.1}
               onChange={onFrequencyChange}
             />
-            <Slider
+            <ParameterSlider
               label="Phase"
               value={phase}
               min={0}
