@@ -1,4 +1,4 @@
-import { Canvas } from "@react-three/fiber"
+import { Canvas, useThree } from "@react-three/fiber"
 import { UnitCircle } from "./UnitCircle"
 import { SineWave } from "./SineWave"
 
@@ -9,6 +9,26 @@ interface SceneProps {
 }
 
 function Visualization({ amplitude, frequency, phase }: SceneProps) {
+  const { viewport } = useThree()
+
+  const isPortrait = viewport.width < viewport.height && viewport.width < 5
+
+  if (isPortrait) {
+    return (
+      <>
+        {/* Circle on top */}
+        <group position={[0, 1.2, 0]} scale={0.9}>
+          <UnitCircle amplitude={amplitude} frequency={frequency} phase={phase} />
+        </group>
+
+        {/* Wave below */}
+        <group position={[-1.5, -1.0, 0]} scale={0.8}>
+          <SineWave amplitude={amplitude} frequency={frequency} phase={phase} />
+        </group>
+      </>
+    )
+  }
+
   return (
     <>
       {/* Unit circle on the left */}
