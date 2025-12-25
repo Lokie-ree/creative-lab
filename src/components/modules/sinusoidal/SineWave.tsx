@@ -8,6 +8,7 @@ interface SineWaveProps {
   phase: number
   color?: string
   opacity?: number
+  isPaused?: boolean
 }
 
 export interface SineWaveRef {
@@ -18,7 +19,7 @@ const MAX_POINTS = 200
 const WAVE_WIDTH = 4
 
 export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
-  function SineWave({ amplitude, frequency, phase, color = "#c8e44c", opacity = 1 }, ref) {
+  function SineWave({ amplitude, frequency, phase, color = "#c8e44c", opacity = 1, isPaused = false }, ref) {
     const positionsRef = useRef<Float32Array>(new Float32Array(MAX_POINTS * 3))
     const pointCountRef = useRef(0)
     const currentYRef = useRef(0)
@@ -39,6 +40,9 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
     }, [color, opacity])
 
     useFrame((state) => {
+      // Don't update when paused
+      if (isPaused) return
+
       const t = state.clock.elapsedTime
       const y = amplitude * Math.sin(frequency * t + phase)
       currentYRef.current = y
