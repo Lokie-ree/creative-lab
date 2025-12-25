@@ -8,9 +8,10 @@ interface ConnectorProps {
   frequency: number
   phase: number
   amplitude: number
+  isPaused?: boolean
 }
 
-export function Connector({ circleX, waveX, frequency, phase, amplitude }: ConnectorProps) {
+export function Connector({ circleX, waveX, frequency, phase, amplitude, isPaused = false }: ConnectorProps) {
   const lineRef = useRef<THREE.Line>(null)
   const dotRef = useRef<THREE.Mesh>(null)
 
@@ -31,6 +32,9 @@ export function Connector({ circleX, waveX, frequency, phase, amplitude }: Conne
   }, [])
 
   useFrame((state) => {
+    // Don't update when paused
+    if (isPaused) return
+
     const t = state.clock.elapsedTime
     const angle = frequency * t + phase
     const y = amplitude * Math.sin(angle)

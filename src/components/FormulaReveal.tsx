@@ -7,9 +7,10 @@ interface FormulaRevealProps {
   values: { a: number; f: number; p: number }
   onDismiss: () => void
   onNewChallenge: () => void
+  onStartOver?: () => void
 }
 
-export function FormulaReveal({ show, values, onDismiss, onNewChallenge }: FormulaRevealProps) {
+export function FormulaReveal({ show, values, onDismiss, onNewChallenge, onStartOver }: FormulaRevealProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -149,22 +150,35 @@ export function FormulaReveal({ show, values, onDismiss, onNewChallenge }: Formu
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            onClick={handleDismiss}
-            className="flex-1 px-4 py-3 rounded-lg border border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
-          >
-            Keep Exploring
-          </button>
-          <button
-            onClick={() => {
-              handleDismiss()
-              setTimeout(onNewChallenge, 300)
-            }}
-            className="flex-1 px-4 py-3 rounded-lg bg-[#c8e44c] text-black font-medium hover:bg-[#d4ed5c] transition-colors"
-          >
-            New Challenge
-          </button>
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-3">
+            <button
+              onClick={handleDismiss}
+              className="flex-1 px-4 py-3 rounded-lg border border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
+            >
+              Keep Exploring
+            </button>
+            <button
+              onClick={() => {
+                handleDismiss()
+                setTimeout(onNewChallenge, 300)
+              }}
+              className="flex-1 px-4 py-3 rounded-lg bg-[#c8e44c] text-black font-medium hover:bg-[#d4ed5c] transition-colors"
+            >
+              Try Another
+            </button>
+          </div>
+          {onStartOver && (
+            <button
+              onClick={() => {
+                handleDismiss()
+                setTimeout(onStartOver, 300)
+              }}
+              className="w-full px-4 py-2 text-sm text-gray-500 hover:text-gray-400 transition-colors"
+            >
+              Start Over
+            </button>
+          )}
         </div>
       </div>
     </div>
