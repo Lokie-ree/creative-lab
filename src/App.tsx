@@ -2,8 +2,11 @@ import { useState, useMemo, useEffect, useCallback } from "react"
 import { Scene } from "./components/modules/sinusoidal/Scene"
 import { ControlPanel } from "./components/controls/ControlPanel"
 import { FormulaReveal } from "./components/FormulaReveal"
+import { FormulaPreview } from "./components/feedback/FormulaPreview"
 import { ProgressBar } from "./components/shared/ProgressBar"
 import { ExplorePrompt } from "./components/shared/ExplorePrompt"
+import { AnimatedPanel } from "./components/shared/AnimatedPanel"
+import { CelebrationPulse } from "./components/shared/CelebrationPulse"
 import { QuestionCard } from "./components/feedback/QuestionCard"
 import { FeedbackBanner } from "./components/feedback/FeedbackBanner"
 import { WhyModal } from "./components/feedback/WhyModal"
@@ -24,6 +27,11 @@ const QUESTIONS = {
     ],
     answer: 2.0,
     why: "Amplitude multiplies every point's distance from the center line. A = 2 means the wave is twice as tall.",
+    wrongExplanations: {
+      1.0: "At A = 1, the wave height stays the same as the original. We need a value that makes it twice as tall.",
+      1.5: "A = 1.5 makes the wave 1.5× taller, but we asked for double. What value would give us 2×?",
+      2.5: "A = 2.5 makes it 2.5× taller — more than double! We need exactly twice the height.",
+    } as Record<number, string>,
   },
   frequency: {
     question: "How many complete waves fit when frequency doubles?",
@@ -35,6 +43,11 @@ const QUESTIONS = {
     ],
     answer: 2,
     why: "Frequency controls cycles per interval. Double the frequency means double the waves in the same space.",
+    wrongExplanations: {
+      1: "With 1 wave, that's the same as before. Doubling the frequency should pack more waves into the same space.",
+      3: "3 waves would mean tripling the frequency. We only doubled it, so how many waves should fit?",
+      4: "4 waves would mean quadrupling the frequency. Think about what 'double' means for the wave count.",
+    } as Record<number, string>,
   },
   phase: {
     question: "What phase makes sine start at its peak?",
@@ -46,6 +59,11 @@ const QUESTIONS = {
     ],
     answer: Math.PI / 2,
     why: "At φ = π/2, sine starts at its maximum value. This is actually the cosine function!",
+    wrongExplanations: {
+      0: "At phase = 0, sine starts at zero and rises. We want it to start at its highest point.",
+      [Math.PI / 4]: "At π/4, sine starts partway up but not at the peak. The peak is at a quarter of the full cycle.",
+      [Math.PI]: "At phase = π, sine starts at zero and falls. We want it to start at its maximum, not crossing zero.",
+    } as Record<number, string>,
   },
 }
 
@@ -114,10 +132,24 @@ function App() {
   const [isCorrect, setIsCorrect] = useState(false)
   const [showWhyModal, setShowWhyModal] = useState(false)
 
+  // Discovery memory - tracks what values user discovered in each stage
+  const [discoveries, setDiscoveries] = useState<{
+    amplitude: number | null
+    frequency: number | null
+    phase: number | null
+  }>({
+    amplitude: null,
+    frequency: null,
+    phase: null,
+  })
+
   // Challenge state
   const [target, setTarget] = useState(generateTarget)
   const [hasMatched, setHasMatched] = useState(false)
   const [showReveal, setShowReveal] = useState(false)
+
+  // Celebration counter - increments to trigger celebration pulse
+  const [celebrationCount, setCelebrationCount] = useState(0)
 
   // Animation control
   const [isPaused, setIsPaused] = useState(false)
@@ -185,30 +217,53 @@ function App() {
     setSubStage('feedback')
   }, [currentQuestion])
 
+  // Handle "Try Again" - go back to question without advancing
+  const handleTryAgain = useCallback(() => {
+    setSubStage('question')
+    setSelectedAnswer(null)
+    setShowWhyModal(false)
+  }, [])
+
+  // Handle continuing after correct answer - advance to next stage
   const handleContinueFromFeedback = useCallback(() => {
+    // Only advance if answer was correct
+    if (!isCorrect) {
+      handleTryAgain()
+      return
+    }
+
+    // Trigger celebration pulse
+    setCelebrationCount(c => c + 1)
+
     setSubStage('explore')
     setSelectedAnswer(null)
     setPromptVisible(true)
 
-    // Move to next stage
+    // Store discovery and move to next stage (keeping discovered values)
     switch (stage) {
       case 'amplitude':
+        // Store discovered amplitude, keep it for next stages
+        setDiscoveries(prev => ({ ...prev, amplitude: amplitude }))
         setStage('frequency')
-        setAmplitude(1.0) // Reset for next stage
+        // Don't reset amplitude - it stays at discovered value
         break
       case 'frequency':
+        // Store discovered frequency, keep it for next stages
+        setDiscoveries(prev => ({ ...prev, frequency: frequency }))
         setStage('phase')
-        setFrequency(1.0) // Reset for next stage
+        // Don't reset frequency - it stays at discovered value
         break
       case 'phase':
+        // Store discovered phase
+        setDiscoveries(prev => ({ ...prev, phase: phase }))
         setStage('challenge')
-        // Reset all for challenge
+        // For challenge, start fresh but with knowledge of discovered values
         setAmplitude(1.0)
         setFrequency(1.0)
         setPhase(0)
         break
     }
-  }, [stage])
+  }, [stage, isCorrect, handleTryAgain, amplitude, frequency, phase])
 
   const handleContinue = useCallback(() => {
     setShowContinue(false)
@@ -242,6 +297,8 @@ function App() {
     setFrequency(1.0)
     setPhase(0)
     setSelectedAnswer(null)
+    // Reset discoveries
+    setDiscoveries({ amplitude: null, frequency: null, phase: null })
   }, [])
 
   // Get prompt text based on stage
@@ -272,6 +329,14 @@ function App() {
       {/* Progress bar */}
       <div className="absolute top-0 left-0 right-0 z-20">
         <ProgressBar current={getStageNumber(stage)} total={TOTAL_STAGES} />
+      </div>
+
+      {/* Celebration pulse effect */}
+      <CelebrationPulse trigger={celebrationCount} />
+
+      {/* Formula preview - shows building equation */}
+      <div className="absolute top-8 right-4 z-10">
+        <FormulaPreview discoveries={discoveries} />
       </div>
 
       {/* Explore prompt */}
@@ -332,9 +397,12 @@ function App() {
         </div>
       )}
 
-      {/* Slider for amplitude stage */}
+      {/* Slider for amplitude stage - only amplitude visible */}
       {stage === 'amplitude' && subStage === 'explore' && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-72">
+        <AnimatedPanel
+          transitionKey="amplitude"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-72"
+        >
           <ControlPanel
             amplitude={amplitude}
             frequency={frequency}
@@ -345,12 +413,15 @@ function App() {
             matchScore={0}
             visibleSliders={['amplitude']}
           />
-        </div>
+        </AnimatedPanel>
       )}
 
-      {/* Slider for frequency stage */}
+      {/* Slider for frequency stage - amplitude locked, frequency active */}
       {stage === 'frequency' && subStage === 'explore' && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-72">
+        <AnimatedPanel
+          transitionKey="frequency"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-80"
+        >
           <ControlPanel
             amplitude={amplitude}
             frequency={frequency}
@@ -359,14 +430,19 @@ function App() {
             onFrequencyChange={setFrequency}
             onPhaseChange={setPhase}
             matchScore={0}
-            visibleSliders={['frequency']}
+            visibleSliders={['amplitude', 'frequency']}
+            lockedSliders={['amplitude']}
+            discoveries={discoveries}
           />
-        </div>
+        </AnimatedPanel>
       )}
 
-      {/* Slider for phase stage */}
+      {/* Slider for phase stage - amplitude & frequency locked, phase active */}
       {stage === 'phase' && subStage === 'explore' && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-72">
+        <AnimatedPanel
+          transitionKey="phase"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-96"
+        >
           <ControlPanel
             amplitude={amplitude}
             frequency={frequency}
@@ -375,9 +451,11 @@ function App() {
             onFrequencyChange={setFrequency}
             onPhaseChange={setPhase}
             matchScore={0}
-            visibleSliders={['phase']}
+            visibleSliders={['amplitude', 'frequency', 'phase']}
+            lockedSliders={['amplitude', 'frequency']}
+            discoveries={discoveries}
           />
-        </div>
+        </AnimatedPanel>
       )}
 
       {/* Control panel for challenge stage */}
@@ -407,7 +485,13 @@ function App() {
         <WhyModal
           open={showWhyModal}
           onClose={() => setShowWhyModal(false)}
-          content={currentQuestion.why}
+          content={
+            isCorrect
+              ? currentQuestion.why
+              : (selectedAnswer !== null && currentQuestion.wrongExplanations[selectedAnswer]) || currentQuestion.why
+          }
+          isCorrect={isCorrect}
+          onTryAgain={handleTryAgain}
         />
       )}
 

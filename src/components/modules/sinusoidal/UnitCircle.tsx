@@ -13,6 +13,7 @@ interface UnitCircleProps {
   isPaused?: boolean
   onPauseChange?: (paused: boolean) => void
   draggable?: boolean
+  glowIntensity?: number  // 0-1, controls glow brightness
 }
 
 export interface UnitCircleRef {
@@ -28,6 +29,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
     isPaused = false,
     onPauseChange,
     draggable = false,
+    glowIntensity = 0,
   }, ref) {
     const groupRef = useRef<THREE.Group>(null)
     const pointRef = useRef<THREE.Mesh>(null)
@@ -182,8 +184,32 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
           <meshBasicMaterial color="#4a5568" />
         </mesh>
 
-        {/* Glow hint when draggable */}
-        {draggable && !isDragging && (
+        {/* Dynamic glow based on match proximity */}
+        {glowIntensity > 0 && !isDragging && (
+          <mesh position={[currentPosRef.current.x, currentPosRef.current.y, -0.02]}>
+            <circleGeometry args={[0.12 + glowIntensity * 0.15, 32]} />
+            <meshBasicMaterial
+              color={color}
+              transparent
+              opacity={0.2 + glowIntensity * 0.4}
+            />
+          </mesh>
+        )}
+
+        {/* Outer glow ring for high intensity */}
+        {glowIntensity > 0.7 && !isDragging && (
+          <mesh position={[currentPosRef.current.x, currentPosRef.current.y, -0.03]}>
+            <circleGeometry args={[0.25 + glowIntensity * 0.1, 32]} />
+            <meshBasicMaterial
+              color={color}
+              transparent
+              opacity={(glowIntensity - 0.7) * 0.5}
+            />
+          </mesh>
+        )}
+
+        {/* Draggable hint glow (separate from match glow) */}
+        {draggable && !isDragging && glowIntensity === 0 && (
           <mesh position={[currentPosRef.current.x, currentPosRef.current.y, -0.02]}>
             <circleGeometry args={[0.18, 32]} />
             <meshBasicMaterial color={color} transparent opacity={0.3} />

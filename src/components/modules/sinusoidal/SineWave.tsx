@@ -9,6 +9,7 @@ interface SineWaveProps {
   color?: string
   opacity?: number
   isPaused?: boolean
+  glowIntensity?: number  // 0-1, controls glow brightness
 }
 
 export interface SineWaveRef {
@@ -19,7 +20,15 @@ const MAX_POINTS = 200
 const WAVE_WIDTH = 4
 
 export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
-  function SineWave({ amplitude, frequency, phase, color = "#c8e44c", opacity = 1, isPaused = false }, ref) {
+  function SineWave({
+    amplitude,
+    frequency,
+    phase,
+    color = "#c8e44c",
+    opacity = 1,
+    isPaused = false,
+    glowIntensity = 0,
+  }, ref) {
     const positionsRef = useRef<Float32Array>(new Float32Array(MAX_POINTS * 3))
     const pointCountRef = useRef(0)
     const currentYRef = useRef(0)
@@ -29,15 +38,41 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
       getCurrentY: () => currentYRef.current,
     }))
 
+    // Calculate dynamic color based on glow intensity
+    const dynamicColor = useMemo(() => {
+      if (glowIntensity <= 0) return color
+      // Lerp from base color toward a brighter version
+      const baseColor = new THREE.Color(color)
+      // Make it brighter by increasing lightness
+      const hsl = { h: 0, s: 0, l: 0 }
+      baseColor.getHSL(hsl)
+      // Increase lightness based on intensity (max +30%)
+      hsl.l = Math.min(1, hsl.l + glowIntensity * 0.3)
+      baseColor.setHSL(hsl.h, hsl.s, hsl.l)
+      return `#${baseColor.getHexString()}`
+    }, [color, glowIntensity])
+
+    // Main line
     const line = useMemo(() => {
       const geometry = new THREE.BufferGeometry()
       const material = new THREE.LineBasicMaterial({
-        color,
-        transparent: opacity < 1,
+        color: dynamicColor,
+        transparent: true,
         opacity,
       })
       return new THREE.Line(geometry, material)
-    }, [color, opacity])
+    }, [dynamicColor, opacity])
+
+    // Glow halo line (thicker, more transparent, behind main line)
+    const glowLine = useMemo(() => {
+      const geometry = new THREE.BufferGeometry()
+      const material = new THREE.LineBasicMaterial({
+        color: dynamicColor,
+        transparent: true,
+        opacity: glowIntensity * 0.4 * opacity,  // Fade in with intensity
+      })
+      return new THREE.Line(geometry, material)
+    }, [dynamicColor, glowIntensity, opacity])
 
     useFrame((state) => {
       // Don't update when paused
@@ -80,15 +115,37 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
       }
 
       if (pointCountRef.current >= 2) {
+        const positionData = positions.slice(0, pointCountRef.current * 3)
+
+        // Update main line
         line.geometry.setAttribute(
           "position",
-          new THREE.BufferAttribute(positions.slice(0, pointCountRef.current * 3), 3)
+          new THREE.BufferAttribute(positionData, 3)
         )
         line.geometry.attributes.position.needsUpdate = true
         line.geometry.computeBoundingSphere()
+
+        // Update glow line with same geometry (slightly offset back)
+        if (glowIntensity > 0) {
+          glowLine.geometry.setAttribute(
+            "position",
+            new THREE.BufferAttribute(positionData.slice(), 3)
+          )
+          glowLine.geometry.attributes.position.needsUpdate = true
+          glowLine.geometry.computeBoundingSphere()
+        }
       }
     })
 
-    return <primitive object={line} />
+    return (
+      <group>
+        {/* Glow halo behind main line */}
+        {glowIntensity > 0 && (
+          <primitive object={glowLine} position={[0, 0, -0.01]} />
+        )}
+        {/* Main wave line */}
+        <primitive object={line} />
+      </group>
+    )
   }
 )

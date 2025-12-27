@@ -42,6 +42,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
 }
 
 :root {
@@ -111,6 +112,44 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ===========================================
+   Signal Lab Design Tokens
+
+   Custom colors for the Signal Lab experience.
+   Edit these values to customize the theme.
+   Use tools like tweakcn for visual editing.
+
+   Usage in components:
+   - CSS: var(--lab-accent)
+   - Tailwind arbitrary: text-[var(--lab-accent)]
+   =========================================== */
+:root {
+  /* Backgrounds */
+  --lab-bg: #0a0a0f;
+  --lab-surface: #12121a;
+  --lab-surface-elevated: #1a1a24;
+
+  /* Accent - Primary interactive color (lime green) */
+  --lab-accent: #c8e44c;
+  --lab-accent-hover: #d4f06a;
+  --lab-accent-muted: #888888;
+
+  /* Accent Warm - Learning moments (amber) */
+  --lab-accent-warm: #f5a623;
+
+  /* Geometry - Visualization elements (blue) */
+  --lab-geometry: #3B82F6;
+
+  /* Text */
+  --lab-text: #e0e0e0;
+  --lab-text-muted: #888888;
+  --lab-text-dim: #6b7280;
+
+  /* Borders */
+  --lab-border: #2a2a3a;
+  --lab-border-subtle: #1f1f2a;
 }
 
 @layer base {
