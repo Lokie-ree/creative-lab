@@ -3,6 +3,12 @@ import { ParameterSlider } from "@/components/shared/ParameterSlider"
 
 type SliderType = 'amplitude' | 'frequency' | 'phase'
 
+interface Discoveries {
+  amplitude: number | null
+  frequency: number | null
+  phase: number | null
+}
+
 interface ControlPanelProps {
   amplitude: number
   frequency: number
@@ -13,6 +19,7 @@ interface ControlPanelProps {
   matchScore?: number
   visibleSliders?: SliderType[]
   lockedSliders?: SliderType[]
+  discoveries?: Discoveries  // Discovered values to display on locked sliders
 }
 
 export function ControlPanel({
@@ -25,6 +32,7 @@ export function ControlPanel({
   matchScore,
   visibleSliders,
   lockedSliders = [],
+  discoveries,
 }: ControlPanelProps) {
   // If no visibleSliders specified, show all
   const showAmplitude = !visibleSliders || visibleSliders.includes('amplitude')
@@ -69,6 +77,7 @@ export function ControlPanel({
                 step={0.05}
                 onChange={onAmplitudeChange}
                 locked={amplitudeLocked}
+                discoveredValue={discoveries?.amplitude}
               />
             )}
             {showFrequency && (
@@ -80,6 +89,7 @@ export function ControlPanel({
                 step={0.1}
                 onChange={onFrequencyChange}
                 locked={frequencyLocked}
+                discoveredValue={discoveries?.frequency}
               />
             )}
             {showPhase && (
@@ -92,6 +102,7 @@ export function ControlPanel({
                 onChange={onPhaseChange}
                 formatValue={formatPhase}
                 locked={phaseLocked}
+                discoveredValue={discoveries?.phase}
               />
             )}
           </div>

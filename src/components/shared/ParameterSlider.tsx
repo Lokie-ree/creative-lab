@@ -10,6 +10,7 @@ interface ParameterSliderProps {
   onChange: (value: number) => void
   formatValue?: (value: number) => string
   locked?: boolean
+  discoveredValue?: number | null  // Show "You discovered" badge when set
   className?: string
 }
 
@@ -22,21 +23,38 @@ export function ParameterSlider({
   onChange,
   formatValue,
   locked = false,
+  discoveredValue,
   className = "",
 }: ParameterSliderProps) {
   const displayValue = formatValue ? formatValue(value) : value.toFixed(2)
+  const isDiscovered = discoveredValue !== null && discoveredValue !== undefined
 
   return (
-    <div className={cn("flex flex-col gap-2", locked && "opacity-50", className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
+      {/* Discovery badge */}
+      {isDiscovered && locked && (
+        <div className="text-xs text-[#c8e44c] flex items-center gap-1">
+          <span>✓</span>
+          <span>You discovered</span>
+        </div>
+      )}
+
       <div className="flex justify-between text-sm">
-        <label className={cn("text-[#888888]", locked && "flex items-center gap-1")}>
+        <label className={cn(
+          "text-[#888888]",
+          isDiscovered && locked && "text-[#c8e44c]"
+        )}>
           {label}
-          {locked && <span className="text-[#c8e44c]">✓</span>}
         </label>
-        <span className={cn("font-mono tabular-nums", locked ? "text-[#888888]" : "text-[#c8e44c]")}>
+        <span className={cn(
+          "font-mono tabular-nums",
+          locked ? "text-[#888888]" : "text-[#c8e44c]",
+          isDiscovered && locked && "text-[#c8e44c]"
+        )}>
           {displayValue}
         </span>
       </div>
+
       <Slider
         value={[value]}
         min={min}
@@ -44,7 +62,7 @@ export function ParameterSlider({
         step={step}
         onValueChange={([v]) => onChange(v)}
         disabled={locked}
-        className={cn(locked && "cursor-not-allowed")}
+        className={cn(locked && "cursor-not-allowed opacity-50")}
       />
     </div>
   )

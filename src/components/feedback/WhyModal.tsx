@@ -4,36 +4,56 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogClose,
 } from "@/components/ui/dialog"
 
 interface WhyModalProps {
   open: boolean
   onClose: () => void
-  title?: string
   content: string
+  isCorrect: boolean
+  onTryAgain?: () => void
 }
 
 export function WhyModal({
   open,
   onClose,
-  title = "Why?",
   content,
+  isCorrect,
+  onTryAgain,
 }: WhyModalProps) {
+  const title = isCorrect ? "Here's why that works" : "Here's what's happening"
+  const accentColor = isCorrect ? "#c8e44c" : "#f5a623"
+
+  const handleTryAgain = () => {
+    onClose()
+    onTryAgain?.()
+  }
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="bg-[#12121a] border-[#2a2a3a] text-[#e0e0e0] max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-[#c8e44c]">{title}</DialogTitle>
+          <DialogTitle style={{ color: accentColor }}>{title}</DialogTitle>
           <DialogDescription className="text-[#e0e0e0] text-base leading-relaxed pt-2">
             {content}
           </DialogDescription>
         </DialogHeader>
-        <DialogClose asChild>
-          <button className="mt-4 w-full px-4 py-3 rounded-lg bg-[#c8e44c] text-[#0a0a0f] font-medium hover:bg-[#d4f06a] transition-colors">
+
+        {isCorrect ? (
+          <button
+            onClick={onClose}
+            className="mt-4 w-full px-4 py-3 rounded-lg bg-[#c8e44c] text-[#0a0a0f] font-medium hover:bg-[#d4f06a] transition-colors"
+          >
             Got it
           </button>
-        </DialogClose>
+        ) : (
+          <button
+            onClick={handleTryAgain}
+            className="mt-4 w-full px-4 py-3 rounded-lg bg-[#f5a623] text-[#0a0a0f] font-medium hover:bg-[#f7b84a] transition-colors"
+          >
+            Try Again
+          </button>
+        )}
       </DialogContent>
     </Dialog>
   )
