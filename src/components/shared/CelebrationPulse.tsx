@@ -1,12 +1,13 @@
 import { useRef, useEffect } from "react"
 import gsap from "gsap"
+import { colors } from "@/lib/colors"
 
 interface CelebrationPulseProps {
   trigger: number  // Increment to trigger celebration
   color?: string
 }
 
-export function CelebrationPulse({ trigger, color = "#c8e44c" }: CelebrationPulseProps) {
+export function CelebrationPulse({ trigger, color = colors.accent.primary }: CelebrationPulseProps) {
   const pulseRef = useRef<HTMLDivElement>(null)
   const prevTriggerRef = useRef(0)
 

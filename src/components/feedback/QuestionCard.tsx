@@ -21,9 +21,9 @@ export function QuestionCard({
   className = "",
 }: QuestionCardProps) {
   return (
-    <Card className={`bg-[#12121a] border-[#2a2a3a] ${className}`}>
+    <Card className={`bg-[var(--lab-surface)] border-[var(--lab-border)] ${className}`}>
       <CardHeader className="pb-4">
-        <CardTitle className="text-[#e0e0e0] text-lg font-medium">
+        <CardTitle className="text-[var(--lab-text)] text-lg font-medium">
           {question}
         </CardTitle>
       </CardHeader>
@@ -38,8 +38,8 @@ export function QuestionCard({
                 transition-all duration-200
                 ${
                   selectedValue === choice.value
-                    ? "border-[#c8e44c] bg-[#c8e44c]/10 text-[#c8e44c]"
-                    : "border-[#2a2a3a] text-[#e0e0e0] hover:border-[#888888]"
+                    ? "border-[var(--lab-accent)] bg-[var(--lab-accent)]/10 text-[var(--lab-accent)]"
+                    : "border-[var(--lab-border)] text-[var(--lab-text)] hover:border-[var(--lab-border-muted)]"
                 }
               `}
             >

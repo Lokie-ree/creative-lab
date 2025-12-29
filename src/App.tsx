@@ -325,7 +325,7 @@ function App() {
   const isParameterStage = stage === 'amplitude' || stage === 'frequency' || stage === 'phase'
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-[#0a0a0f]">
+    <div className="h-screen w-screen flex flex-col" style={{ backgroundColor: 'var(--lab-bg)' }}>
       {/* Progress bar */}
       <div className="absolute top-0 left-0 right-0 z-20">
         <ProgressBar current={getStageNumber(stage)} total={TOTAL_STAGES} />
@@ -353,7 +353,7 @@ function App() {
       {/* Matched indicator for challenge stage */}
       {hasMatched && stage === 'challenge' && (
         <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
-          <span className="text-[#c8e44c] text-lg font-medium">Matched!</span>
+          <span className="text-lg font-medium" style={{ color: 'var(--lab-accent)' }}>Matched!</span>
         </div>
       )}
 
@@ -388,9 +388,21 @@ function App() {
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
           <button
             onClick={handleContinue}
-            className="px-6 py-3 bg-transparent border border-[#c8e44c]/50 text-[#c8e44c] rounded-lg
-                       hover:bg-[#c8e44c]/10 hover:border-[#c8e44c] transition-all duration-300
-                       text-sm font-medium tracking-wide"
+            className="px-6 py-3 bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide"
+            style={{
+              borderColor: 'rgba(200, 228, 76, 0.5)', // --lab-accent with 50% opacity
+              color: 'var(--lab-accent)',
+              borderStyle: 'solid',
+              borderWidth: '1px',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(200, 228, 76, 0.1)' // --lab-accent with 10% opacity
+              e.currentTarget.style.borderColor = 'var(--lab-accent)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.borderColor = 'rgba(200, 228, 76, 0.5)'
+            }}
           >
             Continue →
           </button>

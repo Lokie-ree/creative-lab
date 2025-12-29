@@ -3,6 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { Line } from "@react-three/drei"
 import * as THREE from "three"
 import { generateCirclePoints } from "@/lib/utils"
+import { colors } from "@/lib/colors"
 
 interface UnitCircleProps {
   amplitude: number
@@ -24,7 +25,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
   function UnitCircle({
     frequency,
     phase,
-    color = "#c8e44c",
+    color = colors.accent.primary,
     opacity = 1,
     isPaused = false,
     onPauseChange,
@@ -148,7 +149,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
     return (
       <group ref={groupRef}>
         {/* Circle outline */}
-        <Line points={circlePoints} color="#4a5568" lineWidth={1.5} />
+        <Line points={circlePoints} color={colors.text.muted} lineWidth={1.5} />
 
         {/* Radius line from center to point */}
         <primitive object={radiusLine} />
@@ -161,7 +162,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
         >
           <circleGeometry args={[draggable ? 0.12 : 0.08, 32]} />
           <meshBasicMaterial
-            color={isDragging ? "#d4f06a" : color}
+            color={isDragging ? colors.accent.primaryHover : color}
             transparent={opacity < 1}
             opacity={opacity}
           />
@@ -181,7 +182,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
         {/* Center dot */}
         <mesh position={[0, 0, 0]}>
           <circleGeometry args={[0.03, 16]} />
-          <meshBasicMaterial color="#4a5568" />
+          <meshBasicMaterial color={colors.text.muted} />
         </mesh>
 
         {/* Dynamic glow based on match proximity */}

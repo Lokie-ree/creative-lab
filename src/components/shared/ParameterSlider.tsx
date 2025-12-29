@@ -33,7 +33,7 @@ export function ParameterSlider({
     <div className={cn("flex flex-col gap-2", className)}>
       {/* Discovery badge */}
       {isDiscovered && locked && (
-        <div className="text-xs text-[#c8e44c] flex items-center gap-1">
+        <div className="text-xs text-[var(--lab-accent)] flex items-center gap-1">
           <span>✓</span>
           <span>You discovered</span>
         </div>
@@ -41,15 +41,15 @@ export function ParameterSlider({
 
       <div className="flex justify-between text-sm">
         <label className={cn(
-          "text-[#888888]",
-          isDiscovered && locked && "text-[#c8e44c]"
+          "text-[var(--lab-text-muted)]",
+          isDiscovered && locked && "text-[var(--lab-accent)]"
         )}>
           {label}
         </label>
         <span className={cn(
           "font-mono tabular-nums",
-          locked ? "text-[#888888]" : "text-[#c8e44c]",
-          isDiscovered && locked && "text-[#c8e44c]"
+          locked ? "text-[var(--lab-text-muted)]" : "text-[var(--lab-accent)]",
+          isDiscovered && locked && "text-[var(--lab-accent)]"
         )}>
           {displayValue}
         </span>

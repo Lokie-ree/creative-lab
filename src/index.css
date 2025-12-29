@@ -118,26 +118,29 @@
    Signal Lab Design Tokens
 
    Custom colors for the Signal Lab experience.
-   Edit these values to customize the theme.
-   Use tools like tweakcn for visual editing.
+   These correspond to colors defined in src/lib/colors.ts
+   Edit values in colors.ts to maintain consistency.
 
    Usage in components:
    - CSS: var(--lab-accent)
    - Tailwind arbitrary: text-[var(--lab-accent)]
+   - JS/TS: import { colors } from '@/lib/colors'
    =========================================== */
 :root {
   /* Backgrounds */
   --lab-bg: #0a0a0f;
   --lab-surface: #12121a;
   --lab-surface-elevated: #1a1a24;
+  --lab-bg-elevated: #2a2a3a;
 
-  /* Accent - Primary interactive color (lime green) */
+  /* Accent - Primary interactive color (lime green / Brilliant Pear) */
   --lab-accent: #c8e44c;
   --lab-accent-hover: #d4f06a;
-  --lab-accent-muted: #888888;
+  --lab-accent-muted: #d4ed5c;
 
   /* Accent Warm - Learning moments (amber) */
   --lab-accent-warm: #f5a623;
+  --lab-accent-warm-hover: #f7b84a;
 
   /* Geometry - Visualization elements (blue) */
   --lab-geometry: #3B82F6;
@@ -146,10 +149,19 @@
   --lab-text: #e0e0e0;
   --lab-text-muted: #888888;
   --lab-text-dim: #6b7280;
+  --lab-text-secondary: #888888;
 
   /* Borders */
   --lab-border: #2a2a3a;
   --lab-border-subtle: #1f1f2a;
+  --lab-border-muted: #888888;
+
+  /* Ghost/target visualization */
+  --lab-ghost: #888888;
+
+  /* Semantic colors */
+  --lab-success: #c8e44c;
+  --lab-warning: #f5a623;
 }
 
 @layer base {
