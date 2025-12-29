@@ -1,6 +1,7 @@
 import { useRef } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
+import { colors } from "@/lib/colors"
 
 interface FormulaPreviewProps {
   discoveries: {
@@ -31,8 +32,8 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
     if (discoveries.amplitude !== null && amplitudeRef.current) {
       gsap.fromTo(
         amplitudeRef.current,
-        { scale: 1.3, color: "#c8e44c" },
-        { scale: 1, color: "#c8e44c", duration: 0.4, ease: "back.out(1.7)" }
+        { scale: 1.3, color: colors.accent.primary },
+        { scale: 1, color: colors.accent.primary, duration: 0.4, ease: "back.out(1.7)" }
       )
     }
   }, { dependencies: [discoveries.amplitude], scope: containerRef })
@@ -42,8 +43,8 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
     if (discoveries.frequency !== null && frequencyRef.current) {
       gsap.fromTo(
         frequencyRef.current,
-        { scale: 1.3, color: "#c8e44c" },
-        { scale: 1, color: "#c8e44c", duration: 0.4, ease: "back.out(1.7)" }
+        { scale: 1.3, color: colors.accent.primary },
+        { scale: 1, color: colors.accent.primary, duration: 0.4, ease: "back.out(1.7)" }
       )
     }
   }, { dependencies: [discoveries.frequency], scope: containerRef })
@@ -53,8 +54,8 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
     if (discoveries.phase !== null && phaseRef.current) {
       gsap.fromTo(
         phaseRef.current,
-        { scale: 1.3, color: "#c8e44c" },
-        { scale: 1, color: "#c8e44c", duration: 0.4, ease: "back.out(1.7)" }
+        { scale: 1.3, color: colors.accent.primary },
+        { scale: 1, color: colors.accent.primary, duration: 0.4, ease: "back.out(1.7)" }
       )
     }
   }, { dependencies: [discoveries.phase], scope: containerRef })
@@ -70,49 +71,49 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
     <div
       ref={containerRef}
       className={`
-        bg-[#12121a]/90 backdrop-blur-sm border border-[#2a2a3a] rounded-xl
+        bg-[var(--lab-surface)]/90 backdrop-blur-sm border border-[var(--lab-border)] rounded-xl
         px-4 py-3 font-mono text-lg
         ${className}
       `}
     >
-      <div className="text-[#888888] text-xs uppercase tracking-wider mb-1">
+      <div className="text-[var(--lab-text-muted)] text-xs uppercase tracking-wider mb-1">
         You're building
       </div>
       <div className="flex items-center gap-1 flex-wrap">
-        <span className="text-[#888888]">y</span>
-        <span className="text-[#888888]">=</span>
+        <span className="text-[var(--lab-text-muted)]">y</span>
+        <span className="text-[var(--lab-text-muted)]">=</span>
 
         {/* Amplitude */}
         <span
           ref={amplitudeRef}
-          className={discoveries.amplitude !== null ? "text-[#c8e44c]" : "text-[#4a5568]"}
+          className={discoveries.amplitude !== null ? "text-[var(--lab-accent)]" : "text-[var(--lab-text-muted)]"}
         >
           {discoveries.amplitude !== null ? discoveries.amplitude.toFixed(1) : "?"}
         </span>
 
-        <span className="text-[#888888]">×</span>
-        <span className="text-[#888888]">sin(</span>
+        <span className="text-[var(--lab-text-muted)]">×</span>
+        <span className="text-[var(--lab-text-muted)]">sin(</span>
 
         {/* Frequency */}
         <span
           ref={frequencyRef}
-          className={discoveries.frequency !== null ? "text-[#c8e44c]" : "text-[#4a5568]"}
+          className={discoveries.frequency !== null ? "text-[var(--lab-accent)]" : "text-[var(--lab-text-muted)]"}
         >
           {discoveries.frequency !== null ? discoveries.frequency.toFixed(1) : "?"}
         </span>
 
-        <span className="text-[#888888]">t</span>
-        <span className="text-[#888888]">+</span>
+        <span className="text-[var(--lab-text-muted)]">t</span>
+        <span className="text-[var(--lab-text-muted)]">+</span>
 
         {/* Phase */}
         <span
           ref={phaseRef}
-          className={discoveries.phase !== null ? "text-[#c8e44c]" : "text-[#4a5568]"}
+          className={discoveries.phase !== null ? "text-[var(--lab-accent)]" : "text-[var(--lab-text-muted)]"}
         >
           {discoveries.phase !== null ? formatPhase(discoveries.phase) : "?"}
         </span>
 
-        <span className="text-[#888888]">)</span>
+        <span className="text-[var(--lab-text-muted)]">)</span>
       </div>
     </div>
   )

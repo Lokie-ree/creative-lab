@@ -12,7 +12,7 @@ export function ProgressBar({ current, total, className = "" }: ProgressBarProps
   return (
     <Progress
       value={progress}
-      className={`h-1 bg-[#2a2a3a] ${className}`}
+      className={`h-1 bg-[var(--lab-border)] ${className}`}
     />
   )
 }

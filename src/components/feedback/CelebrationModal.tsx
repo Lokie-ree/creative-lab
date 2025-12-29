@@ -85,11 +85,11 @@ export function CelebrationModal({
     const base = "px-4 py-3 rounded-lg font-medium transition-colors"
     switch (variant) {
       case "primary":
-        return `${base} bg-[#c8e44c] text-[#0a0a0f] hover:bg-[#d4f06a]`
+        return `${base} bg-[var(--lab-accent)] text-[var(--lab-bg)] hover:bg-[var(--lab-accent-hover)]`
       case "ghost":
-        return `${base} text-[#888888] hover:text-[#e0e0e0]`
+        return `${base} text-[var(--lab-text-muted)] hover:text-[var(--lab-text)]`
       default:
-        return `${base} border border-[#2a2a3a] text-[#888888] hover:border-[#888888] hover:text-[#e0e0e0]`
+        return `${base} border border-[var(--lab-border)] text-[var(--lab-text-muted)] hover:border-[var(--lab-border-muted)] hover:text-[var(--lab-text)]`
     }
   }
 
@@ -99,15 +99,15 @@ export function CelebrationModal({
     <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
       <div
         ref={containerRef}
-        className="bg-[#0a0a0f]/95 backdrop-blur-lg border border-[#c8e44c]/30 rounded-2xl p-8 max-w-md mx-4 pointer-events-auto shadow-[0_0_60px_rgba(200,228,76,0.2)]"
+        className="bg-[var(--lab-bg)]/95 backdrop-blur-lg border border-[var(--lab-accent)]/30 rounded-2xl p-8 max-w-md mx-4 pointer-events-auto shadow-[0_0_60px_rgba(200,228,76,0.2)]"
       >
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="text-[#c8e44c] text-sm uppercase tracking-widest mb-2">
+          <div className="text-[var(--lab-accent)] text-sm uppercase tracking-widest mb-2">
             {title}
           </div>
           {subtitle && (
-            <div className="text-[#e0e0e0] text-xl font-medium">{subtitle}</div>
+            <div className="text-[var(--lab-text)] text-xl font-medium">{subtitle}</div>
           )}
         </div>
 

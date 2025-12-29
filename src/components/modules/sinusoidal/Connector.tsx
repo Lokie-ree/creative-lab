@@ -1,6 +1,7 @@
 import { useRef, useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
+import { colors } from "@/lib/colors"
 
 interface ConnectorProps {
   circleX: number  // World X position of circle center
@@ -20,7 +21,7 @@ export function Connector({ circleX, waveX, frequency, phase, amplitude, isPause
     const positions = new Float32Array([0, 0, 0, 1, 0, 0])
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3))
     const material = new THREE.LineDashedMaterial({
-      color: "#c8e44c",
+      color: colors.accent.primary,
       dashSize: 0.1,
       gapSize: 0.05,
       transparent: true,
@@ -66,7 +67,7 @@ export function Connector({ circleX, waveX, frequency, phase, amplitude, isPause
       {/* Dot at the wave's live point */}
       <mesh ref={dotRef}>
         <circleGeometry args={[0.06, 32]} />
-        <meshBasicMaterial color="#c8e44c" />
+        <meshBasicMaterial color={colors.accent.primary} />
       </mesh>
     </group>
   )

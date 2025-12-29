@@ -4,6 +4,7 @@ import { UnitCircle } from "./UnitCircle"
 import { SineWave } from "./SineWave"
 import { Connector } from "./Connector"
 import { calculateMatchScores, scoreToGlowIntensity } from "@/hooks/useMatchScore"
+import { colors } from "@/lib/colors"
 
 type Stage = 'observe' | 'amplitude' | 'frequency' | 'phase' | 'challenge' | 'reveal'
 
@@ -103,7 +104,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
               amplitude={ghostParams.a}
               frequency={ghostParams.f}
               phase={ghostParams.p}
-              color="#888888"
+              color={colors.ghost}
               opacity={ghostOpacity}
             />
           )}
@@ -117,7 +118,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
               amplitude={ghostParams.a}
               frequency={ghostParams.f}
               phase={ghostParams.p}
-              color="#888888"
+              color={colors.ghost}
               opacity={ghostOpacity}
             />
           )}
@@ -153,7 +154,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
             amplitude={ghostParams.a}
             frequency={ghostParams.f}
             phase={ghostParams.p}
-            color="#888888"
+            color={colors.ghost}
             opacity={ghostOpacity}
           />
         )}
@@ -177,7 +178,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
             amplitude={ghostParams.a}
             frequency={ghostParams.f}
             phase={ghostParams.p}
-            color="#888888"
+            color={colors.ghost}
             opacity={ghostOpacity}
           />
         )}
@@ -199,7 +200,7 @@ export function Scene({ amplitude, frequency, phase, target, stage, isPaused, on
     <Canvas
       dpr={[1, 1.5]}
       camera={{ position: [0, 0, 6], fov: 50 }}
-      style={{ background: "#0a0a0f" }}
+      style={{ background: colors.background.primary }}
     >
       <Visualization
         amplitude={amplitude}
