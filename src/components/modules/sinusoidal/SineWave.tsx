@@ -1,6 +1,7 @@
 import { useRef, useMemo, useImperativeHandle, forwardRef } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
+import { colors } from "@/lib/colors"
 
 interface SineWaveProps {
   amplitude: number
@@ -24,7 +25,7 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
     amplitude,
     frequency,
     phase,
-    color = "#c8e44c",
+    color = colors.accent.primary,
     opacity = 1,
     isPaused = false,
     glowIntensity = 0,

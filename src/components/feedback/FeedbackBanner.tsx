@@ -15,10 +15,10 @@ export function FeedbackBanner({
   className = "",
 }: FeedbackBannerProps) {
   // Warm amber for "learning moment" state, accent green for correct
-  const bgColor = correct ? "bg-[#c8e44c]/20" : "bg-[#f5a623]/20"
-  const borderColor = correct ? "border-[#c8e44c]" : "border-[#f5a623]"
-  const textColor = correct ? "text-[#c8e44c]" : "text-[#f5a623]"
-  const iconColor = correct ? "text-[#c8e44c]" : "text-[#f5a623]"
+  const bgColor = correct ? "bg-[var(--lab-accent)]/20" : "bg-[var(--lab-accent-warm)]/20"
+  const borderColor = correct ? "border-[var(--lab-accent)]" : "border-[var(--lab-accent-warm)]"
+  const textColor = correct ? "text-[var(--lab-accent)]" : "text-[var(--lab-accent-warm)]"
+  const iconColor = correct ? "text-[var(--lab-accent)]" : "text-[var(--lab-accent-warm)]"
 
   return (
     <Alert
@@ -44,7 +44,7 @@ export function FeedbackBanner({
         <div className="flex items-center gap-3">
           <button
             onClick={onWhy}
-            className="px-4 py-2 rounded-lg bg-[#2a2a3a] text-[#888888] hover:text-[#e0e0e0] transition-colors"
+            className="px-4 py-2 rounded-lg bg-[var(--lab-bg-elevated)] text-[var(--lab-text-muted)] hover:text-[var(--lab-text)] transition-colors"
           >
             Why?
           </button>
@@ -53,8 +53,8 @@ export function FeedbackBanner({
             className={`
               px-6 py-2 rounded-lg font-medium transition-colors
               ${correct
-                ? "bg-[#c8e44c] text-[#0a0a0f] hover:bg-[#d4f06a]"
-                : "bg-[#f5a623] text-[#0a0a0f] hover:bg-[#f7b84a]"
+                ? "bg-[var(--lab-accent)] text-[var(--lab-bg)] hover:bg-[var(--lab-accent-hover)]"
+                : "bg-[var(--lab-accent-warm)] text-[var(--lab-bg)] hover:bg-[var(--lab-accent-warm-hover)]"
               }
             `}
           >

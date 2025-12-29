@@ -110,7 +110,7 @@ export function ControlPanel({
           {/* Qualitative feedback - no numbers shown */}
           {matchScore !== undefined && matchScore > 0 && getFeedbackText(matchScore) && (
             <div className="flex items-center justify-center md:justify-end">
-              <div className="text-[#c8e44c] text-lg font-medium animate-pulse">
+              <div className="text-[var(--lab-accent)] text-lg font-medium animate-pulse">
                 {getFeedbackText(matchScore)}
               </div>
             </div>
