@@ -1,5 +1,7 @@
 # Signal Lab: Design Spec
 
+> **STATUS: FUTURE VISION** — This document captures a compelling redesign direction explored during development. The current implementation follows the staged approach documented in MASTER.md. This spec is preserved for future iteration.
+
 > Students discover that circular motion and wave motion are the same phenomenon by tuning an oscillator to decode radio transmissions.
 
 ## Vision
