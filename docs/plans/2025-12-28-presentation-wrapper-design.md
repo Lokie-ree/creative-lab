@@ -1,8 +1,9 @@
 # Presentation Wrapper Design
 
-> **Purpose:** Design spec for hero, transitions, escape hatch, celebration modal, and dialogs wrapping the sine/cosine module.
+> **Purpose:** Design spec for hero, transitions, escape hatch, celebration modal, and dialogs wrapping the sine wave module.
 >
 > **Date:** December 28, 2025
+> **Updated:** December 30, 2025 (aligned with v2 module — phase parameter removed)
 > **Status:** Ready for implementation
 
 ---
@@ -184,8 +185,8 @@ Shows what the user accomplished.
 **Content:**
 - Success icon + "You built the equation" heading
 - "Through exploration, not explanation" subtext
-- Formula display: `y = A × sin(ft + φ)` with discovered values highlighted
-- 3-column grid: Amplitude, Frequency, Phase with values and labels
+- Formula display: `y = A × sin(ft)` with discovered values highlighted
+- 2-column grid: Amplitude, Frequency with values and labels
 
 **If accessed via Skip to End:**
 - Show placeholder: "Complete the challenge to see your results"

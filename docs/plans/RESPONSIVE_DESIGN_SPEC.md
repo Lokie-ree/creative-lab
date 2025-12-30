@@ -1,7 +1,8 @@
 # Responsive Design Specification
 
-> **Purpose:** Design guidelines for the sine/cosine exploration module responsive layout
+> **Purpose:** Design guidelines for the sine wave exploration module responsive layout
 > **Date:** December 29, 2025
+> **Updated:** December 30, 2025 (aligned with v2 module — phase parameter removed, max 2 sliders)
 > **Status:** Ready for implementation
 
 ---
@@ -55,10 +56,10 @@ The slider container that appears during exploration and challenge stages.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
-│  │ Amplitude   │  │ Frequency   │  │ Phase       │  Feedback│
-│  │ [slider]    │  │ [slider]    │  │ [slider]    │  text    │
-│  └─────────────┘  └─────────────┘  └─────────────┘          │
+│  ┌─────────────┐  ┌─────────────┐                           │
+│  │ Amplitude   │  │ Frequency   │               Feedback    │
+│  │ [slider]    │  │ [slider]    │               text        │
+│  └─────────────┘  └─────────────┘                           │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -67,20 +68,17 @@ The slider container that appears during exploration and challenge stages.
 | Container | `bg-black/80 backdrop-blur-sm` |
 | Padding | `px-8 py-6` |
 | Max width | `max-w-4xl mx-auto` |
-| Grid | `grid-cols-3 gap-8` (when 3 sliders visible) |
+| Grid | `grid-cols-2 gap-8` (when 2 sliders visible) |
 | Feedback | Inline to the right of sliders |
 
 #### Mobile (<768px)
 
 ```
 ┌────────────────────────┐
-│ ✓ Amplitude      2.0   │
+│ ✓ Amplitude      1.5   │
 │ [slider]               │
 ├────────────────────────┤
-│ ✓ Frequency      1.9   │
-│ [slider]               │
-├────────────────────────┤
-│ Phase            0.5π  │
+│ ✓ Frequency      2.0   │
 │ [slider]               │
 ├────────────────────────┤
 │     Getting closer...  │
@@ -105,11 +103,9 @@ className="max-w-4xl mx-auto"
 // Grid (dynamic based on visible slider count)
 // 1 slider: always single column
 // 2 sliders: single column on mobile, 2 columns on md+
-// 3 sliders: single column on mobile, 3 columns on md+
 const gridCols = {
   1: 'grid-cols-1',
   2: 'grid-cols-1 md:grid-cols-2',
-  3: 'grid-cols-1 md:grid-cols-3',
 }[visibleCount]
 
 className={`grid ${gridCols} gap-4 md:gap-8`}
@@ -179,7 +175,7 @@ The label and value MUST have a gap to prevent collision:
 
 ### 3. Animated Panel (Module.tsx exploration stages)
 
-Floating control panel during amplitude/frequency/phase exploration stages.
+Floating control panel during amplitude/frequency exploration stages.
 
 #### Current Problem
 
@@ -203,14 +199,13 @@ Alternative (simpler):
 // Width based on viewport with max constraint
 className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-sm"  // 1 slider
 className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-md"  // 2 sliders
-className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-lg"  // 3 sliders
 ```
 
 | Stage | Max Width |
 |-------|-----------|
 | Amplitude (1 slider) | `max-w-sm` (384px) |
 | Frequency (2 sliders) | `max-w-md` (448px) |
-| Phase (3 sliders) | `max-w-lg` (512px) |
+| Challenge (2 sliders) | `max-w-md` (448px) |
 
 ---
 
@@ -443,7 +438,7 @@ When floating controls or feedback banner are visible, add bottom padding to pre
 |-------|-------|-------|
 | `max-w-sm` | 384px | Single slider panel |
 | `max-w-md` | 448px | Two slider panel |
-| `max-w-lg` | 512px | Three slider panel, modal |
+| `max-w-lg` | 512px | Modal |
 | `max-w-3xl` | 768px | Control panel inner content |
 | `max-w-4xl` | 896px | Full-width container inner |
 
@@ -476,7 +471,7 @@ When floating controls or feedback banner are visible, add bottom padding to pre
 ### Module.tsx (AnimatedPanel widths)
 - [ ] Amplitude: `w-[calc(100vw-2rem)] max-w-sm`
 - [ ] Frequency: `w-[calc(100vw-2rem)] max-w-md`
-- [ ] Phase: `w-[calc(100vw-2rem)] max-w-lg`
+- [ ] Challenge: `w-[calc(100vw-2rem)] max-w-md`
 - [ ] Add bottom padding to visualization when controls floating
 
 ### FeedbackBanner.tsx
