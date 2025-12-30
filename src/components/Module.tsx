@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react"
+import { cn } from "@/lib/utils"
 import { Scene } from "./modules/sinusoidal/Scene"
 import { ControlPanel } from "./controls/ControlPanel"
 import { FormulaPreview } from "./feedback/FormulaPreview"
@@ -312,13 +313,15 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       <CelebrationPulse trigger={celebrationCount} />
 
       {/* Formula preview - shows building equation */}
-      <div className="absolute top-8 right-4 z-10">
+      {/* Mobile: pushed down to avoid escape hatch, Desktop: top-right corner */}
+      <div className="absolute top-16 right-2 sm:top-8 sm:right-4 z-10 max-w-[calc(100vw-1rem)]">
         <FormulaPreview discoveries={discoveries} />
       </div>
 
       {/* Explore prompt */}
+      {/* Mobile: positioned after escape hatch, Desktop: centered */}
       {promptContent && (
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
+        <div className="absolute top-4 sm:top-8 left-16 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-10 sm:w-auto">
           <ExplorePrompt
             text={promptContent.text}
             subtext={promptContent.subtext}
@@ -329,13 +332,16 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Matched indicator for challenge stage */}
       {hasMatched && stage === 'challenge' && (
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
-          <span className="text-lg font-medium" style={{ color: 'var(--lab-accent)' }}>Matched!</span>
+        <div className="absolute top-4 sm:top-8 left-1/2 -translate-x-1/2 z-10">
+          <span className="text-base sm:text-lg font-medium" style={{ color: 'var(--lab-accent)' }}>Matched!</span>
         </div>
       )}
 
       {/* Visualization area */}
-      <div className="flex-1 min-h-0">
+      <div className={cn(
+        "flex-1 min-h-0",
+        (isParameterStage && subStage === 'feedback') && "pb-20 sm:pb-24"
+      )}>
         <Scene
           amplitude={amplitude}
           frequency={frequency}
@@ -350,7 +356,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Question card - appears after match */}
       {isParameterStage && subStage === 'question' && currentQuestion && (
-        <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-20 w-96 max-w-[90vw]">
+        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
           <QuestionCard
             question={currentQuestion.question}
             choices={currentQuestion.choices}
@@ -362,24 +368,10 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Continue button - Stage 1 only */}
       {stage === 'observe' && showContinue && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10">
           <button
             onClick={handleContinue}
-            className="px-6 py-3 bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide"
-            style={{
-              borderColor: 'rgba(200, 228, 76, 0.5)', // --lab-accent with 50% opacity
-              color: 'var(--lab-accent)',
-              borderStyle: 'solid',
-              borderWidth: '1px',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(200, 228, 76, 0.1)' // --lab-accent with 10% opacity
-              e.currentTarget.style.borderColor = 'var(--lab-accent)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.borderColor = 'rgba(200, 228, 76, 0.5)'
-            }}
+            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-[var(--lab-accent)]/50 text-[var(--lab-accent)] hover:bg-[var(--lab-accent)]/10 hover:border-[var(--lab-accent)]"
           >
             Continue →
           </button>
@@ -390,7 +382,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'amplitude' && subStage === 'explore' && (
         <AnimatedPanel
           transitionKey="amplitude"
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-72"
+          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[90vw] max-w-sm px-3 sm:px-4"
         >
           <ControlPanel
             amplitude={amplitude}
@@ -409,7 +401,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'frequency' && subStage === 'explore' && (
         <AnimatedPanel
           transitionKey="frequency"
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-80"
+          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[90vw] max-w-md px-3 sm:px-4"
         >
           <ControlPanel
             amplitude={amplitude}
@@ -430,7 +422,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'phase' && subStage === 'explore' && (
         <AnimatedPanel
           transitionKey="phase"
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-96"
+          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[90vw] max-w-lg px-3 sm:px-4"
         >
           <ControlPanel
             amplitude={amplitude}
@@ -449,15 +441,20 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Control panel for challenge stage */}
       {stage === 'challenge' && (
-        <ControlPanel
-          amplitude={amplitude}
-          frequency={frequency}
-          phase={phase}
-          onAmplitudeChange={setAmplitude}
-          onFrequencyChange={setFrequency}
-          onPhaseChange={setPhase}
-          matchScore={matchScore}
-        />
+        <AnimatedPanel
+          transitionKey="challenge"
+          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[90vw] max-w-md px-3 sm:px-4"
+        >
+          <ControlPanel
+            amplitude={amplitude}
+            frequency={frequency}
+            phase={phase}
+            onAmplitudeChange={setAmplitude}
+            onFrequencyChange={setFrequency}
+            onPhaseChange={setPhase}
+            matchScore={matchScore}
+          />
+        </AnimatedPanel>
       )}
 
       {/* Feedback banner */}

@@ -29,7 +29,7 @@ export function EscapeHatch({
                 R
               </AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium">Randall LaPoint</span>
+            <span className="hidden sm:inline text-sm font-medium">Randall LaPoint</span>
             <ChevronDown className="w-4 h-4" />
           </button>
         </DropdownMenuTrigger>
