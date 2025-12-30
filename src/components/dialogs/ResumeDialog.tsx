@@ -101,18 +101,18 @@ const PROJECTS = [
 export function ResumeDialog({ open, onOpenChange }: ResumeDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-zinc-900 border-zinc-800 text-zinc-100">
-        <DialogHeader className="text-center pb-4 border-b border-zinc-800">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-[var(--lab-surface)] border-[var(--lab-border)] text-[var(--lab-text)]">
+        <DialogHeader className="text-center pb-4 border-b border-[var(--lab-border)]">
           <DialogTitle className="text-2xl font-semibold text-white">
             Randall LaPoint, Jr.
           </DialogTitle>
-          <p className="text-zinc-400 mt-1">
+          <p className="text-[var(--lab-text-muted)] mt-1">
             Math Educator • Full-Stack Developer • Learning Designer
           </p>
-          <div className="flex items-center justify-center gap-4 mt-3 text-sm text-zinc-500">
+          <div className="flex items-center justify-center gap-4 mt-3 text-sm text-[var(--lab-text-dim)]">
             <a
               href="mailto:rplapointjr@gmail.com"
-              className="flex items-center gap-1 hover:text-cyan-400 transition-colors"
+              className="flex items-center gap-1 hover:text-[var(--lab-accent)] transition-colors"
             >
               <Mail className="w-4 h-4" />
               rplapointjr@gmail.com
@@ -127,7 +127,7 @@ export function ResumeDialog({ open, onOpenChange }: ResumeDialogProps) {
         <div className="space-y-6 py-4">
           {/* Education */}
           <section>
-            <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wide mb-3">
+            <h3 className="text-sm font-semibold text-[var(--lab-accent)] uppercase tracking-wide mb-3">
               Education
             </h3>
             <div className="space-y-3">
@@ -135,9 +135,9 @@ export function ResumeDialog({ open, onOpenChange }: ResumeDialogProps) {
                 <div key={i} className="flex justify-between items-start">
                   <div>
                     <p className="text-white font-medium">{edu.degree}</p>
-                    <p className="text-sm text-zinc-500">{edu.institution}</p>
+                    <p className="text-sm text-[var(--lab-text-dim)]">{edu.institution}</p>
                   </div>
-                  <span className="text-sm text-zinc-500">{edu.year}</span>
+                  <span className="text-sm text-[var(--lab-text-dim)]">{edu.year}</span>
                 </div>
               ))}
             </div>
@@ -145,7 +145,7 @@ export function ResumeDialog({ open, onOpenChange }: ResumeDialogProps) {
 
           {/* Experience */}
           <section>
-            <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wide mb-3">
+            <h3 className="text-sm font-semibold text-[var(--lab-accent)] uppercase tracking-wide mb-3">
               Experience
             </h3>
             <div className="space-y-5">
@@ -154,15 +154,15 @@ export function ResumeDialog({ open, onOpenChange }: ResumeDialogProps) {
                   <div className="flex justify-between items-start mb-1">
                     <div>
                       <p className="text-white font-medium">{exp.position}</p>
-                      <p className="text-sm text-zinc-500">{exp.organization}</p>
+                      <p className="text-sm text-[var(--lab-text-dim)]">{exp.organization}</p>
                     </div>
-                    <span className="text-sm text-zinc-500 shrink-0 ml-4">
+                    <span className="text-sm text-[var(--lab-text-dim)] shrink-0 ml-4">
                       {exp.years}
                     </span>
                   </div>
                   <ul className="mt-2 space-y-1">
                     {exp.bullets.map((bullet, j) => (
-                      <li key={j} className="text-sm text-zinc-400 pl-4 relative">
+                      <li key={j} className="text-sm text-[var(--lab-text-muted)] pl-4 relative">
                         <span className="absolute left-0">•</span>
                         {bullet}
                       </li>
@@ -175,7 +175,7 @@ export function ResumeDialog({ open, onOpenChange }: ResumeDialogProps) {
 
           {/* Technical Skills */}
           <section>
-            <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wide mb-3">
+            <h3 className="text-sm font-semibold text-[var(--lab-accent)] uppercase tracking-wide mb-3">
               Technical Skills
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -183,7 +183,7 @@ export function ResumeDialog({ open, onOpenChange }: ResumeDialogProps) {
                 <Badge
                   key={skill}
                   variant="secondary"
-                  className="bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                  className="bg-[var(--lab-bg-elevated)] text-[var(--lab-text)] hover:bg-[var(--lab-surface-elevated)]"
                 >
                   {skill}
                 </Badge>
@@ -193,15 +193,15 @@ export function ResumeDialog({ open, onOpenChange }: ResumeDialogProps) {
 
           {/* Projects */}
           <section>
-            <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wide mb-3">
+            <h3 className="text-sm font-semibold text-[var(--lab-accent)] uppercase tracking-wide mb-3">
               Projects
             </h3>
             <div className="space-y-2">
               {PROJECTS.map((project) => (
                 <div key={project.name} className="flex items-baseline gap-2">
                   <span className="text-white font-medium">{project.name}</span>
-                  <span className="text-zinc-500">—</span>
-                  <span className="text-sm text-zinc-400">{project.description}</span>
+                  <span className="text-[var(--lab-text-dim)]">—</span>
+                  <span className="text-sm text-[var(--lab-text-muted)]">{project.description}</span>
                 </div>
               ))}
             </div>

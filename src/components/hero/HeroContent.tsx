@@ -50,26 +50,26 @@ export function HeroContent({ onEnter }: HeroContentProps) {
       </h1>
 
       {/* Role line */}
-      <p ref={roleRef} className="text-lg md:text-xl text-zinc-400 mb-12 flex items-center gap-3">
+      <p ref={roleRef} className="text-base sm:text-lg md:text-xl text-[var(--lab-text-muted)] mb-12 flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
         <span>Math Educator</span>
-        <span className="text-cyan-400">→</span>
+        <span className="text-[var(--lab-accent)] hidden sm:inline">→</span>
         <span>Full-Stack Developer</span>
-        <span className="text-cyan-400">→</span>
+        <span className="text-[var(--lab-accent)] hidden sm:inline">→</span>
         <span>Learning Designer</span>
       </p>
 
       {/* Hook lines */}
       <div className="space-y-2 mb-12">
-        <p ref={hook1Ref} className="text-2xl md:text-3xl font-light text-zinc-500">
+        <p ref={hook1Ref} className="text-xl sm:text-2xl md:text-3xl font-light text-[var(--lab-text-dim)]">
           15 years in math classrooms.
         </p>
-        <p ref={hook2Ref} className="text-2xl md:text-3xl font-light text-zinc-400">
+        <p ref={hook2Ref} className="text-xl sm:text-2xl md:text-3xl font-light text-[var(--lab-text-muted)]">
           10 days learning R3F.
         </p>
         <div ref={hook3Ref}>
           <AnimatedShinyText
             shimmerWidth={200}
-            className="text-2xl md:text-3xl font-light !text-cyan-400"
+            className="text-xl sm:text-2xl md:text-3xl font-light !text-[var(--lab-accent)]"
           >
             This is what I built.
           </AnimatedShinyText>
@@ -80,7 +80,7 @@ export function HeroContent({ onEnter }: HeroContentProps) {
       <button
         ref={ctaRef}
         onClick={onEnter}
-        className="group px-8 py-4 bg-cyan-500 text-zinc-900 font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:bg-cyan-400 hover:shadow-[0_0_30px_rgba(34,211,238,0.4)]"
+        className="group px-8 py-4 min-h-[48px] bg-[var(--lab-accent)] text-[var(--lab-bg)] font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:bg-[var(--lab-accent-hover)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)]"
       >
         Enter the Module
         <span className="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>

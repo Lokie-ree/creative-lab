@@ -90,7 +90,7 @@ export function SlideTransition({
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#0a0a0f]">
+    <div className="relative h-screen w-screen overflow-hidden bg-[var(--lab-bg)]">
       {/* Hero layer - always mounted */}
       <div
         ref={heroRef}

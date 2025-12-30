@@ -12,11 +12,11 @@ export function ExplorePrompt({ text, subtext, visible = true, className = "" }:
         visible ? "opacity-100" : "opacity-0"
       } ${className}`}
     >
-      <p className="text-[var(--lab-text)] text-lg font-medium tracking-wide">
+      <p className="text-[var(--lab-text)] text-base sm:text-lg font-medium tracking-wide px-4">
         {text}
       </p>
       {subtext && (
-        <p className="text-[var(--lab-text-muted)] text-sm mt-1">
+        <p className="text-[var(--lab-text-muted)] text-xs sm:text-sm mt-1 px-4">
           {subtext}
         </p>
       )}

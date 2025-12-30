@@ -60,14 +60,18 @@ export function ControlPanel({
 
   // Count visible sliders for grid layout
   const visibleCount = [showAmplitude, showFrequency, showPhase].filter(Boolean).length
-  const gridCols = visibleCount === 1 ? 'grid-cols-1' : visibleCount === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'
+  const gridCols = visibleCount === 1 
+    ? 'grid-cols-1' 
+    : visibleCount === 2 
+      ? 'grid-cols-1 sm:grid-cols-2' 
+      : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
 
   return (
-    <div className="bg-black/80 backdrop-blur-sm px-4 py-4 md:px-8 md:py-6">
+    <div className="bg-black/80 backdrop-blur-sm px-3 py-3 sm:px-4 sm:py-4 md:px-8 md:py-6">
       <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 sm:gap-4 md:gap-6">
           {/* Sliders */}
-          <div className={cn("flex-1 grid grid-cols-1 gap-4 md:gap-6", gridCols)}>
+          <div className={cn("flex-1 grid grid-cols-1 gap-3 sm:gap-4 md:gap-6", gridCols)}>
             {showAmplitude && (
               <ParameterSlider
                 label="Amplitude"
@@ -109,8 +113,8 @@ export function ControlPanel({
 
           {/* Qualitative feedback - no numbers shown */}
           {matchScore !== undefined && matchScore > 0 && getFeedbackText(matchScore) && (
-            <div className="flex items-center justify-center md:justify-end">
-              <div className="text-[var(--lab-accent)] text-lg font-medium animate-pulse">
+            <div className="flex items-center justify-center md:justify-end min-w-0">
+              <div className="text-[var(--lab-accent)] text-sm sm:text-base md:text-lg font-medium animate-pulse truncate">
                 {getFeedbackText(matchScore)}
               </div>
             </div>

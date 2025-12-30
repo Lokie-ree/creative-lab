@@ -7,7 +7,7 @@ interface HeroProps {
 
 export function Hero({ onEnter }: HeroProps) {
   return (
-    <div className="h-screen w-screen relative overflow-hidden" style={{ backgroundColor: '#0a0a0f' }}>
+    <div className="h-screen w-screen relative overflow-hidden bg-[var(--lab-bg)]">
       <HeroBackground />
       <HeroContent onEnter={onEnter} />
     </div>

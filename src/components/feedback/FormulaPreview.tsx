@@ -72,7 +72,7 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
       ref={containerRef}
       className={`
         bg-[var(--lab-surface)]/90 backdrop-blur-sm border border-[var(--lab-border)] rounded-xl
-        px-4 py-3 font-mono text-lg
+        px-3 py-2 sm:px-4 sm:py-3 font-mono text-sm sm:text-lg
         ${className}
       `}
     >

@@ -146,10 +146,10 @@
   --lab-surface-elevated: #1a1a24;
   --lab-bg-elevated: #2a2a3a;
 
-  /* Accent - Primary interactive color (lime green / Brilliant Pear) */
-  --lab-accent: #c8e44c;
-  --lab-accent-hover: #d4f06a;
-  --lab-accent-muted: #d4ed5c;
+  /* Accent - Primary interactive color (cyan) */
+  --lab-accent: #22d3ee;
+  --lab-accent-hover: #67e8f9;
+  --lab-accent-muted: #06b6d4;
 
   /* Accent Warm - Learning moments (amber) */
   --lab-accent-warm: #f5a623;
@@ -173,7 +173,7 @@
   --lab-ghost: #888888;
 
   /* Semantic colors */
-  --lab-success: #c8e44c;
+  --lab-success: #22d3ee;
   --lab-warning: #f5a623;
 }
 

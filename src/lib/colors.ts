@@ -1,10 +1,10 @@
 /**
  * Design System Color Tokens
- * 
+ *
  * Centralized color definitions for the Signal Lab module.
  * These tokens align with Brilliant's design language while maintaining
  * the dark, focused aesthetic of the interactive visualization.
- * 
+ *
  * Usage:
  * - Import: `import { colors } from '@/lib/colors'`
  * - Use in JS: `colors.accent.primary`
@@ -12,11 +12,11 @@
  */
 
 export const colors = {
-  // Primary accent (Brilliant Pear - warm yellow-green)
+  // Primary accent (cyan)
   accent: {
-    primary: '#c8e44c',
-    primaryHover: '#d4f06a',
-    primaryMuted: '#d4ed5c',
+    primary: '#22d3ee',
+    primaryHover: '#67e8f9',
+    primaryMuted: '#06b6d4',
   },
 
   // Learning moment accent (amber/orange)
@@ -52,7 +52,7 @@ export const colors = {
   ghost: '#888888',
 
   // Additional semantic colors
-  success: '#c8e44c',
+  success: '#22d3ee',
   warning: '#f5a623',
 } as const
 

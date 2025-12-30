@@ -109,7 +109,7 @@ export function CelebrationModal({
       {/* Modal */}
       <div
         ref={containerRef}
-        className="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg mx-4 bg-[var(--lab-surface)] border border-[var(--lab-border)] rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
         role="dialog"
         aria-modal="true"
         aria-labelledby="celebration-title"
@@ -117,7 +117,7 @@ export function CelebrationModal({
         {/* Close button */}
         <button
           onClick={handleDismiss}
-          className="absolute top-4 right-4 p-2 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors z-10"
+          className="absolute top-3 right-3 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[var(--lab-text-muted)] hover:text-[var(--lab-text)] hover:bg-[var(--lab-bg-elevated)] transition-colors z-10"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
@@ -127,31 +127,31 @@ export function CelebrationModal({
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as TabId)}
-          className="flex flex-col"
+          className="flex flex-col min-h-0 flex-1"
         >
-          <TabsList className="w-full border-b border-zinc-800 bg-transparent rounded-none p-0 h-auto">
+          <TabsList className="w-full border-b border-[var(--lab-border)] bg-transparent rounded-none p-0 h-auto flex-shrink-0">
             <TabsTrigger
               value="discovery"
-              className="flex-1 py-4 text-sm font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-cyan-400 data-[state=active]:text-cyan-400 text-zinc-500 hover:text-zinc-300 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="flex-1 py-3 sm:py-4 text-xs sm:text-sm font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-[var(--lab-accent)] data-[state=active]:text-[var(--lab-accent)] text-[var(--lab-text-muted)] hover:text-[var(--lab-text)] bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
-              Your Discovery
+              <span className="hidden sm:inline">Your </span>Discovery
             </TabsTrigger>
             <TabsTrigger
               value="behind"
-              className="flex-1 py-4 text-sm font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-cyan-400 data-[state=active]:text-cyan-400 text-zinc-500 hover:text-zinc-300 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="flex-1 py-3 sm:py-4 text-xs sm:text-sm font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-[var(--lab-accent)] data-[state=active]:text-[var(--lab-accent)] text-[var(--lab-text-muted)] hover:text-[var(--lab-text)] bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
               Behind This
             </TabsTrigger>
             <TabsTrigger
               value="deeper"
-              className="flex-1 py-4 text-sm font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-cyan-400 data-[state=active]:text-cyan-400 text-zinc-500 hover:text-zinc-300 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="flex-1 py-3 sm:py-4 text-xs sm:text-sm font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-[var(--lab-accent)] data-[state=active]:text-[var(--lab-accent)] text-[var(--lab-text-muted)] hover:text-[var(--lab-text)] bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
               Go Deeper
             </TabsTrigger>
           </TabsList>
 
           {/* Tab content */}
-          <div className="p-6 max-h-[60vh] overflow-y-auto">
+          <div className="p-4 sm:p-6 flex-1 overflow-y-auto min-h-0">
             <TabsContent value="discovery" className="mt-0">
               <DiscoveryTab values={values} skipped={skipped} />
             </TabsContent>
@@ -168,10 +168,10 @@ export function CelebrationModal({
         </Tabs>
 
         {/* Footer */}
-        <div className="p-4 border-t border-zinc-800">
+        <div className="p-3 sm:p-4 border-t border-[var(--lab-border)] flex-shrink-0">
           <button
             onClick={handleNewChallenge}
-            className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-zinc-900 font-semibold rounded-lg transition-colors"
+            className="w-full py-2.5 sm:py-3 min-h-[44px] bg-[var(--lab-accent)] hover:bg-[var(--lab-accent-hover)] text-[var(--lab-bg)] font-semibold rounded-lg transition-colors text-sm sm:text-base"
           >
             Try Another Challenge
           </button>
