@@ -6,7 +6,6 @@ type SliderType = 'amplitude' | 'frequency' | 'phase'
 interface Discoveries {
   amplitude: number | null
   frequency: number | null
-  phase: number | null
 }
 
 interface ControlPanelProps {
@@ -25,10 +24,10 @@ interface ControlPanelProps {
 export function ControlPanel({
   amplitude,
   frequency,
-  phase,
+  phase: _phase,  // Kept for interface compatibility, not used in v2
   onAmplitudeChange,
   onFrequencyChange,
-  onPhaseChange,
+  onPhaseChange: _onPhaseChange,  // Kept for interface compatibility, not used in v2
   matchScore,
   visibleSliders,
   lockedSliders = [],
@@ -37,19 +36,10 @@ export function ControlPanel({
   // If no visibleSliders specified, show all
   const showAmplitude = !visibleSliders || visibleSliders.includes('amplitude')
   const showFrequency = !visibleSliders || visibleSliders.includes('frequency')
-  const showPhase = !visibleSliders || visibleSliders.includes('phase')
 
   // Check if sliders are locked
   const amplitudeLocked = lockedSliders.includes('amplitude')
   const frequencyLocked = lockedSliders.includes('frequency')
-  const phaseLocked = lockedSliders.includes('phase')
-  const formatPhase = (value: number) => {
-    const piMultiple = value / Math.PI
-    if (piMultiple === 0) return "0"
-    if (piMultiple === 1) return "π"
-    if (piMultiple === -1) return "-π"
-    return `${piMultiple.toFixed(2)}π`
-  }
 
   const getFeedbackText = (score: number): string | null => {
     if (score >= 95) return null // Triggers reveal, no text needed
@@ -59,12 +49,10 @@ export function ControlPanel({
   }
 
   // Count visible sliders for grid layout
-  const visibleCount = [showAmplitude, showFrequency, showPhase].filter(Boolean).length
-  const gridCols = visibleCount === 1 
-    ? 'grid-cols-1' 
-    : visibleCount === 2 
-      ? 'grid-cols-1 sm:grid-cols-2' 
-      : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
+  const visibleCount = [showAmplitude, showFrequency].filter(Boolean).length
+  const gridCols = visibleCount === 1
+    ? 'grid-cols-1'
+    : 'grid-cols-1 sm:grid-cols-2'
 
   return (
     <div className="bg-black/80 backdrop-blur-sm px-3 py-3 sm:px-4 sm:py-4 md:px-8 md:py-6">
@@ -96,19 +84,7 @@ export function ControlPanel({
                 discoveredValue={discoveries?.frequency}
               />
             )}
-            {showPhase && (
-              <ParameterSlider
-                label="Phase"
-                value={phase}
-                min={0}
-                max={Math.PI * 2}
-                step={Math.PI / 16}
-                onChange={onPhaseChange}
-                formatValue={formatPhase}
-                locked={phaseLocked}
-                discoveredValue={discoveries?.phase}
-              />
-            )}
+            {/* Phase slider removed in v2 */}
           </div>
 
           {/* Qualitative feedback - no numbers shown */}

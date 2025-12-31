@@ -14,7 +14,7 @@ function App() {
   const [view, setView] = useState<View>("hero")
 
   // Completed values from module
-  const [completedValues, setCompletedValues] = useState<{ a: number; f: number; p: number } | null>(null)
+  const [completedValues, setCompletedValues] = useState<{ a: number; f: number } | null>(null)
 
   // Modal states
   const [showCelebration, setShowCelebration] = useState(false)
@@ -29,7 +29,7 @@ function App() {
   }, [])
 
   // Module completion → Celebration modal
-  const handleModuleComplete = useCallback((values: { a: number; f: number; p: number }) => {
+  const handleModuleComplete = useCallback((values: { a: number; f: number }) => {
     setCompletedValues(values)
     setSkippedToEnd(false)
     setCelebrationTab("discovery")

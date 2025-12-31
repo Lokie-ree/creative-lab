@@ -2,11 +2,10 @@ import { useRef, useMemo, useImperativeHandle, forwardRef, useState, useCallback
 import { useFrame, useThree } from "@react-three/fiber"
 import { Line } from "@react-three/drei"
 import * as THREE from "three"
-import { generateCirclePoints } from "@/lib/utils"
 import { colors } from "@/lib/colors"
 
 interface UnitCircleProps {
-  amplitude: number
+  amplitude: number  // Controls circle radius (visual reinforcement of amplitude)
   frequency: number
   phase: number
   color?: string
@@ -17,12 +16,23 @@ interface UnitCircleProps {
   glowIntensity?: number  // 0-1, controls glow brightness
 }
 
+// Generate circle points with custom radius
+function generateScaledCirclePoints(radius: number, segments = 64): [number, number, number][] {
+  const points: [number, number, number][] = []
+  for (let i = 0; i <= segments; i++) {
+    const angle = (i / segments) * Math.PI * 2
+    points.push([Math.cos(angle) * radius, Math.sin(angle) * radius, 0])
+  }
+  return points
+}
+
 export interface UnitCircleRef {
   getCurrentPosition: () => { x: number; y: number }
 }
 
 export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
   function UnitCircle({
+    amplitude,
     frequency,
     phase,
     color = colors.accent.primary,
@@ -34,7 +44,8 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
   }, ref) {
     const groupRef = useRef<THREE.Group>(null)
     const pointRef = useRef<THREE.Mesh>(null)
-    const currentPosRef = useRef({ x: 1, y: 0 })
+    // Initial position scales with amplitude
+    const currentPosRef = useRef({ x: amplitude, y: 0 })
     const currentAngleRef = useRef(phase)
     const pausedAtTimeRef = useRef<number | null>(null)
     const [isDragging, setIsDragging] = useState(false)
@@ -43,7 +54,8 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
     const raycaster = useMemo(() => new THREE.Raycaster(), [])
     const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), [])
 
-    const circlePoints = useMemo(() => generateCirclePoints(64), [])
+    // Circle points scale with amplitude - visual reinforcement that amplitude = radius
+    const circlePoints = useMemo(() => generateScaledCirclePoints(amplitude, 64), [amplitude])
 
     // Expose current position for connector
     useImperativeHandle(ref, () => ({
@@ -52,7 +64,8 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
 
     const radiusLine = useMemo(() => {
       const geometry = new THREE.BufferGeometry()
-      const positions = new Float32Array([0, 0, 0, 1, 0, 0])
+      // Initial position scales with amplitude
+      const positions = new Float32Array([0, 0, 0, amplitude, 0, 0])
       geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3))
       const material = new THREE.LineBasicMaterial({
         color,
@@ -60,12 +73,12 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
         opacity,
       })
       return new THREE.Line(geometry, material)
-    }, [color, opacity])
+    }, [color, opacity, amplitude])
 
-    // Update position based on angle
+    // Update position based on angle - scales by amplitude
     const updatePosition = useCallback((angle: number) => {
-      const x = Math.cos(angle)
-      const y = Math.sin(angle)
+      const x = Math.cos(angle) * amplitude
+      const y = Math.sin(angle) * amplitude
       currentPosRef.current = { x, y }
       currentAngleRef.current = angle
 
@@ -77,7 +90,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
       const positions = radiusLine.geometry.attributes.position as THREE.BufferAttribute
       positions.setXYZ(1, x, y, 0)
       positions.needsUpdate = true
-    }, [radiusLine])
+    }, [radiusLine, amplitude])
 
     useFrame((state) => {
       // If paused or dragging, don't update from clock
@@ -157,7 +170,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
         {/* Moving point on circle - draggable */}
         <mesh
           ref={pointRef}
-          position={[1, 0, 0]}
+          position={[amplitude, 0, 0]}
           onPointerDown={handlePointerDown}
         >
           <circleGeometry args={[draggable ? 0.12 : 0.08, 32]} />

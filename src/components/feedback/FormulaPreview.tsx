@@ -7,7 +7,6 @@ interface FormulaPreviewProps {
   discoveries: {
     amplitude: number | null
     frequency: number | null
-    phase: number | null
   }
   className?: string
 }
@@ -16,16 +15,6 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
   const containerRef = useRef<HTMLDivElement>(null)
   const amplitudeRef = useRef<HTMLSpanElement>(null)
   const frequencyRef = useRef<HTMLSpanElement>(null)
-  const phaseRef = useRef<HTMLSpanElement>(null)
-
-  const formatPhase = (value: number) => {
-    const piMultiple = value / Math.PI
-    if (Math.abs(piMultiple) < 0.01) return "0"
-    if (Math.abs(piMultiple - 0.5) < 0.01) return "π/2"
-    if (Math.abs(piMultiple - 1) < 0.01) return "π"
-    if (Math.abs(piMultiple + 1) < 0.01) return "-π"
-    return `${piMultiple.toFixed(2)}π`
-  }
 
   // Animate amplitude reveal
   useGSAP(() => {
@@ -49,21 +38,8 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
     }
   }, { dependencies: [discoveries.frequency], scope: containerRef })
 
-  // Animate phase reveal
-  useGSAP(() => {
-    if (discoveries.phase !== null && phaseRef.current) {
-      gsap.fromTo(
-        phaseRef.current,
-        { scale: 1.3, color: colors.accent.primary },
-        { scale: 1, color: colors.accent.primary, duration: 0.4, ease: "back.out(1.7)" }
-      )
-    }
-  }, { dependencies: [discoveries.phase], scope: containerRef })
-
   // Don't show until at least one discovery
-  const hasAnyDiscovery = discoveries.amplitude !== null ||
-                          discoveries.frequency !== null ||
-                          discoveries.phase !== null
+  const hasAnyDiscovery = discoveries.amplitude !== null || discoveries.frequency !== null
 
   if (!hasAnyDiscovery) return null
 
@@ -91,7 +67,6 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
           {discoveries.amplitude !== null ? discoveries.amplitude.toFixed(1) : "?"}
         </span>
 
-        <span className="text-[var(--lab-text-muted)]">×</span>
         <span className="text-[var(--lab-text-muted)]">sin(</span>
 
         {/* Frequency */}
@@ -102,18 +77,7 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
           {discoveries.frequency !== null ? discoveries.frequency.toFixed(1) : "?"}
         </span>
 
-        <span className="text-[var(--lab-text-muted)]">t</span>
-        <span className="text-[var(--lab-text-muted)]">+</span>
-
-        {/* Phase */}
-        <span
-          ref={phaseRef}
-          className={discoveries.phase !== null ? "text-[var(--lab-accent)]" : "text-[var(--lab-text-muted)]"}
-        >
-          {discoveries.phase !== null ? formatPhase(discoveries.phase) : "?"}
-        </span>
-
-        <span className="text-[var(--lab-text-muted)]">)</span>
+        <span className="text-[var(--lab-text-muted)]">t)</span>
       </div>
     </div>
   )

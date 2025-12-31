@@ -1,17 +1,8 @@
 import { CheckCircle } from "lucide-react"
 
 interface DiscoveryTabProps {
-  values: { a: number; f: number; p: number } | null
+  values: { a: number; f: number } | null
   skipped?: boolean
-}
-
-function formatPhase(p: number): string {
-  if (p === 0) return "0"
-  if (Math.abs(p - Math.PI / 4) < 0.01) return "π/4"
-  if (Math.abs(p - Math.PI / 2) < 0.01) return "π/2"
-  if (Math.abs(p - (3 * Math.PI / 4)) < 0.01) return "3π/4"
-  if (Math.abs(p - Math.PI) < 0.01) return "π"
-  return p.toFixed(2)
 }
 
 export function DiscoveryTab({ values, skipped }: DiscoveryTabProps) {
@@ -43,14 +34,13 @@ export function DiscoveryTab({ values, skipped }: DiscoveryTabProps) {
       {/* Formula display */}
       <div className="bg-[var(--lab-bg-elevated)]/50 rounded-lg p-4 text-center">
         <p className="text-lg sm:text-2xl font-mono text-white break-words">
-          y = <span className="text-[var(--lab-accent)]">{values.a}</span> × sin(
-          <span className="text-[var(--lab-accent)]">{values.f}</span>t +
-          <span className="text-[var(--lab-accent)]">{formatPhase(values.p)}</span>)
+          y = <span className="text-[var(--lab-accent)]">{values.a}</span> sin(
+          <span className="text-[var(--lab-accent)]">{values.f}</span>t)
         </p>
       </div>
 
       {/* Parameter grid */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <div className="text-center">
           <div className="text-3xl font-semibold text-[var(--lab-accent)] mb-1">
             {values.a}
@@ -67,14 +57,12 @@ export function DiscoveryTab({ values, skipped }: DiscoveryTabProps) {
             Frequency
           </div>
         </div>
-        <div className="text-center">
-          <div className="text-3xl font-semibold text-[var(--lab-accent)] mb-1">
-            {formatPhase(values.p)}
-          </div>
-          <div className="text-xs text-[var(--lab-text-dim)] uppercase tracking-wide">
-            Phase
-          </div>
-        </div>
+      </div>
+
+      {/* Understanding summary */}
+      <div className="text-center text-[var(--lab-text-muted)] text-sm">
+        <p>Amplitude controls how far from center.</p>
+        <p>Frequency controls how fast it spins.</p>
       </div>
     </div>
   )

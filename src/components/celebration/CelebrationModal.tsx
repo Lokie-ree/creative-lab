@@ -11,7 +11,7 @@ type TabId = "discovery" | "behind" | "deeper"
 
 interface CelebrationModalProps {
   show: boolean
-  values: { a: number; f: number; p: number } | null
+  values: { a: number; f: number } | null
   skipped?: boolean
   initialTab?: TabId
   onDismiss: () => void
