@@ -13,7 +13,6 @@ interface UnitCircleProps {
   isPaused?: boolean
   onPauseChange?: (paused: boolean) => void
   draggable?: boolean
-  glowIntensity?: number  // 0-1, controls glow brightness
 }
 
 // Generate circle points with custom radius
@@ -40,7 +39,6 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
     isPaused = false,
     onPauseChange,
     draggable = false,
-    glowIntensity = 0,
   }, ref) {
     const groupRef = useRef<THREE.Group>(null)
     const pointRef = useRef<THREE.Mesh>(null)
@@ -167,13 +165,13 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
         {/* Radius line from center to point */}
         <primitive object={radiusLine} />
 
-        {/* Moving point on circle - draggable */}
+        {/* Moving point on circle */}
         <mesh
           ref={pointRef}
           position={[amplitude, 0, 0]}
           onPointerDown={handlePointerDown}
         >
-          <circleGeometry args={[draggable ? 0.12 : 0.08, 32]} />
+          <circleGeometry args={[draggable ? 0.12 : 0.05, 32]} />
           <meshBasicMaterial
             color={isDragging ? colors.accent.primaryHover : color}
             transparent={opacity < 1}
@@ -198,37 +196,6 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
           <meshBasicMaterial color={colors.text.muted} />
         </mesh>
 
-        {/* Dynamic glow based on match proximity */}
-        {glowIntensity > 0 && !isDragging && (
-          <mesh position={[currentPosRef.current.x, currentPosRef.current.y, -0.02]}>
-            <circleGeometry args={[0.12 + glowIntensity * 0.15, 32]} />
-            <meshBasicMaterial
-              color={color}
-              transparent
-              opacity={0.2 + glowIntensity * 0.4}
-            />
-          </mesh>
-        )}
-
-        {/* Outer glow ring for high intensity */}
-        {glowIntensity > 0.7 && !isDragging && (
-          <mesh position={[currentPosRef.current.x, currentPosRef.current.y, -0.03]}>
-            <circleGeometry args={[0.25 + glowIntensity * 0.1, 32]} />
-            <meshBasicMaterial
-              color={color}
-              transparent
-              opacity={(glowIntensity - 0.7) * 0.5}
-            />
-          </mesh>
-        )}
-
-        {/* Draggable hint glow (separate from match glow) */}
-        {draggable && !isDragging && glowIntensity === 0 && (
-          <mesh position={[currentPosRef.current.x, currentPosRef.current.y, -0.02]}>
-            <circleGeometry args={[0.18, 32]} />
-            <meshBasicMaterial color={color} transparent opacity={0.3} />
-          </mesh>
-        )}
       </group>
     )
   }

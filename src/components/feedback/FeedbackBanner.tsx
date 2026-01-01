@@ -3,14 +3,12 @@ import { CheckCircle2, Lightbulb } from "lucide-react"
 
 interface FeedbackBannerProps {
   correct: boolean
-  onWhy: () => void
   onContinue: () => void
   className?: string
 }
 
 export function FeedbackBanner({
   correct,
-  onWhy,
   onContinue,
   className = "",
 }: FeedbackBannerProps) {
@@ -37,30 +35,22 @@ export function FeedbackBanner({
             <Lightbulb className={`h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ${iconColor}`} />
           )}
           <AlertDescription className={`text-sm sm:text-base md:text-lg font-medium whitespace-nowrap ${textColor}`}>
-            {correct ? "That's it!" : "Not quite — let's see why"}
+            {correct ? "That's it!" : "Not quite — try again"}
           </AlertDescription>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-          <button
-            onClick={onWhy}
-            className="flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-3 min-h-[44px] rounded-lg bg-[var(--lab-bg-elevated)] text-[var(--lab-text-muted)] hover:text-[var(--lab-text)] transition-colors text-sm sm:text-base"
-          >
-            Why?
-          </button>
-          <button
-            onClick={onContinue}
-            className={`
-              flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 min-h-[44px] rounded-lg font-medium transition-colors text-sm sm:text-base
-              ${correct
-                ? "bg-[var(--lab-accent)] text-[var(--lab-bg)] hover:bg-[var(--lab-accent-hover)]"
-                : "bg-[var(--lab-accent-warm)] text-[var(--lab-bg)] hover:bg-[var(--lab-accent-warm-hover)]"
-              }
-            `}
-          >
-            {correct ? "Continue" : "Try Again"}
-          </button>
-        </div>
+        <button
+          onClick={onContinue}
+          className={`
+            w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 min-h-[44px] rounded-lg font-medium transition-colors text-sm sm:text-base
+            ${correct
+              ? "bg-[var(--lab-accent)] text-[var(--lab-bg)] hover:bg-[var(--lab-accent-hover)]"
+              : "bg-[var(--lab-accent-warm)] text-[var(--lab-bg)] hover:bg-[var(--lab-accent-warm-hover)]"
+            }
+          `}
+        >
+          {correct ? "Continue" : "Try Again"}
+        </button>
       </div>
     </Alert>
   )

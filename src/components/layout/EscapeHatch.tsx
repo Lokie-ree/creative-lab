@@ -39,6 +39,7 @@ export function EscapeHatch({
         >
           <DropdownMenuItem
             onClick={onBackToStart}
+            aria-label="Navigate back to the start page"
             className="text-zinc-300 focus:bg-zinc-800 focus:text-white cursor-pointer"
           >
             <Home className="w-4 h-4 text-zinc-500" />
@@ -46,6 +47,7 @@ export function EscapeHatch({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={onViewResume}
+            aria-label="Open resume dialog"
             className="text-zinc-300 focus:bg-zinc-800 focus:text-white cursor-pointer"
           >
             <FileText className="w-4 h-4 text-zinc-500" />
@@ -54,6 +56,7 @@ export function EscapeHatch({
           <DropdownMenuSeparator className="bg-zinc-800" />
           <DropdownMenuItem
             onClick={onSkipToEnd}
+            aria-label="Skip to the end of the module"
             className="text-zinc-300 focus:bg-zinc-800 focus:text-white cursor-pointer"
           >
             <FastForward className="w-4 h-4 text-zinc-500" />

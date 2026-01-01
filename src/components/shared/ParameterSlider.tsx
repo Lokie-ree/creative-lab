@@ -62,6 +62,7 @@ export function ParameterSlider({
         step={step}
         onValueChange={([v]) => onChange(v)}
         disabled={locked}
+        aria-label={`${label} slider, current value ${displayValue}, range ${min} to ${max}`}
         className={cn(locked && "cursor-not-allowed opacity-50")}
       />
     </div>

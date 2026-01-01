@@ -10,9 +10,11 @@ interface ConnectorProps {
   phase: number
   amplitude: number
   isPaused?: boolean
+  color?: string   // Custom color for line and dot
+  opacity?: number // Opacity for styling (default 0.6 for line)
 }
 
-export function Connector({ circleX, waveX, frequency, phase, amplitude, isPaused = false }: ConnectorProps) {
+export function Connector({ circleX, waveX, frequency, phase, amplitude, isPaused = false, color = colors.accent.primary, opacity = 0.6 }: ConnectorProps) {
   const lineRef = useRef<THREE.Line>(null)
   const dotRef = useRef<THREE.Mesh>(null)
 
@@ -21,16 +23,16 @@ export function Connector({ circleX, waveX, frequency, phase, amplitude, isPause
     const positions = new Float32Array([0, 0, 0, 1, 0, 0])
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3))
     const material = new THREE.LineDashedMaterial({
-      color: colors.accent.primary,
+      color,
       dashSize: 0.1,
       gapSize: 0.05,
       transparent: true,
-      opacity: 0.6,
+      opacity,
     })
     const line = new THREE.Line(geometry, material)
     line.computeLineDistances()
     return line
-  }, [])
+  }, [color, opacity])
 
   useFrame((state) => {
     // Don't update when paused
@@ -67,7 +69,7 @@ export function Connector({ circleX, waveX, frequency, phase, amplitude, isPause
       {/* Dot at the wave's live point */}
       <mesh ref={dotRef}>
         <circleGeometry args={[0.06, 32]} />
-        <meshBasicMaterial color={colors.accent.primary} />
+        <meshBasicMaterial color={color} transparent opacity={opacity + 0.2} />
       </mesh>
     </group>
   )

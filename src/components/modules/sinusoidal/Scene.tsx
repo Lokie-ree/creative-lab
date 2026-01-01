@@ -3,7 +3,6 @@ import { Canvas, useThree } from "@react-three/fiber"
 import { UnitCircle } from "./UnitCircle"
 import { SineWave } from "./SineWave"
 import { Connector } from "./Connector"
-import { calculateMatchScores, scoreToGlowIntensity } from "@/hooks/useMatchScore"
 import { colors } from "@/lib/colors"
 
 type Stage = 'observe' | 'amplitude' | 'frequency' | 'phase' | 'challenge' | 'reveal'
@@ -22,6 +21,7 @@ interface SceneProps {
 // Layout constants
 const CIRCLE_X = -2.5
 const WAVE_X = -0.3
+const GHOST_OPACITY = 0.5
 
 function Visualization({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets }: SceneProps) {
   const { viewport } = useThree()
@@ -31,55 +31,18 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
   const showGhost = stage !== 'observe'
 
   // Get ghost wave parameters based on stage
-  // Stages 2a-c use stageTargets with defaults for locked params
-  // Challenge stage uses the full target
   const ghostParams = useMemo(() => {
     if (stage === 'amplitude' && stageTargets) {
       return { a: stageTargets.amplitude, f: 1, p: 0 }
     }
     if (stage === 'frequency' && stageTargets) {
-      return { a: 1, f: stageTargets.frequency, p: 0 }
+      return { a: stageTargets.amplitude, f: stageTargets.frequency, p: 0 }
     }
     if (stage === 'phase' && stageTargets) {
-      return { a: 1, f: 1, p: stageTargets.phase }
+      return { a: stageTargets.amplitude, f: stageTargets.frequency, p: stageTargets.phase }
     }
     return target
   }, [stage, stageTargets, target])
-
-  // Calculate match scores for glow effects
-  const matchScores = useMemo(() => {
-    return calculateMatchScores(
-      { a: amplitude, f: frequency, p: phase },
-      ghostParams
-    )
-  }, [amplitude, frequency, phase, ghostParams])
-
-  // Get the relevant glow intensity based on current stage
-  const glowIntensity = useMemo(() => {
-    // In observe stage, no glow
-    if (stage === 'observe') return 0
-
-    // In parameter stages, use the specific parameter's score
-    if (stage === 'amplitude') {
-      return scoreToGlowIntensity(matchScores.amplitude)
-    }
-    if (stage === 'frequency') {
-      return scoreToGlowIntensity(matchScores.frequency)
-    }
-    if (stage === 'phase') {
-      return scoreToGlowIntensity(matchScores.phase)
-    }
-
-    // In challenge stage, use overall score
-    return scoreToGlowIntensity(matchScores.overall)
-  }, [stage, matchScores])
-
-  // Ghost wave opacity increases as user gets closer (subtle merge effect)
-  const ghostOpacity = useMemo(() => {
-    const baseOpacity = 0.4
-    // Increase opacity slightly as user approaches (max +0.2)
-    return baseOpacity + glowIntensity * 0.2
-  }, [glowIntensity])
 
   if (isPortrait) {
     const circleX = 0
@@ -95,8 +58,6 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
             phase={phase}
             isPaused={isPaused}
             onPauseChange={onPauseChange}
-            draggable={stage === 'observe'}
-            glowIntensity={glowIntensity}
           />
           {/* Target point on circle (ghost) */}
           {showGhost && (
@@ -105,7 +66,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
               frequency={ghostParams.f}
               phase={ghostParams.p}
               color={colors.ghost}
-              opacity={ghostOpacity}
+              opacity={GHOST_OPACITY}
             />
           )}
         </group>
@@ -119,7 +80,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
               frequency={ghostParams.f}
               phase={ghostParams.p}
               color={colors.ghost}
-              opacity={ghostOpacity}
+              opacity={GHOST_OPACITY}
             />
           )}
           {/* User wave */}
@@ -128,7 +89,6 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
             frequency={frequency}
             phase={phase}
             isPaused={isPaused}
-            glowIntensity={glowIntensity}
           />
         </group>
       </>
@@ -145,8 +105,6 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
           phase={phase}
           isPaused={isPaused}
           onPauseChange={onPauseChange}
-          draggable={stage === 'observe'}
-          glowIntensity={glowIntensity}
         />
         {/* Target point on circle (ghost) - shows where target is rotating */}
         {showGhost && (
@@ -155,20 +113,22 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
             frequency={ghostParams.f}
             phase={ghostParams.p}
             color={colors.ghost}
-            opacity={ghostOpacity}
+            opacity={GHOST_OPACITY}
           />
         )}
       </group>
 
-      {/* Connector line - shows the y-value relationship */}
-      <Connector
-        circleX={CIRCLE_X}
-        waveX={WAVE_X}
-        frequency={frequency}
-        phase={phase}
-        amplitude={amplitude}
-        isPaused={isPaused}
-      />
+      {/* Connector line - only during observe stage to teach the relationship */}
+      {stage === 'observe' && (
+        <Connector
+          circleX={CIRCLE_X}
+          waveX={WAVE_X}
+          frequency={frequency}
+          phase={phase}
+          amplitude={amplitude}
+          isPaused={isPaused}
+        />
+      )}
 
       {/* Sine waves on the right */}
       <group position={[WAVE_X, 0, 0]}>
@@ -179,7 +139,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
             frequency={ghostParams.f}
             phase={ghostParams.p}
             color={colors.ghost}
-            opacity={ghostOpacity}
+            opacity={GHOST_OPACITY}
           />
         )}
         {/* User's wave */}
@@ -188,7 +148,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
           frequency={frequency}
           phase={phase}
           isPaused={isPaused}
-          glowIntensity={glowIntensity}
+          showLiveDot={stage !== 'observe'}
         />
       </group>
     </>

@@ -10,7 +10,7 @@ interface SineWaveProps {
   color?: string
   opacity?: number
   isPaused?: boolean
-  glowIntensity?: number  // 0-1, controls glow brightness
+  showLiveDot?: boolean  // Show dot at current wave position
 }
 
 export interface SineWaveRef {
@@ -28,52 +28,28 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
     color = colors.accent.primary,
     opacity = 1,
     isPaused = false,
-    glowIntensity = 0,
+    showLiveDot = false,
   }, ref) {
     const positionsRef = useRef<Float32Array>(new Float32Array(MAX_POINTS * 3))
     const pointCountRef = useRef(0)
     const currentYRef = useRef(0)
+    const dotRef = useRef<THREE.Mesh>(null)
 
     // Expose current Y value for connector
     useImperativeHandle(ref, () => ({
       getCurrentY: () => currentYRef.current,
     }))
 
-    // Calculate dynamic color based on glow intensity
-    const dynamicColor = useMemo(() => {
-      if (glowIntensity <= 0) return color
-      // Lerp from base color toward a brighter version
-      const baseColor = new THREE.Color(color)
-      // Make it brighter by increasing lightness
-      const hsl = { h: 0, s: 0, l: 0 }
-      baseColor.getHSL(hsl)
-      // Increase lightness based on intensity (max +30%)
-      hsl.l = Math.min(1, hsl.l + glowIntensity * 0.3)
-      baseColor.setHSL(hsl.h, hsl.s, hsl.l)
-      return `#${baseColor.getHexString()}`
-    }, [color, glowIntensity])
-
     // Main line
     const line = useMemo(() => {
       const geometry = new THREE.BufferGeometry()
       const material = new THREE.LineBasicMaterial({
-        color: dynamicColor,
+        color,
         transparent: true,
         opacity,
       })
       return new THREE.Line(geometry, material)
-    }, [dynamicColor, opacity])
-
-    // Glow halo line (thicker, more transparent, behind main line)
-    const glowLine = useMemo(() => {
-      const geometry = new THREE.BufferGeometry()
-      const material = new THREE.LineBasicMaterial({
-        color: dynamicColor,
-        transparent: true,
-        opacity: glowIntensity * 0.4 * opacity,  // Fade in with intensity
-      })
-      return new THREE.Line(geometry, material)
-    }, [dynamicColor, glowIntensity, opacity])
+    }, [color, opacity])
 
     useFrame((state) => {
       // Don't update when paused
@@ -82,6 +58,11 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
       const t = state.clock.elapsedTime
       const y = amplitude * Math.sin(frequency * t + phase)
       currentYRef.current = y
+
+      // Update live dot position
+      if (dotRef.current) {
+        dotRef.current.position.y = y
+      }
 
       const positions = positionsRef.current
 
@@ -125,27 +106,19 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
         )
         line.geometry.attributes.position.needsUpdate = true
         line.geometry.computeBoundingSphere()
-
-        // Update glow line with same geometry (slightly offset back)
-        if (glowIntensity > 0) {
-          glowLine.geometry.setAttribute(
-            "position",
-            new THREE.BufferAttribute(positionData.slice(), 3)
-          )
-          glowLine.geometry.attributes.position.needsUpdate = true
-          glowLine.geometry.computeBoundingSphere()
-        }
       }
     })
 
     return (
       <group>
-        {/* Glow halo behind main line */}
-        {glowIntensity > 0 && (
-          <primitive object={glowLine} position={[0, 0, -0.01]} />
-        )}
-        {/* Main wave line */}
         <primitive object={line} />
+        {/* Live dot at current wave position */}
+        {showLiveDot && (
+          <mesh ref={dotRef} position={[0, 0, 0]}>
+            <circleGeometry args={[0.06, 32]} />
+            <meshBasicMaterial color={color} />
+          </mesh>
+        )}
       </group>
     )
   }

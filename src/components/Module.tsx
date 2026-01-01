@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react"
+import gsap from "gsap"
 import { cn } from "@/lib/utils"
 import { Scene } from "./modules/sinusoidal/Scene"
 import { ControlPanel } from "./controls/ControlPanel"
@@ -15,8 +16,8 @@ import { FeedbackBanner } from "./feedback/FeedbackBanner"
 // ============================================================================
 
 type Stage = 'observe' | 'amplitude' | 'frequency' | 'challenge' | 'reveal'
-type SubStage = 'explore' | 'match' | 'reflect'
-type ChallengePhase = 'diagnose' | 'match'
+type SubStage = 'explore' | 'match' | 'reflect' | 'freeExplore'
+type ChallengePhase = 'observe' | 'diagnose' | 'match'
 
 // ============================================================================
 // CONSTANTS
@@ -207,17 +208,30 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       // Trigger celebration
       setCelebrationCount(c => c + 1)
 
-      // Brief pause, then show question
-      setTimeout(() => {
-        setSubStage('match')
-        // Another brief pause for the match celebration to land
-        setTimeout(() => {
-          setSubStage('reflect')
-          setSelectedAnswer(null)
-        }, 800)
-      }, 300)
+      // Transition to match substage for visual feedback
+      setSubStage('match')
+
+      // Use GSAP delayedCall for timed transition to reflect
+      gsap.delayedCall(2, () => {
+        setSubStage('reflect')
+        setSelectedAnswer(null)
+      })
     }
   }, [stage, subStage, amplitude, frequency, isFlashing])
+
+  // ---------------------------------------------------------------------------
+  // Challenge Stage: Observation period before asking question
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (stage !== 'challenge' || challengePhase !== 'observe') return
+
+    // Give user 3 seconds to observe the difference before asking
+    const delayed = gsap.delayedCall(3, () => {
+      setChallengePhase('diagnose')
+    })
+
+    return () => { delayed.kill() }
+  }, [stage, challengePhase])
 
   // ---------------------------------------------------------------------------
   // Challenge Stage: Detect final match
@@ -227,12 +241,15 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
     if (challengeMatchScore >= CHALLENGE_MATCH_THRESHOLD) {
       setCelebrationCount(c => c + 1)
+      // Update discoveries with the final matched values
+      setDiscoveries({ amplitude, frequency })
+      // Go to reveal stage - don't call onComplete yet
+      // User can choose to try another challenge or explore
       setTimeout(() => {
         setStage('reveal')
-        onComplete({ a: amplitude, f: frequency })
       }, 800)
     }
-  }, [stage, challengePhase, challengeMatchScore, amplitude, frequency, onComplete])
+  }, [stage, challengePhase, challengeMatchScore, amplitude, frequency])
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -301,7 +318,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     setFrequency(STAGE_TARGETS.frequency)
 
     setStage('challenge')
-    setChallengePhase('diagnose')
+    setChallengePhase('observe') // Start with observation, not immediate question
     setSelectedAnswer(null)
   }, [])
 
@@ -324,6 +341,18 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     setSelectedAnswer(null)
   }, [])
 
+  const handleTryAnotherChallenge = useCallback(() => {
+    setupChallenge()
+  }, [setupChallenge])
+
+  const handleFreeExplore = useCallback(() => {
+    // Reset to free explore mode with all sliders unlocked
+    setStage('reveal')
+    setSubStage('freeExplore')
+    setAmplitude(1.0)
+    setFrequency(1.0)
+  }, [])
+
   // ---------------------------------------------------------------------------
   // Prompt Content
   // ---------------------------------------------------------------------------
@@ -337,11 +366,21 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     if (stage === 'frequency' && subStage === 'explore') {
       return { text: 'Make the wave faster', subtext: 'Match the ghost wave' }
     }
+    if (stage === 'challenge' && challengePhase === 'observe') {
+      return { text: 'Something changed', subtext: 'Look closely at both waves' }
+    }
+    // Note: During diagnose, the QuestionCard shows "What changed?" so no prompt needed
     if (stage === 'challenge' && challengePhase === 'diagnose') {
-      return { text: 'This wave is different', subtext: 'What changed?' }
+      return null
     }
     if (stage === 'challenge' && challengePhase === 'match') {
       return { text: 'Now match it', subtext: undefined }
+    }
+    if (stage === 'reveal' && subStage === 'freeExplore') {
+      return { text: 'Free exploration', subtext: 'Play with the parameters' }
+    }
+    if (stage === 'reveal') {
+      return { text: 'Challenge complete!', subtext: undefined }
     }
     return null
   }
@@ -483,6 +522,15 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
         </AnimatedPanel>
       )}
 
+      {/* Match celebration message */}
+      {isParameterStage && subStage === 'match' && (
+        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 animate-in fade-in zoom-in duration-300">
+          <div className="text-2xl sm:text-3xl font-bold text-[var(--lab-accent)]">
+            Perfect match!
+          </div>
+        </div>
+      )}
+
       {/* Reflect question */}
       {isParameterStage && subStage === 'reflect' && currentQuestion && (
         <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
@@ -499,9 +547,53 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {isParameterStage && subStage === 'reflect' && selectedAnswer !== null && (
         <FeedbackBanner
           correct={isCorrect}
-          onWhy={() => {}}
           onContinue={isCorrect ? handleContinueFromReflect : handleTryAgain}
         />
+      )}
+
+      {/* Reveal stage - completion options (not in freeExplore mode) */}
+      {stage === 'reveal' && subStage !== 'freeExplore' && (
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={handleTryAnotherChallenge}
+            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-[var(--lab-accent)] text-[var(--lab-bg)] rounded-lg transition-all duration-300 text-sm font-medium tracking-wide hover:bg-[var(--lab-accent-hover)]"
+          >
+            Try Another
+          </button>
+          <button
+            onClick={handleFreeExplore}
+            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-[var(--lab-accent)]/50 text-[var(--lab-accent)] hover:bg-[var(--lab-accent)]/10 hover:border-[var(--lab-accent)]"
+          >
+            Explore
+          </button>
+          <button
+            onClick={() => onComplete({ a: amplitude, f: frequency })}
+            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-[var(--lab-accent)]/50 text-[var(--lab-accent)] hover:bg-[var(--lab-accent)]/10 hover:border-[var(--lab-accent)]"
+          >
+            Finish
+          </button>
+        </div>
+      )}
+
+      {/* Free explore mode - all sliders unlocked */}
+      {stage === 'reveal' && subStage === 'freeExplore' && (
+        <AnimatedPanel
+          transitionKey="freeExplore"
+          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
+        >
+          <ControlPanel
+            amplitude={amplitude}
+            frequency={frequency}
+            phase={0}
+            onAmplitudeChange={setAmplitude}
+            onFrequencyChange={setFrequency}
+            onPhaseChange={() => {}}
+            matchScore={0}
+            visibleSliders={['amplitude', 'frequency']}
+            lockedSliders={[]}
+            discoveries={discoveries}
+          />
+        </AnimatedPanel>
       )}
     </div>
   )
