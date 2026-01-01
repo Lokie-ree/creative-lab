@@ -46,12 +46,12 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
 
   if (isPortrait) {
     const circleX = 0
-    const waveX = -1.5
+    const waveX = -1.2
 
     return (
       <>
-        {/* Circle on top */}
-        <group position={[circleX, 1.2, 0]} scale={0.9}>
+        {/* Circle on top - scaled down for mobile */}
+        <group position={[circleX, 1.0, 0]} scale={0.7}>
           <UnitCircle
             amplitude={amplitude}
             frequency={frequency}
@@ -71,8 +71,8 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
           )}
         </group>
 
-        {/* Waves below */}
-        <group position={[waveX, -1.0, 0]} scale={0.8}>
+        {/* Waves below - scaled down for mobile */}
+        <group position={[waveX, -0.9, 0]} scale={0.65}>
           {/* Target wave (ghost) */}
           {showGhost && (
             <SineWave
