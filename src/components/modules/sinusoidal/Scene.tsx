@@ -16,6 +16,7 @@ interface SceneProps {
   isPaused: boolean
   onPauseChange: (paused: boolean) => void
   stageTargets?: { amplitude: number; frequency: number; phase: number }
+  isVisible?: boolean
 }
 
 // Layout constants
@@ -155,7 +156,13 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
   )
 }
 
-export function Scene({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets }: SceneProps) {
+export function Scene({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets, isVisible = true }: SceneProps) {
+  // Conditionally render Canvas to prevent WebGL context conflicts
+  // when both Hero and Module are mounted during SlideTransition
+  if (!isVisible) {
+    return null
+  }
+
   return (
     <Canvas
       dpr={[1, 1.5]}

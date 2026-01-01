@@ -1,7 +1,10 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, lazy, Suspense } from "react"
 import { Hero } from "./components/hero"
-import { Module } from "./components/Module"
+import { ModuleLoader } from "./components/ModuleLoader"
 import { SlideTransition } from "./components/transitions"
+
+// Lazy load the heavy Module component (includes Three.js/R3F)
+const Module = lazy(() => import("./components/Module").then(m => ({ default: m.Module })))
 import { EscapeHatch } from "./components/layout"
 import { CelebrationModal } from "./components/celebration"
 import { ResumeDialog, ProcessDialog } from "./components/dialogs"
@@ -74,7 +77,9 @@ function App() {
         view={view}
         heroContent={<Hero onEnter={handleEnterModule} />}
         moduleContent={
-          <Module onComplete={handleModuleComplete} isVisible={view === "module"} />
+          <Suspense fallback={<ModuleLoader />}>
+            <Module onComplete={handleModuleComplete} isVisible={view === "module"} />
+          </Suspense>
         }
       />
 
