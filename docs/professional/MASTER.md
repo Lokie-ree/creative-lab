@@ -35,8 +35,8 @@
 **The Differentiator:**
 > "To be considered for this role, please include your best example(s) of how you've taught mathematical concepts interactively online."
 
-**The Gap Identified:**
-Brilliant's Advanced Math section currently lacks standalone trigonometry content, with concepts like "Sine and Cosine" buried within the Calculus track—representing a clear opportunity for the sine wave concept to fill this gap.
+**The Expansion Opportunity:**
+Brilliant is expanding beyond foundational algebra into higher-level mathematics—trigonometry, linear algebra, differential equations. These courses need someone who can design discovery-first experiences for abstract concepts. This module demonstrates how I'd approach that expansion.
 
 ---
 
@@ -65,6 +65,9 @@ Most candidates will be either:
 - **Tech people who understand learning** (instructional designers)
 
 **Randall is rare:** A mathematician who teaches, codes, AND thinks pedagogically about interactive design.
+
+**The Journey:**
+I'm a mathematician above all. But I've spent more than 15 years as an educator learning about how students learn. In that time span, I was afforded the opportunity to coach and support teachers in the same capacity. As a former computer science major (who gave up too soon and changed to math), I stumbled back into coding. In June of 2024, I began collaborating with developers in a tight-knit community. This gave me the push to see the true potential in myself. Here I am ending 2025 still learning something new each day.
 
 The module demonstrates this trifecta by:
 1. Showing deep understanding of sine/cosine relationships (math expertise)
@@ -130,14 +133,17 @@ Built an intelligent coaching layer that helps Louisiana teachers generate high-
 - Created feedback loops where successful prompts become shareable exemplars for other educators
 - Tech stack: React, Convex backend, GPT integration with Louisiana-specific RAG
 
-**Creative Lab: Sine/Cosine Interactive Module** — In Development (December 2025)
+**Creative Lab: Sine/Cosine Interactive Module** — Completed (December 2025)
 
-Designing an interactive visualization where users discover the wave equation by matching a target motion—formula appears as reward, not prerequisite.
+This project began as an idea I had after stepping up to teach a credentialed Web Development and Javascript course for high school students. The vision was to do what I was taught as a teacher: "begin with the end in mind." So, before I crafted the 12-day plan to apply for this role, I was actually planning to prepare students to do the same for any position/role they aspire to earn.
+
+Built an interactive visualization where users discover the wave equation by matching a target motion—formula appears as reward, not prerequisite.
 
 - Users immediately engage with synchronized unit circle, wave graph, and pulsing glow visualization
-- Pattern-matching challenge teaches amplitude, frequency, and phase through intuition
+- Pattern-matching challenge teaches amplitude and frequency through intuition (phase removed for depth over breadth)
 - No front-loaded explanations—the interface teaches through invitation to tinker
-- Built with React, Three.js, GSAP, achieving 60fps mathematical animations
+- Built with React, React Three Fiber, GSAP, achieving 60fps mathematical animations
+- Complete presentation wrapper: hero landing page, smooth transitions, celebration modal with three tabs, escape hatch navigation, resume and design process dialogs
 
 ---
 
@@ -146,6 +152,14 @@ Designing an interactive visualization where users discover the wave equation by
 ### One-Sentence Pitch
 
 > Users discover the wave equation by matching a target motion—formula appears as reward, not prerequisite.
+
+### Origin Story
+
+This project began as an idea I had after stepping up to teach a credentialed Web Development and Javascript course for high school students. The vision was to do what I was taught as a teacher: **"begin with the end in mind."** 
+
+Before I started building this module, I was planning to prepare my Web Development students to do the same—build portfolio pieces that demonstrate their capabilities for any role they aspire to earn. The module itself became both the demonstration of my skills and the template for teaching students how to approach their own application portfolios.
+
+This meta-learning approach—teaching by doing, then teaching others to do the same—reflects my core philosophy: the best way to understand something deeply is to build it, and the best way to teach it is to model the process transparently.
 
 ### Core Experience
 
@@ -161,45 +175,62 @@ No instructions. No text explanation. The interface teaches through invitation.
 ### User Journey
 
 ```
-IMMEDIATE STATE (0-5 seconds)
-├── See: Circle spinning, wave drawing, glow pulsing
-├── Notice: Another glow pulsing at different rhythm (the target)
-└── Instinct: "I should make these match"
+HERO LANDING (0-10 seconds)
+├── See: Kinetic particle background with unit circle preview
+├── Read: "15 years in math classrooms. 12 days learning R3F. This is what I built."
+└── Action: Click "Enter the Module →"
 
-EXPLORATION (5-60 seconds)
-├── Discover: Sliders control amplitude, frequency, phase
-├── See: Each slider changes the visualization immediately
-├── Connect: "This slider makes it faster... this one makes it bigger..."
-└── Build: Mental model of parameters through manipulation
+OBSERVE STAGE (5 seconds)
+├── See: Circle rotating, wave tracing in sync
+├── Notice: Connector line linking circle dot to wave point
+└── Insight: "The wave tracks the dot's height as it goes around"
 
-MATCHING (60-180 seconds)
-├── Attempt: Adjust sliders toward target motion
-├── Feedback: Visual/color proximity indicator ("getting warmer")
-├── Iterate: Fine-tune until rhythms sync
-└── Succeed: Pulses align perfectly
+AMPLITUDE STAGE (30-60 seconds)
+├── Explore: "Make the wave taller" — discover amplitude slider
+├── See: Circle radius scales with amplitude (visual connection)
+├── Match: Reach A = 1.5 ± 0.1, earn celebration
+├── Reflect: Answer prediction question ("If amplitude were 3...?")
+└── Flash: Wave briefly shows A=3, confirming understanding
+
+FREQUENCY STAGE (30-60 seconds)
+├── Explore: "Make the wave faster" — discover frequency slider
+├── Match: Reach f = 2.0 ± 0.15, earn celebration
+├── Reflect: Answer prediction question ("How many waves when f=3?")
+└── Flash: Wave briefly shows f=3, showing 3 complete cycles
+
+CHALLENGE STAGE (60-120 seconds)
+├── Diagnose: "This wave is different. What changed?" (Amplitude or Frequency)
+├── Match: Adjust only the diagnosed parameter to match target
+├── Feedback: Match percentage indicator (0-100%)
+└── Succeed: 95% match triggers completion
 
 REVEAL (The Earned Moment)
-├── Celebration: Subtle animation acknowledging success
-├── Formula appears: y = A × sin(ωt + φ)
-├── Your values highlighted: y = 1.5 × sin(2.0t + π/4)
-└── Connection: "You just built this equation"
+├── Celebration: Modal opens with three tabs
+├── Discovery Tab: "You built: y = 1.5 sin(2t)" with discovered values
+├── Behind This Tab: Pedagogical approach and technical build details
+└── Go Deeper Tab: Full credentials, resume, design process, contact
 ```
 
-### Stage Flow (Implemented)
+### Stage Flow (v2 Implementation)
 
 ```
-observe → amplitude → frequency → phase → challenge → reveal
-             │            │          │
-         [explore]    [explore]  [explore]
-             │            │          │
-         [match]      [match]    [match]
-             │            │          │
-         [question]  [question] [question]
-             │            │          │
-         [feedback]  [feedback] [feedback]
+observe → amplitude → frequency → challenge → reveal
+              │            │           │
+          [explore]    [explore]   [diagnose]
+              │            │           │
+          [match]      [match]     [match]
+              │            │
+          [reflect]    [reflect]
 ```
 
-**Progress:** Continuous bar at top
+**Key Changes from v1:**
+- **Removed phase parameter** — Depth over breadth: two parameters fully understood beats three shallowly covered
+- **Prediction questions** — Test understanding ("If amplitude were 3...?") rather than recall ("What value doubled...?")
+- **Flash confirmation** — Visual reinforcement: correct answers trigger brief wave flash to predicted value
+- **Circle radius scaling** — Unit circle radius scales with amplitude, strengthening visual connection
+- **Two-step challenge** — Diagnose which parameter changed, then match (reduces frustration)
+
+**Progress:** Continuous bar at top showing stage completion
 
 ### Visual Design Direction
 
@@ -207,10 +238,12 @@ observe → amplitude → frequency → phase → challenge → reveal
 
 **Color Palette:**
 - Background: Deep navy or off-black (#0a0a0f)
-- Primary accent: Brilliant's Pear spectrum (warm yellow-green #c8e44c)
-- Secondary: Soft white/cream for UI elements
+- Primary accent: Cyan/blue tones (cool theme, not Brilliant's pear yellow)
+- Secondary: Soft white/cream for UI elements (`text-zinc-400`, `text-zinc-500`)
 - Wave/circle: Gradient from cyan to magenta showing amplitude
-- Target ghost: Semi-transparent version of primary accent
+- Target ghost: Semi-transparent cyan/blue version
+- CTA buttons: Cyan fill (`bg-cyan-500`) with hover scale effects
+- Particles: Cyan/blue tones with subtle glow
 
 **Typography:**
 - Headers: Geometric sans-serif (similar to CoFo Robert)
@@ -244,7 +277,7 @@ That philosophy is why I'm applying for this role, and why I built something to 
 
 **The Interactive Module**
 
-I've created a sine/cosine visualization where users discover the wave equation by matching a target motion. There's no front-loaded explanation. Users land on a synchronized unit circle, wave graph, and pulsing glow—plus a ghost target they need to match. They drag sliders. Things move. *Oh, that's what amplitude does.* When they nail the match, the formula appears as a reward, not a prerequisite.
+I've created a sine/cosine visualization where users discover the wave equation by matching a target motion. There's no front-loaded explanation. Users start on a hero page with a kinetic particle background, then enter the module to see a synchronized unit circle, wave graph, and pulsing glow—plus a ghost target they need to match. They drag sliders. Things move. *Oh, that's what amplitude does.* The circle grows with amplitude, reinforcing the connection. When they nail the match, the formula appears as a reward, not a prerequisite. The experience culminates in a celebration modal that reveals the pedagogical approach, technical build, and full credentials.
 
 This is how I believe mathematical concepts should be taught: challenge before explanation, intuition before notation, formula as earned insight.
 
@@ -278,7 +311,7 @@ Randall LaPoint, Jr.
 
 ### Resume Summary
 
-**Veteran math educator with 10+ years of classroom experience, an advanced mathematics degree, and self-taught full-stack development skills. I design interactive learning experiences that treat formulas as destinations to be earned through discovery, not prerequisites to be memorized. Currently building AI-powered coaching tools for Louisiana educators and interactive mathematics modules that demonstrate pedagogical approaches aligned with modern learning science.**
+**Mathematician first, with 15+ years as an educator learning how students learn. Former computer science major who returned to coding in 2024 through collaboration with a tight-knit developer community. I design interactive learning experiences that treat formulas as destinations to be earned through discovery, not prerequisites to be memorized. Currently building AI-powered coaching tools for Louisiana educators and interactive mathematics modules that demonstrate pedagogical approaches aligned with modern learning science.**
 
 **Relevant Strengths:**
 - **Mathematical Depth:** Advanced degree with coursework spanning calculus, linear algebra, abstract algebra, analysis, and beyond
@@ -300,39 +333,78 @@ I believe mathematical understanding should be earned through discovery, not del
 ### Module Status
 
 **Deployment:** ✅ Live at creative-lab-five.vercel.app  
-**Completion:** ~98% complete — All core functionality implemented
+**Completion:** ✅ 100% complete — All core functionality implemented and polished
 
 **Implemented Features:**
-- ✅ All 6 stages (Observe → Amplitude → Frequency → Phase → Challenge → Reveal)
-- ✅ All reusable components (ProgressBar, ExplorePrompt, QuestionCard, FeedbackBanner, WhyModal, CelebrationModal, ParameterSlider)
-- ✅ All domain-specific components (UnitCircle, SineWave, Connector, Scene)
-- ✅ All questions and feedback matching spec
-- ✅ All targets and thresholds (95% match threshold, nice values for all parameters)
-- ✅ Parameter slider extraction complete
-- ✅ Formula preview showing building equation
-- ✅ Smooth transitions and animations
-- ✅ Celebration effects
 
-**Minor Gaps:**
-- ⚠️ `FormulaReveal` not yet refactored to use generic `CelebrationModal` (both exist and work)
-- ⚠️ Component naming: `Scene` vs `SinusoidalScene` (cosmetic)
+**Core Module (v2):**
+- ✅ All 4 stages (Observe → Amplitude → Frequency → Challenge → Reveal)
+- ✅ Amplitude and frequency parameters (phase removed for pedagogical depth)
+- ✅ Circle radius scaling with amplitude (visual connection)
+- ✅ Prediction-based reflection questions (test understanding, not recall)
+- ✅ Flash confirmation animations (wave flashes to predicted values)
+- ✅ Two-step challenge (diagnose → match)
+- ✅ All reusable components (ProgressBar, ExplorePrompt, QuestionCard, FeedbackBanner, CelebrationPulse, ParameterSlider)
+- ✅ All domain-specific components (UnitCircle, SineWave, Connector, Scene)
+- ✅ Formula preview showing building equation: `y = A sin(ft)`
+- ✅ Smooth transitions and animations (GSAP)
+- ✅ Celebration effects on match
+
+**Presentation Wrapper:**
+- ✅ Hero landing page with kinetic R3F particle background
+- ✅ Vertical slide transition (hero → module)
+- ✅ Celebration modal with three tabs:
+  - Discovery Tab: Shows completed formula with discovered values
+  - Behind This Tab: Pedagogical approach and technical build details
+  - Go Deeper Tab: Full credentials, links to resume, design process, source code, contact
+- ✅ Escape hatch navigation (top-left, visible in module view)
+  - Back to Start
+  - View Resume
+  - Skip to End (opens celebration modal on "Go Deeper" tab)
+- ✅ Resume dialog (full education, experience, skills, projects)
+- ✅ Design Process dialog (timeline, pedagogical decisions, future extensions)
+
+**Technical Polish:**
+- ✅ Responsive design (mobile portrait, desktop landscape)
+- ✅ 60fps animations (React Three Fiber)
+- ✅ Performance optimizations (ref-based animation loops, geometry reuse)
+- ✅ Smooth state transitions
+- ✅ Accessible UI components (shadcn/ui)
 
 ### Application Materials Status
 
-- ✅ Resume complete
+- ✅ Resume complete (accessible via celebration modal → Go Deeper → Resume)
 - ✅ Cover letter complete
-- ✅ Module deployed and functional
-- 🔄 Final polish in progress
+- ✅ Module deployed and fully functional
+- ✅ Presentation wrapper complete (hero, transitions, celebration modal, dialogs)
+- ✅ Design process documented (accessible via celebration modal → Go Deeper → Design Process)
+- ✅ All application materials integrated into live demo
+
+### Recent Updates (December 2025)
+
+**v2 Module Refinement:**
+- Removed phase parameter to focus on depth over breadth
+- Replaced recall-based questions with prediction-based reflection questions
+- Added flash confirmation animations for correct answers
+- Implemented circle radius scaling with amplitude
+- Streamlined challenge to two-step process (diagnose → match)
+
+**Presentation Wrapper Implementation:**
+- Built hero landing page with kinetic R3F background
+- Implemented smooth vertical slide transition
+- Created comprehensive celebration modal with three-tab structure
+- Added escape hatch for time-constrained reviewers
+- Integrated resume and design process dialogs
 
 ### On the Horizon
 
-With the application deadline approaching, Randall is preparing final optimizations to ensure flawless performance of his demo module and maximum visibility in his application materials. He's considering additional portfolio enhancements like:
+With the application deadline approaching (January 1, 2026), the focus is on:
+- Final testing and bug fixes (if any)
+- Ensuring optimal performance across devices
+- Potential LinkedIn networking with Brilliant employees
+- Preparing for potential follow-up conversations
 
-- Pedagogical design document explaining his approach
-- Potential video walkthrough demonstrating both technical and communication skills
-- LinkedIn networking with Brilliant employees
-
-The focus remains on polishing the existing module to production quality rather than expanding scope.
+The module and all application materials are production-ready and fully integrated into the live demo.
 
 ---
 
@@ -363,14 +435,36 @@ Now try changing the values...
 
 **This module's approach:**
 ```
-[User manipulates sliders]
-[User notices patterns]
-[User matches target]
-→ "You just built: y = 1.5 × sin(2.0t + π/4)"
+[User observes circle-to-wave connection]
+[User explores amplitude, sees circle grow]
+[User matches target, earns celebration]
+[User answers prediction question, sees flash confirmation]
+[User explores frequency, matches again]
+[User diagnoses challenge wave, matches final target]
+→ "You just built: y = 1.5 × sin(2t)"
 → The formula describes what they ALREADY understand
 ```
 
 The formula becomes a **label for intuition**, not a **barrier to entry**.
+
+### v2 Pedagogical Refinements
+
+**Depth Over Breadth:**
+- Removed phase parameter to focus on amplitude and frequency mastery
+- Two parameters fully understood beats three parameters shallowly covered
+
+**Prediction Over Recall:**
+- Questions test understanding: "If amplitude were 3, how high would the wave peak?"
+- Correct answers trigger flash confirmation: wave briefly shows predicted value
+- Visual reinforcement strengthens mental models
+
+**Visual Connections:**
+- Circle radius scales with amplitude (strengthens amplitude concept)
+- Connector line links circle dot to wave point (reinforces relationship)
+
+**Reduced Frustration:**
+- Challenge stage uses two-step process: diagnose which parameter changed, then match
+- Single-parameter challenges prevent overwhelming multi-parameter adjustments
 
 ### Strategic Insights
 
@@ -381,6 +475,26 @@ The formula becomes a **label for intuition**, not a **barrier to entry**.
 3. **Technical Advantage:** Leverages React Three Fiber for 60fps smooth animations that Brilliant's current React/SVG stack cannot match, particularly for unit circle to wave synchronization and real-time mathematical relationship visualization.
 
 4. **Discovery Learning:** Emphasizes discovery learning through parameter manipulation and visual pattern matching.
+
+5. **Presentation Wrapper:** Built comprehensive application wrapper recognizing that hiring managers need quick navigation. Hero landing page establishes context, escape hatch allows time-constrained reviewers to skip ahead, celebration modal provides depth without overwhelming the core experience.
+
+### Teaching Philosophy: "Begin with the End in Mind"
+
+This project embodies a core teaching principle: **begin with the end in mind.** 
+
+The module itself serves dual purposes:
+1. **Demonstration:** Shows what I can build as a Math Producer candidate
+2. **Template:** Models the process I planned to teach high school students in my Web Development course
+
+Before crafting the 12-day plan to apply for this role, I was actually planning to prepare students to do the same for any position/role they aspire to earn. The meta-learning approach—teaching by doing, then teaching others to do the same—reflects my core philosophy: the best way to understand something deeply is to build it, and the best way to teach it is to model the process transparently.
+
+This philosophy extends to the module's design: users discover the wave equation by building it, not by being told what it is. The formula appears as a reward for understanding, not as a prerequisite for learning.
+
+### The Journey Back to Code
+
+As a former computer science major who gave up too soon and changed to math, I stumbled back into coding. In June of 2024, I began collaborating with developers in a tight-knit community. This gave me the push to see the true potential in myself. Here I am ending 2025 still learning something new each day.
+
+This journey—from CS major to math teacher to developer—uniquely positions me to understand both the mathematical concepts and the technical challenges of building interactive learning experiences. I've spent 15+ years learning how students learn, and now I'm combining that pedagogical knowledge with technical skills to create experiences that actually work.
 
 ---
 
@@ -401,42 +515,75 @@ Vite + React + TypeScript
 
 ```
 <App>
-├── <Header /> — Minimal branding, no navigation needed
-├── <ModuleContainer>
-│   ├── <Canvas> (R3F)
-│   │   ├── <UnitCircle angle={angle} />
-│   │   ├── <SineWave angle={angle} amplitude={A} frequency={ω} phase={φ} />
-│   │   ├── <PulsingGlow value={currentSineValue} />
-│   │   └── <TargetGlow value={targetSineValue} />
-│   ├── <ControlPanel>
-│   │   ├── <ParameterSlider label="Amplitude" ... />
-│   │   ├── <ParameterSlider label="Frequency" ... />
-│   │   └── <ParameterSlider label="Phase" ... />
-│   ├── <MatchIndicator percentage={matchScore} />
-│   └── <FormulaReveal show={hasMatched} values={...} />
-└── <Footer /> — Attribution, link to portfolio
+├── <SlideTransition>
+│   ├── Hero View
+│   │   ├── <Hero>
+│   │   │   ├── <HeroBackground /> — R3F particles, unit circle preview
+│   │   │   └── <HeroContent /> — Copy, CTA button
+│   │   └── (onEnter → transition to module)
+│   │
+│   └── Module View
+│       ├── <Module>
+│       │   ├── <Scene> (R3F Canvas)
+│       │   │   ├── <UnitCircle angle={angle} amplitude={A} />
+│       │   │   ├── <SineWave angle={angle} amplitude={A} frequency={f} />
+│       │   │   └── <Connector /> — Dashed line linking circle to wave
+│       │   ├── <ControlPanel>
+│       │   │   ├── <ParameterSlider label="Amplitude" ... />
+│       │   │   └── <ParameterSlider label="Frequency" ... />
+│       │   ├── <ProgressBar stage={stage} />
+│       │   ├── <ExplorePrompt /> — Stage-specific prompts
+│       │   ├── <QuestionCard /> — Prediction questions
+│       │   ├── <FeedbackBanner /> — Correct/incorrect feedback
+│       │   ├── <FormulaPreview /> — Building equation: y = A sin(ft)
+│       │   └── <CelebrationPulse /> — Match celebration effect
+│       │
+│       └── <EscapeHatch /> — Navigation dropdown (top-left)
+│
+├── <CelebrationModal> — Triggered on module completion
+│   ├── Discovery Tab — Completed formula, discovered values
+│   ├── Behind This Tab — Pedagogy, tech stack, opportunity
+│   └── Go Deeper Tab — Bio, links to resume, process, source, contact
+│
+├── <ResumeDialog /> — Full resume content
+└── <ProcessDialog /> — Design process, timeline, decisions
 ```
 
 ### State Architecture
 
 ```typescript
-// Core parameters (user-controlled)
-const [amplitude, setAmplitude] = useState(1.0);    // 0.1 - 2.0
-const [frequency, setFrequency] = useState(1.0);    // 0.5 - 3.0
-const [phase, setPhase] = useState(0);              // 0 - 2π
+// App-level state
+const [view, setView] = useState<"hero" | "module">("hero")
+const [showCelebration, setShowCelebration] = useState(false)
+const [completedValues, setCompletedValues] = useState<{ a: number; f: number } | null>(null)
+
+// Module state machine
+type Stage = 'observe' | 'amplitude' | 'frequency' | 'challenge' | 'reveal'
+type SubStage = 'explore' | 'match' | 'reflect' | 'freeExplore'
+type ChallengePhase = 'observe' | 'diagnose' | 'match'
+
+const [stage, setStage] = useState<Stage>('observe')
+const [subStage, setSubStage] = useState<SubStage>('explore')
+const [challengePhase, setChallengePhase] = useState<ChallengePhase>('diagnose')
+const [challengeParam, setChallengeParam] = useState<'amplitude' | 'frequency'>('amplitude')
+
+// Wave parameters (no phase in v2)
+const [amplitude, setAmplitude] = useState(1.0)    // 0.5 - 2.0
+const [frequency, setFrequency] = useState(1.0)     // 0.5 - 3.0
+
+// Fixed educational targets
+const STAGE_TARGETS = { amplitude: 1.5, frequency: 2.0 }
+
+// Challenge wave (randomly differs by one parameter)
+const [challengeWave, setChallengeWave] = useState({ a: 1.0, f: 2.0 })
 
 // Animation (ref-based, not React state)
-const angleRef = useRef(0);
-const timeRef = useRef(0);
-
-// Challenge
-const [target] = useState(() => generateTarget()); // Random on load
-const [hasMatched, setHasMatched] = useState(false);
+const angleRef = useRef(0)
+const timeRef = useRef(0)
 
 // Derived (computed each frame)
-const currentValue = amplitude * Math.sin(frequency * time + phase);
-const targetValue = target.a * Math.sin(target.f * time + target.p);
-const matchScore = calculateProximity(amplitude, frequency, phase, target);
+const currentValue = amplitude * Math.sin(frequency * time)
+const matchScore = calculateProximity(amplitude, frequency, challengeWave)
 ```
 
 ### Performance Guardrails
@@ -501,5 +648,5 @@ Portfolio: https://creative-lab-five.vercel.app/
 
 ---
 
-**Last Updated:** December 2025  
-**Status:** Application materials complete, final polish in progress
+**Last Updated:** January 1, 2026
+**Status:** ✅ Application materials complete, module fully implemented (v2), presentation wrapper complete, ready for submission

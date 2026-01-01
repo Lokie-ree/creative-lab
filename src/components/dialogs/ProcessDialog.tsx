@@ -13,9 +13,9 @@ interface ProcessDialogProps {
 
 const TIMELINE = [
   { days: "1-2", focus: "Research & Architecture" },
-  { days: "3-5", focus: "Core Visualization (R3F, unit circle, wave)" },
-  { days: "6-8", focus: "Stage Flow & Feedback" },
-  { days: "9-10", focus: "Polish & Application Wrapper" },
+  { days: "3-6", focus: "Core Visualization (R3F, unit circle, wave)" },
+  { days: "7-10", focus: "Stage Flow & Feedback" },
+  { days: "11-12", focus: "Polish & Application Wrapper" },
 ]
 
 const PEDAGOGY = [
@@ -67,7 +67,7 @@ export function ProcessDialog({ open, onOpenChange }: ProcessDialogProps) {
                 Brilliant's application asked for an interactive learning module that demonstrates understanding of their pedagogical approach.
               </p>
               <p className="text-[var(--lab-text-dim)]">
-                <span className="text-[var(--lab-accent)] font-medium">Constraint:</span> 10-day timeline while learning React Three Fiber from scratch.
+                <span className="text-[var(--lab-accent)] font-medium">Constraint:</span> 12-day timeline while learning React Three Fiber from scratch.
               </p>
             </div>
           </section>
@@ -82,13 +82,13 @@ export function ProcessDialog({ open, onOpenChange }: ProcessDialogProps) {
             </div>
             <div className="bg-[var(--lab-accent)]/10 border border-[var(--lab-accent)]/20 rounded-lg p-4">
               <p className="text-[var(--lab-text)] mb-2">
-                <span className="text-[var(--lab-accent)] font-medium">Gap identified:</span> Brilliant's Advanced Math track has no standalone Trigonometry course.
+                <span className="text-[var(--lab-accent)] font-medium">Where I fit:</span> Brilliant is expanding beyond foundational algebra into higher-level mathematics.
               </p>
               <p className="text-[var(--lab-text-muted)] text-sm mb-2">
-                "Sine and Cosine" is buried in Calculus Level 8 — accessible only after completing prerequisite courses.
+                Trigonometry, linear algebra, differential equations—these courses need someone who can design discovery-first experiences for abstract concepts.
               </p>
               <p className="text-[var(--lab-text-dim)] text-sm italic">
-                This module prototypes a dedicated Periodic Functions course that could fill that gap.
+                This module demonstrates how I'd approach that expansion.
               </p>
             </div>
           </section>

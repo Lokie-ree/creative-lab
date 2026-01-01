@@ -24,7 +24,7 @@ export function DiscoveryTab({ values, skipped }: DiscoveryTabProps) {
           <CheckCircle className="w-8 h-8 text-[var(--lab-accent)]" />
         </div>
         <h3 className="text-xl font-semibold text-white mb-1">
-          You built the equation
+          You built:
         </h3>
         <p className="text-[var(--lab-text-muted)] text-sm">
           Through exploration, not explanation
