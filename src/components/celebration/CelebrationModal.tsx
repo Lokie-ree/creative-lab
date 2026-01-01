@@ -129,7 +129,7 @@ export function CelebrationModal({
           onValueChange={(value) => setActiveTab(value as TabId)}
           className="flex flex-col min-h-0 flex-1"
         >
-          <TabsList className="w-full border-b border-[var(--lab-border)] bg-transparent rounded-none p-0 h-auto flex-shrink-0">
+          <TabsList className="w-full border-b border-[var(--lab-border)] bg-transparent rounded-none p-0 pr-12 sm:pr-0 h-auto flex-shrink-0">
             <TabsTrigger
               value="discovery"
               className="flex-1 py-3 sm:py-4 text-xs sm:text-sm font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-[var(--lab-accent)] data-[state=active]:text-[var(--lab-accent)] text-[var(--lab-text-muted)] hover:text-[var(--lab-text)] bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
