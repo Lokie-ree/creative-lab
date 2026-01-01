@@ -64,7 +64,7 @@ export function HeroContent({ onEnter }: HeroContentProps) {
           15 years in math classrooms.
         </p>
         <p ref={hook2Ref} className="text-xl sm:text-2xl md:text-3xl font-light text-[var(--lab-text-muted)]">
-          10 days learning R3F.
+          12 days learning R3F.
         </p>
         <div ref={hook3Ref}>
           <AnimatedShinyText

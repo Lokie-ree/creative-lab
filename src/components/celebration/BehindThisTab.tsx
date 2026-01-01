@@ -48,7 +48,7 @@ export function BehindThisTab() {
           </Badge>
         </div>
         <p className="text-sm text-[var(--lab-text-dim)] italic">
-          First R3F project — built in 10 days while learning the library
+          First R3F project — built in 12 days while learning the library
         </p>
         <ul className="mt-2 space-y-1 text-sm text-[var(--lab-text-muted)]">
           <li>• 60fps animation with Three.js</li>
@@ -67,13 +67,13 @@ export function BehindThisTab() {
         </div>
         <div className="bg-[var(--lab-bg-elevated)]/50 rounded-lg p-3 border border-[var(--lab-border)]">
           <p className="text-sm text-[var(--lab-text)] mb-2">
-            <span className="text-[var(--lab-accent)]">Brilliant's gap:</span> No standalone Trigonometry
+            <span className="text-[var(--lab-accent)]">Where I fit:</span> Expanding into higher-level math
           </p>
           <p className="text-sm text-[var(--lab-text-muted)]">
-            "Sine and Cosine" buried in Calculus Level 8
+            Trigonometry, linear algebra, differential equations
           </p>
           <p className="text-sm text-[var(--lab-text-dim)] mt-2 italic">
-            This module prototypes a dedicated Periodic Functions course
+            This module demonstrates how I'd approach that expansion
           </p>
         </div>
       </section>
