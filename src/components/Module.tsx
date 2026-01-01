@@ -430,6 +430,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
           isPaused={isPaused || !isVisible}
           onPauseChange={setIsPaused}
           stageTargets={{ amplitude: STAGE_TARGETS.amplitude, frequency: STAGE_TARGETS.frequency, phase: 0 }}
+          isVisible={isVisible}
         />
       </div>
 
