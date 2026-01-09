@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- Context pattern: exporting hook alongside provider */
 import { createContext, useContext, type ReactNode } from 'react'
 import { usePortfolioState } from '@/hooks/usePortfolioState'
 
