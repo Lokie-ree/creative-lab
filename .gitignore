@@ -32,3 +32,6 @@ dist-ssr
 
 # MCP config (local)
 .mcp.json
+
+# Git worktrees
+.worktrees/
