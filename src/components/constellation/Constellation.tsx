@@ -5,6 +5,7 @@ import { ConnectionLines } from './ConnectionLines'
 
 interface ConstellationProps {
   onSelectModule: (moduleId: string) => void
+  onBack?: () => void
 }
 
 function getRecommendedModule(
@@ -26,12 +27,23 @@ function getRecommendedModule(
   return null
 }
 
-export function Constellation({ onSelectModule }: ConstellationProps) {
+export function Constellation({ onSelectModule, onBack }: ConstellationProps) {
   const { getModuleProgress } = usePortfolio()
   const recommendedId = getRecommendedModule(MODULES, getModuleProgress)
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#0a0a0f] px-4">
+      {/* Back button */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="absolute top-6 left-6 text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-2"
+        >
+          <span>&#8592;</span>
+          <span>Back</span>
+        </button>
+      )}
+
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-2xl font-light text-white mb-2">

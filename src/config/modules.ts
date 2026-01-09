@@ -10,7 +10,8 @@ export interface ModuleConfig {
 }
 
 export interface ModuleProps {
-  onComplete: (values: { amplitude: number; frequency: number }) => void
+  onComplete: (values: { a: number; f: number }) => void
+  isVisible?: boolean
 }
 
 export const MODULES: ModuleConfig[] = [
@@ -20,7 +21,7 @@ export const MODULES: ModuleConfig[] = [
     domain: 'Trigonometry',
     description: 'Where does the wave come from?',
     order: 1,
-    component: () => import('@/components/Module'),
+    component: () => import('@/components/Module').then(m => ({ default: m.Module })),
   },
   {
     id: 'vector-transformations',
@@ -28,7 +29,6 @@ export const MODULES: ModuleConfig[] = [
     domain: 'Linear Algebra',
     description: 'What does a matrix do to space?',
     order: 2,
-    // @ts-expect-error Module not yet implemented
     component: () => import('@/components/modules/vector-transforms/Module'),
   },
   {
@@ -37,7 +37,6 @@ export const MODULES: ModuleConfig[] = [
     domain: 'Differential Equations',
     description: 'How do systems evolve over time?',
     order: 3,
-    // @ts-expect-error Module not yet implemented
     component: () => import('@/components/modules/phase-portraits/Module'),
   },
 ]
