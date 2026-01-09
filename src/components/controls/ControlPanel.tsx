@@ -11,10 +11,10 @@ interface Discoveries {
 interface ControlPanelProps {
   amplitude: number
   frequency: number
-  phase: number
+  phase?: number  // Reserved for future use
   onAmplitudeChange: (value: number) => void
   onFrequencyChange: (value: number) => void
-  onPhaseChange: (value: number) => void
+  onPhaseChange?: (value: number) => void  // Reserved for future use
   matchScore?: number
   visibleSliders?: SliderType[]
   lockedSliders?: SliderType[]
@@ -24,10 +24,8 @@ interface ControlPanelProps {
 export function ControlPanel({
   amplitude,
   frequency,
-  phase: _phase,  // Kept for interface compatibility, not used in v2
   onAmplitudeChange,
   onFrequencyChange,
-  onPhaseChange: _onPhaseChange,  // Kept for interface compatibility, not used in v2
   matchScore,
   visibleSliders,
   lockedSliders = [],

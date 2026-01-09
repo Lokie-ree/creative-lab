@@ -87,6 +87,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
 
       const positions = radiusLine.geometry.attributes.position as THREE.BufferAttribute
       positions.setXYZ(1, x, y, 0)
+      // eslint-disable-next-line react-hooks/immutability -- R3F pattern: updating geometry buffer for animation
       positions.needsUpdate = true
     }, [radiusLine, amplitude])
 

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback, useRef } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import gsap from "gsap"
 import { cn } from "@/lib/utils"
 import { Scene } from "./modules/sinusoidal/Scene"
@@ -119,12 +119,6 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
   const [amplitude, setAmplitude] = useState(1.0)
   const [frequency, setFrequency] = useState(1.0)
 
-  // Refs for flash animation (to avoid re-renders during animation)
-  const amplitudeRef = useRef(amplitude)
-  const frequencyRef = useRef(frequency)
-  amplitudeRef.current = amplitude
-  frequencyRef.current = frequency
-
   // ---------------------------------------------------------------------------
   // Question State
   // ---------------------------------------------------------------------------
@@ -206,6 +200,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
     if (checkMatch()) {
       // Trigger celebration
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: match detection triggers state update
       setCelebrationCount(c => c + 1)
 
       // Transition to match substage for visual feedback
@@ -240,6 +235,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     if (stage !== 'challenge' || challengePhase !== 'match') return
 
     if (challengeMatchScore >= CHALLENGE_MATCH_THRESHOLD) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: challenge match detection triggers state update
       setCelebrationCount(c => c + 1)
       // Update discoveries with the final matched values
       setDiscoveries({ amplitude, frequency })
@@ -259,6 +255,27 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     setShowContinue(false)
     setStage('amplitude')
     setSubStage('explore')
+  }, [])
+
+  const setupChallenge = useCallback(() => {
+    // Randomly pick which parameter differs
+    const param = Math.random() > 0.5 ? 'amplitude' : 'frequency'
+    setChallengeParam(param)
+
+    // Generate challenge wave differing by ONE param
+    const newChallengeWave = {
+      a: param === 'amplitude' ? pickRandom(CHALLENGE_AMPLITUDES) : STAGE_TARGETS.amplitude,
+      f: param === 'frequency' ? pickRandom(CHALLENGE_FREQUENCIES) : STAGE_TARGETS.frequency,
+    }
+    setChallengeWave(newChallengeWave)
+
+    // Reset user values to matched values
+    setAmplitude(STAGE_TARGETS.amplitude)
+    setFrequency(STAGE_TARGETS.frequency)
+
+    setStage('challenge')
+    setChallengePhase('observe') // Start with observation, not immediate question
+    setSelectedAnswer(null)
   }, [])
 
   const handleAnswerSelect = useCallback((value: string | number) => {
@@ -299,28 +316,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
         setupChallenge()
       }
     }, 1200)
-  }, [isCorrect, currentQuestion, stage, amplitude, frequency])
-
-  const setupChallenge = useCallback(() => {
-    // Randomly pick which parameter differs
-    const param = Math.random() > 0.5 ? 'amplitude' : 'frequency'
-    setChallengeParam(param)
-
-    // Generate challenge wave differing by ONE param
-    const newChallengeWave = {
-      a: param === 'amplitude' ? pickRandom(CHALLENGE_AMPLITUDES) : STAGE_TARGETS.amplitude,
-      f: param === 'frequency' ? pickRandom(CHALLENGE_FREQUENCIES) : STAGE_TARGETS.frequency,
-    }
-    setChallengeWave(newChallengeWave)
-
-    // Reset user values to matched values
-    setAmplitude(STAGE_TARGETS.amplitude)
-    setFrequency(STAGE_TARGETS.frequency)
-
-    setStage('challenge')
-    setChallengePhase('observe') // Start with observation, not immediate question
-    setSelectedAnswer(null)
-  }, [])
+  }, [isCorrect, currentQuestion, stage, amplitude, frequency, setupChallenge])
 
   const handleDiagnoseAnswer = useCallback((value: string | number) => {
     const answer = value as string

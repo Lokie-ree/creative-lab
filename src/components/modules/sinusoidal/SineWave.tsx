@@ -104,6 +104,7 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
           "position",
           new THREE.BufferAttribute(positionData, 3)
         )
+        // eslint-disable-next-line react-hooks/immutability -- R3F pattern: updating geometry buffer in animation loop
         line.geometry.attributes.position.needsUpdate = true
         line.geometry.computeBoundingSphere()
       }
