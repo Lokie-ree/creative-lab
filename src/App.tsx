@@ -6,7 +6,7 @@ import { Constellation } from "@/components/constellation"
 
 // Lazy load the heavy Module component (includes Three.js/R3F)
 const Module = lazy(() => import("./components/Module").then(m => ({ default: m.Module })))
-import { EscapeHatch } from "./components/layout"
+import { EscapeHatch, Navigation } from "./components/layout"
 import { CelebrationModal } from "./components/celebration"
 import { ResumeDialog, ProcessDialog } from "./components/dialogs"
 
@@ -101,9 +101,15 @@ function App() {
 
       {/* Module View */}
       {view === "module" && activeModuleId && (
-        <Suspense fallback={<ModuleLoader />}>
-          <Module onComplete={handleModuleComplete} isVisible={true} />
-        </Suspense>
+        <>
+          <Navigation
+            showBackButton={!showCelebration}
+            onBack={handleBackToConstellation}
+          />
+          <Suspense fallback={<ModuleLoader />}>
+            <Module onComplete={handleModuleComplete} isVisible={true} />
+          </Suspense>
+        </>
       )}
 
       {/* Escape hatch - only visible in module view, not during celebration */}
@@ -123,6 +129,7 @@ function App() {
         initialTab={celebrationTab}
         onDismiss={() => setShowCelebration(false)}
         onNewChallenge={handleNewChallenge}
+        onNextModule={handleBackToConstellation}
         onOpenResume={handleOpenResume}
         onOpenProcess={handleOpenProcess}
       />
