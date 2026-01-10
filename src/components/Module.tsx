@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react"
 import gsap from "gsap"
 import { cn } from "@/lib/utils"
+import { usePortfolio } from "@/context/PortfolioContext"
 import { Scene } from "./modules/sinusoidal/Scene"
 import { ControlPanel } from "./controls/ControlPanel"
 import { FormulaPreview } from "./feedback/FormulaPreview"
@@ -142,6 +143,29 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
   // ---------------------------------------------------------------------------
   const [isPaused, setIsPaused] = useState(false)
   const [celebrationCount, setCelebrationCount] = useState(0)
+
+  // ---------------------------------------------------------------------------
+  // Portfolio Progress Tracking
+  // ---------------------------------------------------------------------------
+  const { updateModuleProgress } = usePortfolio()
+
+  // Track progress based on stage
+  useEffect(() => {
+    const progressMap: Record<string, number> = {
+      observe: 0.05,
+      amplitude: 0.25,
+      frequency: 0.5,
+      challenge: 0.75,
+      reveal: 1,
+    }
+
+    const progress = progressMap[stage] ?? 0
+    updateModuleProgress('sinusoidal-waves', {
+      status: stage === 'reveal' ? 'completed' : 'in-progress',
+      progress,
+      currentStage: stage,
+    })
+  }, [stage, updateModuleProgress])
 
   // ---------------------------------------------------------------------------
   // Computed Values
