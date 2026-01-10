@@ -1,44 +1,56 @@
-# Creative Lab: Interactive Math Learning Module
+# Creative Lab: Interactive Math Learning Portfolio
 
-An interactive web application that teaches the sine wave equation through discovery-based learning. Users manipulate amplitude, frequency, and phase parameters to match a target wave pattern, with the mathematical formula revealed as a reward for understanding—not a prerequisite.
+A portfolio of interactive learning experiences that demonstrate pedagogical design through direct experience. Each module teaches mathematical concepts through discovery, manipulation, and earned reveals—where formulas appear as confirmation of understanding, not prerequisites to learning.
 
-## 🎯 Project Vision
+## 🎯 Portfolio Vision
 
-This module demonstrates a pedagogical approach inspired by Brilliant.org's philosophy: **teach through exploration, not explanation**. Instead of presenting formulas first, learners discover mathematical relationships by manipulating visual elements, building intuition before formal notation.
+**"I build interactive experiences that help people understand things they thought were hard."**
+
+This portfolio practices what it preaches. Visitors don't read about design philosophy—they experience it. Each module embodies the same pedagogical principles:
+
+- **Discovery before formula** - Challenge comes first, explanation follows understanding
+- **Manipulation before explanation** - Visual and kinesthetic understanding precedes notation
+- **Earned reveals** - Mathematical notation becomes a label for intuition, not a barrier
+- **Visual confirmation** - Understanding is demonstrated through pattern matching, not multiple choice
+
+For the complete vision document, see [`PORTFOLIO_VISION.md`](./PORTFOLIO_VISION.md).
 
 ### Core Philosophy
 
-- **Discovery over instruction**: The challenge (matching the wave) comes first
+- **Discovery over instruction**: The challenge comes first, not the explanation
 - **Visual intuition before notation**: The formula appears after understanding is built
 - **Celebrate progress**: "Getting closer" feedback encourages exploration
 - **Earned reveals**: Mathematical notation becomes a label for intuition, not a barrier
 
-For the complete vision document, see [`docs/copy/brilliant-math-producer-vision.md`](./docs/copy/brilliant-math-producer-vision.md).
+## 📚 Module Architecture
 
-## ✨ Current Features
+```
+                    ┌─── Trigonometry ───────→ Sinewaves (COMPLETE)
+                    │
+        HERO ───────┼─── Linear Algebra ─────→ Vector Transformations (DESIGN READY)
+                    │
+                    └─── Differential Eq. ───→ Phase Portraits (DESIGN READY)
+```
 
-### Interactive Visualization
+### Current Module: Sinewaves
 
-- **Unit Circle**: Real-time rotation showing the angle parameter, with synchronized point tracking
+**Status:** ✅ Complete and deployed
+
+An interactive visualization where users discover the wave equation by matching a target motion. The formula appears as a reward for understanding, not a prerequisite.
+
+**Features:**
+- **Unit Circle**: Real-time rotation with synchronized point tracking
 - **Sine Wave Graph**: Animated wave tracing that updates as parameters change
 - **Connector Line**: Visual link between the unit circle's y-value and the wave graph
 - **Target Matching**: Ghost visualization of the target wave pattern to match
+- **Parameter Controls**: Amplitude and frequency sliders with real-time feedback
+- **Challenge System**: Pattern-matching with proximity scoring and earned formula reveal
 - **Responsive Layout**: Adapts to portrait and landscape orientations
 
-### Parameter Controls
+### Upcoming Modules
 
-- **Amplitude Slider**: Adjusts wave height (0.1 - 2.0)
-- **Frequency Slider**: Controls wave speed/cycles (0.5 - 3.0)
-- **Phase Slider**: Shifts wave position (0 - 2π), displayed in π multiples
-- **Real-time Feedback**: All changes update the visualization instantly
-
-### Challenge System
-
-- **Random Targets**: Each challenge generates a unique target wave pattern
-- **Match Scoring**: Real-time proximity calculation (0-100%)
-- **Visual Feedback**: Color-coded match indicator (red → yellow → green → success)
-- **Formula Reveal**: Upon matching (≥95%), the wave equation appears with your discovered values
-- **New Challenge**: Reset and try again with a different target
+- **Vector Transformations** (Linear Algebra) - Design complete, ready to build
+- **Phase Portraits** (Differential Equations) - Design complete, ready to build
 
 ## 🛠️ Tech Stack
 
@@ -118,16 +130,19 @@ src/
 - **Accessible**: Touch-friendly controls, responsive to all screen sizes
 - **Performance-first**: Optimized rendering with React Three Fiber best practices
 
-## 🔮 Future Enhancements
+## 🎯 Who This Is For
 
-Potential directions for expansion:
+### Primary: Students
 
-- Multiple challenge types (cosine waves, combined waves, etc.)
-- Difficulty progression (beginner → advanced)
-- Save/share discovered patterns
-- Educational annotations (optional hints)
-- Multiplayer challenges
-- Integration with learning management systems
+They encounter the modules as learning tools, not portfolio pieces. If a student visits and genuinely understands sine and cosine better because of five minutes on this site, the portfolio has succeeded.
+
+### Secondary: EdTech Leaders
+
+Hiring managers, product leaders, and decision-makers at companies like Brilliant, Duolingo, Khan Academy, and the growing universe of learning platforms. They see someone who doesn't just talk about interactive learning—they experience it firsthand.
+
+### Tertiary: Myself
+
+A portfolio that reflects who I'm becoming, not just who I've been. Something that energizes me to maintain, share, and discuss with enthusiasm.
 
 ## 📝 License
 
