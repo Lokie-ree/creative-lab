@@ -61,12 +61,13 @@ export function Constellation({ onSelectModule, onBack }: ConstellationProps) {
         {MODULES
           .sort((a, b) => b.order - a.order) // Display top to bottom (higher order = top)
           .map((module) => {
-            const progress = getModuleProgress(module.id)
+            const moduleProgress = getModuleProgress(module.id)
             return (
               <ModuleNode
                 key={module.id}
                 module={module}
-                status={progress.status}
+                status={moduleProgress.status}
+                progress={moduleProgress.progress ?? (moduleProgress.status === 'completed' ? 1 : 0)}
                 isRecommended={module.id === recommendedId}
                 onClick={() => onSelectModule(module.id)}
               />
