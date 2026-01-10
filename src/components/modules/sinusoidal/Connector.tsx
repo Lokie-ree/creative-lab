@@ -54,6 +54,7 @@ export function Connector({ circleX, waveX, frequency, phase, amplitude, isPause
     const positions = line.geometry.attributes.position as THREE.BufferAttribute
     positions.setXYZ(0, circlePointX, circlePointY, 0)
     positions.setXYZ(1, wavePointX, wavePointY, 0)
+    // eslint-disable-next-line react-hooks/immutability -- R3F pattern: updating geometry buffer in animation loop
     positions.needsUpdate = true
     line.computeLineDistances()
 

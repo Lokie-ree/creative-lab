@@ -16,6 +16,7 @@ interface CelebrationModalProps {
   initialTab?: TabId
   onDismiss: () => void
   onNewChallenge: () => void
+  onNextModule: () => void
   onOpenResume: () => void
   onOpenProcess: () => void
 }
@@ -27,6 +28,7 @@ export function CelebrationModal({
   initialTab = "discovery",
   onDismiss,
   onNewChallenge,
+  onNextModule,
   onOpenResume,
   onOpenProcess,
 }: CelebrationModalProps) {
@@ -37,6 +39,7 @@ export function CelebrationModal({
 
   useEffect(() => {
     if (show) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing prop to state for exit animation control
       setIsVisible(true)
       setActiveTab(initialTab)
     }
@@ -93,6 +96,29 @@ export function CelebrationModal({
   const handleNewChallenge = () => {
     handleDismiss()
     setTimeout(onNewChallenge, 300)
+  }
+
+  const handleNextModule = () => {
+    if (containerRef.current && backdropRef.current) {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setIsVisible(false)
+          onNextModule()
+        },
+      })
+
+      tl.to(containerRef.current, {
+        opacity: 0,
+        scale: 0.95,
+        y: -10,
+        duration: 0.25,
+        ease: "power2.in",
+      }, 0)
+      tl.to(backdropRef.current, {
+        opacity: 0,
+        duration: 0.2,
+      }, 0.1)
+    }
   }
 
   if (!isVisible) return null
@@ -168,12 +194,18 @@ export function CelebrationModal({
         </Tabs>
 
         {/* Footer */}
-        <div className="p-3 sm:p-4 border-t border-[var(--lab-border)] flex-shrink-0">
+        <div className="p-3 sm:p-4 border-t border-[var(--lab-border)] flex-shrink-0 flex gap-3">
           <button
             onClick={handleNewChallenge}
-            className="w-full py-2.5 sm:py-3 min-h-[44px] bg-[var(--lab-accent)] hover:bg-[var(--lab-accent-hover)] text-[var(--lab-bg)] font-semibold rounded-lg transition-colors text-sm sm:text-base"
+            className="flex-1 py-2.5 sm:py-3 min-h-[44px] bg-[var(--lab-bg-elevated)] hover:bg-[var(--lab-border)] text-[var(--lab-text)] font-medium rounded-lg transition-colors text-sm sm:text-base border border-[var(--lab-border)]"
           >
-            Try Another Challenge
+            Keep Exploring
+          </button>
+          <button
+            onClick={handleNextModule}
+            className="flex-1 py-2.5 sm:py-3 min-h-[44px] bg-[var(--lab-accent)] hover:bg-[var(--lab-accent-hover)] text-[var(--lab-bg)] font-semibold rounded-lg transition-colors text-sm sm:text-base"
+          >
+            Next Module →
           </button>
         </div>
       </div>

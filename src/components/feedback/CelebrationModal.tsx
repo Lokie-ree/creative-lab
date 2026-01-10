@@ -31,6 +31,7 @@ export function CelebrationModal({
 
   useEffect(() => {
     if (show) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing prop to state for exit animation control
       setIsVisible(true)
     }
   }, [show])

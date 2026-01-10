@@ -35,6 +35,7 @@ export function SlideTransition({
     // Both refs should exist since both are always mounted
     if (!heroRef.current || !moduleRef.current) return
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: animation state management
     setIsAnimating(true)
 
     // Clean up any existing animations
@@ -95,15 +96,19 @@ export function SlideTransition({
 
   // Cleanup animations on unmount
   useEffect(() => {
+    // Capture ref values for cleanup
+    const heroEl = heroRef.current
+    const moduleEl = moduleRef.current
+
     return () => {
       if (timelineRef.current) {
         timelineRef.current.kill()
       }
-      if (heroRef.current) {
-        gsap.killTweensOf(heroRef.current)
+      if (heroEl) {
+        gsap.killTweensOf(heroEl)
       }
-      if (moduleRef.current) {
-        gsap.killTweensOf(moduleRef.current)
+      if (moduleEl) {
+        gsap.killTweensOf(moduleEl)
       }
     }
   }, [])

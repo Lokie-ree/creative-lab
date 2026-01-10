@@ -1,20 +1,22 @@
 import { useState, useCallback, lazy, Suspense } from "react"
 import { Hero } from "./components/hero"
 import { ModuleLoader } from "./components/ModuleLoader"
-import { SlideTransition } from "./components/transitions"
+import { PortfolioProvider } from "@/context/PortfolioContext"
+import { Constellation } from "@/components/constellation"
 
 // Lazy load the heavy Module component (includes Three.js/R3F)
 const Module = lazy(() => import("./components/Module").then(m => ({ default: m.Module })))
-import { EscapeHatch } from "./components/layout"
+import { EscapeHatch, Navigation } from "./components/layout"
 import { CelebrationModal } from "./components/celebration"
 import { ResumeDialog, ProcessDialog } from "./components/dialogs"
 
-type View = "hero" | "module"
+type View = "hero" | "constellation" | "module"
 type TabId = "discovery" | "behind" | "deeper"
 
 function App() {
   // View state
   const [view, setView] = useState<View>("hero")
+  const [activeModuleId, setActiveModuleId] = useState<string | null>(null)
 
   // Completed values from module
   const [completedValues, setCompletedValues] = useState<{ a: number; f: number } | null>(null)
@@ -26,8 +28,14 @@ function App() {
   const [showResume, setShowResume] = useState(false)
   const [showProcess, setShowProcess] = useState(false)
 
-  // Hero → Module transition
-  const handleEnterModule = useCallback(() => {
+  // Hero → Constellation transition
+  const handleEnterConstellation = useCallback(() => {
+    setView("constellation")
+  }, [])
+
+  // Constellation → Module transition
+  const handleSelectModule = useCallback((moduleId: string) => {
+    setActiveModuleId(moduleId)
     setView("module")
   }, [])
 
@@ -39,11 +47,16 @@ function App() {
     setShowCelebration(true)
   }, [])
 
-  // Back to hero
-  const handleBackToStart = useCallback(() => {
+  // Back to constellation from module
+  const handleBackToConstellation = useCallback(() => {
     setShowCelebration(false)
     setCompletedValues(null)
     setSkippedToEnd(false)
+    setView("constellation")
+  }, [])
+
+  // Back to hero from constellation
+  const handleBackToHero = useCallback(() => {
     setView("hero")
   }, [])
 
@@ -72,21 +85,37 @@ function App() {
   }, [])
 
   return (
-    <>
-      <SlideTransition
-        view={view}
-        heroContent={<Hero onEnter={handleEnterModule} />}
-        moduleContent={
+    <PortfolioProvider>
+      {/* Hero View */}
+      {view === "hero" && (
+        <Hero onEnter={handleEnterConstellation} />
+      )}
+
+      {/* Constellation View */}
+      {view === "constellation" && (
+        <Constellation
+          onSelectModule={handleSelectModule}
+          onBack={handleBackToHero}
+        />
+      )}
+
+      {/* Module View */}
+      {view === "module" && activeModuleId && (
+        <>
+          <Navigation
+            showBackButton={!showCelebration}
+            onBack={handleBackToConstellation}
+          />
           <Suspense fallback={<ModuleLoader />}>
-            <Module onComplete={handleModuleComplete} isVisible={view === "module"} />
+            <Module onComplete={handleModuleComplete} isVisible={true} />
           </Suspense>
-        }
-      />
+        </>
+      )}
 
       {/* Escape hatch - only visible in module view, not during celebration */}
       {view === "module" && !showCelebration && (
         <EscapeHatch
-          onBackToStart={handleBackToStart}
+          onBackToStart={handleBackToConstellation}
           onViewResume={handleOpenResume}
           onSkipToEnd={handleSkipToEnd}
         />
@@ -100,6 +129,7 @@ function App() {
         initialTab={celebrationTab}
         onDismiss={() => setShowCelebration(false)}
         onNewChallenge={handleNewChallenge}
+        onNextModule={handleBackToConstellation}
         onOpenResume={handleOpenResume}
         onOpenProcess={handleOpenProcess}
       />
@@ -109,7 +139,7 @@ function App() {
 
       {/* Process Dialog */}
       <ProcessDialog open={showProcess} onOpenChange={setShowProcess} />
-    </>
+    </PortfolioProvider>
   )
 }
 

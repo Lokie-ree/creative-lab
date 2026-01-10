@@ -1,7 +1,13 @@
-import React, { useEffect, useId, useRef, useState } from "react"
+import React, { useEffect, useId, useMemo, useRef, useState } from "react"
 import { motion } from "motion/react"
 
 import { cn } from "@/lib/utils"
+
+// Seeded random function for deterministic "random" values
+function seededRandom(seed: number) {
+  const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453
+  return x - Math.floor(x)
+}
 
 /**
  *  DotPattern Component Props
@@ -62,8 +68,8 @@ interface DotPatternProps extends React.SVGProps<SVGSVGElement> {
 export function DotPattern({
   width = 16,
   height = 16,
-  x = 0,
-  y = 0,
+  x: _x = 0,  // Reserved for pattern offset
+  y: _y = 0,  // Reserved for pattern offset
   cx = 1,
   cy = 1,
   cr = 1,
@@ -71,6 +77,10 @@ export function DotPattern({
   glow = false,
   ...props
 }: DotPatternProps) {
+  // Suppress unused variable warnings for reserved props
+  void _x
+  void _y
+
   const id = useId()
   const containerRef = useRef<SVGSVGElement>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
@@ -88,7 +98,7 @@ export function DotPattern({
     return () => window.removeEventListener("resize", updateDimensions)
   }, [])
 
-  const dots = Array.from(
+  const dots = useMemo(() => Array.from(
     {
       length:
         Math.ceil(dimensions.width / width) *
@@ -100,11 +110,11 @@ export function DotPattern({
       return {
         x: col * width + cx,
         y: row * height + cy,
-        delay: Math.random() * 5,
-        duration: Math.random() * 3 + 2,
+        delay: seededRandom(i) * 5,
+        duration: seededRandom(i + 1000) * 3 + 2,
       }
     }
-  )
+  ), [dimensions.width, dimensions.height, width, height, cx, cy])
 
   return (
     <svg
