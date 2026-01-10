@@ -1,32 +1,42 @@
 import { cn } from '@/lib/utils'
 import type { ModuleConfig } from '@/config/modules'
 import type { ModuleStatus } from '@/types/portfolio'
+import { NodeRings } from './NodeRings'
 
 interface ModuleNodeProps {
   module: ModuleConfig
   status: ModuleStatus
+  progress: number // 0-1
   isRecommended: boolean
   onClick: () => void
 }
 
-export function ModuleNode({ module, status, isRecommended, onClick }: ModuleNodeProps) {
+export function ModuleNode({
+  module,
+  status,
+  progress,
+  isRecommended,
+  onClick,
+}: ModuleNodeProps) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'group flex flex-col items-center gap-2 p-4 rounded-lg transition-all',
-        'hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-500/50',
-        isRecommended && 'animate-pulse-subtle'
+        'group flex flex-col items-center gap-3 p-4 rounded-lg transition-all duration-150',
+        'hover:scale-108 active:scale-98',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]'
       )}
     >
-      {/* Status indicator */}
-      <div
+      {/* Layered rings */}
+      <NodeRings
+        status={status}
+        progress={progress}
+        isRecommended={isRecommended}
         className={cn(
-          'w-4 h-4 rounded-full border-2 transition-colors',
-          status === 'completed' && 'bg-cyan-400 border-cyan-400',
-          status === 'in-progress' && 'border-amber-400 bg-amber-400/30',
-          status === 'not-started' && 'border-gray-500 bg-transparent',
-          isRecommended && status === 'not-started' && 'border-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]'
+          'transition-all duration-150',
+          'group-hover:[&_circle]:stroke-[3px]',
+          'group-hover:drop-shadow-[0_0_12px_rgba(34,211,238,0.3)]',
+          isRecommended && status === 'not-started' && 'animate-ring-pulse'
         )}
       />
 
@@ -36,11 +46,13 @@ export function ModuleNode({ module, status, isRecommended, onClick }: ModuleNod
       </span>
 
       {/* Module title */}
-      <span className={cn(
-        'text-sm font-medium transition-colors',
-        status === 'completed' ? 'text-cyan-400' : 'text-white',
-        'group-hover:text-cyan-300'
-      )}>
+      <span
+        className={cn(
+          'text-sm font-medium transition-colors duration-150 max-w-[120px] text-center',
+          status === 'completed' ? 'text-cyan-400' : 'text-white',
+          'group-hover:text-cyan-300'
+        )}
+      >
         {module.title}
       </span>
     </button>
