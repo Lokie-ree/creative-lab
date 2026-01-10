@@ -72,6 +72,20 @@
   animation: pulse-subtle 2s ease-in-out infinite;
 }
 
+/* Ring pulse animation for recommended modules */
+@keyframes ring-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.6));
+  }
+}
+
+.animate-ring-pulse {
+  animation: ring-pulse 2s ease-in-out infinite;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
