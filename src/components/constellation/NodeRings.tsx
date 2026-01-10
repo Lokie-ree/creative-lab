@@ -1,3 +1,5 @@
+import { useRef, useEffect } from 'react'
+import { gsap } from 'gsap'
 import { cn } from '@/lib/utils'
 import type { ModuleStatus } from '@/types/portfolio'
 
@@ -9,10 +11,19 @@ interface NodeRingsProps {
 }
 
 export function NodeRings({ status, progress, isRecommended, className }: NodeRingsProps) {
-  // Calculate stroke-dasharray for progress arc
-  // Circumference of middle ring (r=16): 2 * PI * 16 ≈ 100.53
+  const progressRef = useRef<SVGCircleElement>(null)
   const circumference = 2 * Math.PI * 16
-  const dashArray = `${progress * circumference} ${circumference}`
+
+  // Animate progress arc when progress changes
+  useEffect(() => {
+    if (!progressRef.current) return
+
+    gsap.to(progressRef.current, {
+      strokeDasharray: `${progress * circumference} ${circumference}`,
+      duration: 0.6,
+      ease: 'power2.out',
+    })
+  }, [progress, circumference])
 
   const isActive = status !== 'not-started'
   const isCompleted = status === 'completed'
@@ -38,13 +49,14 @@ export function NodeRings({ status, progress, isRecommended, className }: NodeRi
 
       {/* Middle ring - progress arc */}
       <circle
+        ref={progressRef}
         cx="24"
         cy="24"
         r="16"
         fill="none"
         stroke="#22d3ee"
         strokeWidth="2"
-        strokeDasharray={dashArray}
+        strokeDasharray={`${progress * circumference} ${circumference}`}
         strokeLinecap="round"
         transform="rotate(-90 24 24)"
         className={cn(
