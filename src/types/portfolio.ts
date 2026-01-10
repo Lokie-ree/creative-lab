@@ -2,6 +2,7 @@ export type ModuleStatus = 'not-started' | 'in-progress' | 'completed'
 
 export interface ModuleProgress {
   status: ModuleStatus
+  progress?: number // 0-1, percentage through module
   currentStage?: string
   currentSubStage?: string
   discoveries?: {
