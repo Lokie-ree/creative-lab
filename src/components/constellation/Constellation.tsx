@@ -1,79 +1,163 @@
+import { motion } from 'motion/react'
+import { ArrowLeft } from 'lucide-react'
 import { MODULES } from '@/config/modules'
+import { getCourseById } from '@/config/courses'
 import { usePortfolio } from '@/context/PortfolioContext'
 import { ModuleNode } from './ModuleNode'
-import { ConnectionLines } from './ConnectionLines'
+import { cn } from '@/lib/utils'
 
 interface ConstellationProps {
+  courseId: string
   onSelectModule: (moduleId: string) => void
-  onBack?: () => void
+  onBack: () => void
+}
+
+const containerVariants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+}
+
+const nodeVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.3, ease: 'easeOut' as const },
+  },
+}
+
+const connectorVariants = {
+  hidden: { opacity: 0, scale: 0 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.2, ease: 'easeOut' as const },
+  },
 }
 
 function getRecommendedModule(
   modules: typeof MODULES,
-  getProgress: (id: string) => { status: string }
+  getModuleProgress: (id: string) => { status: string }
 ): string | null {
   const sorted = [...modules].sort((a, b) => a.order - b.order)
-
-  // Prioritize in-progress
-  for (const m of sorted) {
-    if (getProgress(m.id).status === 'in-progress') return m.id
+  for (const module of sorted) {
+    const progress = getModuleProgress(module.id)
+    if (progress.status !== 'completed') {
+      return module.id
+    }
   }
-
-  // Next incomplete
-  for (const m of sorted) {
-    if (getProgress(m.id).status !== 'completed') return m.id
-  }
-
   return null
 }
 
-export function Constellation({ onSelectModule, onBack }: ConstellationProps) {
+export function Constellation({
+  courseId,
+  onSelectModule,
+  onBack,
+}: ConstellationProps) {
   const { getModuleProgress } = usePortfolio()
-  const recommendedId = getRecommendedModule(MODULES, getModuleProgress)
+  const course = getCourseById(courseId)
+
+  // Filter modules by course
+  const courseModules = MODULES.filter((m) => m.courseId === courseId)
+  const recommendedId = getRecommendedModule(courseModules, getModuleProgress)
+
+  if (!course) {
+    return <div className="text-white">Course not found</div>
+  }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#0a0a0f] px-4">
+    <div
+      className="relative flex flex-col items-center justify-center min-h-screen px-4"
+      style={{
+        background:
+          'radial-gradient(ellipse at center, #0a0a0f 0%, #050508 100%)',
+      }}
+    >
       {/* Back button */}
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="absolute top-6 left-6 text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-2"
-        >
-          <span>&#8592;</span>
-          <span>Back</span>
-        </button>
-      )}
+      <button
+        onClick={onBack}
+        className="absolute top-6 left-6 text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span>Courses</span>
+      </button>
 
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-2xl font-light text-white mb-2">
-          Interactive Math Experiences
+        <h1 className="text-2xl md:text-3xl font-light text-white mb-2">
+          {course.name}
         </h1>
-        <p className="text-gray-400 text-sm">
-          Choose a module to explore
-        </p>
+        <p className="text-gray-400 text-sm">Choose a module to explore</p>
       </div>
 
-      {/* Constellation */}
-      <div className="relative flex flex-col items-center gap-8">
-        <ConnectionLines nodeCount={MODULES.length} />
-
-        {MODULES
-          .sort((a, b) => b.order - a.order) // Display top to bottom (higher order = top)
-          .map((module) => {
+      {/* Module constellation - hybrid layout */}
+      <motion.div
+        className={cn(
+          'relative flex items-center',
+          // Mobile: vertical column
+          'flex-col',
+          // Desktop: horizontal row
+          'md:flex-row'
+        )}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {courseModules
+          .sort((a, b) => a.order - b.order)
+          .map((module, index, sortedModules) => {
             const moduleProgress = getModuleProgress(module.id)
+            const isCompleted = moduleProgress.status === 'completed'
+            const isLastModule = index === sortedModules.length - 1
+
             return (
-              <ModuleNode
+              <div
                 key={module.id}
-                module={module}
-                status={moduleProgress.status}
-                progress={moduleProgress.progress ?? (moduleProgress.status === 'completed' ? 1 : 0)}
-                isRecommended={module.id === recommendedId}
-                onClick={() => onSelectModule(module.id)}
-              />
+                className={cn(
+                  'flex items-center',
+                  // Mobile: vertical
+                  'flex-col',
+                  // Desktop: horizontal
+                  'md:flex-row'
+                )}
+              >
+                {/* Module Node */}
+                <motion.div variants={nodeVariants}>
+                  <ModuleNode
+                    module={module}
+                    status={moduleProgress.status}
+                    progress={moduleProgress.progress ?? (isCompleted ? 1 : 0)}
+                    isRecommended={module.id === recommendedId}
+                    onClick={() => onSelectModule(module.id)}
+                  />
+                </motion.div>
+
+                {/* Connector segment */}
+                {!isLastModule && (
+                  <motion.div
+                    variants={connectorVariants}
+                    className={cn(
+                      'origin-center',
+                      // Mobile: vertical connector
+                      'w-px h-8',
+                      // Desktop: horizontal connector
+                      'md:w-8 md:h-px',
+                      isCompleted
+                        ? 'bg-cyan-400 animate-ring-pulse'
+                        : 'bg-gray-600'
+                    )}
+                  />
+                )}
+              </div>
             )
           })}
-      </div>
+      </motion.div>
     </div>
   )
 }

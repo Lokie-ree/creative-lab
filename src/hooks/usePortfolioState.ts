@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { PortfolioState, ModuleProgress, ModuleStatus } from '@/types/portfolio'
 import { INITIAL_PORTFOLIO_STATE } from '@/types/portfolio'
+import { COURSES } from '@/config/courses'
 
 const STORAGE_KEY = 'portfolio-state'
 
@@ -36,6 +37,23 @@ export function usePortfolioState() {
     return state.modules[moduleId] || { status: 'not-started' }
   }, [state.modules])
 
+  const getCourseProgress = useCallback((courseId: string) => {
+    const course = COURSES.find((c) => c.id === courseId)
+    if (!course) return { completed: 0, total: 0, percentage: 0 }
+
+    const total = course.moduleIds.length
+    const completed = course.moduleIds.filter((moduleId) => {
+      const progress = state.modules[moduleId] || { status: 'not-started' }
+      return progress.status === 'completed'
+    }).length
+
+    return {
+      completed,
+      total,
+      percentage: total > 0 ? completed / total : 0,
+    }
+  }, [state.modules])
+
   const updateModuleProgress = useCallback((
     moduleId: string,
     progress: Partial<ModuleProgress>
@@ -67,6 +85,7 @@ export function usePortfolioState() {
   return {
     state,
     getModuleProgress,
+    getCourseProgress,
     updateModuleProgress,
     setModuleStatus,
     clearProgress,

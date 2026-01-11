@@ -1,8 +1,9 @@
 import { useState, useCallback, lazy, Suspense } from "react"
+import { AnimatePresence, motion } from "motion/react"
 import { Hero } from "./components/hero"
 import { ModuleLoader } from "./components/ModuleLoader"
 import { PortfolioProvider } from "@/context/PortfolioContext"
-import { Constellation } from "@/components/constellation"
+import { Constellation, CourseHub } from "@/components/constellation"
 
 // Lazy load the heavy Module component (includes Three.js/R3F)
 const Module = lazy(() => import("./components/Module").then(m => ({ default: m.Module })))
@@ -10,13 +11,20 @@ import { EscapeHatch, Navigation } from "./components/layout"
 import { CelebrationModal } from "./components/celebration"
 import { ResumeDialog, ProcessDialog } from "./components/dialogs"
 
-type View = "hero" | "constellation" | "module"
+type View = "hero" | "courses" | "constellation" | "module"
 type TabId = "discovery" | "behind" | "deeper"
 
 function App() {
   // View state
   const [view, setView] = useState<View>("hero")
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null)
+  
+  // Transition origin for zoom animation
+  const [transitionOrigin, setTransitionOrigin] = useState<{
+    x: number
+    y: number
+  } | null>(null)
 
   // Completed values from module
   const [completedValues, setCompletedValues] = useState<{ a: number; f: number } | null>(null)
@@ -28,8 +36,21 @@ function App() {
   const [showResume, setShowResume] = useState(false)
   const [showProcess, setShowProcess] = useState(false)
 
-  // Hero → Constellation transition
-  const handleEnterConstellation = useCallback(() => {
+  // Hero → Courses transition
+  const handleEnter = useCallback(() => {
+    setView("courses")
+  }, [])
+
+  // Courses → Constellation transition (with zoom origin tracking)
+  const handleSelectCourse = useCallback((courseId: string, event?: React.MouseEvent) => {
+    if (event) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+      setTransitionOrigin({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      })
+    }
+    setSelectedCourseId(courseId)
     setView("constellation")
   }, [])
 
@@ -52,10 +73,17 @@ function App() {
     setShowCelebration(false)
     setCompletedValues(null)
     setSkippedToEnd(false)
+    setActiveModuleId(null)
     setView("constellation")
   }, [])
 
-  // Back to hero from constellation
+  // Back to courses from constellation
+  const handleBackToCourses = useCallback(() => {
+    setSelectedCourseId(null)
+    setView("courses")
+  }, [])
+
+  // Back to hero from courses
   const handleBackToHero = useCallback(() => {
     setView("hero")
   }, [])
@@ -84,33 +112,101 @@ function App() {
     setShowProcess(true)
   }, [])
 
+  // Zoom animation variants for course → constellation transition
+  const zoomInVariants = {
+    initial: (origin: { x: number; y: number } | null) => ({
+      opacity: 0,
+      scale: 0.8,
+      transformOrigin: origin ? `${origin.x}px ${origin.y}px` : 'center',
+    }),
+    animate: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] as const },
+    },
+    exit: (origin: { x: number; y: number } | null) => ({
+      opacity: 0,
+      scale: 0.8,
+      transformOrigin: origin ? `${origin.x}px ${origin.y}px` : 'center',
+      transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const },
+    }),
+  }
+
+  const fadeVariants = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1, transition: { duration: 0.3 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } },
+  }
+
   return (
     <PortfolioProvider>
-      {/* Hero View */}
-      {view === "hero" && (
-        <Hero onEnter={handleEnterConstellation} />
-      )}
+      <AnimatePresence mode="wait">
+        {/* Hero View */}
+        {view === "hero" && (
+          <motion.div
+            key="hero"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Hero onEnter={handleEnter} />
+          </motion.div>
+        )}
 
-      {/* Constellation View */}
-      {view === "constellation" && (
-        <Constellation
-          onSelectModule={handleSelectModule}
-          onBack={handleBackToHero}
-        />
-      )}
+        {/* Courses View */}
+        {view === "courses" && (
+          <motion.div
+            key="courses"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <CourseHub
+              onSelectCourse={handleSelectCourse}
+              onBack={handleBackToHero}
+            />
+          </motion.div>
+        )}
 
-      {/* Module View */}
-      {view === "module" && activeModuleId && (
-        <>
-          <Navigation
-            showBackButton={!showCelebration}
-            onBack={handleBackToConstellation}
-          />
-          <Suspense fallback={<ModuleLoader />}>
-            <Module onComplete={handleModuleComplete} isVisible={true} />
-          </Suspense>
-        </>
-      )}
+        {/* Constellation View - with zoom transition */}
+        {view === "constellation" && selectedCourseId && (
+          <motion.div
+            key="constellation"
+            custom={transitionOrigin}
+            variants={zoomInVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Constellation
+              courseId={selectedCourseId}
+              onSelectModule={handleSelectModule}
+              onBack={handleBackToCourses}
+            />
+          </motion.div>
+        )}
+
+        {/* Module View */}
+        {view === "module" && activeModuleId && (
+          <motion.div
+            key="module"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Navigation
+              showBackButton={!showCelebration}
+              onBack={handleBackToConstellation}
+            />
+            <Suspense fallback={<ModuleLoader />}>
+              <Module onComplete={handleModuleComplete} isVisible={true} />
+            </Suspense>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Escape hatch - only visible in module view, not during celebration */}
       {view === "module" && !showCelebration && (

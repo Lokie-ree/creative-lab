@@ -1,4 +1,5 @@
 export { Constellation } from './Constellation'
+export { CourseHub } from './CourseHub'
 export { ModuleNode } from './ModuleNode'
 export { NodeRings } from './NodeRings'
 export { ConnectionLines } from './ConnectionLines'
