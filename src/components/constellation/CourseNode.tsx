@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 
 interface CourseNodeProps {
   course: Course
-  onClick: () => void
+  onClick: (event: React.MouseEvent) => void
 }
 
 const nodeVariants = {
@@ -26,7 +26,7 @@ export function CourseNode({ course, onClick }: CourseNodeProps) {
   return (
     <motion.button
       variants={nodeVariants}
-      onClick={onClick}
+      onClick={(e) => onClick(e)}
       className="flex flex-col items-center gap-3 group"
       disabled={!hasModules}
     >

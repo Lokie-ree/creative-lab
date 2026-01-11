@@ -3,7 +3,7 @@ import { COURSES } from '@/config/courses'
 import { CourseNode } from './CourseNode'
 
 interface CourseHubProps {
-  onSelectCourse: (courseId: string) => void
+  onSelectCourse: (courseId: string, event?: React.MouseEvent) => void
   onBack: () => void
 }
 
@@ -67,7 +67,7 @@ export function CourseHub({ onSelectCourse, onBack }: CourseHubProps) {
           <CourseNode
             key={course.id}
             course={course}
-            onClick={() => onSelectCourse(course.id)}
+            onClick={(e) => onSelectCourse(course.id, e)}
           />
         ))}
       </motion.div>
