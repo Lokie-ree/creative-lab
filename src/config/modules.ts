@@ -6,6 +6,7 @@ export interface ModuleConfig {
   domain: string
   description: string
   order: number
+  courseId: string
   component: () => Promise<{ default: React.ComponentType<ModuleProps> }>
 }
 
@@ -21,6 +22,7 @@ export const MODULES: ModuleConfig[] = [
     domain: 'Trigonometry',
     description: 'Where does the wave come from?',
     order: 1,
+    courseId: 'advanced-math',
     component: () => import('@/components/Module').then(m => ({ default: m.Module })),
   },
   {
@@ -29,6 +31,7 @@ export const MODULES: ModuleConfig[] = [
     domain: 'Linear Algebra',
     description: 'What does a matrix do to space?',
     order: 2,
+    courseId: 'advanced-math',
     component: () => import('@/components/modules/vector-transforms/Module'),
   },
   {
@@ -37,6 +40,7 @@ export const MODULES: ModuleConfig[] = [
     domain: 'Differential Equations',
     description: 'How do systems evolve over time?',
     order: 3,
+    courseId: 'advanced-math',
     component: () => import('@/components/modules/phase-portraits/Module'),
   },
 ]
