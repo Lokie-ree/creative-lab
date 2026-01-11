@@ -2,7 +2,7 @@ import { useState, useCallback, lazy, Suspense } from "react"
 import { Hero } from "./components/hero"
 import { ModuleLoader } from "./components/ModuleLoader"
 import { PortfolioProvider } from "@/context/PortfolioContext"
-import { Constellation } from "@/components/constellation"
+import { Constellation, CourseHub } from "@/components/constellation"
 
 // Lazy load the heavy Module component (includes Three.js/R3F)
 const Module = lazy(() => import("./components/Module").then(m => ({ default: m.Module })))
@@ -10,12 +10,13 @@ import { EscapeHatch, Navigation } from "./components/layout"
 import { CelebrationModal } from "./components/celebration"
 import { ResumeDialog, ProcessDialog } from "./components/dialogs"
 
-type View = "hero" | "constellation" | "module"
+type View = "hero" | "courses" | "constellation" | "module"
 type TabId = "discovery" | "behind" | "deeper"
 
 function App() {
   // View state
   const [view, setView] = useState<View>("hero")
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null)
 
   // Completed values from module
@@ -28,8 +29,14 @@ function App() {
   const [showResume, setShowResume] = useState(false)
   const [showProcess, setShowProcess] = useState(false)
 
-  // Hero → Constellation transition
-  const handleEnterConstellation = useCallback(() => {
+  // Hero → Courses transition
+  const handleEnter = useCallback(() => {
+    setView("courses")
+  }, [])
+
+  // Courses → Constellation transition
+  const handleSelectCourse = useCallback((courseId: string) => {
+    setSelectedCourseId(courseId)
     setView("constellation")
   }, [])
 
@@ -52,10 +59,17 @@ function App() {
     setShowCelebration(false)
     setCompletedValues(null)
     setSkippedToEnd(false)
+    setActiveModuleId(null)
     setView("constellation")
   }, [])
 
-  // Back to hero from constellation
+  // Back to courses from constellation
+  const handleBackToCourses = useCallback(() => {
+    setSelectedCourseId(null)
+    setView("courses")
+  }, [])
+
+  // Back to hero from courses
   const handleBackToHero = useCallback(() => {
     setView("hero")
   }, [])
@@ -88,14 +102,23 @@ function App() {
     <PortfolioProvider>
       {/* Hero View */}
       {view === "hero" && (
-        <Hero onEnter={handleEnterConstellation} />
+        <Hero onEnter={handleEnter} />
+      )}
+
+      {/* Courses View */}
+      {view === "courses" && (
+        <CourseHub
+          onSelectCourse={handleSelectCourse}
+          onBack={handleBackToHero}
+        />
       )}
 
       {/* Constellation View */}
-      {view === "constellation" && (
+      {view === "constellation" && selectedCourseId && (
         <Constellation
+          courseId={selectedCourseId}
           onSelectModule={handleSelectModule}
-          onBack={handleBackToHero}
+          onBack={handleBackToCourses}
         />
       )}
 
