@@ -2,116 +2,87 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Build & Development Commands
+## Project Overview
+
+Interactive math learning portfolio demonstrating pedagogical design through direct experience. Modules teach mathematical concepts through discovery, manipulation, and earned reveals—formulas appear as confirmation of understanding, not prerequisites.
+
+## Commands
 
 ```bash
-pnpm dev      # Start Vite dev server (port 5173)
-pnpm build    # TypeScript check + Vite production build
-pnpm lint     # ESLint validation
-pnpm preview  # Preview production build locally
+pnpm install          # Install dependencies
+pnpm dev              # Start dev server at http://localhost:5173
+pnpm build            # Type check (tsc -b) + production build
+pnpm lint             # Run ESLint
+pnpm preview          # Preview production build
+pnpm analyze          # Build + open bundle stats
 ```
 
-Package manager: **pnpm**
+## Architecture
 
-## Tech Stack
+### Tech Stack
+- **React 19** + **TypeScript** with Vite
+- **React Three Fiber** + **@react-three/drei** for 3D visualization
+- **GSAP** for animation
+- **Tailwind CSS 4** + **shadcn/ui** (new-york style) for styling
 
-- **React 19** + **TypeScript ~5.9** + **Vite 7.2**
-- **React Three Fiber 9.4** + **Three.js 0.182** for 3D visualization
-- **GSAP 3.14** + **Motion 12.23** for animations
-- **Tailwind CSS 4.1** + **shadcn/ui** (Radix primitives) for styling
-- Path alias: `@/*` → `src/*`
+### Path Aliases
+`@/` maps to `./src/`
 
-## Architecture Overview
-
-### Application Flow
-
-The app is an interactive math learning module teaching sinusoidal waves through exploration:
-
+### Component Structure
 ```
-Hero → Module → CelebrationModal
-```
-
-### Module Stage Machine (src/components/Module.tsx)
-
-```
-observe → amplitude → frequency → challenge → reveal
-```
-
-Each parameter stage (`amplitude`, `frequency`) follows:
-```
-explore → match → reflect → next stage
+src/components/
+├── modules/<name>/     # Module-specific 3D scenes (lazy-loaded)
+├── hero/               # Landing page
+├── controls/           # HTML controls (outside Canvas)
+├── feedback/           # Banners, prompts, formula reveals
+├── celebration/        # Success modals with tabs
+├── shared/             # Reusable animated components
+├── dialogs/            # Process/Resume modals
+├── transitions/        # Animation wrappers
+└── ui/                 # shadcn/ui primitives
 ```
 
-**Challenge stage** follows:
-```
-diagnose ("What changed?") → match (single slider) → reveal
-```
+### Key Patterns
 
-**Pedagogical pattern ("Earned Reveal"):** Users explore parameters via sliders, match target waves to earn micro-celebrations, answer prediction questions to reinforce understanding. Formula appears only after successful completion.
+**3D components go inside Canvas, controls stay outside.** The `Scene.tsx` orchestrates the R3F Canvas; `ControlPanel.tsx` and other HTML controls render separately.
 
-### Key Component Hierarchy
+**Module state flows through App.tsx.** View state (hero vs module), celebration modals, and parameter tracking are managed at the app level, passed down as props.
 
-```
-App (view routing)
-└── Module (stage machine, parameter state)
-    ├── Scene (R3F canvas, responsive layout)
-    │   ├── UnitCircle (rotating circle)
-    │   ├── SineWave (wave graph)
-    │   └── Connector (y-value link)
-    ├── ControlPanel (parameter sliders)
-    ├── QuestionCard (MCQ)
-    └── FeedbackBanner
-```
+**Stage-based learning progression.** Modules use stages (observe → amplitude → frequency → challenge → reveal) to scaffold the learning journey.
 
-### State Management
+## Design System
 
-- React hooks for UI state (no external state library)
-- `useRef` for continuous animation loops (angle, time)
-- `useMemo` for match score calculations
-- Props drilling from Module → Scene/ControlPanel
+### Colors (from `src/lib/colors.ts`)
+- **accent.primary**: `#22d3ee` (cyan) — Active elements, success
+- **learning.primary**: `#f5a623` (amber) — Feedback, reveals
+- **background.primary**: `#0a0a0f` — Dark navy canvas
+- **ghost**: `#888888` — Target/locked elements
 
-### Responsive Design
+### Design Principles
+- Dark mode default with Brilliant-inspired aesthetic
+- Three semantic colors: accent (active), accentMuted (ghost/disabled), geometry (blue constructs)
+- 60fps animations or instant—no jank
+- R3F for continuous/synchronized motion, SVG for static/simple
 
-`Scene.tsx` detects portrait vs landscape:
-- **Portrait:** Circle on top, wave below
-- **Landscape:** Circle left, wave right
+## Pedagogy
 
-### Design Tokens
+**Challenge before explanation.** Users manipulate first, discover through exploration, receive formula as reward.
 
-Colors defined in `src/lib/colors.ts` and CSS variables in `src/index.css`:
-- Accent (cyan): `#22d3ee`
-- Learning (amber): `#f5a623`
-- Background (navy): `#0a0a0f`
+**Matching IS verification.** No quizzes or multiple choice. The act of matching the target proves understanding.
 
-## R3F Performance Rules
+**No wrong answers.** "Getting closer..." not "incorrect". Glow intensity shifts, not error states.
 
-- **Never** call `setState` inside `useFrame`
-- Reuse geometries/materials via `useMemo`
-- Pre-allocate vectors, reuse with `.set()`
-- Wave trail capped at ~200 points
-- DPR set to `[1, 1.5]` for mobile
+**Earned reveals.** Formula appears after demonstrated understanding with user's discovered values highlighted.
 
-## Key Files
+## Bundle Optimization
 
-| Purpose | File |
-|---------|------|
-| View routing | `src/App.tsx` |
-| Stage machine & core logic | `src/components/Module.tsx` |
-| 3D visualization setup | `src/components/modules/sinusoidal/Scene.tsx` |
-| Match calculation | `src/hooks/useMatchScore.ts` |
-| Design tokens | `src/lib/colors.ts` |
+Manual chunk splitting in `vite.config.ts`:
+- `three`: three.js + R3F + drei
+- `gsap`: gsap + @gsap/react
+- `radix`: All Radix UI components
 
-## Adding shadcn/ui Components
+Heavy 3D code is lazy-loaded via React.lazy().
 
-MCP server configured in `.cursor/mcp.json` for shadcn CLI:
-```bash
-npx shadcn@latest add <component>
-```
+## Skills
 
-Components land in `src/components/ui/`.
-
-## Deployment
-
-- **Platform:** Vercel
-- **Live:** https://creative-lab-five.vercel.app/
-- **Build output:** `dist/`
+A `brilliant-math-producer` skill exists at `.claude/skills/brilliant-math-producer/skill.md` with detailed guidance on design decisions, pedagogy, animation strategy, and component organization.

@@ -23,6 +23,9 @@
     "@react-bits": "https://reactbits.dev/r/{name}.json",
     "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
     "@originui": "https://originui.com/registry/{name}.json",
-    "@motion-primitives": "https://motion-primitives.com/c/{name}.json"
+    "@motion-primitives": "https://motion-primitives.com/c/{name}.json",
+    "@eldoraui": "https://www.eldoraui.site/r/{name}.json",
+    "@kokonutui": "https://kokonutui.com/r/{name}.json",
+    "@tailark": "https://tailark.com/r/{name}.json"
   }
 }
