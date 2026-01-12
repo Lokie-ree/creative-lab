@@ -103,7 +103,7 @@ Brilliant scales the moment when a student finally *gets* something—not throug
 
 ## Teaching Samples: Interactive Learning Experiences
 
-### Primary Sample: Sinusoidal Waves Interactive Module
+### Primary Sample: Sinewaves Module
 
 **Website Link:** https://creative-lab-five.vercel.app/
 
@@ -129,7 +129,7 @@ An interactive visualization where users discover the wave equation by matching 
 - Earned reveal: Formula appears only after successful completion
 
 **Technical Details:**
-- Built with React, React Three Fiber, GSAP
+- Built with React 19, TypeScript, React Three Fiber, GSAP
 - 60fps mathematical animations
 - Responsive design (mobile and desktop)
 - Complete presentation wrapper with hero landing, celebration modal, and navigation
@@ -146,7 +146,7 @@ This module embodies Brilliant's core pedagogical philosophy: "We don't teach ho
 
 #### 1. Linear Algebra: Vector Transformations Module
 
-**Design Document:** `../LINEAR_ALGEBRA_DESIGN.md`
+**Design Document:** `../modules/linear-algebra.md`
 
 **Concept:** Users discover how matrix transformations affect vectors by manipulating transformation matrices and watching vectors transform in real-time. They build intuition for rotation, scaling, and reflection transformations before encountering formal matrix notation.
 
@@ -172,7 +172,7 @@ Shows how Brilliant's challenge-first pedagogy extends naturally to linear algeb
 
 #### 2. Differential Equations: Phase Portraits Module
 
-**Design Document:** `../DIFFERENTIAL_EQUATIONS_DESIGN.md`
+**Design Document:** `../modules/differential-equations.md`
 
 **Concept:** Users discover how different differential equation parameters create different solution behaviors by manipulating a 2D system and watching trajectories evolve in real-time. They build intuition for stability, equilibrium points, and phase portraits before encountering formal differential equation notation.
 
@@ -196,7 +196,7 @@ Shows how Brilliant's discovery learning approach can make differential equation
 
 **Design Document Format:**
 
-Both documents follow the same comprehensive structure as the implemented sinusoidal waves module:
+Both documents follow the same comprehensive structure as the implemented Sinewaves module:
 - Learning goals and essential concepts
 - Detailed stage specifications (explore → match → reflect)
 - Component architecture and technical implementation

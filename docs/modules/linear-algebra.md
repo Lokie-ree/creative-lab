@@ -376,12 +376,11 @@ const QUESTIONS = {
 ### Stack
 
 ```
-Vite + React + TypeScript
-├── React Three Fiber (3D/2D visualization)
-├── drei (R3F helpers)
-├── GSAP (discrete transitions)
-├── shadcn/ui (control components)
-└── Tailwind CSS (styling)
+React 19 + TypeScript + Vite
+├── React Three Fiber + @react-three/drei (3D/2D visualization)
+├── GSAP (animation)
+├── Tailwind CSS 4 + shadcn/ui (styling)
+└── Radix UI (accessible primitives)
 ```
 
 ### Component Hierarchy
