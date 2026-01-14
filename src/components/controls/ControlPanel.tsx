@@ -53,7 +53,7 @@ export function ControlPanel({
     : 'grid-cols-1 sm:grid-cols-2'
 
   return (
-    <div className="bg-black/80 backdrop-blur-sm px-3 py-3 sm:px-4 sm:py-4 md:px-8 md:py-6">
+    <div className="bg-black/80 backdrop-blur-sm px-3 py-3 sm:px-4 sm:py-4 md:px-8 md:py-6 rounded-xl transition-all duration-300">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center gap-3 sm:gap-4 md:gap-6">
           {/* Sliders */}

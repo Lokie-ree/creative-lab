@@ -197,8 +197,9 @@ function App() {
             animate="animate"
             exit="exit"
           >
+            {/* Navigation back button hidden - EscapeHatch handles navigation */}
             <Navigation
-              showBackButton={!showCelebration}
+              showBackButton={false}
               onBack={handleBackToConstellation}
             />
             <Suspense fallback={<ModuleLoader />}>

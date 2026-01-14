@@ -21,7 +21,7 @@ export function FeedbackBanner({
   return (
     <Alert
       className={`
-        fixed bottom-0 left-0 right-0 z-30 rounded-none border-x-0 border-b-0
+        fixed bottom-0 left-0 right-0 z-[var(--z-fixed)] rounded-none border-x-0 border-b-0
         ${bgColor} ${borderColor}
         animate-in slide-in-from-bottom duration-300
         ${className}

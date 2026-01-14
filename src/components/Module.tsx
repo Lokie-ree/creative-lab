@@ -437,7 +437,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
   return (
     <div className="h-screen w-screen flex flex-col" style={{ backgroundColor: 'var(--lab-bg)' }}>
       {/* Progress bar */}
-      <div className="absolute top-0 left-0 right-0 z-20">
+      <div className="absolute top-0 left-0 right-0 z-[var(--z-base)]">
         <ProgressBar current={getStageNumber(stage)} total={TOTAL_STAGES} />
       </div>
 
@@ -445,18 +445,19 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       <CelebrationPulse trigger={celebrationCount} />
 
       {/* Formula preview */}
-      <div className="absolute top-16 right-2 sm:top-8 sm:right-4 z-10 max-w-[calc(100vw-1rem)]">
+      <div className="absolute top-16 right-4 sm:top-8 sm:right-8 z-[var(--z-floating)] max-w-[calc(100vw-2rem)]">
         <FormulaPreview discoveries={discoveries} />
       </div>
 
       {/* Explore prompt */}
       {promptContent && (
-        <div className="absolute top-4 sm:top-8 left-16 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-10 sm:w-auto">
+        <div className="absolute top-4 sm:top-8 left-1/2 -translate-x-1/2 z-[var(--z-floating)] w-[calc(100vw-2rem)] sm:w-auto sm:max-w-md">
           <ExplorePrompt
             text={promptContent.text}
             subtext={promptContent.subtext}
             setupCopy={promptContent.setupCopy}
             visible={true}
+            withGlassPanel={true}
           />
         </div>
       )}
@@ -481,7 +482,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Continue button - Observe stage only */}
       {stage === 'observe' && showContinue && (
-        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10">
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-[var(--z-controls)]">
           <button
             onClick={handleContinueFromObserve}
             className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-[var(--lab-accent)]/50 text-[var(--lab-accent)] hover:bg-[var(--lab-accent)]/10 hover:border-[var(--lab-accent)]"
@@ -495,7 +496,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'amplitude' && subStage === 'explore' && (
         <AnimatedPanel
           transitionKey="amplitude"
-          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-sm px-3 sm:px-4"
+          className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-[var(--z-controls)] w-[calc(100vw-2rem)] max-w-sm px-3 sm:px-4"
         >
           <ControlPanel
             amplitude={amplitude}
@@ -514,7 +515,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'frequency' && subStage === 'explore' && (
         <AnimatedPanel
           transitionKey="frequency"
-          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
+          className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-[var(--z-controls)] w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
         >
           <ControlPanel
             amplitude={amplitude}
@@ -533,7 +534,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Challenge diagnose question */}
       {stage === 'challenge' && challengePhase === 'diagnose' && (
-        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
+        <div className="absolute bottom-24 sm:bottom-32 left-1/2 -translate-x-1/2 z-[var(--z-content)] w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
           <QuestionCard
             question={SINUSOIDAL_COPY.stages.challenge.diagnose.question}
             choices={SINUSOIDAL_COPY.stages.challenge.diagnose.choices}
@@ -547,7 +548,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'challenge' && challengePhase === 'match' && (
         <AnimatedPanel
           transitionKey="challenge"
-          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
+          className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-[var(--z-controls)] w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
         >
           <ControlPanel
             amplitude={amplitude}
@@ -566,7 +567,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Match celebration message */}
       {isParameterStage && subStage === 'match' && (
-        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 animate-in fade-in zoom-in duration-300 text-center px-4">
+        <div className="absolute bottom-24 sm:bottom-32 left-1/2 -translate-x-1/2 z-[var(--z-content)] animate-in fade-in zoom-in duration-300 text-center px-4">
           <div className="text-2xl sm:text-3xl font-bold text-[var(--lab-accent)] mb-2">
             Perfect match!
           </div>
@@ -580,7 +581,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Reflect question */}
       {isParameterStage && subStage === 'reflect' && currentQuestion && (
-        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
+        <div className="absolute bottom-24 sm:bottom-32 left-1/2 -translate-x-1/2 z-[var(--z-content)] w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
           <QuestionCard
             question={currentQuestion.question}
             choices={currentQuestion.choices}
@@ -600,7 +601,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Reveal stage - "So What" content */}
       {stage === 'reveal' && subStage !== 'freeExplore' && (
-        <div className="absolute bottom-32 sm:bottom-40 left-1/2 -translate-x-1/2 z-10 w-full max-w-2xl px-4 sm:px-6">
+        <div className="absolute bottom-32 sm:bottom-40 left-1/2 -translate-x-1/2 z-[var(--z-floating)] w-full max-w-2xl px-4 sm:px-6">
           <AnimatedPanel
             transitionKey="reveal-so-what"
             className="bg-[var(--lab-bg-elevated)]/80 backdrop-blur-sm rounded-lg border border-[var(--lab-border)] p-4 sm:p-6"
@@ -614,7 +615,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Reveal stage - completion options (not in freeExplore mode) */}
       {stage === 'reveal' && subStage !== 'freeExplore' && (
-        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col sm:flex-row gap-3">
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-[var(--z-controls)] flex flex-col sm:flex-row gap-3">
           <button
             onClick={handleTryAnotherChallenge}
             className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-[var(--lab-accent)] text-[var(--lab-bg)] rounded-lg transition-all duration-300 text-sm font-medium tracking-wide hover:bg-[var(--lab-accent-hover)]"
@@ -640,7 +641,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'reveal' && subStage === 'freeExplore' && (
         <AnimatedPanel
           transitionKey="freeExplore"
-          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
+          className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-[var(--z-controls)] w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
         >
           <ControlPanel
             amplitude={amplitude}

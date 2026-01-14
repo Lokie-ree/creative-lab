@@ -37,7 +37,7 @@ export function CelebrationPulse({ trigger, color = colors.accent.primary }: Cel
   return (
     <div
       ref={pulseRef}
-      className="fixed inset-0 pointer-events-none flex items-center justify-center z-50"
+      className="fixed inset-0 pointer-events-none flex items-center justify-center z-[var(--z-overlay)]"
     >
       <div
         className="w-32 h-32 rounded-full opacity-0"

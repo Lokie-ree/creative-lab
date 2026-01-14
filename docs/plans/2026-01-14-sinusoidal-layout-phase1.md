@@ -63,7 +63,7 @@ Phase 1 addresses the structural foundation issues identified in the layout audi
 }
 ```
 
-**Usage:** `z-[--z-controls]` in class names.
+**Usage:** `z-[var(--z-controls)]` in class names (must use `var()` wrapper).
 
 ### 3. Positioning Strategy
 

@@ -20,7 +20,7 @@ export function EscapeHatch({
   onSkipToEnd,
 }: EscapeHatchProps) {
   return (
-    <div className="fixed top-4 left-4 z-40">
+    <div className="fixed top-4 left-4 z-[var(--z-fixed)]">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-300 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:ring-offset-2 focus:ring-offset-zinc-900">

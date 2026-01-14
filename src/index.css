@@ -42,6 +42,14 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Z-index layers - semantic naming for consistent stacking */
+  --z-base: 0;
+  --z-controls: 10;
+  --z-floating: 20;
+  --z-content: 30;
+  --z-fixed: 40;
+  --z-overlay: 50;
 }
 
 /* Shiny text animation */
