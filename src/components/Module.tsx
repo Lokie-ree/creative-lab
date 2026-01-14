@@ -11,6 +11,7 @@ import { AnimatedPanel } from "./shared/AnimatedPanel"
 import { CelebrationPulse } from "./shared/CelebrationPulse"
 import { QuestionCard } from "./feedback/QuestionCard"
 import { FeedbackBanner } from "./feedback/FeedbackBanner"
+import { SINUSOIDAL_COPY } from "@/config/sinusoidal-copy"
 
 // ============================================================================
 // TYPES
@@ -378,29 +379,52 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
   // ---------------------------------------------------------------------------
   const getPromptContent = () => {
     if (stage === 'observe') {
-      return { text: 'Watch where the wave comes from', subtext: undefined }
+      return {
+        setupCopy: SINUSOIDAL_COPY.stages.observe.setup,
+        text: SINUSOIDAL_COPY.stages.observe.prompt,
+        subtext: SINUSOIDAL_COPY.stages.observe.subtext,
+      }
     }
     if (stage === 'amplitude' && subStage === 'explore') {
-      return { text: 'Make the wave taller', subtext: 'Match the ghost wave' }
+      return {
+        setupCopy: SINUSOIDAL_COPY.stages.amplitude.setup,
+        text: SINUSOIDAL_COPY.stages.amplitude.prompt,
+        subtext: SINUSOIDAL_COPY.stages.amplitude.subtext,
+      }
     }
     if (stage === 'frequency' && subStage === 'explore') {
-      return { text: 'Make the wave faster', subtext: 'Match the ghost wave' }
+      return {
+        setupCopy: SINUSOIDAL_COPY.stages.frequency.setup,
+        text: SINUSOIDAL_COPY.stages.frequency.prompt,
+        subtext: SINUSOIDAL_COPY.stages.frequency.subtext,
+      }
     }
     if (stage === 'challenge' && challengePhase === 'observe') {
-      return { text: 'Something changed', subtext: 'Look closely at both waves' }
+      return {
+        setupCopy: SINUSOIDAL_COPY.stages.challenge.observe.setup,
+        text: SINUSOIDAL_COPY.stages.challenge.observe.prompt,
+        subtext: SINUSOIDAL_COPY.stages.challenge.observe.subtext,
+      }
     }
     // Note: During diagnose, the QuestionCard shows "What changed?" so no prompt needed
     if (stage === 'challenge' && challengePhase === 'diagnose') {
       return null
     }
     if (stage === 'challenge' && challengePhase === 'match') {
-      return { text: 'Now match it', subtext: undefined }
+      return {
+        setupCopy: SINUSOIDAL_COPY.stages.challenge.match.setup,
+        text: SINUSOIDAL_COPY.stages.challenge.match.prompt,
+        subtext: SINUSOIDAL_COPY.stages.challenge.match.subtext,
+      }
     }
     if (stage === 'reveal' && subStage === 'freeExplore') {
       return { text: 'Free exploration', subtext: 'Play with the parameters' }
     }
     if (stage === 'reveal') {
-      return { text: 'Challenge complete!', subtext: undefined }
+      return {
+        text: SINUSOIDAL_COPY.stages.reveal.title,
+        subtext: SINUSOIDAL_COPY.stages.reveal.description,
+      }
     }
     return null
   }
@@ -431,6 +455,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
           <ExplorePrompt
             text={promptContent.text}
             subtext={promptContent.subtext}
+            setupCopy={promptContent.setupCopy}
             visible={true}
           />
         </div>
@@ -510,12 +535,8 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'challenge' && challengePhase === 'diagnose' && (
         <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
           <QuestionCard
-            question="What changed?"
-            choices={[
-              { label: "Amplitude", value: "amplitude" },
-              { label: "Frequency", value: "frequency" },
-              { label: "Both", value: "both" },
-            ]}
+            question={SINUSOIDAL_COPY.stages.challenge.diagnose.question}
+            choices={SINUSOIDAL_COPY.stages.challenge.diagnose.choices}
             onSelect={handleDiagnoseAnswer}
             selectedValue={selectedAnswer ?? undefined}
           />
@@ -545,9 +566,14 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Match celebration message */}
       {isParameterStage && subStage === 'match' && (
-        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 animate-in fade-in zoom-in duration-300">
-          <div className="text-2xl sm:text-3xl font-bold text-[var(--lab-accent)]">
+        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 animate-in fade-in zoom-in duration-300 text-center px-4">
+          <div className="text-2xl sm:text-3xl font-bold text-[var(--lab-accent)] mb-2">
             Perfect match!
+          </div>
+          <div className="text-sm sm:text-base text-[var(--lab-text-muted)]">
+            {stage === 'amplitude' 
+              ? SINUSOIDAL_COPY.matchCelebration.amplitude
+              : SINUSOIDAL_COPY.matchCelebration.frequency}
           </div>
         </div>
       )}
@@ -570,6 +596,20 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
           correct={isCorrect}
           onContinue={isCorrect ? handleContinueFromReflect : handleTryAgain}
         />
+      )}
+
+      {/* Reveal stage - "So What" content */}
+      {stage === 'reveal' && subStage !== 'freeExplore' && (
+        <div className="absolute bottom-32 sm:bottom-40 left-1/2 -translate-x-1/2 z-10 w-full max-w-2xl px-4 sm:px-6">
+          <AnimatedPanel
+            transitionKey="reveal-so-what"
+            className="bg-[var(--lab-bg-elevated)]/80 backdrop-blur-sm rounded-lg border border-[var(--lab-border)] p-4 sm:p-6"
+          >
+            <div className="space-y-3 text-sm sm:text-base text-[var(--lab-text-muted)] whitespace-pre-line">
+              {SINUSOIDAL_COPY.stages.reveal.soWhat}
+            </div>
+          </AnimatedPanel>
+        </div>
       )}
 
       {/* Reveal stage - completion options (not in freeExplore mode) */}
