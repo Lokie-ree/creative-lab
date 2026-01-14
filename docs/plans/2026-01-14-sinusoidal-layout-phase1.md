@@ -47,24 +47,31 @@ Phase 1 addresses the structural foundation issues identified in the layout audi
 
 ### 2. Z-Index Hierarchy
 
-**Decision:** Semantic z-index layers in `tailwind.config.ts`.
+**Decision:** Semantic z-index layers in `@theme inline` block in `src/index.css` (Tailwind v4 pattern).
 
-```typescript
-zIndex: {
-  base: '0',        // Scene, ProgressBar
-  controls: '10',   // ControlPanel, action buttons
-  floating: '20',   // FormulaPreview, ExplorePrompt, back link
-  content: '30',    // QuestionCard, Match Celebration
-  fixed: '40',      // FeedbackBanner
-  overlay: '50',    // CelebrationPulse, modals
+```css
+@theme inline {
+  /* existing tokens... */
+
+  /* Z-index layers */
+  --z-base: 0;
+  --z-controls: 10;
+  --z-floating: 20;
+  --z-content: 30;
+  --z-fixed: 40;
+  --z-overlay: 50;
 }
 ```
+
+**Usage:** `z-[--z-controls]` in class names.
 
 ### 3. Positioning Strategy
 
 **Decision:** Hybrid approach — Scene uses `flex-1`, UI overlays use consistent absolute positioning.
 
-**Decision:** ControlPanel positioned scene-adjacent (closer to visualization) rather than viewport-bottom.
+**Decision:** ControlPanel stays absolute but raised higher (scene-adjacent). Test options: `bottom-12`, `bottom-16`, `bottom-20` to find optimal visual connection to Scene.
+
+**Clarification:** No structural changes to Module.tsx layout — just adjust positioning offsets.
 
 ### 4. Visual Containers
 
@@ -84,7 +91,9 @@ zIndex: {
 
 ### 6. Back Navigation
 
-**Decision:** Consolidate duplicate elements into single back link, top-left corner.
+**Decision:** Keep EscapeHatch dropdown (provides Resume/Skip options + professional details for reviewers). Remove Navigation back button from module view.
+
+**Clarification:** Two elements exist: `Navigation.tsx` (back button, z-50) and `EscapeHatch.tsx` (dropdown, z-40). Keep EscapeHatch, hide Navigation's back button when in module view.
 
 ---
 
@@ -95,9 +104,10 @@ zIndex: {
 │ ProgressBar (z-base, top-0, full width)             │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
-│  ┌────────┐                                         │
-│  │← Back  │  (z-floating, top-4 left-4)             │
-│  └────────┘                                         │
+│  ┌────────────┐                                     │
+│  │EscapeHatch │  (z-fixed, top-4 left-4)            │
+│  │  dropdown  │                                     │
+│  └────────────┘                                     │
 │                                                     │
 │         ┌──────────────┐       ┌──────────────┐     │
 │         │ExplorePrompt │       │FormulaPreview│     │
@@ -115,7 +125,7 @@ zIndex: {
 │                  ┌─────────────┐                    │
 │                  │ControlPanel │                    │
 │                  │(z-controls) │                    │
-│                  │scene-adjacent                    │
+│                  │ bottom-16   │ ← test: 12/16/20   │
 │                  └─────────────┘                    │
 │                                                     │
 │            ┌───────────────────────┐                │
@@ -133,8 +143,8 @@ zIndex: {
 
 ## Implementation Tasks
 
-### 1. Tailwind Configuration
-- [ ] Add semantic z-index layers to `tailwind.config.ts`
+### 1. Z-Index Tokens
+- [ ] Add semantic z-index layers to `@theme inline` in `src/index.css`
 
 ### 2. ExplorePrompt Updates
 - [ ] Remove `left-16` mobile positioning
@@ -143,9 +153,10 @@ zIndex: {
 - [ ] Update to use `z-floating`
 
 ### 3. ControlPanel Updates
-- [ ] Change from viewport-bottom to scene-adjacent positioning
+- [ ] Test height options (`bottom-12`, `bottom-16`, `bottom-20`) in browser
+- [ ] Apply chosen scene-adjacent positioning
 - [ ] Add width transition for smooth adaptive sizing
-- [ ] Update to use `z-controls`
+- [ ] Update to use `z-[--z-controls]`
 
 ### 4. FormulaPreview Updates
 - [ ] Standardize positioning (`top-4 right-4 sm:top-8 sm:right-8`)
@@ -161,16 +172,10 @@ zIndex: {
 ### 7. CelebrationPulse Updates
 - [ ] Update to use `z-overlay`
 
-### 8. Back Navigation Consolidation
-- [ ] Identify duplicate elements (EscapeHatch + go back link)
-- [ ] Consolidate into single back link
-- [ ] Position top-left (`top-4 left-4 sm:top-8 sm:left-8`)
-- [ ] Update to use `z-floating`
-
-### 9. Module Layout Restructure
-- [ ] Update parent layout to support scene-adjacent controls
-- [ ] Ensure Scene uses `flex-1` properly
-- [ ] Apply consistent edge margins (`mx-4 sm:mx-8`)
+### 8. Back Navigation Cleanup
+- [ ] Hide Navigation back button when in module view (App.tsx)
+- [ ] Keep EscapeHatch as primary navigation
+- [ ] Verify EscapeHatch z-index (`z-[--z-fixed]`)
 
 ---
 
@@ -178,26 +183,25 @@ zIndex: {
 
 | File | Changes |
 |------|---------|
-| `tailwind.config.ts` | Add semantic z-index layers |
-| `ExplorePrompt.tsx` | Remove `left-16`, add glass panel, use `z-floating` |
-| `ControlPanel.tsx` | Scene-adjacent positioning, width transition, use `z-controls` |
-| `FormulaPreview.tsx` | Standardize positioning, use `z-floating` |
-| `QuestionCard.tsx` or usage sites | Use `z-content`, standardize bottom positioning |
-| `FeedbackBanner.tsx` | Use `z-fixed` |
-| `CelebrationPulse.tsx` | Use `z-overlay` |
-| `EscapeHatch.tsx` | Consolidate, reposition, use `z-floating` |
-| `Module.tsx` or parent layout | Restructure for scene-adjacent controls |
+| `src/index.css` | Add z-index tokens to `@theme inline` |
+| `src/components/feedback/ExplorePrompt.tsx` | Remove `left-16`, add glass panel, use `z-[--z-floating]` |
+| `src/components/Module.tsx` | Update ControlPanel positioning (test heights), update z-index classes |
+| `src/components/controls/ControlPanel.tsx` | Add width transition |
+| `src/components/feedback/FormulaPreview.tsx` | Standardize positioning, use `z-[--z-floating]` |
+| `src/components/feedback/FeedbackBanner.tsx` | Use `z-[--z-fixed]` |
+| `src/components/celebration/CelebrationPulse.tsx` | Use `z-[--z-overlay]` |
+| `src/App.tsx` | Hide Navigation back button in module view |
 
 ---
 
 ## Success Criteria
 
 - [ ] ExplorePrompt centered on all screen sizes (no `left-16` offset)
-- [ ] All z-index values use semantic classes
-- [ ] ControlPanel visually connected to Scene
-- [ ] Single back navigation element (no duplicates)
+- [ ] All z-index values use semantic CSS variables (`z-[--z-*]`)
+- [ ] ControlPanel visually connected to Scene (raised positioning)
+- [ ] Only EscapeHatch visible for navigation (Navigation back button hidden in module)
 - [ ] Glass panel improves ExplorePrompt readability
-- [ ] Consistent spacing across all stages
+- [ ] ControlPanel has smooth width transition
 - [ ] No visual regressions in existing functionality
 
 ---
