@@ -35,3 +35,8 @@ dist-ssr
 
 # Git worktrees
 .worktrees/
+
+# Personal notes
+NOTES.txt
+
+

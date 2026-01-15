@@ -1,5 +1,5 @@
 import { useRef, useEffect, type ReactNode } from "react"
-import gsap from "gsap"
+import { fadeInSlideUp, fadeOutSlideUp } from "@/lib/animations"
 
 interface AnimatedPanelProps {
   children: ReactNode
@@ -14,39 +14,35 @@ export function AnimatedPanel({ children, className = "", transitionKey }: Anima
   useEffect(() => {
     if (!containerRef.current) return
 
-    // Initial mount or key change - animate in
-    if (prevKeyRef.current !== transitionKey) {
-      // Animate out then in
-      gsap.fromTo(
-        containerRef.current,
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: "power2.out",
-          clearProps: "all"
+    // Initial mount or key change - animate out then in
+    if (prevKeyRef.current !== transitionKey && prevKeyRef.current !== null) {
+      // Animate out previous content
+      const exitAnimation = fadeOutSlideUp(containerRef.current)
+      
+      // After exit completes, animate in new content
+      if (exitAnimation) {
+        exitAnimation.eventCallback("onComplete", () => {
+          if (containerRef.current) {
+            fadeInSlideUp(containerRef.current)
+          }
+        })
+      } else {
+        // If no animation (reduced motion), just animate in immediately
+        if (containerRef.current) {
+          fadeInSlideUp(containerRef.current)
         }
-      )
+      }
+      
       prevKeyRef.current = transitionKey
     } else {
-      // Initial mount
-      gsap.fromTo(
-        containerRef.current,
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: "power2.out",
-          clearProps: "all"
-        }
-      )
+      // Initial mount - just animate in
+      fadeInSlideUp(containerRef.current)
+      prevKeyRef.current = transitionKey
     }
   }, [transitionKey])
 
   return (
-    <div ref={containerRef} className={className}>
+    <div ref={containerRef} className={className} data-stage-overlay>
       {children}
     </div>
   )

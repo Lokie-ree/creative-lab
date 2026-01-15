@@ -59,7 +59,7 @@ src/components/
 - **ghost**: `#888888` — Target/locked elements
 
 ### Design Principles
-- Dark mode default with Brilliant-inspired aesthetic
+- Dark mode default with focused, mathematical aesthetic
 - Three semantic colors: accent (active), accentMuted (ghost/disabled), geometry (blue constructs)
 - 60fps animations or instant—no jank
 - R3F for continuous/synchronized motion, SVG for static/simple
@@ -85,4 +85,4 @@ Heavy 3D code is lazy-loaded via React.lazy().
 
 ## Skills
 
-A `brilliant-math-producer` skill exists at `.claude/skills/brilliant-math-producer/skill.md` with detailed guidance on design decisions, pedagogy, animation strategy, and component organization.
+Design decisions, pedagogy, animation strategy, and component organization are documented throughout the codebase and design documents.

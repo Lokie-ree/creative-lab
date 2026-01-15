@@ -1,9 +1,8 @@
 /**
  * Design System Color Tokens
  *
- * Centralized color definitions for the Signal Lab module.
- * These tokens align with Brilliant's design language while maintaining
- * the dark, focused aesthetic of the interactive visualization.
+ * Centralized color definitions for the interactive learning modules.
+ * Dark, focused aesthetic optimized for mathematical visualization.
  *
  * Usage:
  * - Import: `import { colors } from '@/lib/colors'`

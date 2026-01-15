@@ -51,7 +51,7 @@ Each module embodies the same pedagogical principles:
 ### What Already Exists
 
 - Hero section (polished, ready)
-- Sinewaves module (complete, submitted to Brilliant)
+- Sinewaves module (complete)
 - Vector Transformations module design (waiting to be built)
 - Phase Portraits module design (waiting to be built)
 - Documentation principles established in codebase
@@ -69,7 +69,7 @@ When someone visits this portfolio, they should leave thinking: "This person doe
 
 ### The Deeper Why
 
-The 12-day Brilliant sprint produced something a student called "sick." Eight months on other projects felt like a drag. The difference wasn't effort—it was alignment.
+A focused 12-day sprint produced something a student called "sick." Eight months on other projects felt like a drag. The difference wasn't effort—it was alignment.
 
 When I build interactive learning experiences, my thinking *is* the product. I'm not facilitating access to someone else's ideas; I'm embodying my own philosophy about how understanding develops.
 
@@ -87,7 +87,7 @@ The validation that matters: a student saw the Sinewaves module and said "that's
 
 ### Secondary: EdTech Leaders
 
-Hiring managers, product leaders, and decision-makers at companies like Brilliant, Duolingo, Khan Academy, and the growing universe of learning platforms.
+Hiring managers, product leaders, and decision-makers at EdTech companies and learning platforms.
 
 They see someone who doesn't just talk about interactive learning—they experience it firsthand. When evaluating candidates whose portfolios blur together, mine is memorable because it engaged them differently.
 
@@ -125,17 +125,9 @@ Someone who builds educational tools without deep understanding of how learning 
 
 This vision document doesn't choose one door and close others. It chooses which door to knock on first while leaving others unlocked.
 
-### If Brilliant Says Yes
-
-The portfolio reinforces why they hired me. I enter the best learning environment for this work, reaching millions of students, learning from people who've thought deeply about this space for years.
-
-### If Brilliant Says No
-
-The portfolio positions me for the next Brilliant-like opportunity. The same artifact that served as an application becomes a platform for consulting opportunities, other EdTech roles, or independent work.
-
-### Regardless of Outcome
-
 The interactive modules serve students who encounter them. The portfolio establishes my professional identity in the space. The work itself compounds—every module built strengthens the whole.
+
+Whether this leads to EdTech roles, consulting opportunities, or independent work, the portfolio demonstrates what I'm capable of when direction and energy align.
 
 ---
 

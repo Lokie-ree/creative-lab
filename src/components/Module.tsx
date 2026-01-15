@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react"
-import gsap from "gsap"
 import { cn } from "@/lib/utils"
 import { usePortfolio } from "@/context/PortfolioContext"
+import { Lightbulb } from "lucide-react"
 import { Scene } from "./modules/sinusoidal/Scene"
 import { ControlPanel } from "./controls/ControlPanel"
 import { FormulaPreview } from "./feedback/FormulaPreview"
@@ -11,6 +11,10 @@ import { AnimatedPanel } from "./shared/AnimatedPanel"
 import { CelebrationPulse } from "./shared/CelebrationPulse"
 import { QuestionCard } from "./feedback/QuestionCard"
 import { FeedbackBanner } from "./feedback/FeedbackBanner"
+import { MatchCelebration } from "./celebration/MatchCelebration"
+import { DelayIndicator } from "./shared/DelayIndicator"
+import { stageTransitionOut, stageTransitionIn } from "@/lib/animations"
+import { SINUSOIDAL_COPY } from "@/config/sinusoidal-copy"
 
 // ============================================================================
 // TYPES
@@ -143,6 +147,8 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
   // ---------------------------------------------------------------------------
   const [isPaused, setIsPaused] = useState(false)
   const [celebrationCount, setCelebrationCount] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [prevStage, setPrevStage] = useState<Stage | null>(null)
 
   // ---------------------------------------------------------------------------
   // Portfolio Progress Tracking
@@ -166,6 +172,53 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       currentStage: stage,
     })
   }, [stage, updateModuleProgress])
+
+  // ---------------------------------------------------------------------------
+  // Stage Transition System
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    // Skip transition on initial mount - use ref to track instead of state
+    if (prevStage === null) {
+      // Initialize prevStage on mount without triggering re-render
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      setPrevStage(stage)
+      return
+    }
+
+    // Only transition if stage actually changed
+    if (prevStage !== stage) {
+      setIsTransitioning(true)
+
+      // Find UI overlay elements to animate
+      const uiOverlays = document.querySelectorAll('[data-stage-overlay]')
+      
+      // Animate out current UI elements
+      const exitPromises = Array.from(uiOverlays).map((el) => {
+        return new Promise<void>((resolve) => {
+          const animation = stageTransitionOut(el)
+          if (animation) {
+            animation.eventCallback("onComplete", () => resolve())
+          } else {
+            resolve()
+          }
+        })
+      })
+
+      // Wait for exit animations, then update stage and animate in
+      Promise.all(exitPromises).then(() => {
+        setPrevStage(stage)
+        setIsTransitioning(false)
+
+        // Animate in new UI elements after a brief delay
+        setTimeout(() => {
+          const newOverlays = document.querySelectorAll('[data-stage-overlay]')
+          newOverlays.forEach((el) => {
+            stageTransitionIn(el)
+          })
+        }, 50)
+      })
+    }
+  }, [stage, prevStage])
 
   // ---------------------------------------------------------------------------
   // Computed Values
@@ -229,28 +282,13 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       // Transition to match substage for visual feedback
       setSubStage('match')
-
-      // Use GSAP delayedCall for timed transition to reflect
-      gsap.delayedCall(2, () => {
-        setSubStage('reflect')
-        setSelectedAnswer(null)
-      })
     }
   }, [stage, subStage, amplitude, frequency, isFlashing])
 
   // ---------------------------------------------------------------------------
   // Challenge Stage: Observation period before asking question
+  // Note: DelayIndicator component handles the 3-second delay and transition
   // ---------------------------------------------------------------------------
-  useEffect(() => {
-    if (stage !== 'challenge' || challengePhase !== 'observe') return
-
-    // Give user 3 seconds to observe the difference before asking
-    const delayed = gsap.delayedCall(3, () => {
-      setChallengePhase('diagnose')
-    })
-
-    return () => { delayed.kill() }
-  }, [stage, challengePhase])
 
   // ---------------------------------------------------------------------------
   // Challenge Stage: Detect final match
@@ -314,32 +352,24 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
   const handleContinueFromReflect = useCallback(() => {
     if (!isCorrect || !currentQuestion) return
 
-    // Flash the predicted value to reinforce understanding
-    setIsFlashing(true)
-    const flashValue = currentQuestion.flashValue
-    const originalValue = stage === 'amplitude' ? amplitude : frequency
-    const setter = stage === 'amplitude' ? setAmplitude : setFrequency
+    // Store discovery first
+    if (stage === 'amplitude') {
+      setDiscoveries(prev => ({ ...prev, amplitude }))
+    } else if (stage === 'frequency') {
+      setDiscoveries(prev => ({ ...prev, frequency }))
+    }
 
-    // Flash to predicted value
-    setter(flashValue)
-
-    // After flash, return to matched value and advance
-    setTimeout(() => {
-      setter(originalValue)
-      setIsFlashing(false)
-
-      // Store discovery and advance
-      if (stage === 'amplitude') {
-        setDiscoveries(prev => ({ ...prev, amplitude }))
-        setStage('frequency')
-        setSubStage('explore')
-        setSelectedAnswer(null)
-      } else if (stage === 'frequency') {
-        setDiscoveries(prev => ({ ...prev, frequency }))
-        // Set up challenge
-        setupChallenge()
-      }
-    }, 1200)
+    // Advance stage immediately (stage transition will handle UI animations)
+    // Don't do flash animation - it causes scene transformation before stage transition
+    setIsFlashing(false) // Reset flashing state
+    if (stage === 'amplitude') {
+      setStage('frequency')
+      setSubStage('explore')
+      setSelectedAnswer(null)
+    } else if (stage === 'frequency') {
+      // Set up challenge
+      setupChallenge()
+    }
   }, [isCorrect, currentQuestion, stage, amplitude, frequency, setupChallenge])
 
   const handleDiagnoseAnswer = useCallback((value: string | number) => {
@@ -378,29 +408,58 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
   // ---------------------------------------------------------------------------
   const getPromptContent = () => {
     if (stage === 'observe') {
-      return { text: 'Watch where the wave comes from', subtext: undefined }
+      return {
+        setupCopy: SINUSOIDAL_COPY.stages.observe.setup,
+        text: SINUSOIDAL_COPY.stages.observe.prompt,
+        subtext: SINUSOIDAL_COPY.stages.observe.subtext,
+      }
     }
-    if (stage === 'amplitude' && subStage === 'explore') {
-      return { text: 'Make the wave taller', subtext: 'Match the ghost wave' }
+    if (stage === 'amplitude') {
+      // Show prompt during explore, match, and reflect substages
+      if (subStage === 'explore' || subStage === 'match' || subStage === 'reflect') {
+        return {
+          setupCopy: subStage === 'explore' ? SINUSOIDAL_COPY.stages.amplitude.setup : undefined,
+          text: SINUSOIDAL_COPY.stages.amplitude.prompt,
+          subtext: SINUSOIDAL_COPY.stages.amplitude.subtext,
+        }
+      }
     }
-    if (stage === 'frequency' && subStage === 'explore') {
-      return { text: 'Make the wave faster', subtext: 'Match the ghost wave' }
+    if (stage === 'frequency') {
+      // Show prompt during explore, match, and reflect substages
+      if (subStage === 'explore' || subStage === 'match' || subStage === 'reflect') {
+        return {
+          setupCopy: subStage === 'explore' ? SINUSOIDAL_COPY.stages.frequency.setup : undefined,
+          text: SINUSOIDAL_COPY.stages.frequency.prompt,
+          subtext: SINUSOIDAL_COPY.stages.frequency.subtext,
+        }
+      }
     }
     if (stage === 'challenge' && challengePhase === 'observe') {
-      return { text: 'Something changed', subtext: 'Look closely at both waves' }
+      return {
+        setupCopy: SINUSOIDAL_COPY.stages.challenge.observe.setup,
+        text: SINUSOIDAL_COPY.stages.challenge.observe.prompt,
+        subtext: SINUSOIDAL_COPY.stages.challenge.observe.subtext,
+      }
     }
     // Note: During diagnose, the QuestionCard shows "What changed?" so no prompt needed
     if (stage === 'challenge' && challengePhase === 'diagnose') {
       return null
     }
     if (stage === 'challenge' && challengePhase === 'match') {
-      return { text: 'Now match it', subtext: undefined }
+      return {
+        setupCopy: SINUSOIDAL_COPY.stages.challenge.match.setup,
+        text: SINUSOIDAL_COPY.stages.challenge.match.prompt,
+        subtext: SINUSOIDAL_COPY.stages.challenge.match.subtext,
+      }
     }
     if (stage === 'reveal' && subStage === 'freeExplore') {
       return { text: 'Free exploration', subtext: 'Play with the parameters' }
     }
     if (stage === 'reveal') {
-      return { text: 'Challenge complete!', subtext: undefined }
+      return {
+        text: SINUSOIDAL_COPY.stages.reveal.title,
+        subtext: SINUSOIDAL_COPY.stages.reveal.description,
+      }
     }
     return null
   }
@@ -413,7 +472,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
   return (
     <div className="h-screen w-screen flex flex-col" style={{ backgroundColor: 'var(--lab-bg)' }}>
       {/* Progress bar */}
-      <div className="absolute top-0 left-0 right-0 z-20">
+      <div className="absolute top-0 left-0 right-0 z-(--z-base)">
         <ProgressBar current={getStageNumber(stage)} total={TOTAL_STAGES} />
       </div>
 
@@ -421,17 +480,22 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       <CelebrationPulse trigger={celebrationCount} />
 
       {/* Formula preview */}
-      <div className="absolute top-16 right-2 sm:top-8 sm:right-4 z-10 max-w-[calc(100vw-1rem)]">
+      <div className="absolute top-16 right-2 sm:top-8 sm:right-4 z-(--z-floating) max-w-[calc(100vw-2rem)]">
         <FormulaPreview discoveries={discoveries} />
       </div>
 
       {/* Explore prompt */}
       {promptContent && (
-        <div className="absolute top-4 sm:top-8 left-16 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-10 sm:w-auto">
+        <div 
+          className="absolute top-4 sm:top-8 left-1/2 -translate-x-1/2 z-(--z-base) w-[calc(100vw-2rem)] sm:w-auto sm:max-w-md"
+          data-stage-overlay
+        >
           <ExplorePrompt
             text={promptContent.text}
             subtext={promptContent.subtext}
-            visible={true}
+            setupCopy={promptContent.setupCopy}
+            visible={!isTransitioning}
+            withGlassPanel={true}
           />
         </div>
       )}
@@ -454,12 +518,23 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
         />
       </div>
 
+      {/* Delay indicator - Observe stage */}
+      {stage === 'observe' && !showContinue && (
+        <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-(--z-controls)">
+          <DelayIndicator
+            duration={5000}
+            label="Observing..."
+            onComplete={() => setShowContinue(true)}
+          />
+        </div>
+      )}
+
       {/* Continue button - Observe stage only */}
       {stage === 'observe' && showContinue && (
-        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10">
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-(--z-controls)">
           <button
             onClick={handleContinueFromObserve}
-            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-[var(--lab-accent)]/50 text-[var(--lab-accent)] hover:bg-[var(--lab-accent)]/10 hover:border-[var(--lab-accent)]"
+            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-(--lab-accent)/50 text-(--lab-accent) hover:bg-(--lab-accent)/10 hover:border-(--lab-accent)"
           >
             Continue →
           </button>
@@ -470,7 +545,8 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'amplitude' && subStage === 'explore' && (
         <AnimatedPanel
           transitionKey="amplitude"
-          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-sm px-3 sm:px-4"
+          className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-(--z-controls) w-[calc(100vw-2rem)] max-w-sm px-3 sm:px-4"
+          data-stage-overlay
         >
           <ControlPanel
             amplitude={amplitude}
@@ -489,7 +565,8 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'frequency' && subStage === 'explore' && (
         <AnimatedPanel
           transitionKey="frequency"
-          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
+          className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-(--z-controls) w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
+          data-stage-overlay
         >
           <ControlPanel
             amplitude={amplitude}
@@ -508,16 +585,23 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Challenge diagnose question */}
       {stage === 'challenge' && challengePhase === 'diagnose' && (
-        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
+        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-(--z-content) w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
           <QuestionCard
-            question="What changed?"
-            choices={[
-              { label: "Amplitude", value: "amplitude" },
-              { label: "Frequency", value: "frequency" },
-              { label: "Both", value: "both" },
-            ]}
+            question={SINUSOIDAL_COPY.stages.challenge.diagnose.question}
+            choices={SINUSOIDAL_COPY.stages.challenge.diagnose.choices}
             onSelect={handleDiagnoseAnswer}
             selectedValue={selectedAnswer ?? undefined}
+          />
+        </div>
+      )}
+
+      {/* Delay indicator - Challenge observe phase */}
+      {stage === 'challenge' && challengePhase === 'observe' && (
+        <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-(--z-controls)">
+          <DelayIndicator
+            duration={3000}
+            label="Observing changes..."
+            onComplete={() => setChallengePhase('diagnose')}
           />
         </div>
       )}
@@ -526,7 +610,8 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'challenge' && challengePhase === 'match' && (
         <AnimatedPanel
           transitionKey="challenge"
-          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
+          className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-(--z-controls) w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
+          data-stage-overlay
         >
           <ControlPanel
             amplitude={amplitude}
@@ -545,16 +630,27 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
       {/* Match celebration message */}
       {isParameterStage && subStage === 'match' && (
-        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 animate-in fade-in zoom-in duration-300">
-          <div className="text-2xl sm:text-3xl font-bold text-[var(--lab-accent)]">
-            Perfect match!
-          </div>
-        </div>
+        <MatchCelebration
+          message={
+            stage === 'amplitude'
+              ? SINUSOIDAL_COPY.matchCelebration.amplitude
+              : SINUSOIDAL_COPY.matchCelebration.frequency
+          }
+          onContinue={() => {
+            setSubStage('reflect')
+            setSelectedAnswer(null)
+          }}
+          autoTransitionDelay={2000}
+          onAutoTransition={() => {
+            setSubStage('reflect')
+            setSelectedAnswer(null)
+          }}
+        />
       )}
 
       {/* Reflect question */}
       {isParameterStage && subStage === 'reflect' && currentQuestion && (
-        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-20 w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
+        <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-(--z-content) w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
           <QuestionCard
             question={currentQuestion.question}
             choices={currentQuestion.choices}
@@ -572,24 +668,46 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
         />
       )}
 
+      {/* Reveal stage - "So What" content */}
+      {stage === 'reveal' && subStage !== 'freeExplore' && (
+        <div className="absolute bottom-24 sm:bottom-32 left-1/2 -translate-x-1/2 z-(--z-floating) w-full max-w-2xl px-4 sm:px-6">
+          <AnimatedPanel
+            transitionKey="reveal-so-what"
+            className="bg-(--lab-bg-elevated)/80 backdrop-blur-sm rounded-lg border border-(--lab-border) p-4 sm:p-6 pb-6 sm:pb-8"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Lightbulb className="h-5 w-5 sm:h-6 sm:w-6 text-(--lab-accent) shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold text-(--lab-text)">
+                  So What?
+                </h3>
+              </div>
+              <div className="space-y-3 text-sm sm:text-base text-(--lab-text-muted) whitespace-pre-line">
+                {SINUSOIDAL_COPY.stages.reveal.soWhat}
+              </div>
+            </div>
+          </AnimatedPanel>
+        </div>
+      )}
+
       {/* Reveal stage - completion options (not in freeExplore mode) */}
       {stage === 'reveal' && subStage !== 'freeExplore' && (
-        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col sm:flex-row gap-3">
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-(--z-controls) flex flex-col sm:flex-row gap-3">
           <button
             onClick={handleTryAnotherChallenge}
-            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-[var(--lab-accent)] text-[var(--lab-bg)] rounded-lg transition-all duration-300 text-sm font-medium tracking-wide hover:bg-[var(--lab-accent-hover)]"
+            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-(--lab-accent) text-(--lab-bg) rounded-lg transition-all duration-300 text-sm font-medium tracking-wide hover:bg-(--lab-accent-hover)"
           >
             Try Another
           </button>
           <button
             onClick={handleFreeExplore}
-            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-[var(--lab-accent)]/50 text-[var(--lab-accent)] hover:bg-[var(--lab-accent)]/10 hover:border-[var(--lab-accent)]"
+            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-(--lab-accent)/50 text-(--lab-accent) hover:bg-(--lab-accent)/10 hover:border-(--lab-accent)"
           >
             Explore
           </button>
           <button
             onClick={() => onComplete({ a: amplitude, f: frequency })}
-            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-[var(--lab-accent)]/50 text-[var(--lab-accent)] hover:bg-[var(--lab-accent)]/10 hover:border-[var(--lab-accent)]"
+            className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] bg-transparent rounded-lg transition-all duration-300 text-sm font-medium tracking-wide border border-(--lab-accent)/50 text-(--lab-accent) hover:bg-(--lab-accent)/10 hover:border-(--lab-accent)"
           >
             Finish
           </button>
@@ -600,7 +718,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'reveal' && subStage === 'freeExplore' && (
         <AnimatedPanel
           transitionKey="freeExplore"
-          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
+          className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-(--z-controls) w-[calc(100vw-2rem)] max-w-md px-3 sm:px-4"
         >
           <ControlPanel
             amplitude={amplitude}

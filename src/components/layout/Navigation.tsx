@@ -10,7 +10,7 @@ export function Navigation({ showBackButton, onBack, className }: NavigationProp
   return (
     <nav className={cn(
       'fixed top-0 left-0 right-0 z-50 p-4',
-      'bg-gradient-to-b from-black/50 to-transparent',
+      'bg-linear-to-b from-black/50 to-transparent',
       className
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -25,11 +25,6 @@ export function Navigation({ showBackButton, onBack, className }: NavigationProp
         ) : (
           <div /> // Spacer
         )}
-
-        {/* Logo/name - links to hero */}
-        <span className="text-gray-500 text-sm font-light tracking-wider">
-          CREATIVE LAB
-        </span>
       </div>
     </nav>
   )

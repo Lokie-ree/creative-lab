@@ -64,7 +64,7 @@ export function ProcessDialog({ open, onOpenChange }: ProcessDialogProps) {
             </div>
             <div className="text-[var(--lab-text-muted)] space-y-2">
               <p>
-                Brilliant's application asked for an interactive learning module that demonstrates understanding of their pedagogical approach.
+                Build an interactive learning module that demonstrates my pedagogical approach: challenge-first learning through discovery and manipulation.
               </p>
               <p className="text-[var(--lab-text-dim)]">
                 <span className="text-[var(--lab-accent)] font-medium">Constraint:</span> 12-day timeline while learning React Three Fiber from scratch.
@@ -82,13 +82,13 @@ export function ProcessDialog({ open, onOpenChange }: ProcessDialogProps) {
             </div>
             <div className="bg-[var(--lab-accent)]/10 border border-[var(--lab-accent)]/20 rounded-lg p-4">
               <p className="text-[var(--lab-text)] mb-2">
-                <span className="text-[var(--lab-accent)] font-medium">Where I fit:</span> Brilliant is expanding beyond foundational algebra into higher-level mathematics.
+                <span className="text-[var(--lab-accent)] font-medium">The Vision:</span> Making higher-level mathematics accessible through interactive discovery.
               </p>
               <p className="text-[var(--lab-text-muted)] text-sm mb-2">
-                Trigonometry, linear algebra, differential equations—these courses need someone who can design discovery-first experiences for abstract concepts.
+                Trigonometry, linear algebra, differential equations—these abstract concepts become tangible when learners manipulate them before encountering notation.
               </p>
               <p className="text-[var(--lab-text-dim)] text-sm italic">
-                This module demonstrates how I'd approach that expansion.
+                This module demonstrates my approach to teaching through discovery.
               </p>
             </div>
           </section>

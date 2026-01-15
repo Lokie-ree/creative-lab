@@ -1,7 +1,10 @@
 import { Badge } from "@/components/ui/badge"
-import { Lightbulb, Code, Target } from "lucide-react"
+import { Lightbulb, Code, Target, Palette } from "lucide-react"
+import { SINUSOIDAL_COPY } from "@/config/sinusoidal-copy"
 
 export function BehindThisTab() {
+  const copy = SINUSOIDAL_COPY.behindThis
+
   return (
     <div className="space-y-6">
       {/* The Approach */}
@@ -9,19 +12,13 @@ export function BehindThisTab() {
         <div className="flex items-center gap-2 mb-3">
           <Lightbulb className="w-4 h-4 text-[var(--lab-accent)]" />
           <h4 className="text-sm font-semibold text-white uppercase tracking-wide">
-            The Approach
+            {copy.approach.title}
           </h4>
         </div>
         <div className="space-y-2 text-sm text-[var(--lab-text-muted)]">
-          <p>
-            <span className="text-[var(--lab-accent)] font-medium">Challenge-first learning</span> — Brilliant's core pedagogy
-          </p>
-          <p>
-            Manipulate → discover patterns → earn the formula
-          </p>
-          <p>
-            Equation as label for intuition, not prerequisite
-          </p>
+          {copy.approach.points.map((point, idx) => (
+            <p key={idx}>{point}</p>
+          ))}
         </div>
       </section>
 
@@ -30,50 +27,56 @@ export function BehindThisTab() {
         <div className="flex items-center gap-2 mb-3">
           <Code className="w-4 h-4 text-[var(--lab-accent)]" />
           <h4 className="text-sm font-semibold text-white uppercase tracking-wide">
-            The Build
+            {copy.build.title}
           </h4>
         </div>
         <div className="flex flex-wrap gap-2 mb-3">
-          <Badge variant="secondary" className="bg-[var(--lab-bg-elevated)] text-[var(--lab-text)] hover:bg-[var(--lab-surface-elevated)]">
-            React Three Fiber
-          </Badge>
-          <Badge variant="secondary" className="bg-[var(--lab-bg-elevated)] text-[var(--lab-text)] hover:bg-[var(--lab-surface-elevated)]">
-            TypeScript
-          </Badge>
-          <Badge variant="secondary" className="bg-[var(--lab-bg-elevated)] text-[var(--lab-text)] hover:bg-[var(--lab-surface-elevated)]">
-            GSAP
-          </Badge>
-          <Badge variant="secondary" className="bg-[var(--lab-bg-elevated)] text-[var(--lab-text)] hover:bg-[var(--lab-surface-elevated)]">
-            shadcn/ui
-          </Badge>
+          {copy.build.badges.map((badge, idx) => (
+            <Badge 
+              key={idx}
+              variant="secondary" 
+              className="bg-[var(--lab-bg-elevated)] text-[var(--lab-text)] hover:bg-[var(--lab-surface-elevated)]"
+            >
+              {badge}
+            </Badge>
+          ))}
         </div>
         <p className="text-sm text-[var(--lab-text-dim)] italic">
-          First R3F project — built in 12 days while learning the library
+          {copy.build.note}
         </p>
         <ul className="mt-2 space-y-1 text-sm text-[var(--lab-text-muted)]">
-          <li>• 60fps animation with Three.js</li>
-          <li>• Unit circle → wave connection</li>
-          <li>• Progressive discovery flow</li>
+          {copy.build.features.map((feature, idx) => (
+            <li key={idx}>• {feature}</li>
+          ))}
         </ul>
       </section>
 
-      {/* The Opportunity */}
+      {/* Design Decisions */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <Palette className="w-4 h-4 text-[var(--lab-accent)]" />
+          <h4 className="text-sm font-semibold text-white uppercase tracking-wide">
+            {copy.designDecisions.title}
+          </h4>
+        </div>
+        <ul className="space-y-2 text-sm text-[var(--lab-text-muted)]">
+          {copy.designDecisions.points.map((point, idx) => (
+            <li key={idx}>• {point}</li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Where This Fits */}
       <section>
         <div className="flex items-center gap-2 mb-3">
           <Target className="w-4 h-4 text-[var(--lab-accent)]" />
           <h4 className="text-sm font-semibold text-white uppercase tracking-wide">
-            The Opportunity
+            {copy.whereThisFits.title}
           </h4>
         </div>
         <div className="bg-[var(--lab-bg-elevated)]/50 rounded-lg p-3 border border-[var(--lab-border)]">
-          <p className="text-sm text-[var(--lab-text)] mb-2">
-            <span className="text-[var(--lab-accent)]">Where I fit:</span> Expanding into higher-level math
-          </p>
-          <p className="text-sm text-[var(--lab-text-muted)]">
-            Trigonometry, linear algebra, differential equations
-          </p>
-          <p className="text-sm text-[var(--lab-text-dim)] mt-2 italic">
-            This module demonstrates how I'd approach that expansion
+          <p className="text-sm text-[var(--lab-text-muted)] whitespace-pre-line">
+            {copy.whereThisFits.content}
           </p>
         </div>
       </section>
