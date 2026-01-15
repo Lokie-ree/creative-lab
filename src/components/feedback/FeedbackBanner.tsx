@@ -1,5 +1,9 @@
+import { useRef } from "react"
+import { useGSAP } from "@gsap/react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle2, Lightbulb } from "lucide-react"
+import { fadeInSlideUp } from "@/lib/animations"
+import { cn } from "@/lib/utils"
 
 interface FeedbackBannerProps {
   correct: boolean
@@ -12,42 +16,51 @@ export function FeedbackBanner({
   onContinue,
   className = "",
 }: FeedbackBannerProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Entrance animation with GSAP
+  useGSAP(() => {
+    if (containerRef.current) {
+      fadeInSlideUp(containerRef.current)
+    }
+  }, { dependencies: [correct], scope: containerRef })
+
   // Warm amber for "learning moment" state, accent green for correct
-  const bgColor = correct ? "bg-[var(--lab-accent)]/20" : "bg-[var(--lab-accent-warm)]/20"
-  const borderColor = correct ? "border-[var(--lab-accent)]" : "border-[var(--lab-accent-warm)]"
-  const textColor = correct ? "text-[var(--lab-accent)]" : "text-[var(--lab-accent-warm)]"
-  const iconColor = correct ? "text-[var(--lab-accent)]" : "text-[var(--lab-accent-warm)]"
+  const bgColor = correct ? "bg-(--lab-accent)/20" : "bg-(--lab-accent-warm)/20"
+  const borderColor = correct ? "border-(--lab-accent)" : "border-(--lab-accent-warm)"
+  const textColor = correct ? "text-(--lab-accent)" : "text-(--lab-accent-warm)"
+  const iconColor = correct ? "text-(--lab-accent)" : "text-(--lab-accent-warm)"
 
   return (
     <Alert
-      className={`
-        fixed bottom-0 left-0 right-0 z-[var(--z-fixed)] rounded-none border-x-0 border-b-0
-        ${bgColor} ${borderColor}
-        animate-in slide-in-from-bottom duration-300
-        ${className}
-      `}
+      ref={containerRef}
+      className={cn(
+        "fixed bottom-0 left-0 right-0 z-(--z-fixed) rounded-none border-x-0 border-b-0",
+        bgColor,
+        borderColor,
+        className
+      )}
     >
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center sm:justify-between gap-2 sm:gap-3 py-2.5 sm:py-3 px-3 sm:px-4">
         <div className="flex items-center gap-2 sm:gap-3">
           {correct ? (
-            <CheckCircle2 className={`h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ${iconColor}`} />
+            <CheckCircle2 className={cn("h-5 w-5 sm:h-6 sm:w-6 shrink-0", iconColor)} />
           ) : (
-            <Lightbulb className={`h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ${iconColor}`} />
+            <Lightbulb className={cn("h-5 w-5 sm:h-6 sm:w-6 shrink-0", iconColor)} />
           )}
-          <AlertDescription className={`text-sm sm:text-base md:text-lg font-medium whitespace-nowrap ${textColor}`}>
+          <AlertDescription className={cn("text-sm sm:text-base md:text-lg font-medium whitespace-nowrap", textColor)}>
             {correct ? "That's it!" : "Not quite — try again"}
           </AlertDescription>
         </div>
 
         <button
           onClick={onContinue}
-          className={`
-            w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 min-h-[44px] rounded-lg font-medium transition-colors text-sm sm:text-base
-            ${correct
-              ? "bg-[var(--lab-accent)] text-[var(--lab-bg)] hover:bg-[var(--lab-accent-hover)]"
-              : "bg-[var(--lab-accent-warm)] text-[var(--lab-bg)] hover:bg-[var(--lab-accent-warm-hover)]"
-            }
-          `}
+          className={cn(
+            "w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 min-h-[44px] rounded-lg font-medium transition-colors text-sm sm:text-base",
+            correct
+              ? "bg-(--lab-accent) text-(--lab-bg) hover:bg-(--lab-accent-hover)"
+              : "bg-(--lab-accent-warm) text-(--lab-bg) hover:bg-(--lab-accent-warm-hover)"
+          )}
         >
           {correct ? "Continue" : "Try Again"}
         </button>

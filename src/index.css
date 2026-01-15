@@ -95,6 +95,24 @@
 }
 
 :root {
+  /* Spacing scale - consistent spacing tokens */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 2.5rem;   /* 40px */
+  --spacing-3xl: 3rem;     /* 48px */
+
+  /* Module layout spacing - semantic positioning tokens */
+  --spacing-top: var(--spacing-md);           /* 16px - base top spacing */
+  --spacing-top-sm: var(--spacing-lg);        /* 24px - top spacing on sm+ */
+  --spacing-bottom-controls: var(--spacing-md); /* 16px - bottom spacing for controls */
+  --spacing-bottom-controls-sm: var(--spacing-lg); /* 24px - bottom spacing for controls on sm+ */
+  --spacing-bottom-content: var(--spacing-xl); /* 32px - bottom spacing for content */
+  --spacing-bottom-content-sm: var(--spacing-2xl); /* 40px - bottom spacing for content on sm+ */
+  --spacing-bottom-content-md: var(--spacing-3xl); /* 48px - bottom spacing for content on md+ */
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

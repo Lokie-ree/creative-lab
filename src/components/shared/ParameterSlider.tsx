@@ -1,5 +1,9 @@
+import { useRef } from "react"
+import { useGSAP } from "@gsap/react"
+import { pulse } from "@/lib/animations"
 import { cn } from "@/lib/utils"
 import { Slider } from "@/components/ui/slider"
+import { Lock } from "lucide-react"
 
 interface ParameterSliderProps {
   label: string
@@ -26,31 +30,50 @@ export function ParameterSlider({
   discoveredValue,
   className = "",
 }: ParameterSliderProps) {
+  const valueRef = useRef<HTMLSpanElement>(null)
+  const prevValueRef = useRef<number>(value)
   const displayValue = formatValue ? formatValue(value) : value.toFixed(2)
   const isDiscovered = discoveredValue !== null && discoveredValue !== undefined
 
+  // Micro-interaction: pulse value display on significant change
+  useGSAP(() => {
+    if (!locked && valueRef.current && Math.abs(value - prevValueRef.current) > step * 2) {
+      pulse(valueRef.current)
+      prevValueRef.current = value
+    }
+  }, { dependencies: [value, locked, step], scope: valueRef })
+
   return (
-    <div className={cn("flex flex-col gap-2 min-w-0", className)}>
+    <div className={cn(
+      "flex flex-col gap-2 min-w-0",
+      locked && "opacity-90",
+      className
+    )}>
       {/* Discovery badge */}
       {isDiscovered && locked && (
-        <div className="text-[10px] sm:text-xs text-[var(--lab-accent)] flex items-center gap-1">
-          <span>✓</span>
+        <div className="text-[10px] sm:text-xs text-(--lab-accent) flex items-center gap-1.5">
+          <Lock className="h-3 w-3" />
           <span>You discovered</span>
         </div>
       )}
 
       <div className="flex justify-between items-center gap-2 text-xs sm:text-sm">
         <label className={cn(
-          "text-[var(--lab-text-muted)] truncate",
-          isDiscovered && locked && "text-[var(--lab-accent)]"
+          "text-(--lab-text-muted) truncate flex items-center gap-1.5",
+          isDiscovered && locked && "text-(--lab-accent)",
+          locked && !isDiscovered && "text-(--lab-text-muted)"
         )}>
+          {locked && !isDiscovered && <Lock className="h-3 w-3" />}
           {label}
         </label>
-        <span className={cn(
-          "font-mono tabular-nums flex-shrink-0",
-          locked ? "text-[var(--lab-text-muted)]" : "text-[var(--lab-accent)]",
-          isDiscovered && locked && "text-[var(--lab-accent)]"
-        )}>
+        <span
+          ref={valueRef}
+          className={cn(
+            "font-mono tabular-nums shrink-0",
+            locked ? "text-(--lab-text-muted)" : "text-(--lab-accent)",
+            isDiscovered && locked && "text-(--lab-accent)"
+          )}
+        >
           {displayValue}
         </span>
       </div>

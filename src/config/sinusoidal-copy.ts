@@ -1,6 +1,6 @@
 // src/config/sinusoidal-copy.ts
 // Pedagogical copy for the Sinusoidal Waves module
-// Following Brilliant's challenge-first learning approach
+// Challenge-first learning: discovery through manipulation before explanation
 
 export interface StageCopy {
   setup: string
@@ -132,7 +132,7 @@ This pattern appears everywhere: sound waves, light waves, springs, pendulums—
     approach: {
       title: "The Approach",
       points: [
-        "Challenge-first learning—Brilliant's core pedagogy",
+        "Challenge-first learning: discovery through manipulation",
         "Manipulate → discover patterns → earn the formula",
         "The equation becomes a label for intuition, not a prerequisite",
       ],
@@ -158,11 +158,9 @@ This pattern appears everywhere: sound waves, light waves, springs, pendulums—
     },
     whereThisFits: {
       title: "Where This Fits",
-      content: `Brilliant is expanding into higher-level math (trig, linear algebra, diff eq).
+      content: `This module demonstrates my approach to teaching higher-level mathematics—making abstract concepts tangible through manipulation before introducing notation.
 
-This demonstrates how I'd approach those expansions—making abstract concepts tangible through manipulation before introducing notation.
-
-The interactive becomes the teacher, and the formula becomes the label for what you've already discovered.`,
+The interactive becomes the teacher, and the formula becomes the label for what you've already discovered. This same philosophy extends to linear algebra, differential equations, and beyond.`,
     },
   },
 }

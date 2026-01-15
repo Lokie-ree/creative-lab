@@ -2,6 +2,7 @@ import { useRef } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { colors } from "@/lib/colors"
+import { fadeInSlideRight } from "@/lib/animations"
 
 interface FormulaPreviewProps {
   discoveries: {
@@ -15,6 +16,7 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
   const containerRef = useRef<HTMLDivElement>(null)
   const amplitudeRef = useRef<HTMLSpanElement>(null)
   const frequencyRef = useRef<HTMLSpanElement>(null)
+  const hasAnimatedRef = useRef(false)
 
   // Animate amplitude reveal
   useGSAP(() => {
@@ -38,6 +40,14 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
     }
   }, { dependencies: [discoveries.frequency], scope: containerRef })
 
+  // Entrance animation - only once when component first appears
+  useGSAP(() => {
+    if (containerRef.current && !hasAnimatedRef.current) {
+      fadeInSlideRight(containerRef.current)
+      hasAnimatedRef.current = true
+    }
+  }, { dependencies: [], scope: containerRef })
+
   // Don't show until at least one discovery
   const hasAnyDiscovery = discoveries.amplitude !== null || discoveries.frequency !== null
 
@@ -47,37 +57,37 @@ export function FormulaPreview({ discoveries, className = "" }: FormulaPreviewPr
     <div
       ref={containerRef}
       className={`
-        bg-[var(--lab-surface)]/90 backdrop-blur-sm border border-[var(--lab-border)] rounded-xl
-        px-3 py-2 sm:px-4 sm:py-3 font-mono text-sm sm:text-lg
+        bg-(--lab-surface)/90 backdrop-blur-sm border border-(--lab-border) rounded-xl
+        px-3 py-2 sm:px-4 sm:py-3 font-mono text-sm sm:text-xl
         ${className}
       `}
     >
-      <div className="text-[var(--lab-text-muted)] text-xs uppercase tracking-wider mb-1">
+      <div className="text-(--lab-text-muted) text-xs uppercase tracking-wider mb-1">
         You're building
       </div>
       <div className="flex items-center gap-1 flex-wrap">
-        <span className="text-[var(--lab-text-muted)]">y</span>
-        <span className="text-[var(--lab-text-muted)]">=</span>
+        <span className="text-(--lab-text-muted)">y</span>
+        <span className="text-(--lab-text-muted)">=</span>
 
         {/* Amplitude */}
         <span
           ref={amplitudeRef}
-          className={discoveries.amplitude !== null ? "text-[var(--lab-accent)]" : "text-[var(--lab-text-muted)]"}
+          className={discoveries.amplitude !== null ? "text-(--lab-accent)" : "text-(--lab-text-muted)"}
         >
           {discoveries.amplitude !== null ? discoveries.amplitude.toFixed(1) : "?"}
         </span>
 
-        <span className="text-[var(--lab-text-muted)]">sin(</span>
+        <span className="text-(--lab-text-muted)">sin(</span>
 
         {/* Frequency */}
         <span
           ref={frequencyRef}
-          className={discoveries.frequency !== null ? "text-[var(--lab-accent)]" : "text-[var(--lab-text-muted)]"}
+          className={discoveries.frequency !== null ? "text-(--lab-accent)" : "text-(--lab-text-muted)"}
         >
           {discoveries.frequency !== null ? discoveries.frequency.toFixed(1) : "?"}
         </span>
 
-        <span className="text-[var(--lab-text-muted)]">t)</span>
+        <span className="text-(--lab-text-muted)">t)</span>
       </div>
     </div>
   )

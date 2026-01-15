@@ -1,4 +1,7 @@
+import { useRef } from "react"
+import { useGSAP } from "@gsap/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { fadeInScale } from "@/lib/animations"
 
 interface Choice {
   label: string
@@ -20,10 +23,19 @@ export function QuestionCard({
   selectedValue,
   className = "",
 }: QuestionCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  // Entrance animation
+  useGSAP(() => {
+    if (cardRef.current) {
+      fadeInScale(cardRef.current)
+    }
+  }, { dependencies: [], scope: cardRef })
+
   return (
-    <Card className={`bg-[var(--lab-surface)] border-[var(--lab-border)] ${className}`}>
+    <Card ref={cardRef} className={`bg-(--lab-surface) border-(--lab-border) ${className}`}>
       <CardHeader className="pb-3 sm:pb-4">
-        <CardTitle className="text-[var(--lab-text)] text-base sm:text-lg font-medium">
+        <CardTitle className="text-(--lab-text) text-base sm:text-lg font-medium">
           {question}
         </CardTitle>
       </CardHeader>
@@ -38,8 +50,8 @@ export function QuestionCard({
                 transition-all duration-200
                 ${
                   selectedValue === choice.value
-                    ? "border-[var(--lab-accent)] bg-[var(--lab-accent)]/10 text-[var(--lab-accent)]"
-                    : "border-[var(--lab-border)] text-[var(--lab-text)] hover:border-[var(--lab-border-muted)]"
+                    ? "border-(--lab-accent) bg-(--lab-accent)/10 text-(--lab-accent)"
+                    : "border-(--lab-border) text-(--lab-text) hover:border-(--lab-border-muted) hover:scale-[1.02]"
                 }
               `}
             >
