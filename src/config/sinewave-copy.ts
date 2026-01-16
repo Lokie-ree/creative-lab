@@ -1,5 +1,5 @@
-// src/config/sinusoidal-copy.ts
-// Pedagogical copy for the Sinusoidal Waves module
+// src/config/sinewave-copy.ts
+// Pedagogical copy for the Sinewaves module
 // Challenge-first learning: discovery through manipulation before explanation
 
 export interface StageCopy {
@@ -14,7 +14,7 @@ export interface DiscoveryLabel {
   formula?: string
 }
 
-export interface SinusoidalCopy {
+export interface SinewaveCopy {
   stages: {
     observe: StageCopy
     amplitude: StageCopy
@@ -63,7 +63,7 @@ export interface SinusoidalCopy {
   }
 }
 
-export const SINUSOIDAL_COPY: SinusoidalCopy = {
+export const SINEWAVE_COPY: SinewaveCopy = {
   stages: {
     observe: {
       setup: "Watch how the dot's vertical position creates the wave. As it moves around the circle, its height traces the sine wave below.",
@@ -130,11 +130,11 @@ This pattern appears everywhere: sound waves, light waves, springs, pendulums—
   },
   behindThis: {
     approach: {
-      title: "The Approach",
+      title: "What You Discovered",
       points: [
-        "Challenge-first learning: discovery through manipulation",
-        "Manipulate → discover patterns → earn the formula",
-        "The equation becomes a label for intuition, not a prerequisite",
+        "The unit circle isn't just a diagram—it's the engine that generates every sine wave",
+        "Amplitude and frequency aren't abstract parameters—they're the circle's radius and speed",
+        "You matched the target before seeing the formula, proving you understood the relationship",
       ],
     },
     build: {
@@ -142,25 +142,27 @@ This pattern appears everywhere: sound waves, light waves, springs, pendulums—
       badges: ["React Three Fiber", "TypeScript", "GSAP", "shadcn/ui"],
       note: "First R3F project — built in 12 days while learning the library",
       features: [
-        "60fps unit circle animation",
-        "Real-time wave generation",
-        "Progressive discovery flow (observe → amplitude → frequency → challenge)",
+        "60fps synchronized circle-to-wave animation",
+        "Ghost wave targets for visual matching",
+        "Two-step challenge: diagnose what changed, then match it",
       ],
     },
     designDecisions: {
-      title: "Design Decisions",
+      title: "Why It Works This Way",
       points: [
-        "Removed phase parameter (depth over breadth)",
-        "Circle radius scales with amplitude (visual reinforcement)",
-        "Prediction questions test understanding, not recall",
-        "Two-step challenge: diagnose the difference, then match it",
+        "You manipulated before I explained—the formula arrived as confirmation, not prerequisite",
+        "Removed phase parameter—depth over breadth, one concept mastered beats three introduced",
+        "Circle radius scales with amplitude slider—what you adjust is what you see",
+        "No 'wrong answers'—only 'keep exploring' until you match",
       ],
     },
     whereThisFits: {
-      title: "Where This Fits",
-      content: `This module demonstrates my approach to teaching higher-level mathematics—making abstract concepts tangible through manipulation before introducing notation.
+      title: "The Bigger Picture",
+      content: `One teacher reaches 150 students per year. One well-designed learning experience reaches millions.
 
-The interactive becomes the teacher, and the formula becomes the label for what you've already discovered. This same philosophy extends to linear algebra, differential equations, and beyond.`,
+This module demonstrates what I believe: that higher-level mathematics becomes accessible when learners manipulate before they memorize. The same approach extends to vectors, matrices, differential equations—any concept that benefits from seeing before symbolizing.
+
+The formula becomes the label for what you've already discovered.`,
     },
   },
 }
