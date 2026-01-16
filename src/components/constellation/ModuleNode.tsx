@@ -18,27 +18,59 @@ export function ModuleNode({
   isRecommended,
   onClick,
 }: ModuleNodeProps) {
+  const isComingSoon = module.comingSoon ?? false
+
   return (
     <button
       onClick={onClick}
+      disabled={isComingSoon}
       className={cn(
         'group flex flex-col items-center gap-3 p-4 rounded-lg transition-all duration-150',
-        'hover:scale-108 active:scale-98',
+        isComingSoon
+          ? 'cursor-not-allowed opacity-50'
+          : 'hover:scale-108 active:scale-98',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]'
       )}
     >
       {/* Layered rings */}
-      <NodeRings
-        status={status}
-        progress={progress}
-        isRecommended={isRecommended}
-        className={cn(
-          'transition-all duration-150',
-          'group-hover:[&_circle]:stroke-[3px]',
-          'group-hover:drop-shadow-[0_0_12px_rgba(34,211,238,0.3)]',
-          isRecommended && status === 'not-started' && 'animate-ring-pulse'
-        )}
-      />
+      {isComingSoon ? (
+        <svg
+          viewBox="0 0 48 48"
+          className="w-12 h-12 opacity-50"
+          aria-hidden="true"
+        >
+          <circle
+            cx="24"
+            cy="24"
+            r="22"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="stroke-gray-600"
+          />
+          <circle
+            cx="24"
+            cy="24"
+            r="8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="stroke-gray-600"
+          />
+        </svg>
+      ) : (
+        <NodeRings
+          status={status}
+          progress={progress}
+          isRecommended={isRecommended}
+          className={cn(
+            'transition-all duration-150',
+            'group-hover:[&_circle]:stroke-[3px]',
+            'group-hover:drop-shadow-[0_0_12px_rgba(34,211,238,0.3)]',
+            isRecommended && status === 'not-started' && 'animate-ring-pulse'
+          )}
+        />
+      )}
 
       {/* Domain label */}
       <span className="text-xs text-gray-400 uppercase tracking-wider">
@@ -50,11 +82,16 @@ export function ModuleNode({
         className={cn(
           'text-sm font-medium transition-colors duration-150 max-w-[120px] text-center',
           status === 'completed' ? 'text-cyan-400' : 'text-white',
-          'group-hover:text-cyan-300'
+          !isComingSoon && 'group-hover:text-cyan-300'
         )}
       >
         {module.title}
       </span>
+
+      {/* Coming soon badge */}
+      {isComingSoon && (
+        <span className="text-xs text-gray-600 italic">Coming soon</span>
+      )}
     </button>
   )
 }

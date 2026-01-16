@@ -8,6 +8,7 @@ export interface ModuleConfig {
   order: number
   courseId: string
   component: () => Promise<{ default: React.ComponentType<ModuleProps> }>
+  comingSoon?: boolean
 }
 
 export interface ModuleProps {
@@ -17,8 +18,8 @@ export interface ModuleProps {
 
 export const MODULES: ModuleConfig[] = [
   {
-    id: 'sinusoidal-waves',
-    title: 'Sinusoidal Waves',
+    id: 'sinewaves',
+    title: 'Sinewaves',
     domain: 'Trigonometry',
     description: 'Where does the wave come from?',
     order: 1,
@@ -33,6 +34,7 @@ export const MODULES: ModuleConfig[] = [
     order: 2,
     courseId: 'advanced-math',
     component: () => import('@/components/modules/vector-transforms/Module'),
+    comingSoon: true,
   },
   {
     id: 'phase-portraits',
@@ -42,6 +44,7 @@ export const MODULES: ModuleConfig[] = [
     order: 3,
     courseId: 'advanced-math',
     component: () => import('@/components/modules/phase-portraits/Module'),
+    comingSoon: true,
   },
 ]
 
