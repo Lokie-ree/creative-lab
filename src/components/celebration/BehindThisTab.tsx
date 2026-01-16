@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge"
 import { Lightbulb, Code, Target, Palette } from "lucide-react"
-import { SINUSOIDAL_COPY } from "@/config/sinusoidal-copy"
+import { SINEWAVE_COPY } from "@/config/sinewave-copy"
 
 export function BehindThisTab() {
-  const copy = SINUSOIDAL_COPY.behindThis
+  const copy = SINEWAVE_COPY.behindThis
 
   return (
     <div className="space-y-6">

@@ -16,7 +16,7 @@ export const COURSES: Course[] = [
     icon: '∞',
     color: '#22d3ee',
     order: 1,
-    moduleIds: ['sinusoidal-waves', 'vector-transformations', 'phase-portraits'],
+    moduleIds: ['sinewaves', 'vector-transformations', 'phase-portraits'],
   },
   {
     id: 'cs',

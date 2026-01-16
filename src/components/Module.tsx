@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { usePortfolio } from "@/context/PortfolioContext"
 import { Lightbulb } from "lucide-react"
-import { Scene } from "./modules/sinusoidal/Scene"
+import { Scene } from "./modules/sinewaves/Scene"
 import { ControlPanel } from "./controls/ControlPanel"
 import { FormulaPreview } from "./feedback/FormulaPreview"
 import { ProgressBar } from "./shared/ProgressBar"
@@ -14,7 +14,7 @@ import { FeedbackBanner } from "./feedback/FeedbackBanner"
 import { MatchCelebration } from "./celebration/MatchCelebration"
 import { DelayIndicator } from "./shared/DelayIndicator"
 import { stageTransitionOut, stageTransitionIn } from "@/lib/animations"
-import { SINUSOIDAL_COPY } from "@/config/sinusoidal-copy"
+import { SINEWAVE_COPY } from "@/config/sinewave-copy"
 
 // ============================================================================
 // TYPES
@@ -166,7 +166,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     }
 
     const progress = progressMap[stage] ?? 0
-    updateModuleProgress('sinusoidal-waves', {
+    updateModuleProgress('sinewaves', {
       status: stage === 'reveal' ? 'completed' : 'in-progress',
       progress,
       currentStage: stage,
@@ -409,18 +409,18 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
   const getPromptContent = () => {
     if (stage === 'observe') {
       return {
-        setupCopy: SINUSOIDAL_COPY.stages.observe.setup,
-        text: SINUSOIDAL_COPY.stages.observe.prompt,
-        subtext: SINUSOIDAL_COPY.stages.observe.subtext,
+        setupCopy: SINEWAVE_COPY.stages.observe.setup,
+        text: SINEWAVE_COPY.stages.observe.prompt,
+        subtext: SINEWAVE_COPY.stages.observe.subtext,
       }
     }
     if (stage === 'amplitude') {
       // Show prompt during explore, match, and reflect substages
       if (subStage === 'explore' || subStage === 'match' || subStage === 'reflect') {
         return {
-          setupCopy: subStage === 'explore' ? SINUSOIDAL_COPY.stages.amplitude.setup : undefined,
-          text: SINUSOIDAL_COPY.stages.amplitude.prompt,
-          subtext: SINUSOIDAL_COPY.stages.amplitude.subtext,
+          setupCopy: subStage === 'explore' ? SINEWAVE_COPY.stages.amplitude.setup : undefined,
+          text: SINEWAVE_COPY.stages.amplitude.prompt,
+          subtext: SINEWAVE_COPY.stages.amplitude.subtext,
         }
       }
     }
@@ -428,17 +428,17 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       // Show prompt during explore, match, and reflect substages
       if (subStage === 'explore' || subStage === 'match' || subStage === 'reflect') {
         return {
-          setupCopy: subStage === 'explore' ? SINUSOIDAL_COPY.stages.frequency.setup : undefined,
-          text: SINUSOIDAL_COPY.stages.frequency.prompt,
-          subtext: SINUSOIDAL_COPY.stages.frequency.subtext,
+          setupCopy: subStage === 'explore' ? SINEWAVE_COPY.stages.frequency.setup : undefined,
+          text: SINEWAVE_COPY.stages.frequency.prompt,
+          subtext: SINEWAVE_COPY.stages.frequency.subtext,
         }
       }
     }
     if (stage === 'challenge' && challengePhase === 'observe') {
       return {
-        setupCopy: SINUSOIDAL_COPY.stages.challenge.observe.setup,
-        text: SINUSOIDAL_COPY.stages.challenge.observe.prompt,
-        subtext: SINUSOIDAL_COPY.stages.challenge.observe.subtext,
+        setupCopy: SINEWAVE_COPY.stages.challenge.observe.setup,
+        text: SINEWAVE_COPY.stages.challenge.observe.prompt,
+        subtext: SINEWAVE_COPY.stages.challenge.observe.subtext,
       }
     }
     // Note: During diagnose, the QuestionCard shows "What changed?" so no prompt needed
@@ -447,9 +447,9 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     }
     if (stage === 'challenge' && challengePhase === 'match') {
       return {
-        setupCopy: SINUSOIDAL_COPY.stages.challenge.match.setup,
-        text: SINUSOIDAL_COPY.stages.challenge.match.prompt,
-        subtext: SINUSOIDAL_COPY.stages.challenge.match.subtext,
+        setupCopy: SINEWAVE_COPY.stages.challenge.match.setup,
+        text: SINEWAVE_COPY.stages.challenge.match.prompt,
+        subtext: SINEWAVE_COPY.stages.challenge.match.subtext,
       }
     }
     if (stage === 'reveal' && subStage === 'freeExplore') {
@@ -457,8 +457,8 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     }
     if (stage === 'reveal') {
       return {
-        text: SINUSOIDAL_COPY.stages.reveal.title,
-        subtext: SINUSOIDAL_COPY.stages.reveal.description,
+        text: SINEWAVE_COPY.stages.reveal.title,
+        subtext: SINEWAVE_COPY.stages.reveal.description,
       }
     }
     return null
@@ -587,8 +587,8 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
       {stage === 'challenge' && challengePhase === 'diagnose' && (
         <div className="absolute bottom-20 sm:bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 z-(--z-content) w-full max-w-[90vw] sm:max-w-md px-3 sm:px-4 md:px-0">
           <QuestionCard
-            question={SINUSOIDAL_COPY.stages.challenge.diagnose.question}
-            choices={SINUSOIDAL_COPY.stages.challenge.diagnose.choices}
+            question={SINEWAVE_COPY.stages.challenge.diagnose.question}
+            choices={SINEWAVE_COPY.stages.challenge.diagnose.choices}
             onSelect={handleDiagnoseAnswer}
             selectedValue={selectedAnswer ?? undefined}
           />
@@ -633,8 +633,8 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
         <MatchCelebration
           message={
             stage === 'amplitude'
-              ? SINUSOIDAL_COPY.matchCelebration.amplitude
-              : SINUSOIDAL_COPY.matchCelebration.frequency
+              ? SINEWAVE_COPY.matchCelebration.amplitude
+              : SINEWAVE_COPY.matchCelebration.frequency
           }
           onContinue={() => {
             setSubStage('reflect')
@@ -683,7 +683,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
                 </h3>
               </div>
               <div className="space-y-3 text-sm sm:text-base text-(--lab-text-muted) whitespace-pre-line">
-                {SINUSOIDAL_COPY.stages.reveal.soWhat}
+                {SINEWAVE_COPY.stages.reveal.soWhat}
               </div>
             </div>
           </AnimatedPanel>
