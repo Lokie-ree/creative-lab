@@ -201,7 +201,7 @@ export function MatrixControlPanel({
   return (
     <div
       className={cn(
-        'bg-[var(--lab-surface)] border border-[var(--lab-border)] rounded-lg p-4',
+        'bg-black/60 backdrop-blur-sm border border-[var(--lab-border)] rounded-xl p-4',
         'max-w-[320px] w-full',
         className
       )}
