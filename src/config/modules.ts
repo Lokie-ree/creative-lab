@@ -34,7 +34,6 @@ export const MODULES: ModuleConfig[] = [
     order: 2,
     courseId: 'advanced-math',
     component: () => import('@/components/modules/vector-transforms/Module'),
-    comingSoon: true,
   },
   {
     id: 'phase-portraits',

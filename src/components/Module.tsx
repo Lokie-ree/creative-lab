@@ -180,7 +180,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     // Skip transition on initial mount - use ref to track instead of state
     if (prevStage === null) {
       // Initialize prevStage on mount without triggering re-render
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPrevStage(stage)
       return
     }
@@ -277,7 +277,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
 
     if (checkMatch()) {
       // Trigger celebration
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: match detection triggers state update
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCelebrationCount(c => c + 1)
 
       // Transition to match substage for visual feedback
@@ -297,7 +297,7 @@ export function Module({ onComplete, isVisible = true }: ModuleProps) {
     if (stage !== 'challenge' || challengePhase !== 'match') return
 
     if (challengeMatchScore >= CHALLENGE_MATCH_THRESHOLD) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: challenge match detection triggers state update
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCelebrationCount(c => c + 1)
       // Update discoveries with the final matched values
       setDiscoveries({ amplitude, frequency })
