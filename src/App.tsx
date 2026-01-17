@@ -1,18 +1,65 @@
-import { useState, useCallback, lazy, Suspense } from "react"
+import { useState, useCallback, Suspense, useEffect, type ComponentType } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import { Hero } from "./components/hero"
 import { ModuleLoader } from "./components/ModuleLoader"
 import { PortfolioProvider } from "@/context/PortfolioContext"
 import { Constellation, CourseHub } from "@/components/constellation"
-
-// Lazy load the heavy Module component (includes Three.js/R3F)
-const Module = lazy(() => import("./components/Module").then(m => ({ default: m.Module })))
+import { getModuleById, type ModuleProps } from "@/config/modules"
 import { EscapeHatch, Navigation } from "./components/layout"
 import { CelebrationModal } from "./components/celebration"
 import { ResumeDialog, ProcessDialog } from "./components/dialogs"
 
 type View = "hero" | "courses" | "constellation" | "module"
 type TabId = "discovery" | "behind" | "deeper"
+
+/**
+ * Dynamic Module Loader
+ * Loads the correct module component based on moduleId from the modules config
+ */
+interface DynamicModuleProps {
+  moduleId: string
+  onComplete: (values: { a: number; f: number }) => void
+  isVisible: boolean
+}
+
+function DynamicModule({ moduleId, onComplete, isVisible }: DynamicModuleProps) {
+  const [LoadedModule, setLoadedModule] = useState<ComponentType<ModuleProps> | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const moduleConfig = getModuleById(moduleId)
+    if (!moduleConfig) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Error state for missing module
+      setError(`Module "${moduleId}" not found`)
+      return
+    }
+
+    // Load the module component
+    moduleConfig.component()
+      .then(module => {
+        setLoadedModule(() => module.default)
+        setError(null)
+      })
+      .catch(err => {
+        console.error(`Failed to load module "${moduleId}":`, err)
+        setError(`Failed to load module "${moduleId}"`)
+      })
+  }, [moduleId])
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen text-red-500">
+        {error}
+      </div>
+    )
+  }
+
+  if (!LoadedModule) {
+    return <ModuleLoader />
+  }
+
+  return <LoadedModule onComplete={onComplete} isVisible={isVisible} />
+}
 
 function App() {
   // View state
@@ -203,7 +250,11 @@ function App() {
               onBack={handleBackToConstellation}
             />
             <Suspense fallback={<ModuleLoader />}>
-              <Module onComplete={handleModuleComplete} isVisible={true} />
+              <DynamicModule
+                moduleId={activeModuleId}
+                onComplete={handleModuleComplete}
+                isVisible={true}
+              />
             </Suspense>
           </motion.div>
         )}
