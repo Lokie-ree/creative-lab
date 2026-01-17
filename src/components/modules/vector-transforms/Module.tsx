@@ -11,7 +11,7 @@
  * 4. Formula reveal with geometric explanations
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import { Scene } from './Scene'
 import { OriginalVector, TransformedVector, TargetVector } from './VectorArrow'
@@ -21,6 +21,9 @@ import { DiscoveryBadge } from './DiscoveryBadge'
 import { RevealPanel } from './RevealPanel'
 import { ExplorePrompt, HintSystem, useIdleNudges } from './IdleNudges'
 import { ChallengeMode, useChallengeMode } from './ChallengeMode'
+import { ProgressBar } from '@/components/shared/ProgressBar'
+import { MatrixPreview } from './MatrixPreview'
+import { VECTOR_TRANSFORMS_COPY } from '@/config/vector-transforms-copy'
 import {
   type Matrix2x2,
   type Vector2,
@@ -104,6 +107,23 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
 
   // Get current transformation type
   const transformationType = classifyTransformation(matrix)
+
+  // Compute current stage and progress
+  type ModuleStage = 'explore' | 'unlocked' | 'challenge' | 'complete'
+  const currentStage: ModuleStage = useMemo(() => {
+    if (showReveal) return 'complete'
+    if (isChallengeMode) return 'challenge'
+    if (isUnlocked) return 'unlocked'
+    return 'explore'
+  }, [showReveal, isChallengeMode, isUnlocked])
+
+  const stageProgress: Record<ModuleStage, number> = {
+    explore: 0.1,
+    unlocked: 0.3,
+    challenge: 0.6,
+    complete: 1.0,
+  }
+  const currentProgress = stageProgress[currentStage]
 
   // Note: Proximity level is calculated inside ChallengeMode component
 
@@ -225,16 +245,21 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
     >
       {/* Main visualization area */}
       <div className="relative flex flex-col items-center gap-4 w-full max-w-[600px]">
+        {/* Progress bar */}
+        <ProgressBar
+          current={currentProgress}
+          total={1}
+          className="w-full"
+        />
+
         {/* Top prompt */}
         <ExplorePrompt
-          text={
-            isChallengeMode
-              ? 'Match the dashed target vector'
-              : 'Change the matrix. Watch what happens to the vector.'
-          }
+          text={VECTOR_TRANSFORMS_COPY.stages[currentStage === 'complete' ? 'challenge' : currentStage].prompt}
           subtext={
-            !isUnlocked && !isChallengeMode
-              ? 'Start by adjusting the diagonal entries'
+            currentStage === 'explore'
+              ? VECTOR_TRANSFORMS_COPY.stages.explore.subtext
+              : currentStage === 'unlocked'
+              ? VECTOR_TRANSFORMS_COPY.stages.unlocked.subtext
               : undefined
           }
           visible={!showReveal}
@@ -245,6 +270,14 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
         <div className="absolute top-16 right-4 z-20">
           <DiscoveryBadge type={currentBadge} onDismiss={handleDismissBadge} />
         </div>
+
+        {/* Matrix preview (top-right, below discovery badge) */}
+        <MatrixPreview
+          matrix={matrix}
+          discoveredTypes={discoveredTypes}
+          currentType={transformationType}
+          className="absolute top-28 right-4 z-20"
+        />
 
         {/* Canvas with vectors */}
         <div className="relative w-full">

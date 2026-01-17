@@ -317,7 +317,7 @@ export function ExplorePrompt({
       ref={promptRef}
       className={cn(
         'bg-[var(--lab-surface)]/80 backdrop-blur-sm',
-        'border border-[var(--lab-border)] rounded-lg',
+        'border border-[var(--lab-border)] rounded-xl',
         'px-4 py-3 text-center',
         className
       )}
