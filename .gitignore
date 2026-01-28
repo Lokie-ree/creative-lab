@@ -26,7 +26,7 @@ dist-ssr
 .cursor*
 
 .cursor/
-
+.agents/
 # Playwright MCP screenshots
 .playwright-mcp/
 
@@ -41,3 +41,6 @@ dist-ssr
 
 *storybook.log
 storybook-static
+
+# Generated images (mockups, references)
+Gemini_Generated_Image_*
