@@ -23,7 +23,7 @@ import { ExplorePrompt, HintSystem, useIdleNudges } from './IdleNudges'
 import { ChallengeMode, useChallengeMode } from './ChallengeMode'
 import { ProgressBar } from '@/components/shared/ProgressBar'
 import { MatrixPreview } from './MatrixPreview'
-import { VECTOR_TRANSFORMS_COPY } from '@/config/vector-transforms-copy'
+import { VECTOR_TRANSFORMS_COPY } from '@/components/modules/vector-transforms/vector-transforms-copy'
 import {
   type Matrix2x2,
   type Vector2,

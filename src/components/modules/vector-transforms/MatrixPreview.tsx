@@ -10,7 +10,7 @@ import { useGSAP } from '@gsap/react'
 import { cn } from '@/lib/utils'
 import { fadeInSlideRight, pulse } from '@/lib/animations'
 import type { Matrix2x2, TransformationType } from './utils'
-import { VECTOR_TRANSFORMS_COPY } from '@/config/vector-transforms-copy'
+import { VECTOR_TRANSFORMS_COPY } from '@/components/modules/vector-transforms/vector-transforms-copy'
 
 interface MatrixPreviewProps {
   /** Current matrix values */
