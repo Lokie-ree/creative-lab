@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Lightbulb, Code, Target, Palette } from "lucide-react"
-import { SINEWAVE_COPY } from "@/config/sinewave-copy"
+import { SINEWAVE_COPY } from "@/components/modules/sinewaves/sinewaves-copy"
 
 export function BehindThisTab() {
   const copy = SINEWAVE_COPY.behindThis

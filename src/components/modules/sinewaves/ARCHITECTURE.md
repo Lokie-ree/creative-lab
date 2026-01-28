@@ -14,37 +14,41 @@ The sinewaves module is a finished prototype that demonstrates the module archit
 
 ```
 src/components/modules/sinewaves/
-├── Scene.tsx          # Main 3D visualization container (React Three Fiber Canvas)
-├── UnitCircle.tsx     # Interactive unit circle with rotating point
+├── Layout.tsx         # Slot-based layout (header, explorePrompt, formula, visualization, controls, overlays)
+├── Module.tsx        # Module state and slot content; uses SinewavesLayout
+├── Scene.tsx         # Main 3D visualization container (React Three Fiber Canvas)
+├── UnitCircle.tsx    # Interactive unit circle with rotating point
 ├── SineWave.tsx      # Animated sine wave trail visualization
 ├── Connector.tsx     # Dashed line connecting circle point to wave (observe stage only)
+├── sinewaves-copy.ts # Stage prompts and copy
 └── ARCHITECTURE.md   # This documentation file
 ```
 
 ### Component Hierarchy
 
 ```
-Module (src/components/Module.tsx)
-├── ProgressBar (top)
-├── FormulaPreview (top-right)
-├── ExplorePrompt (top-center, conditional)
-├── Scene (main visualization area)
-│   └── Canvas (React Three Fiber)
-│       └── Visualization
-│           ├── UnitCircle (left side, or top on mobile)
-│           ├── Connector (only in 'observe' stage)
-│           └── SineWave (right side, or bottom on mobile)
-│               └── SineWave (ghost/target wave, conditional)
-├── ControlPanel (bottom, conditional by stage)
-├── QuestionCard (bottom, conditional by stage)
-├── FeedbackBanner (bottom, conditional)
-├── MatchCelebration (overlay, conditional)
-└── DelayIndicator (bottom, conditional)
+Module (src/components/modules/sinewaves/Module.tsx)
+└── SinewavesLayout (Layout.tsx) — owns structure, positioning, z-index
+    ├── header          → ProgressBar (top)
+    ├── explorePrompt   → ExplorePrompt (top-center, conditional; includes data-stage-overlay for transitions)
+    ├── formula         → FormulaPreview (top-right)
+    ├── visualization   → div (flex-1 + padding) + Scene (main 3D area)
+    │   └── Canvas (React Three Fiber)
+    │       └── Visualization
+    │           ├── UnitCircle (left side, or top on mobile)
+    │           ├── Connector (only in 'observe' stage)
+    │           └── SineWave (right side, or bottom on mobile)
+    │               └── SineWave (ghost/target wave, conditional)
+    ├── controls        → fragment: DelayIndicator, Continue button, ControlPanel (amplitude/frequency/challenge/freeExplore),
+    │                     QuestionCard, MatchCelebration, FeedbackBanner, reveal panel, action buttons (all conditional by stage)
+    └── children        → CelebrationPulse (full-screen overlay)
 ```
+
+Layout owns where each section lives (positioning, spacing, z-index). Module decides what to render in each slot.
 
 ### Integration Points
 
-**Entry Point**: `src/components/Module.tsx` (currently hardcoded to sinewaves, will be refactored)
+**Entry Point**: `src/components/modules/sinewaves/Module.tsx` (loaded via ModuleLoader from config)
 
 **Module Registration**: `src/config/modules.ts`
 ```typescript

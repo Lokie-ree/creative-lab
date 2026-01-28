@@ -46,13 +46,18 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
   }, [stage, stageTargets, target])
 
   if (isPortrait) {
+    // Portrait layout: circle on top, wave below, both shifted UP to leave room for controls
+    // The visualization should occupy roughly the top 60-70% of the canvas
     const circleX = 0
-    const waveX = -1.2
+    const circleY = 1.5  // Moved up from 1.0
+    const waveX = -1.1   // Center the wave better to prevent right-side clipping
+    const waveY = -0.3   // Moved up from -0.9
+    const scale = 0.55   // Slightly smaller to prevent edge clipping
 
     return (
       <>
         {/* Circle on top - scaled down for mobile */}
-        <group position={[circleX, 1.0, 0]} scale={0.7}>
+        <group position={[circleX, circleY, 0]} scale={scale}>
           <UnitCircle
             amplitude={amplitude}
             frequency={frequency}
@@ -73,7 +78,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
         </group>
 
         {/* Waves below - scaled down for mobile */}
-        <group position={[waveX, -0.9, 0]} scale={0.65}>
+        <group position={[waveX, waveY, 0]} scale={scale}>
           {/* Target wave (ghost) */}
           {showGhost && (
             <SineWave
