@@ -3,7 +3,7 @@
  * Observatory HUD Module - New sinewaves learning experience
  * User-controlled pacing, staged reveals, mobile-first layout
  */
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { ObservatoryLayout } from './Layout'
 import {
   StatusStrip,
@@ -13,6 +13,7 @@ import {
   ContinueButton,
 } from './components'
 import { Scene } from './Scene'
+import { Slider } from '@/components/ui/slider'
 import { SINEWAVE_COPY } from './sinewaves-copy'
 
 // Stage types
@@ -22,6 +23,9 @@ interface ObservatoryModuleProps {
   onComplete?: () => void
 }
 
+// Match threshold for slider matching
+const AMPLITUDE_MATCH_THRESHOLD = 0.1
+
 /**
  * Sinewaves learning module with Observatory HUD design
  * User-controlled pacing, staged reveals, mobile-first layout
@@ -29,13 +33,27 @@ interface ObservatoryModuleProps {
 export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModuleProps) {
   // Core state
   const [stage, setStage] = useState<ViewStage>('observe')
-  const [amplitude, _setAmplitude] = useState(1)
+  const [amplitude, setAmplitude] = useState(1)
   const [frequency, _setFrequency] = useState(1)
 
-  // TODO: These setters will be used in Task 12/13 for slider controls
+  // Target values
+  const [amplitudeTarget] = useState(1.5)
+  const [amplitudeMatched, setAmplitudeMatched] = useState(false)
+
+  // TODO: These will be used in subsequent tasks
   void _onComplete
-  void _setAmplitude
   void _setFrequency
+
+  // Amplitude match detection
+  useEffect(() => {
+    if (stage === 'amplitude' && !amplitudeMatched) {
+      if (Math.abs(amplitude - amplitudeTarget) <= AMPLITUDE_MATCH_THRESHOLD) {
+        setAmplitudeMatched(true)
+        // Transition to frequency stage after brief celebration
+        setTimeout(() => setStage('frequency'), 1500)
+      }
+    }
+  }, [stage, amplitude, amplitudeTarget, amplitudeMatched])
 
   // Stage-based content
   const getStageContent = useCallback(() => {
@@ -109,11 +127,11 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
     amplitude,
     frequency,
     phase: 0,
-    target: { a: 1.5, f: 2, p: 0 },
+    target: { a: amplitudeTarget, f: 2, p: 0 },
     stage: stage as 'observe' | 'amplitude' | 'frequency' | 'phase' | 'challenge' | 'reveal',
     isPaused: false,
     onPauseChange: () => {},
-    stageTargets: { amplitude: 1.5, frequency: 2, phase: 0 },
+    stageTargets: { amplitude: amplitudeTarget, frequency: 2, phase: 0 },
     isVisible: true,
   }
 
@@ -152,7 +170,32 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
           {content.showContinue && (
             <ContinueButton onClick={handleContinue} />
           )}
-          {/* Slider and other controls will be added in subsequent tasks */}
+
+          {/* Amplitude slider */}
+          {stage === 'amplitude' && (
+            <div className="w-full">
+              <div
+                className="mb-2 flex justify-between text-sm"
+                style={{
+                  fontFamily: 'var(--font-data)',
+                  color: 'var(--lab-text-muted)',
+                }}
+              >
+                <span>Amplitude</span>
+                <span style={{ color: 'var(--lab-accent)' }}>
+                  {amplitude.toFixed(1)}
+                </span>
+              </div>
+              <Slider
+                value={[amplitude]}
+                onValueChange={([value]) => setAmplitude(value)}
+                min={0.5}
+                max={2}
+                step={0.1}
+                className="w-full"
+              />
+            </div>
+          )}
         </ControlStrip>
       }
     />
