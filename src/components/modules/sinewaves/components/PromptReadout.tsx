@@ -1,5 +1,6 @@
 // src/components/modules/sinewaves/components/PromptReadout.tsx
-import { forwardRef } from 'react'
+import { forwardRef, useRef, useEffect, useImperativeHandle } from 'react'
+import { fadeInReadout } from '@/lib/animation/presets'
 
 interface PromptReadoutProps {
   title: string
@@ -10,12 +11,25 @@ interface PromptReadoutProps {
 /**
  * Prompt readout panel with left-edge cyan glow
  * Observatory HUD instrument panel aesthetic
+ * Animates in when title changes
  */
 export const PromptReadout = forwardRef<HTMLDivElement, PromptReadoutProps>(
   function PromptReadout({ title, description, className = '' }, ref) {
+    const localRef = useRef<HTMLDivElement>(null)
+
+    // Expose the local ref to parent
+    useImperativeHandle(ref, () => localRef.current as HTMLDivElement)
+
+    // Animate entrance when title changes
+    useEffect(() => {
+      if (localRef.current) {
+        fadeInReadout(localRef.current)
+      }
+    }, [title])
+
     return (
       <div
-        ref={ref}
+        ref={localRef}
         className={`relative ${className}`}
         style={{
           backgroundColor: 'var(--lab-surface)',

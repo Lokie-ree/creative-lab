@@ -1,5 +1,6 @@
 // src/components/modules/sinewaves/components/FormulaReadout.tsx
-import { forwardRef } from 'react'
+import { forwardRef, useRef, useEffect, useImperativeHandle } from 'react'
+import { fadeInReadout } from '@/lib/animation/presets'
 
 interface FormulaReadoutProps {
   amplitude: number
@@ -12,6 +13,7 @@ interface FormulaReadoutProps {
 /**
  * Formula readout panel with corner bracket accents
  * Shows the formula being built: y = A sin(f t)
+ * Animates in on highlight changes (stage transitions)
  */
 export const FormulaReadout = forwardRef<HTMLDivElement, FormulaReadoutProps>(
   function FormulaReadout(
@@ -24,6 +26,32 @@ export const FormulaReadout = forwardRef<HTMLDivElement, FormulaReadoutProps>(
     },
     ref
   ) {
+    const localRef = useRef<HTMLDivElement>(null)
+    const prevHighlight = useRef({ amplitude: highlightAmplitude, frequency: highlightFrequency })
+
+    // Expose the local ref to parent
+    useImperativeHandle(ref, () => localRef.current as HTMLDivElement)
+
+    // Animate entrance on mount and when highlight changes (stage transition)
+    useEffect(() => {
+      const highlightChanged =
+        prevHighlight.current.amplitude !== highlightAmplitude ||
+        prevHighlight.current.frequency !== highlightFrequency
+
+      if (localRef.current && highlightChanged) {
+        fadeInReadout(localRef.current)
+      }
+
+      prevHighlight.current = { amplitude: highlightAmplitude, frequency: highlightFrequency }
+    }, [highlightAmplitude, highlightFrequency])
+
+    // Initial mount animation
+    useEffect(() => {
+      if (localRef.current) {
+        fadeInReadout(localRef.current)
+      }
+    }, [])
+
     const amplitudeColor = highlightAmplitude
       ? 'var(--lab-accent)'
       : 'var(--lab-text)'
@@ -33,7 +61,7 @@ export const FormulaReadout = forwardRef<HTMLDivElement, FormulaReadoutProps>(
 
     return (
       <div
-        ref={ref}
+        ref={localRef}
         className={`relative ${className}`}
         style={{
           backgroundColor: 'var(--lab-surface)',
