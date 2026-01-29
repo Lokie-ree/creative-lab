@@ -13,6 +13,7 @@ import {
   ContinueButton,
   DiagnosisChoices,
   RevealPanel,
+  MatchFeedback,
 } from './components'
 import { Scene } from './Scene'
 import { Slider } from '@/components/ui/slider'
@@ -57,42 +58,25 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
   // Free explore mode state
   const [isFreeExplore, setIsFreeExplore] = useState(false)
 
-  // Amplitude match detection
+  // Amplitude match detection - user controls progression via MatchFeedback
   useEffect(() => {
     if (stage === 'amplitude' && !amplitudeMatched) {
       if (Math.abs(amplitude - amplitudeTarget) <= AMPLITUDE_MATCH_THRESHOLD) {
         setAmplitudeMatched(true)
-        // Transition to frequency stage after brief celebration
-        setTimeout(() => setStage('frequency'), 1500)
       }
     }
   }, [stage, amplitude, amplitudeTarget, amplitudeMatched])
 
-  // Frequency match detection
+  // Frequency match detection - user controls progression via MatchFeedback
   useEffect(() => {
     if (stage === 'frequency' && !frequencyMatched) {
       if (Math.abs(frequency - frequencyTarget) <= FREQUENCY_MATCH_THRESHOLD) {
         setFrequencyMatched(true)
-        // Transition to challenge stage after brief celebration
-        setTimeout(() => {
-          // Initialize challenge with random parameter
-          const param: ChallengeParam = Math.random() > 0.5 ? 'amplitude' : 'frequency'
-          const targetValue = param === 'amplitude'
-            ? 0.5 + Math.random() * 1.5 // 0.5 to 2.0
-            : 1 + Math.random() * 2 // 1 to 3
-
-          setChallengeParam(param)
-          setChallengeTargetValue(Math.round(targetValue * 10) / 10) // Round to 1 decimal
-          setChallengePhase('observe')
-          setDiagnosisAnswer(undefined)
-          setChallengeMatched(false)
-          setStage('challenge')
-        }, 1500)
       }
     }
   }, [stage, frequency, frequencyTarget, frequencyMatched])
 
-  // Challenge match detection
+  // Challenge match detection - user controls progression via MatchFeedback
   useEffect(() => {
     if (stage === 'challenge' && challengePhase === 'match' && !challengeMatched) {
       const userValue = challengeParam === 'amplitude' ? amplitude : frequency
@@ -102,8 +86,6 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
 
       if (Math.abs(userValue - challengeTargetValue) <= threshold) {
         setChallengeMatched(true)
-        // Transition to reveal stage after brief celebration
-        setTimeout(() => setStage('reveal'), 1500)
       }
     }
   }, [stage, challengePhase, challengeParam, amplitude, frequency, challengeTargetValue, challengeMatched])
@@ -202,6 +184,30 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
     setTimeout(() => setChallengePhase('match'), 500)
   }, [])
 
+  // Match feedback continue handlers
+  const handleAmplitudeMatchContinue = useCallback(() => {
+    setStage('frequency')
+  }, [])
+
+  const handleFrequencyMatchContinue = useCallback(() => {
+    // Initialize challenge with random parameter
+    const param: ChallengeParam = Math.random() > 0.5 ? 'amplitude' : 'frequency'
+    const targetValue = param === 'amplitude'
+      ? 0.5 + Math.random() * 1.5 // 0.5 to 2.0
+      : 1 + Math.random() * 2 // 1 to 3
+
+    setChallengeParam(param)
+    setChallengeTargetValue(Math.round(targetValue * 10) / 10)
+    setChallengePhase('observe')
+    setDiagnosisAnswer(undefined)
+    setChallengeMatched(false)
+    setStage('challenge')
+  }, [])
+
+  const handleChallengeMatchContinue = useCallback(() => {
+    setStage('reveal')
+  }, [])
+
   // Reveal stage completion handlers
   const handleTryAnother = useCallback(() => {
     // Reset to a new challenge with different random parameter
@@ -287,8 +293,8 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
             <ContinueButton onClick={handleContinue} />
           )}
 
-          {/* Amplitude slider */}
-          {stage === 'amplitude' && (
+          {/* Amplitude stage: slider or match feedback */}
+          {stage === 'amplitude' && !amplitudeMatched && (
             <div className="w-full">
               <div
                 className="mb-2 flex justify-between text-sm"
@@ -312,9 +318,16 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
               />
             </div>
           )}
+          {stage === 'amplitude' && amplitudeMatched && (
+            <MatchFeedback
+              message={SINEWAVE_COPY.matchCelebration.amplitude}
+              onContinue={handleAmplitudeMatchContinue}
+              isVisible={true}
+            />
+          )}
 
-          {/* Frequency slider */}
-          {stage === 'frequency' && (
+          {/* Frequency stage: slider or match feedback */}
+          {stage === 'frequency' && !frequencyMatched && (
             <div className="w-full">
               <div
                 className="mb-2 flex justify-between text-sm"
@@ -338,6 +351,13 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
               />
             </div>
           )}
+          {stage === 'frequency' && frequencyMatched && (
+            <MatchFeedback
+              message={SINEWAVE_COPY.matchCelebration.frequency}
+              onContinue={handleFrequencyMatchContinue}
+              isVisible={true}
+            />
+          )}
 
           {/* Challenge diagnosis choices */}
           {stage === 'challenge' && challengePhase === 'diagnose' && (
@@ -349,8 +369,8 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
             />
           )}
 
-          {/* Challenge match slider */}
-          {stage === 'challenge' && challengePhase === 'match' && (
+          {/* Challenge match: slider or match feedback */}
+          {stage === 'challenge' && challengePhase === 'match' && !challengeMatched && (
             <div className="w-full">
               <div
                 className="mb-2 flex justify-between text-sm"
@@ -379,6 +399,15 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
                 className="w-full"
               />
             </div>
+          )}
+          {stage === 'challenge' && challengePhase === 'match' && challengeMatched && (
+            <MatchFeedback
+              message={challengeParam === 'amplitude'
+                ? SINEWAVE_COPY.matchCelebration.amplitude
+                : SINEWAVE_COPY.matchCelebration.frequency}
+              onContinue={handleChallengeMatchContinue}
+              isVisible={true}
+            />
           )}
 
           {/* Reveal stage panel */}
