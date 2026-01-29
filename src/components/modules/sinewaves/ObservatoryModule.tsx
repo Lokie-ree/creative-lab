@@ -23,8 +23,9 @@ interface ObservatoryModuleProps {
   onComplete?: () => void
 }
 
-// Match threshold for slider matching
+// Match thresholds for slider matching
 const AMPLITUDE_MATCH_THRESHOLD = 0.1
+const FREQUENCY_MATCH_THRESHOLD = 0.15
 
 /**
  * Sinewaves learning module with Observatory HUD design
@@ -34,15 +35,16 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
   // Core state
   const [stage, setStage] = useState<ViewStage>('observe')
   const [amplitude, setAmplitude] = useState(1)
-  const [frequency, _setFrequency] = useState(1)
+  const [frequency, setFrequency] = useState(1)
 
   // Target values
   const [amplitudeTarget] = useState(1.5)
+  const [frequencyTarget] = useState(2)
   const [amplitudeMatched, setAmplitudeMatched] = useState(false)
+  const [frequencyMatched, setFrequencyMatched] = useState(false)
 
-  // TODO: These will be used in subsequent tasks
+  // TODO: onComplete will be used in reveal stage
   void _onComplete
-  void _setFrequency
 
   // Amplitude match detection
   useEffect(() => {
@@ -54,6 +56,17 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
       }
     }
   }, [stage, amplitude, amplitudeTarget, amplitudeMatched])
+
+  // Frequency match detection
+  useEffect(() => {
+    if (stage === 'frequency' && !frequencyMatched) {
+      if (Math.abs(frequency - frequencyTarget) <= FREQUENCY_MATCH_THRESHOLD) {
+        setFrequencyMatched(true)
+        // Transition to challenge stage after brief celebration
+        setTimeout(() => setStage('challenge'), 1500)
+      }
+    }
+  }, [stage, frequency, frequencyTarget, frequencyMatched])
 
   // Stage-based content
   const getStageContent = useCallback(() => {
@@ -127,11 +140,11 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
     amplitude,
     frequency,
     phase: 0,
-    target: { a: amplitudeTarget, f: 2, p: 0 },
+    target: { a: amplitudeTarget, f: frequencyTarget, p: 0 },
     stage: stage as 'observe' | 'amplitude' | 'frequency' | 'phase' | 'challenge' | 'reveal',
     isPaused: false,
     onPauseChange: () => {},
-    stageTargets: { amplitude: amplitudeTarget, frequency: 2, phase: 0 },
+    stageTargets: { amplitude: amplitudeTarget, frequency: frequencyTarget, phase: 0 },
     isVisible: true,
   }
 
@@ -191,6 +204,32 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
                 onValueChange={([value]) => setAmplitude(value)}
                 min={0.5}
                 max={2}
+                step={0.1}
+                className="w-full"
+              />
+            </div>
+          )}
+
+          {/* Frequency slider */}
+          {stage === 'frequency' && (
+            <div className="w-full">
+              <div
+                className="mb-2 flex justify-between text-sm"
+                style={{
+                  fontFamily: 'var(--font-data)',
+                  color: 'var(--lab-text-muted)',
+                }}
+              >
+                <span>Frequency</span>
+                <span style={{ color: 'var(--lab-accent)' }}>
+                  {frequency.toFixed(1)}
+                </span>
+              </div>
+              <Slider
+                value={[frequency]}
+                onValueChange={([value]) => setFrequency(value)}
+                min={0.5}
+                max={3}
                 step={0.1}
                 className="w-full"
               />
