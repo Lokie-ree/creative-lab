@@ -3,7 +3,7 @@
  * Observatory HUD Module - New sinewaves learning experience
  * User-controlled pacing, staged reveals, mobile-first layout
  */
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { ObservatoryLayout } from './Layout'
 import {
   StatusStrip,
@@ -18,6 +18,7 @@ import {
 import { Scene } from './Scene'
 import { Slider } from '@/components/ui/slider'
 import { SINEWAVE_COPY } from './sinewaves-copy'
+import { consoleBootSequence } from './animations'
 
 // Stage types
 type ViewStage = 'observe' | 'amplitude' | 'frequency' | 'challenge' | 'reveal'
@@ -38,6 +39,11 @@ const FREQUENCY_MATCH_THRESHOLD = 0.15
  * User-controlled pacing, staged reveals, mobile-first layout
  */
 export function ObservatoryModule({ onComplete, isVisible: _isVisible }: ObservatoryModuleProps) {
+  // Boot sequence refs
+  const statusStripRef = useRef<HTMLDivElement>(null)
+  const promptRef = useRef<HTMLDivElement>(null)
+  const [booted, setBooted] = useState(false)
+
   // Core state
   const [stage, setStage] = useState<ViewStage>('observe')
   const [amplitude, setAmplitude] = useState(1)
@@ -58,6 +64,21 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
 
   // Free explore mode state
   const [isFreeExplore, setIsFreeExplore] = useState(false)
+
+  // Boot sequence on mount
+  useEffect(() => {
+    // Run boot sequence once on mount
+    consoleBootSequence(
+      {
+        statusStrip: statusStripRef.current,
+        progressBar: statusStripRef.current?.querySelector('[role="progressbar"]') as HTMLElement | null,
+        prompt: promptRef.current,
+      },
+      () => {
+        setBooted(true)
+      }
+    )
+  }, [])
 
   // Amplitude match detection - user controls progression via MatchFeedback
   useEffect(() => {
@@ -269,15 +290,19 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
     <ObservatoryLayout
       statusStrip={
         <StatusStrip
+          ref={statusStripRef}
           currentStage={stageNumber[stage]}
           totalStages={4}
           progress={stageProgress[stage]}
+          className={booted ? '' : 'opacity-0'}
         />
       }
       promptReadout={
         <PromptReadout
+          ref={promptRef}
           title={content.prompt}
           description={content.description}
+          className={booted ? '' : 'opacity-0'}
         />
       }
       formulaReadout={
@@ -323,6 +348,7 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
                 max={2}
                 step={0.1}
                 className="w-full"
+                aria-label="Amplitude"
               />
             </div>
           )}
@@ -356,6 +382,7 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
                 max={3}
                 step={0.1}
                 className="w-full"
+                aria-label="Frequency"
               />
             </div>
           )}
@@ -405,6 +432,7 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
                 max={challengeParam === 'amplitude' ? 2 : 3}
                 step={0.1}
                 className="w-full"
+                aria-label={challengeParam === 'amplitude' ? 'Amplitude' : 'Frequency'}
               />
             </div>
           )}
@@ -453,6 +481,7 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
                   max={2}
                   step={0.1}
                   className="w-full"
+                  aria-label="Amplitude"
                 />
               </div>
               <div className="w-full">
@@ -475,6 +504,7 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
                   max={3}
                   step={0.1}
                   className="w-full"
+                  aria-label="Frequency"
                 />
               </div>
               <ContinueButton onClick={() => setIsFreeExplore(false)}>

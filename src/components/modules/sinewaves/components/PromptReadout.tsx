@@ -40,6 +40,8 @@ export const PromptReadout = forwardRef<HTMLDivElement, PromptReadoutProps>(
           boxShadow: 'inset 4px 0 8px -4px rgba(34, 211, 238, 0.3)',
         }}
         data-stage-overlay
+        role="status"
+        aria-live="polite"
       >
         <h2
           className="text-base font-medium sm:text-lg"

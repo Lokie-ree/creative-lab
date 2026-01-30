@@ -65,6 +65,8 @@ export function MatchFeedback({
           color: 'var(--lab-earned)',
           fontSize: '0.95rem',
         }}
+        role="alert"
+        aria-live="assertive"
       >
         {message}
       </div>

@@ -33,7 +33,7 @@ export function ObservatoryLayout({
 }: ObservatoryLayoutProps) {
   return (
     <div
-      className="relative h-full w-full overflow-hidden"
+      className="relative min-h-screen w-screen overflow-hidden"
       style={{
         display: 'grid',
         gridTemplateRows: 'var(--space-12) auto 1fr auto',
