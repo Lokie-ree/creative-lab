@@ -261,7 +261,8 @@ function App() {
       </AnimatePresence>
 
       {/* Escape hatch - only visible in module view, not during celebration */}
-      {view === "module" && !showCelebration && (
+      {/* Hidden for sinewaves - Observatory HUD has its own status strip */}
+      {view === "module" && !showCelebration && activeModuleId !== "sinewaves" && (
         <EscapeHatch
           onBackToStart={handleBackToConstellation}
           onViewResume={handleOpenResume}

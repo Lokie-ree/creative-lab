@@ -65,7 +65,7 @@ export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
         <div className="flex-1">
           <Progress
             value={progress}
-            className="h-1"
+            className="h-1 [&>div]:bg-[var(--lab-accent)]"
             style={{
               backgroundColor: 'var(--lab-surface)',
             }}

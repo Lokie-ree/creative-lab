@@ -17,6 +17,7 @@ interface SceneProps {
   onPauseChange: (paused: boolean) => void
   stageTargets?: { amplitude: number; frequency: number; phase: number }
   isVisible?: boolean
+  matchSuccess?: boolean // When true, triggers glow effect on user's wave
 }
 
 // Layout constants
@@ -24,7 +25,7 @@ const CIRCLE_X = -2.5
 const WAVE_X = -0.3
 const GHOST_OPACITY = 0.5
 
-function Visualization({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets }: SceneProps) {
+function Visualization({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets, matchSuccess }: SceneProps) {
   const { viewport } = useThree()
   const isPortrait = viewport.width < viewport.height && viewport.width < 5
 
@@ -155,13 +156,14 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
           phase={phase}
           isPaused={isPaused}
           showLiveDot={stage !== 'observe'}
+          glow={matchSuccess}
         />
       </group>
     </>
   )
 }
 
-export function Scene({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets, isVisible = true }: SceneProps) {
+export function Scene({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets, isVisible = true, matchSuccess }: SceneProps) {
   // Conditionally render Canvas to prevent WebGL context conflicts
   // when both Hero and Module are mounted during SlideTransition
   if (!isVisible) {
@@ -183,6 +185,7 @@ export function Scene({ amplitude, frequency, phase, target, stage, isPaused, on
         isPaused={isPaused}
         onPauseChange={onPauseChange}
         stageTargets={stageTargets}
+        matchSuccess={matchSuccess}
       />
     </Canvas>
   )

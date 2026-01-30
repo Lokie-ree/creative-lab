@@ -25,7 +25,8 @@ type ChallengePhase = 'observe' | 'diagnose' | 'match'
 type ChallengeParam = 'amplitude' | 'frequency'
 
 interface ObservatoryModuleProps {
-  onComplete?: () => void
+  onComplete: (values: { a: number; f: number }) => void
+  isVisible?: boolean
 }
 
 // Match thresholds for slider matching
@@ -36,7 +37,7 @@ const FREQUENCY_MATCH_THRESHOLD = 0.15
  * Sinewaves learning module with Observatory HUD design
  * User-controlled pacing, staged reveals, mobile-first layout
  */
-export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModuleProps) {
+export function ObservatoryModule({ onComplete, isVisible: _isVisible }: ObservatoryModuleProps) {
   // Core state
   const [stage, setStage] = useState<ViewStage>('observe')
   const [amplitude, setAmplitude] = useState(1)
@@ -231,9 +232,9 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
   }, [])
 
   const handleFinish = useCallback(() => {
-    // Call the onComplete callback if provided
-    _onComplete?.()
-  }, [_onComplete])
+    // Call the onComplete callback with discovered values
+    onComplete({ a: amplitude, f: frequency })
+  }, [onComplete, amplitude, frequency])
 
   // Compute effective targets for Scene
   // During challenge, the target is the challenge parameter value
@@ -243,6 +244,12 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
   const effectiveFrequencyTarget = stage === 'challenge' && challengeParam === 'frequency'
     ? challengeTargetValue
     : frequencyTarget
+
+  // Determine if we're in a match success state
+  const isMatchSuccess =
+    (stage === 'amplitude' && amplitudeMatched) ||
+    (stage === 'frequency' && frequencyMatched) ||
+    (stage === 'challenge' && challengeMatched)
 
   // Scene props - map to existing Scene interface
   const sceneProps = {
@@ -255,6 +262,7 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
     onPauseChange: () => {},
     stageTargets: { amplitude: effectiveAmplitudeTarget, frequency: effectiveFrequencyTarget, phase: 0 },
     isVisible: true,
+    matchSuccess: isMatchSuccess,
   }
 
   return (
@@ -418,7 +426,7 @@ export function ObservatoryModule({ onComplete: _onComplete }: ObservatoryModule
               soWhat={SINEWAVE_COPY.stages.reveal.soWhat}
               onTryAnother={handleTryAnother}
               onExplore={handleExplore}
-              onFinish={_onComplete ? handleFinish : undefined}
+              onFinish={handleFinish}
             />
           )}
 
