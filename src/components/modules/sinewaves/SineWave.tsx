@@ -11,6 +11,7 @@ interface SineWaveProps {
   opacity?: number
   isPaused?: boolean
   showLiveDot?: boolean  // Show dot at current wave position
+  glow?: boolean  // Enable glow effect for match success
 }
 
 export interface SineWaveRef {
@@ -29,6 +30,7 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
     opacity = 1,
     isPaused = false,
     showLiveDot = false,
+    glow = false,
   }, ref) {
     const positionsRef = useRef<Float32Array>(new Float32Array(MAX_POINTS * 3))
     const pointCountRef = useRef(0)
@@ -40,16 +42,17 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
       getCurrentY: () => currentYRef.current,
     }))
 
-    // Main line
+    // Main line - color changes to amber when glowing (match success)
+    const effectiveColor = glow ? colors.learning.primary : color
     const line = useMemo(() => {
       const geometry = new THREE.BufferGeometry()
       const material = new THREE.LineBasicMaterial({
-        color,
+        color: effectiveColor,
         transparent: true,
         opacity,
       })
       return new THREE.Line(geometry, material)
-    }, [color, opacity])
+    }, [effectiveColor, opacity])
 
     useFrame((state) => {
       // Don't update when paused
@@ -116,8 +119,8 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
         {/* Live dot at current wave position */}
         {showLiveDot && (
           <mesh ref={dotRef} position={[0, 0, 0]}>
-            <circleGeometry args={[0.06, 32]} />
-            <meshBasicMaterial color={color} />
+            <circleGeometry args={[glow ? 0.09 : 0.06, 32]} />
+            <meshBasicMaterial color={effectiveColor} />
           </mesh>
         )}
       </group>

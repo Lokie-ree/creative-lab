@@ -4,11 +4,119 @@
 
 **Goal:** Implement Observatory HUD aesthetic for sinewaves module with user-controlled pacing and centralized animations.
 
-**Architecture:** Mobile-first CSS Grid layout with 4 regions (status strip, readouts, primary display, control strip). Animation timing centralized in `src/lib/animation/`. Skeleton hooks manage flow state; module orchestrates animations on state changes.
-
 **Tech Stack:** React 19, TypeScript, Tailwind CSS 4, GSAP, React Three Fiber
 
 **Design Reference:** `docs/plans/2026-01-28-sinewaves-redesign.md`
+
+---
+
+## Architecture Decisions
+
+### Component Strategy: New Files, Parallel Development
+
+Create new Observatory HUD components as separate files. Existing components (`ExplorePrompt`, `FormulaPreview`, `AnimatedPanel`) remain untouched until Module.tsx switches over. This allows:
+- Building new components in isolation
+- No broken intermediate state
+- Clean swap when Module.tsx is rewritten
+- Old components deleted in final cleanup
+
+### Component Mapping
+
+| Category | Existing | New | Strategy |
+|----------|----------|-----|----------|
+| **Replace** | `SinewavesLayout` | New grid-based `Layout.tsx` | Rewrite in place (module-specific) |
+| **Replace** | `ProgressBar` | `StatusStrip.tsx` | New file in `components/` |
+| **Replace** | `ExplorePrompt` | `PromptReadout.tsx` | New file (old stays until swap) |
+| **Replace** | `FormulaPreview` | `FormulaReadout.tsx` | New file (old stays until swap) |
+| **Remove** | `DelayIndicator` | — | Simply don't use it |
+| **Deprecate** | `AnimatedPanel` | — | Presets replace its logic; delete in cleanup |
+| **Reposition** | `ControlPanel`, `QuestionCard`, `FeedbackBanner` | Same components | Move into grid control strip |
+| **Unchanged** | `Scene`, `UnitCircle`, `SineWave`, `Connector` | — | Keep as-is |
+
+### CSS Token Location
+
+All CSS custom properties go in `src/index.css` where existing `--lab-*` tokens live:
+- Spacing tokens (`--space-1` through `--space-12`)
+- Font tokens (`--font-display`, `--font-body`, `--font-data`)
+- Animation timing tokens (`--duration-fast`, etc.)
+
+### ControlStrip Composition Pattern
+
+`ControlStrip` is a **layout container**, not a smart component. It provides:
+- Centered max-width wrapper
+- Flex column with gap
+- No conditional logic
+
+Module.tsx decides what children render based on stage:
+- Observe: `<ContinueButton />`
+- Explore: `<Slider />` + label
+- Match: `<Slider />` + feedback
+- Reveal: action buttons
+
+### Animation Separation
+
+| Location | Responsibility |
+|----------|----------------|
+| `src/lib/animation/tokens.ts` | Timing constants (duration, easing, stagger) |
+| `src/lib/animation/presets.ts` | Generic single-element GSAP animations |
+| `src/components/modules/sinewaves/animations.ts` | Sinewaves-specific orchestration sequences |
+
+**Boundary:** Generic library handles single-element animations; module file composes them into multi-element sequences.
+
+### Console Boot Coordination
+
+The "console coming alive" entrance sequence coordinates HTML (GSAP) and R3F (useFrame) animations:
+
+- **Prop-in:** Module passes `bootPhase: 'hidden' | 'booting' | 'ready'` to Scene
+- **Callback-out:** Scene calls `onBootComplete()` when visualization is ready
+- **Flow:** `hidden` → `booting` (circle draws, rotation starts, wave builds) → `ready` (Continue appears)
+
+---
+
+## Phase 0: Snapshot Current State
+
+### Task 0: Capture Before Screenshots
+
+**Purpose:** Document the current module appearance before any changes. Essential for portfolio case study and "before/after" comparisons.
+
+**Step 1: Run the dev server**
+
+Run: `pnpm dev`
+
+**Step 2: Capture screenshots at each stage**
+
+Navigate through the module and capture screenshots of:
+- Observe stage (initial view)
+- Amplitude explore stage
+- Amplitude match complete
+- Frequency explore stage
+- Frequency match complete
+- Challenge observe stage
+- Challenge diagnose stage
+- Challenge match stage
+- Reveal stage
+
+Save to `docs/screenshots/sinewaves-before/` with naming pattern:
+- `01-observe.png`
+- `02-amplitude-explore.png`
+- `03-amplitude-match.png`
+- etc.
+
+**Step 3: Capture at multiple viewport sizes**
+
+Repeat for:
+- Mobile (375px width)
+- Tablet (768px width)
+- Desktop (1280px width)
+
+Use subfolders: `mobile/`, `tablet/`, `desktop/`
+
+**Step 4: Commit screenshots**
+
+```bash
+git add docs/screenshots/
+git commit -m "docs: capture before screenshots of sinewaves module"
+```
 
 ---
 
@@ -290,6 +398,234 @@ Expected: Build succeeds
 ```bash
 git add src/lib/animation/
 git commit -m "feat(animation): add GSAP animation presets"
+```
+
+---
+
+### Task 2B: Create Sinewaves Animation Orchestration
+
+**Files:**
+- Create: `src/components/modules/sinewaves/animations.ts`
+
+**Step 1: Create sinewaves-specific orchestration file**
+
+This file composes generic presets into sinewaves-specific sequences.
+
+```typescript
+// src/components/modules/sinewaves/animations.ts
+import gsap from 'gsap'
+import { duration, easing, stagger } from '@/lib/animation/tokens'
+import { fadeInReadout, fadeOutReadout, stagedReveal } from '@/lib/animation/presets'
+
+/**
+ * Convert ms to seconds for GSAP
+ */
+const toSeconds = (ms: number) => ms / 1000
+
+/**
+ * Check if user prefers reduced motion
+ */
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+/**
+ * Refs needed for console boot sequence
+ */
+export interface BootRefs {
+  statusStrip: HTMLElement | null
+  progressBar: HTMLElement | null
+  prompt: HTMLElement | null
+}
+
+/**
+ * Console boot sequence - "power on" entrance animation
+ * Coordinates HTML elements; Scene handles its own boot via prop
+ */
+export function consoleBootSequence(
+  refs: BootRefs,
+  onReadyForScene: () => void
+) {
+  if (prefersReducedMotion()) {
+    // Skip to ready state
+    if (refs.statusStrip) gsap.set(refs.statusStrip, { opacity: 1 })
+    if (refs.progressBar) gsap.set(refs.progressBar, { scaleX: 1 })
+    if (refs.prompt) gsap.set(refs.prompt, { opacity: 1, x: 0 })
+    onReadyForScene()
+    return
+  }
+
+  const tl = gsap.timeline()
+
+  // Status strip fades in
+  if (refs.statusStrip) {
+    tl.fromTo(
+      refs.statusStrip,
+      { opacity: 0 },
+      { opacity: 1, duration: toSeconds(duration.fast) }
+    )
+  }
+
+  // Progress bar draws left-to-right
+  if (refs.progressBar) {
+    tl.fromTo(
+      refs.progressBar,
+      { scaleX: 0, transformOrigin: 'left' },
+      { scaleX: 1, duration: toSeconds(duration.normal), ease: easing.out },
+      '-=0.1'
+    )
+  }
+
+  // Prompt readout materializes
+  if (refs.prompt) {
+    tl.fromTo(
+      refs.prompt,
+      { opacity: 0, x: -8 },
+      { opacity: 1, x: 0, duration: toSeconds(duration.normal), ease: easing.out },
+      '+=0.1'
+    )
+  }
+
+  // Signal Scene to start its boot animation
+  tl.call(onReadyForScene, [], '+=0.2')
+
+  return tl
+}
+
+/**
+ * Refs needed for match success sequence
+ */
+export interface MatchSuccessRefs {
+  visualization: HTMLElement | null
+  feedback: HTMLElement | null
+  continueButton: HTMLElement | null
+}
+
+/**
+ * Match success sequence - staged reveal after hitting target
+ * Timeline: hold → pulse → feedback → button
+ */
+export function matchSuccessSequence(
+  refs: MatchSuccessRefs,
+  onComplete: () => void
+) {
+  if (prefersReducedMotion()) {
+    if (refs.feedback) gsap.set(refs.feedback, { opacity: 1, y: 0 })
+    if (refs.continueButton) gsap.set(refs.continueButton, { opacity: 1, y: 0 })
+    onComplete()
+    return
+  }
+
+  const tl = gsap.timeline({ onComplete })
+
+  // Hold - brief pause for visual confirmation (300ms)
+  tl.addLabel('hold', 0)
+
+  // Pulse visualization glow
+  if (refs.visualization) {
+    tl.to(
+      refs.visualization,
+      {
+        filter: 'brightness(1.15)',
+        duration: toSeconds(duration.normal),
+        ease: easing.out,
+      },
+      'hold'
+    ).to(refs.visualization, {
+      filter: 'brightness(1)',
+      duration: toSeconds(duration.normal),
+      ease: easing.inOut,
+    })
+  }
+
+  // Feedback text fades in
+  if (refs.feedback) {
+    tl.fromTo(
+      refs.feedback,
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: toSeconds(duration.normal), ease: easing.out },
+      `-=${toSeconds(duration.fast)}`
+    )
+  }
+
+  // Continue button appears
+  if (refs.continueButton) {
+    tl.fromTo(
+      refs.continueButton,
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: toSeconds(duration.normal), ease: easing.out },
+      `+=${toSeconds(stagger.normal)}`
+    )
+  }
+
+  return tl
+}
+
+/**
+ * Stage transition sequence
+ * Orchestrates exit of current readouts and entrance of new ones
+ */
+export function stageTransitionSequence(
+  exitRefs: { prompt: HTMLElement | null; formula: HTMLElement | null },
+  onMidpoint: () => void,
+  enterRefs: { prompt: HTMLElement | null; formula: HTMLElement | null },
+  onComplete?: () => void
+) {
+  if (prefersReducedMotion()) {
+    if (exitRefs.prompt) gsap.set(exitRefs.prompt, { opacity: 0 })
+    if (exitRefs.formula) gsap.set(exitRefs.formula, { opacity: 0 })
+    onMidpoint()
+    if (enterRefs.prompt) gsap.set(enterRefs.prompt, { opacity: 1, y: 0 })
+    if (enterRefs.formula) gsap.set(enterRefs.formula, { opacity: 1, y: 0 })
+    onComplete?.()
+    return
+  }
+
+  const tl = gsap.timeline({ onComplete })
+
+  // Exit current readouts
+  const exitElements = [exitRefs.prompt, exitRefs.formula].filter(Boolean)
+  exitElements.forEach((el) => {
+    tl.to(el, { opacity: 0, duration: toSeconds(duration.fast), ease: easing.inOut }, 0)
+  })
+
+  // Midpoint - state update happens here
+  tl.call(onMidpoint, [], `+=${toSeconds(stagger.tight)}`)
+
+  // Enter new readouts with stagger
+  tl.addLabel('enter')
+  if (enterRefs.prompt) {
+    tl.fromTo(
+      enterRefs.prompt,
+      { opacity: 0, y: -8 },
+      { opacity: 1, y: 0, duration: toSeconds(duration.normal), ease: easing.out },
+      'enter'
+    )
+  }
+  if (enterRefs.formula) {
+    tl.fromTo(
+      enterRefs.formula,
+      { opacity: 0, y: -8 },
+      { opacity: 1, y: 0, duration: toSeconds(duration.normal), ease: easing.out },
+      `enter+=${toSeconds(stagger.normal)}`
+    )
+  }
+
+  return tl
+}
+```
+
+**Step 2: Verify build**
+
+Run: `pnpm build`
+Expected: Build succeeds
+
+**Step 3: Commit**
+
+```bash
+git add src/components/modules/sinewaves/animations.ts
+git commit -m "feat(sinewaves): add animation orchestration sequences"
 ```
 
 ---
@@ -1752,6 +2088,228 @@ git commit -m "feat(sinewaves): add animated stage transitions"
 
 ---
 
+### Task 17B: Add Boot Phase to Scene Component
+
+**Files:**
+- Modify: `src/components/modules/sinewaves/Scene.tsx`
+
+**Step 1: Add bootPhase prop to SceneProps**
+
+```typescript
+type BootPhase = 'hidden' | 'booting' | 'ready'
+
+interface SceneProps {
+  // ... existing props
+  bootPhase?: BootPhase
+  onBootComplete?: () => void
+}
+```
+
+**Step 2: Pass bootPhase to Visualization and handle callback**
+
+Update the Scene component to pass bootPhase down and call onBootComplete when visualization is ready:
+
+```typescript
+export function Scene({
+  amplitude,
+  frequency,
+  phase,
+  target,
+  stage,
+  isPaused,
+  onPauseChange,
+  stageTargets,
+  isVisible = true,
+  bootPhase = 'ready',
+  onBootComplete,
+}: SceneProps) {
+  // ... existing code
+
+  return (
+    <Canvas ...>
+      <Visualization
+        // ... existing props
+        bootPhase={bootPhase}
+        onBootComplete={onBootComplete}
+      />
+    </Canvas>
+  )
+}
+```
+
+**Step 3: Verify build**
+
+Run: `pnpm build`
+Expected: Build succeeds
+
+**Step 4: Commit**
+
+```bash
+git add src/components/modules/sinewaves/Scene.tsx
+git commit -m "feat(sinewaves): add bootPhase prop to Scene"
+```
+
+---
+
+### Task 17C: Add Circle Draw Animation to UnitCircle
+
+**Files:**
+- Modify: `src/components/modules/sinewaves/UnitCircle.tsx`
+
+**Step 1: Add drawProgress state and boot handling**
+
+```typescript
+interface UnitCircleProps {
+  // ... existing props
+  bootPhase?: 'hidden' | 'booting' | 'ready'
+  onDrawComplete?: () => void
+}
+```
+
+**Step 2: Implement progressive circle draw**
+
+Add state to track draw progress (0-1) and animate it during boot:
+
+```typescript
+const [drawProgress, setDrawProgress] = useState(bootPhase === 'ready' ? 1 : 0)
+
+// Animate draw progress when booting
+useEffect(() => {
+  if (bootPhase === 'booting' && drawProgress === 0) {
+    // Animate from 0 to 1 over 600ms
+    const startTime = performance.now()
+    const duration = 600
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      setDrawProgress(progress)
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      } else {
+        onDrawComplete?.()
+      }
+    }
+
+    requestAnimationFrame(animate)
+  }
+}, [bootPhase, drawProgress, onDrawComplete])
+```
+
+**Step 3: Update circle rendering to use drawProgress**
+
+Modify the circle line to only render up to `drawProgress`:
+
+```typescript
+// Generate partial circle points based on draw progress
+const circlePoints = useMemo(() => {
+  const segments = Math.floor(64 * drawProgress)
+  return generateScaledCirclePoints(amplitude, segments)
+}, [amplitude, drawProgress])
+```
+
+**Step 4: Don't start rotation until draw is complete**
+
+```typescript
+useFrame((state) => {
+  // Don't animate if still drawing
+  if (drawProgress < 1) return
+
+  // ... existing rotation logic
+})
+```
+
+**Step 5: Verify build**
+
+Run: `pnpm build`
+Expected: Build succeeds
+
+**Step 6: Commit**
+
+```bash
+git add src/components/modules/sinewaves/UnitCircle.tsx
+git commit -m "feat(sinewaves): add circle draw animation for boot sequence"
+```
+
+---
+
+### Task 17D: Integrate Console Boot in Module
+
+**Files:**
+- Modify: `src/components/modules/sinewaves/Module.tsx`
+
+**Step 1: Add boot phase state**
+
+```typescript
+type BootPhase = 'hidden' | 'booting' | 'ready'
+const [bootPhase, setBootPhase] = useState<BootPhase>('hidden')
+```
+
+**Step 2: Add refs for boot sequence elements**
+
+```typescript
+const statusStripRef = useRef<HTMLDivElement>(null)
+const progressBarRef = useRef<HTMLDivElement>(null)
+```
+
+**Step 3: Import and use consoleBootSequence**
+
+```typescript
+import { consoleBootSequence } from './animations'
+
+// Trigger boot on mount
+useEffect(() => {
+  const refs = {
+    statusStrip: statusStripRef.current,
+    progressBar: progressBarRef.current,
+    prompt: promptRef.current,
+  }
+
+  consoleBootSequence(refs, () => {
+    setBootPhase('booting')
+  })
+}, [])
+```
+
+**Step 4: Handle Scene boot completion**
+
+```typescript
+const handleSceneBootComplete = useCallback(() => {
+  setBootPhase('ready')
+}, [])
+
+// In render:
+<Scene
+  // ... existing props
+  bootPhase={bootPhase}
+  onBootComplete={handleSceneBootComplete}
+/>
+```
+
+**Step 5: Only show Continue button when boot is complete**
+
+```typescript
+{content.showContinue && bootPhase === 'ready' && (
+  <ContinueButton onClick={handleContinue} />
+)}
+```
+
+**Step 6: Verify build and test**
+
+Run: `pnpm build`
+Run: `pnpm dev`
+Expected: Module loads with "console coming alive" sequence
+
+**Step 7: Commit**
+
+```bash
+git add src/components/modules/sinewaves/Module.tsx
+git commit -m "feat(sinewaves): integrate console boot sequence"
+```
+
+---
+
 ## Phase 5: Polish
 
 ### Task 18: Responsive Testing & Fixes
@@ -1879,12 +2437,19 @@ git commit -m "feat(sinewaves): complete Observatory HUD redesign implementation
 
 ## Summary
 
-This plan implements the Observatory HUD redesign in 20 tasks across 5 phases:
+This plan implements the Observatory HUD redesign in 26 tasks across 6 phases:
 
-1. **Foundation** (Tasks 1-4): Animation tokens, presets, fonts, spacing
+0. **Snapshot** (Task 0): Capture before screenshots at all stages and viewport sizes
+1. **Foundation** (Tasks 1-4 + 2B): Animation tokens, generic presets, sinewaves orchestration, fonts, spacing
 2. **Layout Components** (Tasks 5-10): Grid layout, status strip, readouts, controls
 3. **Module Integration** (Tasks 11-15): Wire up all stages with new components
-4. **Animations** (Tasks 16-17): Staged reveals, transition orchestration
+4. **Animations** (Tasks 16-17 + 17B-17D): Staged reveals, transitions, console boot sequence
 5. **Polish** (Tasks 18-20): Responsive fixes, accessibility, final testing
+
+### Architecture Summary
+
+- **Component mapping:** Replace 4 components, reposition 3, keep 5 unchanged
+- **Animation separation:** Generic presets in `src/lib/animation/`, sinewaves orchestration in module folder
+- **Boot coordination:** Prop-in (`bootPhase`) / callback-out (`onBootComplete`) pattern for HTML/R3F sync
 
 Each task is small, testable, and committed independently for easy rollback if needed.
