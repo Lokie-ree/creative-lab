@@ -29,6 +29,7 @@ dist-ssr
 .agents/
 # Playwright MCP screenshots
 .playwright-mcp/
+screenshots/
 
 # MCP config (local)
 .mcp.json
