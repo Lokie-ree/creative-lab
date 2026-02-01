@@ -114,6 +114,8 @@
 
 **One-line:** The sinewaves layout is **functional and consistent** but **unmemorable and under-designed**. It doesn’t violate the skill’s “never” list in an obvious way (no purple gradient, no Inter), but it doesn’t fulfill “distinctive, production-grade, meticulously refined” either. It feels like a sensible first pass, not a committed design.
 
+**Update:** The Observatory HUD (ObservatoryModule, ObservatoryLayout, StatusStrip, PromptReadout, FormulaReadout, ControlStrip) was implemented to address this critique; see [Observatory HUD design direction](sinewaves-observatory-hud-direction.md).
+
 ---
 
 ## 9. What would fix it (without prescribing pixels)

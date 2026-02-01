@@ -1763,7 +1763,7 @@ Ready for module migration in Phase 2."
 
 After this infrastructure is in place, create a follow-up plan for:
 
-1. **Phase 2: Migrate Sinewaves Module** - Refactor `src/components/Module.tsx` to use skeleton hooks
+1. **Phase 2: Migrate Sinewaves Module** - Refactor `src/components/modules/sinewaves/ObservatoryModule.tsx` (or new module shell) to use skeleton hooks
 2. **Phase 3: Add UI Components** - FormulaReveal, DirectionalNudge, AssistOverlay
 3. **Phase 4: Migrate Vector Transforms** - Refactor to use skeleton hooks
 4. **Phase 5: Add Missing Features** - Per-parameter feedback, notation edge cases

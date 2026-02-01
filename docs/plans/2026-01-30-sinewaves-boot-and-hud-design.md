@@ -319,24 +319,23 @@ Challenge:     y = 1.5·sin(2.0·t)   ← Actual values shown
 - Explicit row template: `48px auto 1fr auto`
 - Gap rhythm via spacing tokens
 
-**`Module.tsx`:**
-- Add boot state management
-- Integrate stage transition orchestration
-- Progressive formula reveal logic
+**`ObservatoryModule.tsx`:**
+- Boot state management via `consoleBootSequence`; Scene mounts after `onReadyForScene`
+- Stage-driven content; MatchFeedback + matchSuccessSequence on match
+- FormulaReadout shows formula by stage
 
 **`Scene.tsx`:**
 - Support opacity prop for dim effect during transitions
 - Responsive scaling based on viewport
 - Corner brackets integration (or separate overlay)
 
-**`ExplorePrompt.tsx`:**
-- Compact single-line variant for HUD
-- Slide animations for enter/exit
+**`PromptReadout`** (module-local):
+- Compact readout variant for HUD
+- Boot sequence animates prompt in via animations.ts
 
-**`FormulaPreview.tsx`:**
-- Hidden by default
-- Reveal animation on first discovery
-- Highlight animation for newly discovered values
+**`FormulaReadout`** (module-local):
+- Shown by stage; hidden in observe
+- Highlight for newly discovered values
 
 ### Animation Utilities to Add
 
@@ -426,5 +425,5 @@ Victory will **break the HUD metaphor** — this is intentional. Design separate
 
 - **HUD Direction:** `docs/design/sinewaves-observatory-hud-direction.md`
 - **Design Improvements:** `DESIGN_IMPROVEMENTS.md`
-- **Current Module:** `src/components/modules/sinewaves/Module.tsx`
+- **Current Module:** `src/components/modules/sinewaves/ObservatoryModule.tsx`
 - **Animation Utils:** `src/lib/animations.ts`

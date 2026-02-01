@@ -2,6 +2,8 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
+**Status:** Implemented. The active sinewaves entry is `ObservatoryModule.tsx`; legacy `Module.tsx` and `SinewavesLayout` were removed. Config loads `ObservatoryModule` from `src/config/modules.ts`.
+
 **Goal:** Implement Observatory HUD aesthetic for sinewaves module with user-controlled pacing and centralized animations.
 
 **Tech Stack:** React 19, TypeScript, Tailwind CSS 4, GSAP, React Three Fiber
@@ -14,11 +16,7 @@
 
 ### Component Strategy: New Files, Parallel Development
 
-Create new Observatory HUD components as separate files. Existing components (`ExplorePrompt`, `FormulaPreview`, `AnimatedPanel`) remain untouched until Module.tsx switches over. This allows:
-- Building new components in isolation
-- No broken intermediate state
-- Clean swap when Module.tsx is rewritten
-- Old components deleted in final cleanup
+New Observatory HUD components were created as separate files (StatusStrip, PromptReadout, FormulaReadout, ControlStrip, etc.). The swap was completed: config loads `ObservatoryModule`; legacy `Module.tsx` and `SinewavesLayout` were removed. Shared components (`ExplorePrompt`, `FormulaPreview`, etc.) remain in the repo for other modules (e.g. vector-transforms).
 
 ### Component Mapping
 

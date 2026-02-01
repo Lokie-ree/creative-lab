@@ -188,7 +188,7 @@ When choosing what to build next, consider:
 4. **Assessment Weight:** How heavily tested on LEAP?
 5. **Build Complexity:** Can it be completed in 2 weeks?
 
-### Recommended Next After Slope + Transformations:
+### Recommended Next After Vector Transformations:
 
 **Option A: Functions (8.F.A)** — foundational for all of algebra  
 **Option B: Proportional Relationships (7.RP.A)** — prerequisite for slope, helps younger students  
@@ -198,7 +198,7 @@ When choosing what to build next, consider:
 
 ## Notes
 
-- Each PRD should follow the established format (see Slope and Transformations PRDs)
+- Each PRD should follow the established format (see Vector Transformations PRD in `docs/modules/vector-transformations/prd.md`)
 - Modules should share component library where possible (coordinate grids, sliders, etc.)
 - Consider bundling related modules into "learning paths" for teacher adoption
 - All modules must include challenge mode for engagement validation
