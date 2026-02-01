@@ -1,7 +1,7 @@
 import { useState, useCallback, Suspense, useEffect, type ComponentType } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import { Hero } from "./components/hero"
-import { ModuleLoader } from "./components/ModuleLoader"
+import { ModuleLoader } from "./components/modules/ModuleLoader"
 import { PortfolioProvider } from "@/context/PortfolioContext"
 import { Constellation, CourseHub } from "@/components/constellation"
 import { getModuleById, type ModuleProps } from "@/config/modules"

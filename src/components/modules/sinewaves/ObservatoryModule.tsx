@@ -38,7 +38,7 @@ const FREQUENCY_MATCH_THRESHOLD = 0.15
  * Sinewaves learning module with Observatory HUD design
  * User-controlled pacing, staged reveals, mobile-first layout
  */
-export function ObservatoryModule({ onComplete, isVisible: _isVisible }: ObservatoryModuleProps) {
+export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
   // Boot sequence refs
   const statusStripRef = useRef<HTMLDivElement>(null)
   const promptRef = useRef<HTMLDivElement>(null)
@@ -80,37 +80,34 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
     )
   }, [])
 
-  // Amplitude match detection - user controls progression via MatchFeedback
-  useEffect(() => {
+  // Match detection handlers - called from slider onChange
+  const checkAmplitudeMatch = (value: number) => {
     if (stage === 'amplitude' && !amplitudeMatched) {
-      if (Math.abs(amplitude - amplitudeTarget) <= AMPLITUDE_MATCH_THRESHOLD) {
+      if (Math.abs(value - amplitudeTarget) <= AMPLITUDE_MATCH_THRESHOLD) {
         setAmplitudeMatched(true)
       }
     }
-  }, [stage, amplitude, amplitudeTarget, amplitudeMatched])
+  }
 
-  // Frequency match detection - user controls progression via MatchFeedback
-  useEffect(() => {
+  const checkFrequencyMatch = (value: number) => {
     if (stage === 'frequency' && !frequencyMatched) {
-      if (Math.abs(frequency - frequencyTarget) <= FREQUENCY_MATCH_THRESHOLD) {
+      if (Math.abs(value - frequencyTarget) <= FREQUENCY_MATCH_THRESHOLD) {
         setFrequencyMatched(true)
       }
     }
-  }, [stage, frequency, frequencyTarget, frequencyMatched])
+  }
 
-  // Challenge match detection - user controls progression via MatchFeedback
-  useEffect(() => {
+  const checkChallengeMatch = (param: ChallengeParam, value: number) => {
     if (stage === 'challenge' && challengePhase === 'match' && !challengeMatched) {
-      const userValue = challengeParam === 'amplitude' ? amplitude : frequency
-      const threshold = challengeParam === 'amplitude'
+      const threshold = param === 'amplitude'
         ? AMPLITUDE_MATCH_THRESHOLD
         : FREQUENCY_MATCH_THRESHOLD
 
-      if (Math.abs(userValue - challengeTargetValue) <= threshold) {
+      if (Math.abs(value - challengeTargetValue) <= threshold) {
         setChallengeMatched(true)
       }
     }
-  }, [stage, challengePhase, challengeParam, amplitude, frequency, challengeTargetValue, challengeMatched])
+  }
 
   // Stage-based content
   const getStageContent = useCallback(() => {
@@ -343,7 +340,10 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
               </div>
               <Slider
                 value={[amplitude]}
-                onValueChange={([value]) => setAmplitude(value)}
+                onValueChange={([value]) => {
+                  setAmplitude(value)
+                  checkAmplitudeMatch(value)
+                }}
                 min={0.5}
                 max={2}
                 step={0.1}
@@ -377,7 +377,10 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
               </div>
               <Slider
                 value={[frequency]}
-                onValueChange={([value]) => setFrequency(value)}
+                onValueChange={([value]) => {
+                  setFrequency(value)
+                  checkFrequencyMatch(value)
+                }}
                 min={0.5}
                 max={3}
                 step={0.1}
@@ -427,6 +430,7 @@ export function ObservatoryModule({ onComplete, isVisible: _isVisible }: Observa
                   } else {
                     setFrequency(value)
                   }
+                  checkChallengeMatch(challengeParam, value)
                 }}
                 min={challengeParam === 'amplitude' ? 0.5 : 0.5}
                 max={challengeParam === 'amplitude' ? 2 : 3}

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The sinewaves module is a finished prototype that demonstrates the module architecture pattern for the portfolio. It teaches the relationship between the unit circle and sine waves through interactive manipulation before explanation.
+The sinewaves module teaches the relationship between the unit circle and sine waves through interactive manipulation before explanation. It uses the Observatory HUD design (user-controlled pacing, staged reveals, mobile-first layout).
 
 **Core Learning Goal**: Discover that amplitude controls wave height and frequency controls oscillation speed through hands-on exploration.
 
@@ -14,55 +14,62 @@ The sinewaves module is a finished prototype that demonstrates the module archit
 
 ```
 src/components/modules/sinewaves/
-├── Layout.tsx         # Slot-based layout (header, explorePrompt, formula, visualization, controls, overlays)
-├── Module.tsx        # Module state and slot content; uses SinewavesLayout
-├── Scene.tsx         # Main 3D visualization container (React Three Fiber Canvas)
-├── UnitCircle.tsx    # Interactive unit circle with rotating point
-├── SineWave.tsx      # Animated sine wave trail visualization
-├── Connector.tsx     # Dashed line connecting circle point to wave (observe stage only)
-├── sinewaves-copy.ts # Stage prompts and copy
-└── ARCHITECTURE.md   # This documentation file
+├── ObservatoryModule.tsx   # Entry: Observatory HUD, state, slot content
+├── Layout.tsx              # ObservatoryLayout (grid: statusStrip, readouts, visualization, controlStrip)
+├── Scene.tsx               # Main 3D visualization container (React Three Fiber Canvas)
+├── UnitCircle.tsx         # Interactive unit circle with rotating point
+├── SineWave.tsx           # Animated sine wave trail visualization
+├── Connector.tsx          # Dashed line connecting circle point to wave (observe stage only)
+├── animations.ts          # Boot sequence (consoleBootSequence) and stage transition helpers
+├── sinewaves-copy.ts      # Stage prompts and copy (SINEWAVE_COPY)
+├── components/            # Module-local UI for Observatory HUD
+│   ├── index.ts
+│   ├── StatusStrip.tsx    # Progress + stage label
+│   ├── PromptReadout.tsx  # Instructional prompt + description
+│   ├── FormulaReadout.tsx # Formula display
+│   ├── ControlStrip.tsx   # Sliders (amplitude/frequency) + free-explore state
+│   ├── ContinueButton.tsx # Continue / advance stage
+│   ├── DiagnosisChoices.tsx # Challenge: “What changed?” choices
+│   ├── RevealPanel.tsx    # Reveal stage: So What? + Try Another / Explore / Finish
+│   └── MatchFeedback.tsx  # Match celebration + continue
+└── ARCHITECTURE.md        # This documentation file
 ```
 
-### Component Hierarchy
+### Component Hierarchy (Current — Observatory HUD)
 
 ```
-Module (src/components/modules/sinewaves/Module.tsx)
-└── SinewavesLayout (Layout.tsx) — owns structure, positioning, z-index
-    ├── header          → ProgressBar (top)
-    ├── explorePrompt   → ExplorePrompt (top-center, conditional; includes data-stage-overlay for transitions)
-    ├── formula         → FormulaPreview (top-right)
-    ├── visualization   → div (flex-1 + padding) + Scene (main 3D area)
+ObservatoryModule (ObservatoryModule.tsx)
+└── ObservatoryLayout (Layout.tsx) — grid: statusStrip | readouts | visualization | controlStrip
+    ├── statusStrip   → StatusStrip (progress bar + stage number/label)
+    ├── promptReadout → PromptReadout (prompt + description from sinewaves-copy)
+    ├── formulaReadout→ FormulaReadout (conditional; formula display)
+    ├── visualization → Scene (main 3D area)
     │   └── Canvas (React Three Fiber)
-    │       └── Visualization
-    │           ├── UnitCircle (left side, or top on mobile)
-    │           ├── Connector (only in 'observe' stage)
-    │           └── SineWave (right side, or bottom on mobile)
-    │               └── SineWave (ghost/target wave, conditional)
-    ├── controls        → fragment: DelayIndicator, Continue button, ControlPanel (amplitude/frequency/challenge/freeExplore),
-    │                     QuestionCard, MatchCelebration, FeedbackBanner, reveal panel, action buttons (all conditional by stage)
-    └── children        → CelebrationPulse (full-screen overlay)
+    │       └── UnitCircle, Connector (observe only), SineWave (user + ghost when applicable)
+    ├── controlStrip  → ControlStrip (sliders), ContinueButton, DiagnosisChoices,
+    │                    RevealPanel, MatchFeedback (all conditional by stage/substage)
+    └── children      → (overlays if any)
 ```
 
-Layout owns where each section lives (positioning, spacing, z-index). Module decides what to render in each slot.
+ObservatoryLayout owns the grid and regions; ObservatoryModule decides what to render in each slot. On mount, `consoleBootSequence` in `animations.ts` runs (status strip → progress bar → prompt) then signals ready so the Scene can mount.
 
 ### Integration Points
 
-**Entry Point**: `src/components/modules/sinewaves/Module.tsx` (loaded via ModuleLoader from config)
+**Entry Point**: `src/components/modules/sinewaves/ObservatoryModule.tsx` (loaded via ModuleLoader from config)
 
 **Module Registration**: `src/config/modules.ts`
 ```typescript
 {
   id: 'sinewaves',
   title: 'Sinewaves',
-  component: () => import('@/components/Module').then(m => ({ default: m.Module })),
+  component: () => import('@/components/modules/sinewaves/ObservatoryModule'),
 }
 ```
 
 **App Integration**: `src/App.tsx`
-- Module is loaded via Suspense with `ModuleLoader` fallback
-- Receives `onComplete` callback and `isVisible` prop
-- Wrapped in Navigation component
+- Module is loaded dynamically by `DynamicModule`; fallback is `ModuleLoader` (spinner).
+- Receives `onComplete` and `isVisible` props.
+- For `activeModuleId === 'sinewaves'`, the app hides the global nav status strip (Observatory HUD has its own StatusStrip).
 
 ---
 
@@ -136,6 +143,8 @@ observe
 - `challengeParam`: Which parameter changed ('amplitude' | 'frequency')
 - `challengeWave`: Target wave parameters for challenge stage
 
+**ObservatoryModule** does not use `subStage` or a reflect phase: it uses match flags (`amplitudeMatched`, `frequencyMatched`, `challengeMatched`) and user continues from MatchFeedback to advance. The flow above is the pedagogical template; implementation is continue-driven after match.
+
 ### Stage Transitions
 
 **Automatic Transitions**:
@@ -160,43 +169,22 @@ observe
 
 ### Transition Animation System
 
-**Pattern**: Exit animations → state update → enter animations
+**ObservatoryModule** uses two animation entry points from `animations.ts`:
 
-```typescript
-// Stage transition effect
-useEffect(() => {
-  if (prevStage !== stage) {
-    setIsTransitioning(true)
-    
-    // Find all UI overlays with data-stage-overlay attribute
-    const uiOverlays = document.querySelectorAll('[data-stage-overlay]')
-    
-    // Animate out current UI
-    const exitPromises = Array.from(uiOverlays).map((el) => {
-      return new Promise<void>((resolve) => {
-        const animation = stageTransitionOut(el)
-        animation?.eventCallback("onComplete", () => resolve())
-      })
-    })
-    
-    // Wait for exits, then update state and animate in
-    Promise.all(exitPromises).then(() => {
-      setPrevStage(stage)
-      setIsTransitioning(false)
-      
-      setTimeout(() => {
-        const newOverlays = document.querySelectorAll('[data-stage-overlay]')
-        newOverlays.forEach((el) => stageTransitionIn(el))
-      }, 50)
-    })
-  }
-}, [stage, prevStage])
-```
+1. **Boot sequence** — On mount, `consoleBootSequence` runs (status strip → progress bar → prompt), then Scene mounts.
+2. **Match success** — When the user matches a target, `matchSuccessSequence` runs (viz pulse → feedback text → continue button).
 
-**Animation Functions** (from `src/lib/animations.ts`):
-- `stageTransitionOut`: Fade out + slight scale down (0.5s)
-- `stageTransitionIn`: Fade in + scale to 1 (0.5s)
-- Respects `prefers-reduced-motion`
+Coordinated stage-transition animations (exit → state update → enter) are not currently used; readouts and control strip update with state. To add them later, use refs and a pattern similar to `stageTransitionSequence` (previously in `animations.ts`).
+
+### Boot Sequence (Observatory)
+
+**Location**: `src/components/modules/sinewaves/animations.ts`
+
+**Function**: `consoleBootSequence(refs, onReadyForScene)` — "power on" entrance for Observatory HUD.
+
+**Refs**: `statusStrip`, `progressBar`, `prompt` (HTML elements).
+
+**Sequence**: Status strip fades in → progress bar draws left-to-right → prompt readout materializes → `onReadyForScene()` called (ObservatoryModule then sets `booted` and mounts Scene). Respects `prefers-reduced-motion` (skips to ready).
 
 ---
 
@@ -336,28 +324,19 @@ interface ConnectorProps {
 - Dot at wave point emphasizes the y-value connection
 - Only rendered in 'observe' stage
 
-### 5. Module Component (`Module.tsx`)
+### 5. Observatory Module (`ObservatoryModule.tsx`)
 
-**Purpose**: Main orchestrator component that manages stage flow, UI overlays, and user interactions.
+**Purpose**: Main orchestrator for the Observatory HUD: stage flow, match detection, and slot content.
 
 **Key Responsibilities**:
-1. **Stage Management**: Tracks current stage, substage, and challenge phase
-2. **Parameter Control**: Manages amplitude and frequency state
-3. **Match Detection**: Monitors parameter values against targets
-4. **Progress Tracking**: Updates PortfolioContext with module progress
-5. **UI Orchestration**: Conditionally renders overlays based on stage
-6. **Animation Coordination**: Manages stage transition animations
+1. **Stage Management**: Tracks stage (`observe` → `amplitude` → `frequency` → `challenge` → `reveal`) and challenge phase (`observe` | `diagnose` | `match`)
+2. **Parameter Control**: Amplitude and frequency state; targets for guided stages and challenge
+3. **Match Detection**: Monitors amplitude/frequency vs targets; user advances via MatchFeedback continue
+4. **Boot Sequence**: Runs `consoleBootSequence` (animations.ts) on mount, then mounts Scene when ready
+5. **UI Orchestration**: Renders StatusStrip, PromptReadout, FormulaReadout, ControlStrip, ContinueButton, DiagnosisChoices, RevealPanel, MatchFeedback by stage
 
-**Shared Components Used**:
-- `ControlPanel`: Parameter sliders with lock/unlock states
-- `QuestionCard`: Multiple choice questions
-- `FeedbackBanner`: Correct/incorrect feedback
-- `MatchCelebration`: Celebration overlay on match
-- `ExplorePrompt`: Top-center instructional prompt
-- `FormulaPreview`: Top-right formula display
-- `ProgressBar`: Top progress indicator
-- `DelayIndicator`: Countdown timer for delays
-- `AnimatedPanel`: Wrapper for animated UI panels
+**Module-Local Components Used** (from `components/`):
+- `StatusStrip`, `PromptReadout`, `FormulaReadout`, `ControlStrip`, `ContinueButton`, `DiagnosisChoices`, `RevealPanel`, `MatchFeedback`
 
 **Match Detection Logic**:
 ```typescript
@@ -380,141 +359,78 @@ const challengeMatchScore = calculateMatchScore(
 // Match when score >= 95%
 ```
 
-**Progress Tracking**:
-```typescript
-useEffect(() => {
-  const progressMap: Record<string, number> = {
-    observe: 0.05,
-    amplitude: 0.25,
-    frequency: 0.5,
-    challenge: 0.75,
-    reveal: 1,
-  }
-  
-  updateModuleProgress('sinewaves', {
-    status: stage === 'reveal' ? 'completed' : 'in-progress',
-    progress: progressMap[stage] ?? 0,
-    currentStage: stage,
-  })
-}, [stage, updateModuleProgress])
-```
+**Progress (ObservatoryModule)**: Local `stageProgress` and `stageNumber` drive StatusStrip; no `updateModuleProgress` call yet.
 
 ---
 
 ## Example Flow
 
-### Stage 1: Observe (5 seconds)
+### Stage 1: Observe
 
 **Goal**: Introduce the relationship between circle and wave visually.
 
 **UI State**:
-- Top: ExplorePrompt ("Watch where the wave comes from")
+- StatusStrip: progress, stage label
+- PromptReadout: prompt + description (e.g. "Watch where the wave comes from")
 - Visualization: UnitCircle (left) + Connector + SineWave (right)
-- Bottom: DelayIndicator (5s countdown) → Continue button
+- ControlStrip: ContinueButton
 
 **User Actions**:
 - Can drag the circle point (pauses animation)
 - Can observe the connector line showing y-value relationship
-- After 5s: Continue button appears
+- Clicks Continue when ready
 
 **Visual Elements**:
 - Connector line animates, connecting circle point to wave
 - No ghost wave (pure observation)
 - Circle radius = 1.0 (default amplitude)
 
-**Transition**: User clicks Continue → `setStage('amplitude')` → `setSubStage('explore')`
+**Transition**: User clicks Continue → `setStage('amplitude')`
 
 ---
 
-### Stage 2: Amplitude (Explore → Match → Reflect)
-
-#### Explore Substage
+### Stage 2: Amplitude
 
 **Goal**: Match ghost wave by adjusting amplitude only.
 
 **UI State**:
-- Top: ExplorePrompt ("Match the ghost wave by adjusting amplitude")
+- PromptReadout: prompt + description (e.g. "Match the ghost wave by adjusting amplitude")
+- FormulaReadout: formula display when relevant
 - Visualization: UnitCircle + SineWave (user) + SineWave (ghost, opacity 0.5)
-- Bottom: ControlPanel with only amplitude slider visible
+- ControlStrip: amplitude slider only
 
 **User Actions**:
 - Adjusts amplitude slider (0.5 - 2.0)
-- Sees circle radius change in real-time
-- Sees wave height change in real-time
+- Sees circle radius and wave height change in real-time
 - Target: amplitude = 1.5
 
-**Match Detection**:
-```typescript
-// Continuous monitoring
-if (Math.abs(amplitude - 1.5) <= 0.1) {
-  setCelebrationCount(c => c + 1)  // Triggers pulse
-  setSubStage('match')
-}
-```
+**Match Detection**: When `Math.abs(amplitude - 1.5) <= AMPLITUDE_MATCH_THRESHOLD`, `amplitudeMatched` is set; MatchFeedback appears with continue.
 
-#### Match Substage
-
-**Goal**: Celebrate match and transition to reflection.
-
-**UI State**:
-- Overlay: MatchCelebration ("Amplitude controls the wave's height")
-- Auto-transitions to reflect after 2s or manual continue
-
-**User Actions**:
-- Observes celebration
-- Can click continue or wait for auto-transition
-
-**Transition**: `setSubStage('reflect')`
-
-#### Reflect Substage
-
-**Goal**: Test understanding with prediction question.
-
-**UI State**:
-- Top: ExplorePrompt (same as explore)
-- Bottom: QuestionCard ("If amplitude were 3, how high would the wave peak?")
-- Bottom: FeedbackBanner (after answer selection)
-
-**User Actions**:
-- Selects answer (3)
-- Sees feedback (correct/incorrect)
-- If correct: Continue button → advances to frequency stage
-- If incorrect: Try Again → resets selection
-
-**Discovery Storage**:
-```typescript
-if (isCorrect && stage === 'amplitude') {
-  setDiscoveries(prev => ({ ...prev, amplitude }))  // Stores 1.5
-}
-```
-
-**Transition**: Correct answer → `setStage('frequency')` → `setSubStage('explore')`
+**Transition**: User clicks continue in MatchFeedback → `setStage('frequency')`
 
 ---
 
-### Stage 3: Frequency (Explore → Match → Reflect)
+### Stage 3: Frequency
 
 **Similar pattern to amplitude stage, but:**
-- Both amplitude and frequency sliders visible
-- Amplitude slider locked at discovered value (1.5)
+- ControlStrip: amplitude + frequency sliders (amplitude at matched value 1.5)
 - Target: frequency = 2.0
-- Question: "How many complete waves fit when frequency = 3?"
-- Stores `discoveries.frequency = 2.0` on correct answer
+- MatchFeedback on match; user continues → challenge setup
 
-**Transition**: Correct answer → `setupChallenge()`
+**Transition**: User clicks continue in MatchFeedback → challenge initialized, `setStage('challenge')`
 
 ---
 
 ### Stage 4: Challenge (Observe → Diagnose → Match)
 
-#### Observe Phase (3 seconds)
+#### Observe Phase
 
 **Goal**: Observe that one parameter changed.
 
 **UI State**:
-- Top: ExplorePrompt ("Something changed")
+- PromptReadout: e.g. "Something changed"
 - Visualization: User wave (at matched values) + Challenge wave (one param different)
-- Bottom: DelayIndicator (3s countdown)
+- ControlStrip: ContinueButton
 
 **Challenge Setup**:
 ```typescript
@@ -529,34 +445,29 @@ const newChallengeWave = {
 }
 ```
 
-**Transition**: 3s delay → `setChallengePhase('diagnose')`
+**Transition**: User clicks Continue → `setChallengePhase('diagnose')`
 
 #### Diagnose Phase
 
 **Goal**: Identify which parameter changed.
 
 **UI State**:
-- Top: No prompt (QuestionCard provides context)
-- Bottom: QuestionCard ("What changed?" - Amplitude, Frequency, Both)
+- PromptReadout: question text
+- ControlStrip: DiagnosisChoices ("What changed?" — Amplitude, Frequency, Both)
 
-**User Actions**:
-- Selects answer
-- If correct: Celebration → `setChallengePhase('match')`
-- If incorrect: Shake feedback → resets selection
+**User Actions**: Selects answer; selection advances to match phase after short delay.
 
-**Transition**: Correct answer → `setChallengePhase('match')`
+**Transition**: `setChallengePhase('match')`
 
 #### Match Phase
 
 **Goal**: Match the challenge wave by adjusting the changed parameter.
 
 **UI State**:
-- Top: ExplorePrompt ("Now match it")
+- PromptReadout: e.g. "Now match it"
 - Visualization: User wave + Challenge wave (ghost)
-- Bottom: ControlPanel with both sliders visible
-  - One slider locked (the parameter that didn't change)
-  - One slider unlocked (the parameter that changed)
-- Match score indicator (0-100%)
+- ControlStrip: sliders (one locked, one active per challenge param)
+- MatchFeedback when threshold met
 
 **Match Detection**:
 ```typescript
@@ -590,20 +501,16 @@ function calculateMatchScore(userA, userF, targetA, targetF) {
 **Goal**: Provide "So What?" context and completion options.
 
 **UI State**:
-- Top: FormulaPreview (shows complete formula with discoveries)
-- Center: "So What?" panel (explains real-world applications)
-- Bottom: Action buttons (Try Another, Explore, Finish)
+- FormulaReadout: complete formula with discoveries
+- PromptReadout: reveal title + description
+- ControlStrip: RevealPanel (Try Another, Explore, Finish)
 
 **User Options**:
-1. **Try Another**: `setupChallenge()` → returns to challenge stage
-2. **Explore**: `setSubStage('freeExplore')` → unlocks all sliders, free play
+1. **Try Another**: New challenge → returns to challenge stage
+2. **Explore**: Free explore mode — all sliders unlocked, no targets
 3. **Finish**: `onComplete({ a: amplitude, f: frequency })` → returns to constellation
 
-**Free Explore Mode**:
-- All sliders unlocked
-- No targets or constraints
-- User can experiment freely
-- Prompt: "Free exploration - Play with the parameters"
+**Free Explore Mode**: All sliders unlocked; user experiments freely.
 
 ---
 
@@ -614,7 +521,7 @@ function calculateMatchScore(userA, userF, targetA, targetF) {
 **Pattern**: User manipulates → matches target → sees formula
 
 **Implementation**:
-- FormulaPreview component shows discoveries as they're made
+- FormulaReadout shows discoveries as they're made
 - Formula builds incrementally: `y = A sin(t)` → `y = A sin(ft)`
 - No formula shown until user has matched the parameter
 
@@ -634,39 +541,18 @@ function calculateMatchScore(userA, userF, targetA, targetF) {
 
 **Implementation**:
 - **Ghost Wave**: Shows target visually (no numbers needed)
-- **Match Score**: Progress bar (0-100%) in challenge stage
-- **Celebration Pulse**: Full-screen pulse on match
-- **Match Celebration**: Overlay message on parameter match
-- **Feedback Banner**: Correct/incorrect for questions
+- **MatchFeedback**: On match, runs `matchSuccessSequence` then shows continue
+- **StatusStrip**: Progress and stage label
 
 ### 4. State-Driven UI
 
-**Pattern**: UI elements conditionally render based on stage/substage
+**Pattern**: UI elements conditionally render based on stage and challenge phase.
 
-**Implementation**:
-```typescript
-// Example: Control panel visibility
-{stage === 'amplitude' && subStage === 'explore' && (
-  <ControlPanel visibleSliders={['amplitude']} />
-)}
-
-{stage === 'frequency' && subStage === 'explore' && (
-  <ControlPanel 
-    visibleSliders={['amplitude', 'frequency']}
-    lockedSliders={['amplitude']}
-  />
-)}
-```
+**Implementation** (ObservatoryModule): StatusStrip, PromptReadout, FormulaReadout always rendered (content varies by stage). ControlStrip children: ContinueButton (observe, challenge observe), sliders (amplitude/frequency/challenge), DiagnosisChoices (challenge diagnose), MatchFeedback (when matched), RevealPanel (reveal). Slider visibility and lock state from `stage`, `challengeParam`, `isFreeExplore`.
 
 ### 5. Animation Coordination
 
-**Pattern**: Exit animations complete before state changes, then enter animations
-
-**Implementation**:
-- `data-stage-overlay` attribute marks elements for transition
-- `isTransitioning` flag prevents double-renders
-- Promise-based animation coordination
-- Respects `prefers-reduced-motion`
+**Implementation**: Boot — `consoleBootSequence` on mount; Scene mounts after `onReadyForScene`. Match — `matchSuccessSequence` (viz pulse → feedback → continue); respects `prefers-reduced-motion`.
 
 ### 6. Responsive Layout
 
@@ -705,7 +591,7 @@ const CHALLENGE_FREQUENCIES = [0.5, 1.0, 1.5, 2.5, 3.0]
 
 ### Slider Ranges
 ```typescript
-// ControlPanel.tsx
+// ControlStrip / ObservatoryModule
 amplitude: { min: 0.5, max: 2.0, step: 0.05 }
 frequency: { min: 0.5, max: 3.0, step: 0.1 }
 ```
@@ -725,18 +611,16 @@ const progressMap = {
 
 ## Copy & Content
 
-**Location**: `src/config/sinewave-copy.ts`
+**Location**: `src/components/modules/sinewaves/sinewaves-copy.ts`
 
 **Structure**:
-- `stages`: Copy for each stage/substage
-- `discoveries`: Labels for discovered concepts
-- `matchCelebration`: Messages for match events
-- `behindThis`: Meta-content for celebration modal
+- `SINEWAVE_COPY.stages`: Copy for each stage (observe, amplitude, frequency, challenge, reveal) and challenge sub-phases
+- `discoveries`, `matchCelebration`, `behindThis`: Used by celebration/behind-this flows
 
-**Usage Pattern**:
+**Usage (ObservatoryModule)**:
 ```typescript
-const promptContent = getPromptContent()
-// Returns { setup, text, subtext } or null based on stage/substage
+import { SINEWAVE_COPY } from './sinewaves-copy'
+// Stage content: SINEWAVE_COPY.stages[stage].prompt, .subtext, etc.
 ```
 
 ---
@@ -745,18 +629,7 @@ const promptContent = getPromptContent()
 
 ### Progress Tracking
 
-**Context**: `PortfolioContext` (from `src/context/PortfolioContext.tsx`)
-
-**Updates**:
-```typescript
-updateModuleProgress('sinewaves', {
-  status: 'in-progress' | 'completed',
-  progress: 0.0 - 1.0,
-  currentStage: stage,
-})
-```
-
-**Storage**: Persisted to `localStorage` via `usePortfolioState` hook
+**ObservatoryModule**: Uses local `stageProgress` and `stageNumber` for StatusStrip display. Does not currently call `PortfolioContext.updateModuleProgress`; that can be added if portfolio-wide progress persistence is needed.
 
 ### Completion Flow
 
@@ -802,8 +675,7 @@ updateModuleProgress('sinewaves', {
 
 ### 🔄 Patterns to Refine for Future Modules
 
-1. **Module Component**: Currently hardcoded to sinewaves - needs abstraction
-2. **Stage Transitions**: Could be extracted to reusable hook
+1. **Stage Transitions**: Could be extracted to reusable hook
 3. **Match Detection**: Threshold-based system works but could be more flexible
 4. **Question System**: Hardcoded questions - could be config-driven
 5. **Copy Management**: Centralized copy is good, but stage-specific logic is scattered
@@ -827,8 +699,8 @@ updateModuleProgress('sinewaves', {
 
 ### Potential Refactorings
 
-1. **Abstract Module Component**: Extract stage machine to reusable hook
-2. **Module Factory Pattern**: Create modules from configuration
+1. **Abstract stage machine**: Extract to reusable hook for future modules
+2. **Module factory**: Create modules from configuration
 3. **Unified Animation System**: Standardize transition patterns
 4. **Question System**: Make questions config-driven
 5. **Match Detection**: Create flexible matching system

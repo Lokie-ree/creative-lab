@@ -42,7 +42,7 @@ We don’t look like a card-based course UI. We look like a **single-screen inst
 - **Data / formula:** Mono only — formula, numbers, “You’re building” use the mono face. Tabs, alignment, and weight (e.g. semibold for discovered values) do the hierarchy.
 
 **Implementation:**  
-Load one or two families in `index.html` (e.g. Google Fonts or self-host). Use CSS variables (e.g. `--font-display`, `--font-mono`) and apply in Layout, ExplorePrompt, FormulaPreview, and any new “readout” components. Progress strip can stay minimal (no big type) but any stage label should use the same system.
+Load one or two families in `index.html` (e.g. Google Fonts or self-host). Use CSS variables (e.g. `--font-display`, `--font-mono`) and apply in Layout (ObservatoryLayout), PromptReadout, FormulaReadout, and StatusStrip “readout” components. Progress strip can stay minimal (no big type) but any stage label should use the same system.
 
 ---
 
@@ -153,10 +153,10 @@ Use at least two: one for “readouts stack vs row” (e.g. 640px or 768px), one
 
 ## 9. Implementation Checklist (High Level)
 
-- [ ] **Fonts:** Add 1–2 families (display/semi-mono + optional sans); CSS vars; apply in Layout, ExplorePrompt, FormulaPreview.
-- [ ] **Spacing scale:** Define `--space-*` (or use existing `--spacing-*` consistently) and use in Layout and Module for strip height, gaps, viz padding.
-- [ ] **Layout regions:** Refactor Layout so it has explicit “status strip,” “readout row/stack,” “primary display,” “controls strip” with token-based positioning.
-- [ ] **Readout panels:** ExplorePrompt and FormulaPreview: panel style (dark + single-edge glow/border), mono for data, smaller “label” text; feel like readouts, not cards.
+- [ ] **Fonts:** Add 1–2 families (display/semi-mono + optional sans); CSS vars; apply in Layout (ObservatoryLayout), PromptReadout, FormulaReadout.
+- [ ] **Spacing scale:** Define `--space-*` (or use existing `--spacing-*` consistently) and use in Layout and ObservatoryModule for strip height, gaps, viz padding.
+- [x] **Layout regions:** ObservatoryLayout has explicit “status strip,” “readout row/stack,” “primary display,” “controls strip” with token-based positioning.
+- [ ] **Readout panels:** PromptReadout and FormulaReadout: panel style (dark + single-edge glow/border), mono for data, smaller “label” text; feel like readouts, not cards.
 - [ ] **Color:** Optional subtle background gradient or grain; cyan/amber used per roles above; EscapeHatch aligned to `--lab-*`.
 - [ ] **Motion:** One “console on” or “stage change” sequence (strip → readout → viz); optional progress fill animation.
 - [ ] **Responsiveness:** Readouts stack on narrow, row on wide; same tokens at all breakpoints.
