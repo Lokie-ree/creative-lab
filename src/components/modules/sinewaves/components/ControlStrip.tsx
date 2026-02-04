@@ -8,16 +8,19 @@ interface ControlStripProps {
   hint?: string
   /** Ref for hint element (Phase 4: animate on stage change) */
   hintRef?: React.RefObject<HTMLParagraphElement | null>
+  /** Formula readout for mobile inline display (hidden on desktop where it shows in readouts row) */
+  formula?: ReactNode
   className?: string
 }
 
 /**
  * Control strip container for sliders, buttons, and feedback
  * Centers content with max-width constraint on desktop.
+ * Optional formula slot for mobile (hidden on md+).
  * Optional hint line above children (muted, single line).
  */
 export const ControlStrip = forwardRef<HTMLDivElement, ControlStripProps>(
-  function ControlStrip({ children, hint, hintRef, className = '' }, ref) {
+  function ControlStrip({ children, hint, hintRef, formula, className = '' }, ref) {
     return (
       <div
         ref={ref}
@@ -27,6 +30,8 @@ export const ControlStrip = forwardRef<HTMLDivElement, ControlStripProps>(
           className
         )}
       >
+        {/* Formula readout - mobile only (desktop shows in readouts row) */}
+        {formula && <div className="w-full md:hidden">{formula}</div>}
         {hint && (
           <p
             ref={hintRef}

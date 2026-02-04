@@ -145,14 +145,14 @@ export function ObservatoryModule({ onComplete, onBack }: ObservatoryModuleProps
         return {
           prompt: SINEWAVE_COPY.stages.amplitude.prompt,
           description: SINEWAVE_COPY.stages.amplitude.subtext,
-          showFormula: false,
+          showFormula: true,
           showContinue: false,
         }
       case 'frequency':
         return {
           prompt: SINEWAVE_COPY.stages.frequency.prompt,
           description: SINEWAVE_COPY.stages.frequency.subtext,
-          showFormula: false,
+          showFormula: true,
           showContinue: false,
         }
       case 'challenge':
@@ -160,7 +160,7 @@ export function ObservatoryModule({ onComplete, onBack }: ObservatoryModuleProps
           return {
             prompt: SINEWAVE_COPY.stages.challenge.observe.prompt,
             description: SINEWAVE_COPY.stages.challenge.observe.subtext,
-            showFormula: false,
+            showFormula: true,
             showContinue: true,
           }
         } else if (challengePhase === 'diagnose') {
@@ -176,14 +176,14 @@ export function ObservatoryModule({ onComplete, onBack }: ObservatoryModuleProps
           return {
             prompt: diagnose.question,
             description,
-            showFormula: false,
+            showFormula: true,
             showContinue: false,
           }
         } else {
           return {
             prompt: SINEWAVE_COPY.stages.challenge.match.prompt,
             description: `Adjust ${challengeParam} to match`,
-            showFormula: false,
+            showFormula: true,
             showContinue: false,
           }
         }
@@ -408,8 +408,8 @@ export function ObservatoryModule({ onComplete, onBack }: ObservatoryModuleProps
           <FormulaReadout
             amplitude={amplitude}
             frequency={frequency}
-            highlightAmplitude={stage === 'amplitude'}
-            highlightFrequency={stage === 'frequency'}
+            highlightAmplitude={stage === 'amplitude' || (stage === 'challenge' && challengeParam === 'amplitude')}
+            highlightFrequency={stage === 'frequency' || (stage === 'challenge' && challengeParam === 'frequency')}
           />
         ) : undefined
       }
@@ -419,7 +419,21 @@ export function ObservatoryModule({ onComplete, onBack }: ObservatoryModuleProps
         </div>
       }
       controlStrip={
-        <ControlStrip ref={controlStripRef} hintRef={hintRef} hint={controlHint}>
+        <ControlStrip
+          ref={controlStripRef}
+          hintRef={hintRef}
+          hint={controlHint}
+          formula={
+            content.showFormula ? (
+              <FormulaReadout
+                amplitude={amplitude}
+                frequency={frequency}
+                highlightAmplitude={stage === 'amplitude' || (stage === 'challenge' && challengeParam === 'amplitude')}
+                highlightFrequency={stage === 'frequency' || (stage === 'challenge' && challengeParam === 'frequency')}
+              />
+            ) : undefined
+          }
+        >
           {content.showContinue && (
             <ContinueButton onClick={handleContinue} />
           )}
