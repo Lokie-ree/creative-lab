@@ -1,6 +1,6 @@
 // src/components/modules/sinewaves/animations.ts
 import gsap from 'gsap'
-import { duration, easing, stagger } from '@/lib/animation/tokens'
+import { duration, easing } from '@/lib/animation/tokens'
 
 /**
  * Convert ms to seconds for GSAP
@@ -83,19 +83,21 @@ export function consoleBootSequence(
  */
 export interface MatchSuccessRefs {
   visualization: HTMLElement | null
+  valueHighlight?: HTMLElement | null
   feedback: HTMLElement | null
   continueButton: HTMLElement | null
 }
 
 /**
  * Match success sequence - staged reveal after hitting target
- * Timeline: hold → pulse → feedback → button
+ * Timeline: 0ms pulse → 100ms value highlight → 250ms message → 450ms button (~600ms total)
  */
 export function matchSuccessSequence(
   refs: MatchSuccessRefs,
   onComplete: () => void
 ) {
   if (prefersReducedMotion()) {
+    if (refs.valueHighlight) gsap.set(refs.valueHighlight, { opacity: 1 })
     if (refs.feedback) gsap.set(refs.feedback, { opacity: 1, y: 0 })
     if (refs.continueButton) gsap.set(refs.continueButton, { opacity: 1, y: 0 })
     onComplete()
@@ -104,45 +106,123 @@ export function matchSuccessSequence(
 
   const tl = gsap.timeline({ onComplete })
 
-  // Hold - brief pause for visual confirmation (300ms)
-  tl.addLabel('hold', 0)
-
-  // Pulse visualization glow
+  // 0ms: Pulse visualization (scale 1.0 → 1.05 → 1.0, back.out)
   if (refs.visualization) {
-    tl.to(
+    tl.fromTo(
       refs.visualization,
+      { scale: 1 },
       {
-        filter: 'brightness(1.15)',
-        duration: toSeconds(duration.normal),
-        ease: easing.out,
+        scale: 1.05,
+        duration: toSeconds(0.15),
+        ease: 'back.out(1.7)',
       },
-      'hold'
+      0
     ).to(refs.visualization, {
-      filter: 'brightness(1)',
-      duration: toSeconds(duration.normal),
-      ease: easing.inOut,
+      scale: 1,
+      duration: toSeconds(0.15),
+      ease: 'power2.out',
     })
   }
 
-  // Feedback text fades in
+  // 100ms: Matched value highlights (glow cyan)
+  if (refs.valueHighlight) {
+    tl.fromTo(
+      refs.valueHighlight,
+      { opacity: 0.7 },
+      {
+        opacity: 1,
+        duration: toSeconds(100),
+        ease: easing.out,
+      },
+      0.1
+    )
+  }
+
+  // 250ms: Contextual message slides up
   if (refs.feedback) {
     tl.fromTo(
       refs.feedback,
       { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: toSeconds(duration.normal), ease: easing.out },
-      `-=${toSeconds(duration.fast)}`
+      {
+        opacity: 1,
+        y: 0,
+        duration: toSeconds(duration.medium),
+        ease: easing.out,
+      },
+      0.25
     )
   }
 
-  // Continue button appears
+  // 450ms: Continue button fades in
   if (refs.continueButton) {
     tl.fromTo(
       refs.continueButton,
       { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: toSeconds(duration.normal), ease: easing.out },
-      `+=${toSeconds(stagger.normal)}`
+      {
+        opacity: 1,
+        y: 0,
+        duration: toSeconds(duration.fast),
+        ease: easing.out,
+      },
+      0.45
     )
   }
 
+  return tl
+}
+
+/**
+ * Refs and callbacks for stage transition sequence
+ */
+export interface StageTransitionRefs {
+  controlStrip: HTMLElement | null
+  hint: HTMLElement | null
+}
+
+export interface StageTransitionCallbacks {
+  onFadeOutComplete: () => void
+  onComplete: () => void
+}
+
+/**
+ * Stage transition - controls fade out, state updates, then hint and controls fade in (~500ms)
+ */
+export function stageTransition(
+  refs: StageTransitionRefs,
+  callbacks: StageTransitionCallbacks
+) {
+  const { onFadeOutComplete, onComplete } = callbacks
+  if (prefersReducedMotion()) {
+    onFadeOutComplete()
+    onComplete()
+    return null
+  }
+
+  const tl = gsap.timeline()
+
+  if (refs.controlStrip) {
+    tl.to(refs.controlStrip, {
+      opacity: 0,
+      duration: toSeconds(100),
+      ease: easing.out,
+    })
+  }
+  tl.call(onFadeOutComplete)
+  if (refs.hint) {
+    tl.set(refs.hint, { opacity: 0 })
+    tl.to(refs.hint, {
+      opacity: 1,
+      duration: toSeconds(duration.medium),
+      ease: easing.out,
+    })
+  }
+  if (refs.controlStrip) {
+    tl.to(refs.controlStrip, {
+      opacity: 1,
+      duration: toSeconds(duration.fast),
+      ease: easing.out,
+    }, refs.hint ? '-=0.1' : 0)
+  }
+  tl.call(onComplete, [], '+=0.05')
   return tl
 }

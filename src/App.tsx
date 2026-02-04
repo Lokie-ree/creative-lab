@@ -20,9 +20,10 @@ interface DynamicModuleProps {
   moduleId: string
   onComplete: (values: { a: number; f: number }) => void
   isVisible: boolean
+  onBack?: () => void
 }
 
-function DynamicModule({ moduleId, onComplete, isVisible }: DynamicModuleProps) {
+function DynamicModule({ moduleId, onComplete, isVisible, onBack }: DynamicModuleProps) {
   const [LoadedModule, setLoadedModule] = useState<ComponentType<ModuleProps> | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -58,7 +59,7 @@ function DynamicModule({ moduleId, onComplete, isVisible }: DynamicModuleProps) 
     return <ModuleLoader />
   }
 
-  return <LoadedModule onComplete={onComplete} isVisible={isVisible} />
+  return <LoadedModule onComplete={onComplete} isVisible={isVisible} onBack={onBack} />
 }
 
 function App() {
@@ -254,6 +255,7 @@ function App() {
                 moduleId={activeModuleId}
                 onComplete={handleModuleComplete}
                 isVisible={true}
+                onBack={handleBackToConstellation}
               />
             </Suspense>
           </motion.div>

@@ -4,16 +4,6 @@ Interactive math learning portfolio. Each module teaches through discovery, mani
 
 **"I build interactive experiences that help people understand things they thought were hard."**
 
-## Module Architecture
-
-```
-                    ┌─── Trigonometry ───────→ Sinewaves (COMPLETE)
-                    │
-        HERO ───────┼─── Linear Algebra ─────→ Vector Transformations (DESIGN READY)
-                    │
-                    └─── Differential Eq. ───→ Phase Portraits (DESIGN READY)
-```
-
 ## Getting Started
 
 ```bash

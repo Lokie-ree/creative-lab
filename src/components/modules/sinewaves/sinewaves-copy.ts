@@ -24,6 +24,10 @@ export interface SinewaveCopy {
       diagnose: {
         question: string
         choices: Array<{ label: string; value: string }>
+        wrongFeedback: string
+        hintHeight: string
+        hintSpeed: string
+        correctFeedback: string
       }
       match: StageCopy
     }
@@ -40,6 +44,24 @@ export interface SinewaveCopy {
   matchCelebration: {
     amplitude: string
     frequency: string
+    challengeAmplitude: string
+    challengeFrequency: string
+    challengeBoth: string
+  }
+  /** Control strip hints by stage (mobile: description moves here) */
+  controlStripHints: {
+    observe: string
+    amplitude: string
+    frequency: string
+    challengeObserve: string
+    challengeMatch: string
+  }
+  /** Status flash and hint preview per stage transition (Phase 4) */
+  stageTransitions: {
+    observeToAmplitude: { status: string; hint: string }
+    amplitudeToFrequency: { status: string; hint: string }
+    frequencyToChallenge: { status: string; hint: string }
+    challengeToReveal: { status: string; hint?: string }
   }
   behindThis: {
     approach: {
@@ -93,6 +115,10 @@ export const SINEWAVE_COPY: SinewaveCopy = {
           { label: "Frequency", value: "frequency" },
           { label: "Both", value: "both" },
         ],
+        wrongFeedback: "Look again at the wave",
+        hintHeight: "Watch the wave's height",
+        hintSpeed: "Watch the wave's speed",
+        correctFeedback: "Right! Now match it",
       },
       match: {
         setup: "Now make them match by adjusting the parameter that changed.",
@@ -125,8 +151,24 @@ This pattern appears everywhere: sound waves, light waves, springs, pendulums—
     },
   },
   matchCelebration: {
-    amplitude: "Amplitude controls the wave's height",
-    frequency: "Frequency controls how fast it oscillates",
+    amplitude: "You found it — amplitude controls the height",
+    frequency: "That's it — frequency controls the speed",
+    challengeAmplitude: "Sharp eye. You spotted the amplitude change",
+    challengeFrequency: "Nice catch. The frequency shifted",
+    challengeBoth: "You nailed it — both parameters changed",
+  },
+  controlStripHints: {
+    observe: "Watch how the circle drives the wave",
+    amplitude: "Drag to match the ghost wave's height",
+    frequency: "Drag to match the ghost wave's speed",
+    challengeObserve: "What changed?",
+    challengeMatch: "Now match it",
+  },
+  stageTransitions: {
+    observeToAmplitude: { status: "AMPLITUDE CONTROL", hint: "Now you control the height" },
+    amplitudeToFrequency: { status: "FREQUENCY CONTROL", hint: "Same idea, different parameter" },
+    frequencyToChallenge: { status: "CHALLENGE MODE", hint: "Can you spot what changes?" },
+    challengeToReveal: { status: "COMPLETE" },
   },
   behindThis: {
     approach: {

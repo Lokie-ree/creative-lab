@@ -14,6 +14,7 @@ export interface ModuleConfig {
 export interface ModuleProps {
   onComplete: (values: { a: number; f: number }) => void
   isVisible?: boolean
+  onBack?: () => void
 }
 
 export const MODULES: ModuleConfig[] = [
