@@ -22,7 +22,7 @@ pnpm analyze          # Build + open bundle stats
 ### Tech Stack
 - **React 19** + **TypeScript** with Vite
 - **React Three Fiber** + **@react-three/drei** for 3D visualization
-- **GSAP** for animation
+- **GSAP** + **Motion** for animation
 - **Tailwind CSS 4** + **shadcn/ui** (new-york style) for styling
 
 ### Path Aliases
@@ -31,7 +31,11 @@ pnpm analyze          # Build + open bundle stats
 ### Component Structure
 ```
 src/components/
-├── modules/<name>/     # Module-specific 3D scenes (lazy-loaded)
+├── modules/<name>/     # Module-specific (lazy-loaded)
+│   ├── Layout.tsx      # Module's grid layout
+│   ├── Scene.tsx       # R3F Canvas + 3D elements
+│   ├── <Name>Module.tsx # Main orchestrator
+│   └── components/     # Module-specific UI
 ├── hero/               # Landing page
 ├── controls/           # HTML controls (outside Canvas)
 ├── feedback/           # Banners, prompts, formula reveals
@@ -42,21 +46,39 @@ src/components/
 └── ui/                 # shadcn/ui primitives
 ```
 
+### Navigation Flow
+Hero → Course Hub → Constellation (by course) → Module
+
+Back navigation and Escape Hatch from modules; Celebration modal on completion.
+
 ### Key Patterns
 
 **3D components go inside Canvas, controls stay outside.** The `Scene.tsx` orchestrates the R3F Canvas; `ControlPanel.tsx` and other HTML controls render separately.
 
-**Module state flows through App.tsx.** View state (hero vs module), celebration modals, and parameter tracking are managed at the app level, passed down as props.
+**Module state flows through App.tsx.** View state (hero vs module), celebration modals, and parameter tracking are managed at the app level, passed down as props. Modules call `onComplete(values)` when done.
 
 **Stage-based learning progression.** Modules use stages (observe → amplitude → frequency → challenge → reveal) to scaffold the learning journey.
 
+**Adding a module.** Register in `src/config/modules.ts`, lazy-load the component, implement `ModuleProps`.
+
 ## Design System
 
-### Colors (from `src/lib/colors.ts`)
+### Colors (from `src/lib/colors.ts` → `src/index.css`)
 - **accent.primary**: `#22d3ee` (cyan) — Active elements, success
+  - CSS: `--lab-accent`
 - **learning.primary**: `#f5a623` (amber) — Feedback, reveals
+  - CSS: `--lab-accent-warm`, `--lab-earned`
 - **background.primary**: `#0a0a0f` — Dark navy canvas
+  - CSS: `--lab-bg`
 - **ghost**: `#888888` — Target/locked elements
+  - CSS: `--lab-ghost`
+
+### Tailwind CSS 4
+Use CSS variable syntax consistently:
+- Spacing: `p-2`, `gap-3`, `m-4` (standard Tailwind scale)
+- Colors: `bg-(--lab-bg)`, `text-(--lab-accent)` (parentheses syntax)
+- Fonts: `font-[family-name:var(--font-display)]`
+- Responsive: `text-sm sm:text-base md:text-lg` (mobile-first)
 
 ### Design Principles
 - Dark mode default with focused, mathematical aesthetic
@@ -83,6 +105,12 @@ Manual chunk splitting in `vite.config.ts`:
 
 Heavy 3D code is lazy-loaded via React.lazy().
 
-## Skills
+## Related Documentation
 
-Design decisions, pedagogy, animation strategy, and component organization are documented throughout the codebase and design documents.
+| Topic | Location |
+|-------|----------|
+| Current state, agent guidelines | [AGENT.md](./AGENT.md) |
+| Vision, audience, principles | [PORTFOLIO_VISION.md](./PORTFOLIO_VISION.md) |
+| Module PRDs, UX specs | `docs/modules/` |
+| Design critiques, HUD direction | `docs/design/` |
+| Implementation plans | `docs/plans/` |
