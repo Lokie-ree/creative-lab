@@ -1,9 +1,10 @@
 import { useMemo } from "react"
-import { Canvas, useThree } from "@react-three/fiber"
+import { Canvas } from "@react-three/fiber"
 import { UnitCircle } from "./UnitCircle"
 import { SineWave } from "./SineWave"
 import { Connector } from "./Connector"
 import { colors } from "@/lib/colors"
+import { useSceneLayout, SCENE_LAYOUT } from "./scene-layout"
 
 type Stage = 'observe' | 'amplitude' | 'frequency' | 'phase' | 'challenge' | 'reveal'
 
@@ -20,14 +21,8 @@ interface SceneProps {
   matchSuccess?: boolean // When true, triggers glow effect on user's wave
 }
 
-// Layout constants
-const CIRCLE_X = -2.5
-const WAVE_X = -0.3
-const GHOST_OPACITY = 0.5
-
 function Visualization({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets, matchSuccess }: SceneProps) {
-  const { viewport } = useThree()
-  const isPortrait = viewport.width < viewport.height && viewport.width < 5
+  const { isPortrait, circle, wave, scale, connector } = useSceneLayout(stage)
 
   // In observe stage, don't show ghost/target waves
   const showGhost = stage !== 'observe'
@@ -46,66 +41,10 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
     return target
   }, [stage, stageTargets, target])
 
-  if (isPortrait) {
-    // Portrait layout: circle on top, wave below, both shifted UP to leave room for controls
-    // The visualization should occupy roughly the top 60-70% of the canvas
-    const circleX = 0
-    const circleY = 1.5  // Moved up from 1.0
-    const waveX = -1.1   // Center the wave better to prevent right-side clipping
-    const waveY = -0.3   // Moved up from -0.9
-    const scale = 0.55   // Slightly smaller to prevent edge clipping
-
-    return (
-      <>
-        {/* Circle on top - scaled down for mobile */}
-        <group position={[circleX, circleY, 0]} scale={scale}>
-          <UnitCircle
-            amplitude={amplitude}
-            frequency={frequency}
-            phase={phase}
-            isPaused={isPaused}
-            onPauseChange={onPauseChange}
-          />
-          {/* Target point on circle (ghost) */}
-          {showGhost && (
-            <UnitCircle
-              amplitude={ghostParams.a}
-              frequency={ghostParams.f}
-              phase={ghostParams.p}
-              color={colors.ghost}
-              opacity={GHOST_OPACITY}
-            />
-          )}
-        </group>
-
-        {/* Waves below - scaled down for mobile */}
-        <group position={[waveX, waveY, 0]} scale={scale}>
-          {/* Target wave (ghost) */}
-          {showGhost && (
-            <SineWave
-              amplitude={ghostParams.a}
-              frequency={ghostParams.f}
-              phase={ghostParams.p}
-              color={colors.ghost}
-              opacity={GHOST_OPACITY}
-            />
-          )}
-          {/* User wave */}
-          <SineWave
-            amplitude={amplitude}
-            frequency={frequency}
-            phase={phase}
-            isPaused={isPaused}
-          />
-        </group>
-      </>
-    )
-  }
-
   return (
     <>
-      {/* Unit circle on the left */}
-      <group position={[CIRCLE_X, 0, 0]}>
+      {/* Unit circle */}
+      <group position={[circle.x, circle.y, 0]} scale={scale}>
         <UnitCircle
           amplitude={amplitude}
           frequency={frequency}
@@ -113,40 +52,41 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
           isPaused={isPaused}
           onPauseChange={onPauseChange}
         />
-        {/* Target point on circle (ghost) - shows where target is rotating */}
+        {/* Target point on circle (ghost) */}
         {showGhost && (
           <UnitCircle
             amplitude={ghostParams.a}
             frequency={ghostParams.f}
             phase={ghostParams.p}
             color={colors.ghost}
-            opacity={GHOST_OPACITY}
+            opacity={SCENE_LAYOUT.ghostOpacity}
           />
         )}
       </group>
 
-      {/* Connector line - only during observe stage to teach the relationship */}
-      {stage === 'observe' && (
+      {/* Connector line - only in landscape during observe stage */}
+      {connector && (
         <Connector
-          circleX={CIRCLE_X}
-          waveX={WAVE_X}
+          circleX={circle.x}
+          waveX={wave.x}
           frequency={frequency}
           phase={phase}
           amplitude={amplitude}
+          scale={scale}
           isPaused={isPaused}
         />
       )}
 
-      {/* Sine waves on the right */}
-      <group position={[WAVE_X, 0, 0]}>
-        {/* Target wave (ghost) - what user is trying to match */}
+      {/* Sine waves */}
+      <group position={[wave.x, wave.y, 0]} scale={isPortrait ? scale : 1}>
+        {/* Target wave (ghost) */}
         {showGhost && (
           <SineWave
             amplitude={ghostParams.a}
             frequency={ghostParams.f}
             phase={ghostParams.p}
             color={colors.ghost}
-            opacity={GHOST_OPACITY}
+            opacity={SCENE_LAYOUT.ghostOpacity}
           />
         )}
         {/* User's wave */}
