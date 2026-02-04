@@ -1,6 +1,7 @@
 // src/components/modules/sinewaves/components/FormulaReadout.tsx
 import { forwardRef, useRef, useEffect, useImperativeHandle } from 'react'
 import { fadeInReadout } from '@/lib/animation/presets'
+import { cn } from '@/lib/utils'
 
 interface FormulaReadoutProps {
   amplitude: number
@@ -52,85 +53,33 @@ export const FormulaReadout = forwardRef<HTMLDivElement, FormulaReadoutProps>(
       }
     }, [])
 
-    const amplitudeColor = highlightAmplitude
-      ? 'var(--lab-accent)'
-      : 'var(--lab-text)'
-    const frequencyColor = highlightFrequency
-      ? 'var(--lab-accent)'
-      : 'var(--lab-text)'
-
     return (
       <div
         ref={localRef}
-        className={`relative ${className}`}
-        style={{
-          backgroundColor: 'var(--lab-surface)',
-          borderRadius: '4px',
-          padding: 'var(--space-4)',
-        }}
+        className={cn('relative rounded bg-(--lab-surface) p-3 sm:p-4', className)}
         data-stage-overlay
       >
         {/* Corner brackets */}
-        <div
-          className="pointer-events-none absolute left-2 top-2 h-3 w-3"
-          style={{
-            borderLeft: '1px solid var(--lab-accent)',
-            borderTop: '1px solid var(--lab-accent)',
-            opacity: 0.6,
-          }}
-        />
-        <div
-          className="pointer-events-none absolute right-2 top-2 h-3 w-3"
-          style={{
-            borderRight: '1px solid var(--lab-accent)',
-            borderTop: '1px solid var(--lab-accent)',
-            opacity: 0.6,
-          }}
-        />
-        <div
-          className="pointer-events-none absolute bottom-2 left-2 h-3 w-3"
-          style={{
-            borderLeft: '1px solid var(--lab-accent)',
-            borderBottom: '1px solid var(--lab-accent)',
-            opacity: 0.6,
-          }}
-        />
-        <div
-          className="pointer-events-none absolute bottom-2 right-2 h-3 w-3"
-          style={{
-            borderRight: '1px solid var(--lab-accent)',
-            borderBottom: '1px solid var(--lab-accent)',
-            opacity: 0.6,
-          }}
-        />
+        <div className="pointer-events-none absolute left-2 top-2 h-3 w-3 border-l border-t border-(--lab-accent) opacity-60" />
+        <div className="pointer-events-none absolute right-2 top-2 h-3 w-3 border-r border-t border-(--lab-accent) opacity-60" />
+        <div className="pointer-events-none absolute bottom-2 left-2 h-3 w-3 border-b border-l border-(--lab-accent) opacity-60" />
+        <div className="pointer-events-none absolute bottom-2 right-2 h-3 w-3 border-b border-r border-(--lab-accent) opacity-60" />
 
         {/* Formula */}
-        <div
-          className="text-center text-lg sm:text-xl"
-          style={{
-            fontFamily: 'var(--font-data)',
-            color: 'var(--lab-text)',
-          }}
-        >
+        <div className="text-center text-base font-[family-name:var(--font-data)] text-(--lab-text) sm:text-lg md:text-xl">
           <span>y = </span>
-          <span style={{ color: amplitudeColor, fontWeight: 500 }}>
+          <span className={cn('font-medium', highlightAmplitude ? 'text-(--lab-accent)' : 'text-(--lab-text)')}>
             {amplitude.toFixed(1)}
           </span>
           <span> sin(</span>
-          <span style={{ color: frequencyColor, fontWeight: 500 }}>
+          <span className={cn('font-medium', highlightFrequency ? 'text-(--lab-accent)' : 'text-(--lab-text)')}>
             {frequency.toFixed(1)}
           </span>
           <span> t)</span>
         </div>
 
         {/* Label */}
-        <p
-          className="mt-2 text-center text-xs uppercase tracking-wider"
-          style={{
-            fontFamily: 'var(--font-body)',
-            color: 'var(--lab-text-muted)',
-          }}
-        >
+        <p className="mt-2 text-center text-[10px] uppercase tracking-wider font-[family-name:var(--font-body)] text-(--lab-text-muted) sm:text-xs">
           You're Building
         </p>
       </div>

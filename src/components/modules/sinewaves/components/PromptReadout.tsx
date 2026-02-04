@@ -1,6 +1,7 @@
 // src/components/modules/sinewaves/components/PromptReadout.tsx
 import { forwardRef, useRef, useEffect, useImperativeHandle } from 'react'
 import { fadeInReadout } from '@/lib/animation/presets'
+import { cn } from '@/lib/utils'
 
 interface PromptReadoutProps {
   title: string
@@ -30,38 +31,27 @@ export const PromptReadout = forwardRef<HTMLDivElement, PromptReadoutProps>(
     return (
       <div
         ref={localRef}
-        className={`relative ${className}`}
-        style={{
-          backgroundColor: 'var(--lab-surface)',
-          borderRadius: '4px',
-          padding: 'var(--space-4)',
-          // Left edge glow
-          borderLeft: '2px solid var(--lab-accent)',
-          boxShadow: 'inset 4px 0 8px -4px rgba(34, 211, 238, 0.3)',
-        }}
+        className={cn(
+          'relative rounded bg-(--lab-surface) p-3 sm:p-4',
+          'border-l-2 border-l-(--lab-accent)',
+          'shadow-[inset_4px_0_8px_-4px_rgba(34,211,238,0.3)]',
+          className
+        )}
         data-stage-overlay
         role="status"
         aria-live="polite"
       >
         <h2
-          className="text-base font-medium sm:text-lg"
-          style={{
-            fontFamily: 'var(--font-display)',
-            color: 'var(--lab-text)',
-            marginBottom: description ? 'var(--space-2)' : 0,
-          }}
+          className={cn(
+            'text-sm font-medium sm:text-base lg:text-lg',
+            'font-[family-name:var(--font-display)] text-(--lab-text)',
+            description && 'mb-2'
+          )}
         >
           {title}
         </h2>
         {description && (
-          <p
-            className="text-sm"
-            style={{
-              fontFamily: 'var(--font-body)',
-              color: 'var(--lab-text-muted)',
-              lineHeight: 1.5,
-            }}
-          >
+          <p className="text-xs leading-relaxed sm:text-sm font-[family-name:var(--font-body)] text-(--lab-text-muted)">
             {description}
           </p>
         )}

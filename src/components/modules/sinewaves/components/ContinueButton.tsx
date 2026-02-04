@@ -1,6 +1,7 @@
 // src/components/modules/sinewaves/components/ContinueButton.tsx
 import { forwardRef } from 'react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface ContinueButtonProps {
   onClick: () => void
@@ -24,20 +25,14 @@ export const ContinueButton = forwardRef<HTMLButtonElement, ContinueButtonProps>
         onClick={onClick}
         disabled={disabled}
         variant="outline"
-        className={`min-w-[120px] ${className}`}
-        style={{
-          fontFamily: 'var(--font-display)',
-          borderColor: 'var(--lab-accent)',
-          color: 'var(--lab-accent)',
-          backgroundColor: 'transparent',
-          transition: 'all var(--duration-fast) var(--ease-out)',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(34, 211, 238, 0.1)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'transparent'
-        }}
+        className={cn(
+          'min-h-[44px] min-w-[120px] sm:min-h-[40px]',
+          'border-(--lab-accent) bg-transparent text-(--lab-accent)',
+          'font-[family-name:var(--font-display)]',
+          'transition-all duration-150 ease-out',
+          'hover:bg-[rgba(34,211,238,0.1)]',
+          className
+        )}
       >
         {children}
       </Button>
