@@ -6,8 +6,10 @@
 
 export const duration = {
   instant: 0,
-  fast: 150,      // micro-interactions, hovers
-  normal: 300,    // standard transitions
+  fast: 150,      // micro-interactions, hovers, button reveal
+  medium: 250,    // message slide
+  normal: 300,    // standard transitions, pulse
+  feedback: 300,  // match celebration pulse
   slow: 500,      // emphasis, staged reveals
   dramatic: 800,  // major state changes
 } as const

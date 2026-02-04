@@ -1,5 +1,6 @@
 // src/components/modules/sinewaves/components/RevealPanel.tsx
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface RevealPanelProps {
   title: string
@@ -26,76 +27,38 @@ export function RevealPanel({
 }: RevealPanelProps) {
   return (
     <div
-      className={`relative ${className}`}
-      style={{
-        backgroundColor: 'var(--lab-surface)',
-        borderRadius: '8px',
-        padding: 'var(--space-6)',
-        border: '1px solid var(--lab-border)',
-      }}
+      className={cn(
+        'relative rounded-lg border border-(--lab-border) bg-(--lab-surface)',
+        'p-4 sm:p-6',
+        className
+      )}
       data-stage-overlay
     >
       {/* Success accent bar */}
-      <div
-        className="absolute left-0 top-0 h-full w-1"
-        style={{
-          backgroundColor: 'var(--lab-earned)',
-          borderRadius: '8px 0 0 8px',
-        }}
-      />
+      <div className="absolute left-0 top-0 h-full w-1 rounded-l-lg bg-(--lab-earned)" />
 
       {/* Title */}
-      <h2
-        className="mb-2 text-xl font-semibold"
-        style={{
-          fontFamily: 'var(--font-display)',
-          color: 'var(--lab-earned)',
-        }}
-      >
+      <h2 className="mb-2 text-lg font-semibold font-[family-name:var(--font-display)] text-(--lab-earned) sm:text-xl">
         {title}
       </h2>
 
       {/* Description */}
-      <p
-        className="mb-4 text-sm"
-        style={{
-          fontFamily: 'var(--font-body)',
-          color: 'var(--lab-text)',
-        }}
-      >
+      <p className="mb-3 text-xs font-[family-name:var(--font-body)] text-(--lab-text) sm:mb-4 sm:text-sm">
         {description}
       </p>
 
       {/* So What explanation */}
-      <div
-        className="mb-6 whitespace-pre-line text-sm leading-relaxed"
-        style={{
-          fontFamily: 'var(--font-body)',
-          color: 'var(--lab-text-muted)',
-        }}
-      >
+      <div className="mb-4 whitespace-pre-line text-xs leading-relaxed font-[family-name:var(--font-body)] text-(--lab-text-muted) sm:mb-6 sm:text-sm">
         {soWhat}
       </div>
 
       {/* Completion options */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--space-2)',
-        }}
-      >
+      <div className="flex flex-col gap-1.5 sm:gap-2">
         {onTryAnother && (
           <Button
             onClick={onTryAnother}
             variant="outline"
-            className="w-full justify-center"
-            style={{
-              fontFamily: 'var(--font-display)',
-              borderColor: 'var(--lab-accent)',
-              color: 'var(--lab-accent)',
-              backgroundColor: 'transparent',
-            }}
+            className="min-h-[44px] w-full justify-center border-(--lab-accent) bg-transparent font-[family-name:var(--font-display)] text-(--lab-accent) sm:min-h-[40px]"
           >
             Try Another Challenge
           </Button>
@@ -105,13 +68,7 @@ export function RevealPanel({
           <Button
             onClick={onExplore}
             variant="outline"
-            className="w-full justify-center"
-            style={{
-              fontFamily: 'var(--font-display)',
-              borderColor: 'var(--lab-border)',
-              color: 'var(--lab-text-muted)',
-              backgroundColor: 'transparent',
-            }}
+            className="min-h-[44px] w-full justify-center border-(--lab-border) bg-transparent font-[family-name:var(--font-display)] text-(--lab-text-muted) sm:min-h-[40px]"
           >
             Free Explore
           </Button>
@@ -121,12 +78,7 @@ export function RevealPanel({
           <Button
             onClick={onFinish}
             variant="default"
-            className="w-full justify-center"
-            style={{
-              fontFamily: 'var(--font-display)',
-              backgroundColor: 'var(--lab-earned)',
-              color: 'var(--lab-bg)',
-            }}
+            className="min-h-[44px] w-full justify-center bg-(--lab-earned) font-[family-name:var(--font-display)] text-(--lab-bg) sm:min-h-[40px]"
           >
             Complete Module
           </Button>

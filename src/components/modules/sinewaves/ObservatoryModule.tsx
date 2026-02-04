@@ -14,55 +14,80 @@ import {
   DiagnosisChoices,
   RevealPanel,
   MatchFeedback,
+  ParameterSlider,
 } from './components'
 import { Scene } from './Scene'
-import { Slider } from '@/components/ui/slider'
 import { SINEWAVE_COPY } from './sinewaves-copy'
-import { consoleBootSequence } from './animations'
+import { consoleBootSequence, stageTransition } from './animations'
+import { STAGE_TARGETS, MATCH_THRESHOLDS } from './sinewaves-constants'
+import { generateChallengeTarget, type ChallengeParam } from './challenge-utils'
 
 // Stage types
 type ViewStage = 'observe' | 'amplitude' | 'frequency' | 'challenge' | 'reveal'
 type ChallengePhase = 'observe' | 'diagnose' | 'match'
-type ChallengeParam = 'amplitude' | 'frequency'
 
 interface ObservatoryModuleProps {
   onComplete: (values: { a: number; f: number }) => void
   isVisible?: boolean
+  onBack?: () => void
 }
 
-// Match thresholds for slider matching
-const AMPLITUDE_MATCH_THRESHOLD = 0.1
-const FREQUENCY_MATCH_THRESHOLD = 0.15
+// Stage index map for dot nav (stable)
+const STAGE_TO_INDEX: Record<ViewStage, number> = {
+  observe: 0,
+  amplitude: 1,
+  frequency: 2,
+  challenge: 3,
+  reveal: 4,
+}
+const INDEX_TO_STAGE: ViewStage[] = ['observe', 'amplitude', 'frequency', 'challenge', 'reveal']
 
 /**
  * Sinewaves learning module with Observatory HUD design
  * User-controlled pacing, staged reveals, mobile-first layout
  */
-export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
+export function ObservatoryModule({ onComplete, onBack }: ObservatoryModuleProps) {
+  // ─────────────────────────────────────────────────────────────
   // Boot sequence refs
+  // ─────────────────────────────────────────────────────────────
   const statusStripRef = useRef<HTMLDivElement>(null)
   const promptRef = useRef<HTMLDivElement>(null)
+  const vizRef = useRef<HTMLDivElement>(null)
+  const controlStripRef = useRef<HTMLDivElement>(null)
+  const hintRef = useRef<HTMLParagraphElement>(null)
   const [booted, setBooted] = useState(false)
+  const [statusText, setStatusText] = useState('')
 
-  // Core state
+  // ─────────────────────────────────────────────────────────────
+  // Stage progression
+  // ─────────────────────────────────────────────────────────────
   const [stage, setStage] = useState<ViewStage>('observe')
+
+  // ─────────────────────────────────────────────────────────────
+  // Wave parameters (user-controlled)
+  // ─────────────────────────────────────────────────────────────
   const [amplitude, setAmplitude] = useState(1)
   const [frequency, setFrequency] = useState(1)
 
-  // Target values for guided stages
-  const [amplitudeTarget] = useState(1.5)
-  const [frequencyTarget] = useState(2)
+  // ─────────────────────────────────────────────────────────────
+  // Guided stage match state (targets from STAGE_TARGETS)
+  // ─────────────────────────────────────────────────────────────
   const [amplitudeMatched, setAmplitudeMatched] = useState(false)
   const [frequencyMatched, setFrequencyMatched] = useState(false)
 
+  // ─────────────────────────────────────────────────────────────
   // Challenge state
+  // ─────────────────────────────────────────────────────────────
   const [challengePhase, setChallengePhase] = useState<ChallengePhase>('observe')
   const [challengeParam, setChallengeParam] = useState<ChallengeParam>('amplitude')
   const [challengeTargetValue, setChallengeTargetValue] = useState(1.5)
   const [diagnosisAnswer, setDiagnosisAnswer] = useState<string | undefined>()
+  const [diagnosisWrongAttempts, setDiagnosisWrongAttempts] = useState(0)
   const [challengeMatched, setChallengeMatched] = useState(false)
 
-  // Free explore mode state
+  // ─────────────────────────────────────────────────────────────
+  // Reveal stage
+  // ─────────────────────────────────────────────────────────────
   const [isFreeExplore, setIsFreeExplore] = useState(false)
 
   // Boot sequence on mount
@@ -71,7 +96,7 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
     consoleBootSequence(
       {
         statusStrip: statusStripRef.current,
-        progressBar: statusStripRef.current?.querySelector('[role="progressbar"]') as HTMLElement | null,
+        progressBar: null, // Dots replace progress bar; no draw animation
         prompt: promptRef.current,
       },
       () => {
@@ -83,7 +108,7 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
   // Match detection handlers - called from slider onChange
   const checkAmplitudeMatch = (value: number) => {
     if (stage === 'amplitude' && !amplitudeMatched) {
-      if (Math.abs(value - amplitudeTarget) <= AMPLITUDE_MATCH_THRESHOLD) {
+      if (Math.abs(value - STAGE_TARGETS.amplitude) <= MATCH_THRESHOLDS.amplitude) {
         setAmplitudeMatched(true)
       }
     }
@@ -91,7 +116,7 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
 
   const checkFrequencyMatch = (value: number) => {
     if (stage === 'frequency' && !frequencyMatched) {
-      if (Math.abs(value - frequencyTarget) <= FREQUENCY_MATCH_THRESHOLD) {
+      if (Math.abs(value - STAGE_TARGETS.frequency) <= MATCH_THRESHOLDS.frequency) {
         setFrequencyMatched(true)
       }
     }
@@ -99,10 +124,7 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
 
   const checkChallengeMatch = (param: ChallengeParam, value: number) => {
     if (stage === 'challenge' && challengePhase === 'match' && !challengeMatched) {
-      const threshold = param === 'amplitude'
-        ? AMPLITUDE_MATCH_THRESHOLD
-        : FREQUENCY_MATCH_THRESHOLD
-
+      const threshold = MATCH_THRESHOLDS[param]
       if (Math.abs(value - challengeTargetValue) <= threshold) {
         setChallengeMatched(true)
       }
@@ -142,14 +164,22 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
             showContinue: true,
           }
         } else if (challengePhase === 'diagnose') {
+          const diagnose = SINEWAVE_COPY.stages.challenge.diagnose
+          const description =
+            diagnosisWrongAttempts >= 2
+              ? challengeParam === 'amplitude'
+                ? diagnose.hintHeight
+                : diagnose.hintSpeed
+              : diagnosisWrongAttempts > 0
+                ? diagnose.wrongFeedback
+                : 'Choose what you think changed'
           return {
-            prompt: SINEWAVE_COPY.stages.challenge.diagnose.question,
-            description: 'Choose what you think changed',
+            prompt: diagnose.question,
+            description,
             showFormula: true,
             showContinue: false,
           }
         } else {
-          // match phase
           return {
             prompt: SINEWAVE_COPY.stages.challenge.match.prompt,
             description: `Adjust ${challengeParam} to match`,
@@ -165,7 +195,7 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
           showContinue: false,
         }
     }
-  }, [stage, challengePhase, challengeParam])
+  }, [stage, challengePhase, challengeParam, diagnosisWrongAttempts])
 
   const content = getStageContent()
 
@@ -183,62 +213,130 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
     amplitude: 2,
     frequency: 3,
     challenge: 4,
-    reveal: 4,
+    reveal: 5,
   }
+  const TOTAL_STAGES = 5
+
+  // Control strip hint (title removed from status strip - was truncating badly on mobile)
+  const controlHint =
+    stage === 'observe'
+      ? SINEWAVE_COPY.controlStripHints.observe
+      : stage === 'amplitude'
+        ? SINEWAVE_COPY.controlStripHints.amplitude
+        : stage === 'frequency'
+          ? SINEWAVE_COPY.controlStripHints.frequency
+          : stage === 'challenge'
+            ? challengePhase === 'observe'
+              ? SINEWAVE_COPY.controlStripHints.challengeObserve
+              : challengePhase === 'diagnose'
+                ? content.description
+                : SINEWAVE_COPY.controlStripHints.challengeMatch
+            : undefined
+
+  const runStageTransition = useCallback(
+    (onFadeOutComplete: () => void) => {
+      stageTransition(
+        {
+          controlStrip: controlStripRef.current,
+          hint: hintRef.current,
+        },
+        {
+          onFadeOutComplete,
+          onComplete: () => setStatusText(''),
+        }
+      )
+    },
+    []
+  )
 
   // Handlers
   const handleContinue = useCallback(() => {
     if (stage === 'observe') {
-      setStage('amplitude')
+      const t = SINEWAVE_COPY.stageTransitions.observeToAmplitude
+      runStageTransition(() => {
+        setStage('amplitude')
+        setStatusText(t.status)
+      })
     } else if (stage === 'challenge' && challengePhase === 'observe') {
+      setDiagnosisWrongAttempts(0)
       setChallengePhase('diagnose')
     }
-  }, [stage, challengePhase])
+  }, [stage, challengePhase, runStageTransition])
 
   // Handle diagnosis answer selection
   const handleDiagnosisSelect = useCallback((value: string) => {
     setDiagnosisAnswer(value)
-    // After selection, move to match phase (regardless of correct/incorrect)
-    // The matching task itself validates understanding
-    setTimeout(() => setChallengePhase('match'), 500)
-  }, [])
+    if (value === challengeParam) {
+      setChallengePhase('match')
+    } else {
+      setDiagnosisWrongAttempts((prev) => prev + 1)
+    }
+  }, [challengeParam])
 
   // Match feedback continue handlers
   const handleAmplitudeMatchContinue = useCallback(() => {
-    setStage('frequency')
-  }, [])
+    const t = SINEWAVE_COPY.stageTransitions.amplitudeToFrequency
+    runStageTransition(() => {
+      setStage('frequency')
+      setStatusText(t.status)
+    })
+  }, [runStageTransition])
 
   const handleFrequencyMatchContinue = useCallback(() => {
-    // Initialize challenge with random parameter
-    const param: ChallengeParam = Math.random() > 0.5 ? 'amplitude' : 'frequency'
-    const targetValue = param === 'amplitude'
-      ? 0.5 + Math.random() * 1.5 // 0.5 to 2.0
-      : 1 + Math.random() * 2 // 1 to 3
-
-    setChallengeParam(param)
-    setChallengeTargetValue(Math.round(targetValue * 10) / 10)
-    setChallengePhase('observe')
-    setDiagnosisAnswer(undefined)
-    setChallengeMatched(false)
-    setStage('challenge')
-  }, [])
+    const t = SINEWAVE_COPY.stageTransitions.frequencyToChallenge
+    const target = generateChallengeTarget()
+    runStageTransition(() => {
+      setChallengeParam(target.param)
+      setChallengeTargetValue(target.value)
+      setChallengePhase('observe')
+      setDiagnosisAnswer(undefined)
+      setDiagnosisWrongAttempts(0)
+      setChallengeMatched(false)
+      setStage('challenge')
+      setStatusText(t.status)
+    })
+  }, [runStageTransition])
 
   const handleChallengeMatchContinue = useCallback(() => {
-    setStage('reveal')
-  }, [])
+    const t = SINEWAVE_COPY.stageTransitions.challengeToReveal
+    runStageTransition(() => {
+      setStage('reveal')
+      setStatusText(t.status)
+    })
+  }, [runStageTransition])
+
+  // Dot nav: go to a previous or current stage (no skip-ahead)
+  const handleStageSelect = useCallback(
+    (index: number) => {
+      const currentIndex = STAGE_TO_INDEX[stage]
+      if (index > currentIndex) return
+      if (index === currentIndex) return
+      const newStage = INDEX_TO_STAGE[index]
+      runStageTransition(() => {
+        setStage(newStage)
+        setAmplitudeMatched(index > 1)
+        setFrequencyMatched(index > 2)
+        setChallengeMatched(index > 3)
+        if (newStage === 'challenge') {
+          setChallengePhase('observe')
+          setDiagnosisAnswer(undefined)
+          setDiagnosisWrongAttempts(0)
+        }
+        setStatusText('')
+      })
+    },
+    [stage, runStageTransition]
+  )
 
   // Reveal stage completion handlers
   const handleTryAnother = useCallback(() => {
     // Reset to a new challenge with different random parameter
-    const param: ChallengeParam = Math.random() > 0.5 ? 'amplitude' : 'frequency'
-    const targetValue = param === 'amplitude'
-      ? 0.5 + Math.random() * 1.5
-      : 1 + Math.random() * 2
-
-    setChallengeParam(param)
-    setChallengeTargetValue(Math.round(targetValue * 10) / 10)
+    const target = generateChallengeTarget()
+    setChallengeParam(target.param)
+    setChallengeTargetValue(target.value)
     setChallengePhase('observe')
     setDiagnosisAnswer(undefined)
+    setDiagnosisWrongAttempts(0)
     setChallengeMatched(false)
     setIsFreeExplore(false)
     setStage('challenge')
@@ -258,10 +356,10 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
   // During challenge, the target is the challenge parameter value
   const effectiveAmplitudeTarget = stage === 'challenge' && challengeParam === 'amplitude'
     ? challengeTargetValue
-    : amplitudeTarget
+    : STAGE_TARGETS.amplitude
   const effectiveFrequencyTarget = stage === 'challenge' && challengeParam === 'frequency'
     ? challengeTargetValue
-    : frequencyTarget
+    : STAGE_TARGETS.frequency
 
   // Determine if we're in a match success state
   const isMatchSuccess =
@@ -289,8 +387,11 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
         <StatusStrip
           ref={statusStripRef}
           currentStage={stageNumber[stage]}
-          totalStages={4}
+          totalStages={TOTAL_STAGES}
           progress={stageProgress[stage]}
+          onBack={onBack}
+          onStageSelect={handleStageSelect}
+          statusText={statusText}
           className={booted ? '' : 'opacity-0'}
         />
       }
@@ -307,50 +408,46 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
           <FormulaReadout
             amplitude={amplitude}
             frequency={frequency}
-            highlightAmplitude={stage === 'amplitude'}
-            highlightFrequency={stage === 'frequency'}
+            highlightAmplitude={stage === 'amplitude' || (stage === 'challenge' && challengeParam === 'amplitude')}
+            highlightFrequency={stage === 'frequency' || (stage === 'challenge' && challengeParam === 'frequency')}
           />
         ) : undefined
       }
       visualization={
-        <div className="h-full w-full">
+        <div ref={vizRef} className="h-full w-full">
           <Scene {...sceneProps} />
         </div>
       }
       controlStrip={
-        <ControlStrip>
+        <ControlStrip
+          ref={controlStripRef}
+          hintRef={hintRef}
+          hint={controlHint}
+          formula={
+            content.showFormula ? (
+              <FormulaReadout
+                amplitude={amplitude}
+                frequency={frequency}
+                highlightAmplitude={stage === 'amplitude' || (stage === 'challenge' && challengeParam === 'amplitude')}
+                highlightFrequency={stage === 'frequency' || (stage === 'challenge' && challengeParam === 'frequency')}
+              />
+            ) : undefined
+          }
+        >
           {content.showContinue && (
             <ContinueButton onClick={handleContinue} />
           )}
 
           {/* Amplitude stage: slider or match feedback */}
           {stage === 'amplitude' && !amplitudeMatched && (
-            <div className="w-full">
-              <div
-                className="mb-2 flex justify-between text-sm"
-                style={{
-                  fontFamily: 'var(--font-data)',
-                  color: 'var(--lab-text-muted)',
-                }}
-              >
-                <span>Amplitude</span>
-                <span style={{ color: 'var(--lab-accent)' }}>
-                  {amplitude.toFixed(1)}
-                </span>
-              </div>
-              <Slider
-                value={[amplitude]}
-                onValueChange={([value]) => {
-                  setAmplitude(value)
-                  checkAmplitudeMatch(value)
-                }}
-                min={0.5}
-                max={2}
-                step={0.1}
-                className="w-full"
-                aria-label="Amplitude"
-              />
-            </div>
+            <ParameterSlider
+              param="amplitude"
+              value={amplitude}
+              onChange={(value) => {
+                setAmplitude(value)
+                checkAmplitudeMatch(value)
+              }}
+            />
           )}
           {stage === 'amplitude' && amplitudeMatched && (
             <MatchFeedback
@@ -362,38 +459,23 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
 
           {/* Frequency stage: slider or match feedback */}
           {stage === 'frequency' && !frequencyMatched && (
-            <div className="w-full">
-              <div
-                className="mb-2 flex justify-between text-sm"
-                style={{
-                  fontFamily: 'var(--font-data)',
-                  color: 'var(--lab-text-muted)',
-                }}
-              >
-                <span>Frequency</span>
-                <span style={{ color: 'var(--lab-accent)' }}>
-                  {frequency.toFixed(1)}
-                </span>
-              </div>
-              <Slider
-                value={[frequency]}
-                onValueChange={([value]) => {
-                  setFrequency(value)
-                  checkFrequencyMatch(value)
-                }}
-                min={0.5}
-                max={3}
-                step={0.1}
-                className="w-full"
-                aria-label="Frequency"
-              />
-            </div>
+            <ParameterSlider
+              param="frequency"
+              value={frequency}
+              onChange={(value) => {
+                setFrequency(value)
+                checkFrequencyMatch(value)
+              }}
+            />
           )}
           {stage === 'frequency' && frequencyMatched && (
             <MatchFeedback
               message={SINEWAVE_COPY.matchCelebration.frequency}
               onContinue={handleFrequencyMatchContinue}
               isVisible={true}
+              visualizationRef={vizRef}
+              matchedValue={STAGE_TARGETS.frequency}
+              matchedLabel="Frequency"
             />
           )}
 
@@ -409,44 +491,31 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
 
           {/* Challenge match: slider or match feedback */}
           {stage === 'challenge' && challengePhase === 'match' && !challengeMatched && (
-            <div className="w-full">
-              <div
-                className="mb-2 flex justify-between text-sm"
-                style={{
-                  fontFamily: 'var(--font-data)',
-                  color: 'var(--lab-text-muted)',
-                }}
-              >
-                <span className="capitalize">{challengeParam}</span>
-                <span style={{ color: 'var(--lab-accent)' }}>
-                  {(challengeParam === 'amplitude' ? amplitude : frequency).toFixed(1)}
-                </span>
-              </div>
-              <Slider
-                value={[challengeParam === 'amplitude' ? amplitude : frequency]}
-                onValueChange={([value]) => {
-                  if (challengeParam === 'amplitude') {
-                    setAmplitude(value)
-                  } else {
-                    setFrequency(value)
-                  }
-                  checkChallengeMatch(challengeParam, value)
-                }}
-                min={challengeParam === 'amplitude' ? 0.5 : 0.5}
-                max={challengeParam === 'amplitude' ? 2 : 3}
-                step={0.1}
-                className="w-full"
-                aria-label={challengeParam === 'amplitude' ? 'Amplitude' : 'Frequency'}
-              />
-            </div>
+            <ParameterSlider
+              param={challengeParam}
+              value={challengeParam === 'amplitude' ? amplitude : frequency}
+              onChange={(value) => {
+                if (challengeParam === 'amplitude') {
+                  setAmplitude(value)
+                } else {
+                  setFrequency(value)
+                }
+                checkChallengeMatch(challengeParam, value)
+              }}
+            />
           )}
           {stage === 'challenge' && challengePhase === 'match' && challengeMatched && (
             <MatchFeedback
-              message={challengeParam === 'amplitude'
-                ? SINEWAVE_COPY.matchCelebration.amplitude
-                : SINEWAVE_COPY.matchCelebration.frequency}
+              message={
+                challengeParam === 'amplitude'
+                  ? SINEWAVE_COPY.matchCelebration.challengeAmplitude
+                  : SINEWAVE_COPY.matchCelebration.challengeFrequency
+              }
               onContinue={handleChallengeMatchContinue}
               isVisible={true}
+              visualizationRef={vizRef}
+              matchedValue={challengeTargetValue}
+              matchedLabel={challengeParam === 'amplitude' ? 'Amplitude' : 'Frequency'}
             />
           )}
 
@@ -465,52 +534,16 @@ export function ObservatoryModule({ onComplete }: ObservatoryModuleProps) {
           {/* Free explore mode controls */}
           {stage === 'reveal' && isFreeExplore && (
             <div className="flex w-full flex-col gap-4">
-              <div className="w-full">
-                <div
-                  className="mb-2 flex justify-between text-sm"
-                  style={{
-                    fontFamily: 'var(--font-data)',
-                    color: 'var(--lab-text-muted)',
-                  }}
-                >
-                  <span>Amplitude</span>
-                  <span style={{ color: 'var(--lab-accent)' }}>
-                    {amplitude.toFixed(1)}
-                  </span>
-                </div>
-                <Slider
-                  value={[amplitude]}
-                  onValueChange={([value]) => setAmplitude(value)}
-                  min={0.5}
-                  max={2}
-                  step={0.1}
-                  className="w-full"
-                  aria-label="Amplitude"
-                />
-              </div>
-              <div className="w-full">
-                <div
-                  className="mb-2 flex justify-between text-sm"
-                  style={{
-                    fontFamily: 'var(--font-data)',
-                    color: 'var(--lab-text-muted)',
-                  }}
-                >
-                  <span>Frequency</span>
-                  <span style={{ color: 'var(--lab-accent)' }}>
-                    {frequency.toFixed(1)}
-                  </span>
-                </div>
-                <Slider
-                  value={[frequency]}
-                  onValueChange={([value]) => setFrequency(value)}
-                  min={0.5}
-                  max={3}
-                  step={0.1}
-                  className="w-full"
-                  aria-label="Frequency"
-                />
-              </div>
+              <ParameterSlider
+                param="amplitude"
+                value={amplitude}
+                onChange={setAmplitude}
+              />
+              <ParameterSlider
+                param="frequency"
+                value={frequency}
+                onChange={setFrequency}
+              />
               <ContinueButton onClick={() => setIsFreeExplore(false)}>
                 Back to Results
               </ContinueButton>

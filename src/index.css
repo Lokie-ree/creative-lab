@@ -188,9 +188,15 @@
    These correspond to colors defined in src/lib/colors.ts
    Edit values in colors.ts to maintain consistency.
 
+   Token mapping (see src/lib/colors.ts):
+   * colors.accent.primary    → --lab-accent
+   * colors.learning.primary  → --lab-accent-warm, --lab-earned
+   * colors.ghost             → --lab-ghost
+   * colors.background.*      → --lab-bg, --lab-surface, --lab-surface-elevated
+
    Usage in components:
    - CSS: var(--lab-accent)
-   - Tailwind arbitrary: text-[var(--lab-accent)]
+   - Tailwind 4: bg-(--lab-accent), text-(--lab-text)
    - JS/TS: import { colors } from '@/lib/colors'
    =========================================== */
 :root {
@@ -229,6 +235,7 @@
   /* Semantic colors */
   --lab-success: #22d3ee;
   --lab-warning: #f5a623;
+  --lab-earned: #f5a623;  /* Same as --lab-accent-warm / learning.primary */
 
   /* Typography - Observatory HUD */
   --font-display: 'JetBrains Mono', monospace;

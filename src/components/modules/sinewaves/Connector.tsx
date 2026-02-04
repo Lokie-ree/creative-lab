@@ -9,12 +9,13 @@ interface ConnectorProps {
   frequency: number
   phase: number
   amplitude: number
+  scale?: number   // Scale factor for circle radius (default 1)
   isPaused?: boolean
   color?: string   // Custom color for line and dot
   opacity?: number // Opacity for styling (default 0.6 for line)
 }
 
-export function Connector({ circleX, waveX, frequency, phase, amplitude, isPaused = false, color = colors.accent.primary, opacity = 0.6 }: ConnectorProps) {
+export function Connector({ circleX, waveX, frequency, phase, amplitude, scale = 1, isPaused = false, color = colors.accent.primary, opacity = 0.6 }: ConnectorProps) {
   const lineRef = useRef<THREE.Line>(null)
   const dotRef = useRef<THREE.Mesh>(null)
 
@@ -42,9 +43,9 @@ export function Connector({ circleX, waveX, frequency, phase, amplitude, isPause
     const angle = frequency * t + phase
     const y = amplitude * Math.sin(angle)
 
-    // Circle point position (in world coords)
-    const circlePointX = circleX + Math.cos(angle)
-    const circlePointY = Math.sin(angle)
+    // Circle point position (in world coords, accounting for scale)
+    const circlePointX = circleX + Math.cos(angle) * scale
+    const circlePointY = Math.sin(angle) * scale
 
     // Wave live point position (in world coords)
     const wavePointX = waveX

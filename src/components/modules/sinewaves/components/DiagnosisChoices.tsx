@@ -1,6 +1,6 @@
 // src/components/modules/sinewaves/components/DiagnosisChoices.tsx
-import { Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface DiagnosisChoice {
   label: string
@@ -28,31 +28,12 @@ export function DiagnosisChoices({
   className = '',
 }: DiagnosisChoicesProps) {
   return (
-    <div
-      className={`w-full ${className}`}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-3)',
-      }}
-    >
-      <p
-        className="text-center text-sm"
-        style={{
-          fontFamily: 'var(--font-body)',
-          color: 'var(--lab-text)',
-        }}
-      >
+    <div className={cn('flex w-full flex-col gap-2 sm:gap-3', className)}>
+      <p className="text-center text-xs font-[family-name:var(--font-body)] text-(--lab-text) sm:text-sm">
         {question}
       </p>
 
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--space-2)',
-        }}
-      >
+      <div className="flex flex-col gap-1.5 sm:gap-2">
         {choices.map((choice) => {
           const isSelected = selectedValue === choice.value
           return (
@@ -60,29 +41,15 @@ export function DiagnosisChoices({
               key={choice.value}
               onClick={() => onSelect(choice.value)}
               variant="outline"
-              className="relative w-full justify-center"
-              style={{
-                fontFamily: 'var(--font-display)',
-                borderColor: isSelected
-                  ? 'var(--lab-accent)'
-                  : 'var(--lab-border)',
-                borderWidth: isSelected ? '2px' : '1px',
-                color: isSelected ? 'var(--lab-accent)' : 'var(--lab-text)',
-                backgroundColor: isSelected
-                  ? 'rgba(34, 211, 238, 0.15)'
-                  : 'transparent',
-                boxShadow: isSelected
-                  ? '0 0 12px rgba(34, 211, 238, 0.3), inset 0 0 8px rgba(34, 211, 238, 0.1)'
-                  : 'none',
-                transition: 'all var(--duration-normal) var(--ease-out)',
-              }}
-            >
-              {isSelected && (
-                <Check
-                  className="absolute left-3 h-4 w-4"
-                  style={{ color: 'var(--lab-accent)' }}
-                />
+              className={cn(
+                'min-h-[44px] w-full justify-center sm:min-h-[40px]',
+                'font-[family-name:var(--font-display)]',
+                'transition-all duration-300 ease-out',
+                isSelected
+                  ? 'border-2 border-(--lab-accent) bg-[rgba(34,211,238,0.15)] text-(--lab-accent) shadow-[0_0_12px_rgba(34,211,238,0.3),inset_0_0_8px_rgba(34,211,238,0.1)]'
+                  : 'border border-(--lab-border) bg-transparent text-(--lab-text)'
               )}
+            >
               {choice.label}
             </Button>
           )
