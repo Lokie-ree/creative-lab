@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber"
 import { UnitCircle } from "./UnitCircle"
 import { SineWave } from "./SineWave"
 import { Connector } from "./Connector"
+import { GridLines } from "./GridLines"
 import { colors } from "@/lib/colors"
 import { useSceneLayout, SCENE_LAYOUT } from "./scene-layout"
 
@@ -76,6 +77,11 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
           isPaused={isPaused}
         />
       )}
+
+      {/* Grid lines behind wave area */}
+      <group position={[wave.x, wave.y, 0]}>
+        <GridLines width={4.5} height={2.5} />
+      </group>
 
       {/* Sine waves */}
       <group position={[wave.x, wave.y, 0]} scale={isPortrait ? scale : 1}>
