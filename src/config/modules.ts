@@ -25,7 +25,7 @@ export const MODULES: ModuleConfig[] = [
     description: 'Where does the wave come from?',
     order: 1,
     courseId: 'advanced-math',
-    component: () => import('@/components/modules/sinewaves/ObservatoryModule'),
+    component: () => import('@/components/modules/sinewaves/InstrumentModule'),
   },
   {
     id: 'vector-transformations',
