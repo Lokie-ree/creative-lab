@@ -5,7 +5,7 @@ import { SineWave } from "./SineWave"
 import { Connector } from "./Connector"
 import { GridLines } from "./GridLines"
 import { colors } from "@/lib/colors"
-import { useSceneLayout, SCENE_LAYOUT } from "./scene-layout"
+import { useSceneLayout, useIsMobileViewport, SCENE_LAYOUT } from "./scene-layout"
 
 type Stage = 'observe' | 'amplitude' | 'frequency' | 'phase' | 'challenge' | 'reveal'
 
@@ -19,14 +19,25 @@ interface SceneProps {
   onPauseChange: (paused: boolean) => void
   stageTargets?: { amplitude: number; frequency: number; phase: number }
   isVisible?: boolean
-  matchSuccess?: boolean // When true, triggers glow effect on user's wave
+  matchSuccess?: boolean
+  showGhost?: boolean      // Explicitly control ghost visibility
+  showConnector?: boolean  // Explicitly control connector visibility
+  speedMultiplier?: number // Animation speed multiplier
 }
 
-function Visualization({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets, matchSuccess }: SceneProps) {
+function Visualization({
+  amplitude, frequency, phase, target, stage, isPaused, onPauseChange,
+  stageTargets, matchSuccess,
+  showGhost: showGhostProp,
+  showConnector: showConnectorProp,
+  speedMultiplier = 1,
+}: SceneProps) {
   const { isPortrait, circle, wave, scale, connector } = useSceneLayout(stage)
+  const isMobile = useIsMobileViewport()
 
-  // In observe stage, don't show ghost/target waves
-  const showGhost = stage !== 'observe'
+  // Use explicit prop if provided, otherwise fall back to stage-based logic
+  const showGhost = showGhostProp ?? (stage !== 'observe')
+  const showConnector = showConnectorProp ?? (connector !== null)
 
   // Get ghost wave parameters based on stage
   const ghostParams = useMemo(() => {
@@ -44,29 +55,33 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
 
   return (
     <>
-      {/* Unit circle */}
-      <group position={[circle.x, circle.y, 0]} scale={scale}>
-        <UnitCircle
-          amplitude={amplitude}
-          frequency={frequency}
-          phase={phase}
-          isPaused={isPaused}
-          onPauseChange={onPauseChange}
-        />
-        {/* Target point on circle (ghost) */}
-        {showGhost && (
+      {/* Unit circle — hidden on mobile */}
+      {!isMobile && (
+        <group position={[circle.x, circle.y, 0]} scale={scale}>
           <UnitCircle
-            amplitude={ghostParams.a}
-            frequency={ghostParams.f}
-            phase={ghostParams.p}
-            color={colors.ghost}
-            opacity={SCENE_LAYOUT.ghostOpacity}
+            amplitude={amplitude}
+            frequency={frequency}
+            phase={phase}
+            isPaused={isPaused}
+            onPauseChange={onPauseChange}
+            speedMultiplier={speedMultiplier}
           />
-        )}
-      </group>
+          {/* Target point on circle (ghost) */}
+          {showGhost && (
+            <UnitCircle
+              amplitude={ghostParams.a}
+              frequency={ghostParams.f}
+              phase={ghostParams.p}
+              color={colors.ghost}
+              opacity={SCENE_LAYOUT.ghostOpacity}
+              speedMultiplier={speedMultiplier}
+            />
+          )}
+        </group>
+      )}
 
-      {/* Connector line - only in landscape during observe stage */}
-      {connector && (
+      {/* Connector line — only in landscape, desktop, and when showConnector is true */}
+      {!isMobile && showConnector && connector && (
         <Connector
           circleX={circle.x}
           waveX={wave.x}
@@ -93,6 +108,7 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
             phase={ghostParams.p}
             color={colors.ghost}
             opacity={SCENE_LAYOUT.ghostOpacity}
+            speedMultiplier={speedMultiplier}
           />
         )}
         {/* User's wave */}
@@ -103,13 +119,18 @@ function Visualization({ amplitude, frequency, phase, target, stage, isPaused, o
           isPaused={isPaused}
           showLiveDot={stage !== 'observe'}
           glow={matchSuccess}
+          speedMultiplier={speedMultiplier}
         />
       </group>
     </>
   )
 }
 
-export function Scene({ amplitude, frequency, phase, target, stage, isPaused, onPauseChange, stageTargets, isVisible = true, matchSuccess }: SceneProps) {
+export function Scene({
+  amplitude, frequency, phase, target, stage, isPaused, onPauseChange,
+  stageTargets, isVisible = true, matchSuccess,
+  showGhost, showConnector, speedMultiplier,
+}: SceneProps) {
   // Conditionally render Canvas to prevent WebGL context conflicts
   // when both Hero and Module are mounted during SlideTransition
   if (!isVisible) {
@@ -132,6 +153,9 @@ export function Scene({ amplitude, frequency, phase, target, stage, isPaused, on
         onPauseChange={onPauseChange}
         stageTargets={stageTargets}
         matchSuccess={matchSuccess}
+        showGhost={showGhost}
+        showConnector={showConnector}
+        speedMultiplier={speedMultiplier}
       />
     </Canvas>
   )

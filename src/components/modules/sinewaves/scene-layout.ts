@@ -70,3 +70,13 @@ export function useSceneLayout(stage: string): SceneLayoutResult {
 
   return { isPortrait, circle, wave, scale, connector }
 }
+
+/**
+ * Hook to detect if we're in mobile viewport (portrait or narrow)
+ * Used to conditionally hide unit circle on mobile
+ */
+export function useIsMobileViewport(): boolean {
+  const { viewport } = useThree()
+  // Consider mobile if portrait OR width is narrow
+  return viewport.width <= viewport.height || viewport.width < 6
+}
