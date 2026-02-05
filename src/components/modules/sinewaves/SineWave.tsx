@@ -12,6 +12,7 @@ interface SineWaveProps {
   isPaused?: boolean
   showLiveDot?: boolean  // Show dot at current wave position
   glow?: boolean  // Enable glow effect for match success
+  speedMultiplier?: number // Animation speed multiplier
 }
 
 export interface SineWaveRef {
@@ -31,6 +32,7 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
     isPaused = false,
     showLiveDot = false,
     glow = false,
+    speedMultiplier = 1,
   }, ref) {
     const positionsRef = useRef<Float32Array>(new Float32Array(MAX_POINTS * 3))
     const pointCountRef = useRef(0)
@@ -58,7 +60,7 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
       // Don't update when paused
       if (isPaused) return
 
-      const t = state.clock.elapsedTime
+      const t = state.clock.elapsedTime * speedMultiplier
       const y = amplitude * Math.sin(frequency * t + phase)
       currentYRef.current = y
 

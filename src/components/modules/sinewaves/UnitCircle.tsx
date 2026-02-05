@@ -13,6 +13,7 @@ interface UnitCircleProps {
   isPaused?: boolean
   onPauseChange?: (paused: boolean) => void
   draggable?: boolean
+  speedMultiplier?: number // Animation speed multiplier
 }
 
 // Generate circle points with custom radius
@@ -39,6 +40,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
     isPaused = false,
     onPauseChange,
     draggable = false,
+    speedMultiplier = 1,
   }, ref) {
     const groupRef = useRef<THREE.Group>(null)
     const pointRef = useRef<THREE.Mesh>(null)
@@ -106,7 +108,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
         pausedAtTimeRef.current = null
       }
 
-      const t = state.clock.elapsedTime
+      const t = state.clock.elapsedTime * speedMultiplier
       const angle = frequency * t + phase
       updatePosition(angle)
     })
