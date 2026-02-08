@@ -1,4 +1,4 @@
-import { useRef, useMemo, useImperativeHandle, forwardRef } from "react"
+import { useRef, useMemo, useEffect, useImperativeHandle, forwardRef } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { colors } from "@/lib/colors"
@@ -21,6 +21,7 @@ export interface SineWaveRef {
 
 const MAX_POINTS = 200
 const WAVE_WIDTH = 4
+const TIME_WINDOW = 4 // Seconds of wave visible in the trail
 
 export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
   function SineWave({
@@ -34,8 +35,6 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
     glow = false,
     speedMultiplier = 1,
   }, ref) {
-    const positionsRef = useRef<Float32Array>(new Float32Array(MAX_POINTS * 3))
-    const pointCountRef = useRef(0)
     const currentYRef = useRef(0)
     const dotRef = useRef<THREE.Mesh>(null)
 
@@ -44,17 +43,28 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
       getCurrentY: () => currentYRef.current,
     }))
 
-    // Main line - color changes to amber when glowing (match success)
-    const effectiveColor = glow ? colors.learning.primary : color
+    // Create line once — geometry and material are stable
     const line = useMemo(() => {
       const geometry = new THREE.BufferGeometry()
+      const positions = new Float32Array(MAX_POINTS * 3)
+      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3))
       const material = new THREE.LineBasicMaterial({
-        color: effectiveColor,
+        color,
         transparent: true,
         opacity,
       })
       return new THREE.Line(geometry, material)
-    }, [effectiveColor, opacity])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // Update material color/opacity without rebuilding geometry
+    useEffect(() => {
+      const effectiveColor = glow ? colors.learning.primary : color
+      const mat = line.material as THREE.LineBasicMaterial
+      mat.color.set(effectiveColor)
+      mat.opacity = opacity
+      mat.needsUpdate = true
+    }, [glow, color, opacity, line])
 
     useFrame((state) => {
       // Don't update when paused
@@ -69,51 +79,22 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
         dotRef.current.position.y = y
       }
 
-      const positions = positionsRef.current
+      // Analytical wave: every point computed from current parameters
+      const posAttr = line.geometry.attributes.position as THREE.BufferAttribute
+      const positions = posAttr.array as Float32Array
 
-      if (pointCountRef.current < MAX_POINTS) {
-        // Still filling up - add new point at the beginning (index 0)
-        // Shift existing points right
-        for (let i = pointCountRef.current * 3; i >= 3; i -= 3) {
-          positions[i] = positions[i - 3]
-          positions[i + 1] = positions[i - 2]
-          positions[i + 2] = positions[i - 1]
-        }
-        positions[0] = 0
-        positions[1] = y
-        positions[2] = 0
-        pointCountRef.current++
-      } else {
-        // Full - shift all points right, new point at index 0
-        for (let i = (MAX_POINTS - 1) * 3; i >= 3; i -= 3) {
-          positions[i] = positions[i - 3]
-          positions[i + 1] = positions[i - 2]
-          positions[i + 2] = positions[i - 1]
-        }
-        positions[0] = 0
-        positions[1] = y
-        positions[2] = 0
-      }
-
-      // Distribute x positions: live point at x=0, trail extends right
-      for (let i = 0; i < pointCountRef.current; i++) {
-        const progress = i / (pointCountRef.current - 1)
+      for (let i = 0; i < MAX_POINTS; i++) {
+        const progress = i / (MAX_POINTS - 1)
         positions[i * 3] = progress * WAVE_WIDTH
+        positions[i * 3 + 1] = amplitude * Math.sin(frequency * (t - progress * TIME_WINDOW) + phase)
+        positions[i * 3 + 2] = 0
       }
 
-      if (pointCountRef.current >= 2) {
-        const positionData = positions.slice(0, pointCountRef.current * 3)
-
-        // Update main line
-        line.geometry.setAttribute(
-          "position",
-          new THREE.BufferAttribute(positionData, 3)
-        )
-        // eslint-disable-next-line react-hooks/immutability -- R3F pattern: updating geometry buffer in animation loop
-        line.geometry.attributes.position.needsUpdate = true
-        line.geometry.computeBoundingSphere()
-      }
+      posAttr.needsUpdate = true
+      line.geometry.computeBoundingSphere()
     })
+
+    const effectiveColor = glow ? colors.learning.primary : color
 
     return (
       <group>

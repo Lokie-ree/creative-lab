@@ -59,12 +59,6 @@ export const FormulaReadout = forwardRef<HTMLDivElement, FormulaReadoutProps>(
         className={cn('relative rounded bg-(--lab-surface) p-3 sm:p-4', className)}
         data-stage-overlay
       >
-        {/* Corner brackets */}
-        <div className="pointer-events-none absolute left-2 top-2 h-3 w-3 border-l border-t border-(--lab-accent) opacity-60" />
-        <div className="pointer-events-none absolute right-2 top-2 h-3 w-3 border-r border-t border-(--lab-accent) opacity-60" />
-        <div className="pointer-events-none absolute bottom-2 left-2 h-3 w-3 border-b border-l border-(--lab-accent) opacity-60" />
-        <div className="pointer-events-none absolute bottom-2 right-2 h-3 w-3 border-b border-r border-(--lab-accent) opacity-60" />
-
         {/* Formula */}
         <div className="text-center text-base font-[family-name:var(--font-data)] text-(--lab-text) sm:text-lg md:text-xl">
           <span>y = </span>

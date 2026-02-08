@@ -2,11 +2,11 @@
 
 ## Overview
 
-The sinewaves module teaches the relationship between the unit circle and sine waves through interactive manipulation before explanation. It uses the Observatory HUD design (user-controlled pacing, staged reveals, mobile-first layout).
+The sinewaves module teaches the relationship between the unit circle and sine waves through interactive manipulation before explanation. It uses the instrument HUD design (everything always visible, guide states drive prompts and highlights, mobile-first layout).
 
 **Core Learning Goal**: Discover that amplitude controls wave height and frequency controls oscillation speed through hands-on exploration.
 
-**Doc scope**: This file describes the implementation as built, including uncommitted changes. Keep it updated when changing Layout, ObservatoryModule, animations, or module-local components.
+**Doc scope**: This file describes the implementation as built, including uncommitted changes. Keep it updated when changing Layout, InstrumentModule, animations, or module-local components. The stage flow and pedagogy sections describe the intended design; for current wiring (e.g. InstrumentControls, guide states) see `InstrumentModule.tsx` and `guide-state.ts`.
 
 ---
 
@@ -16,8 +16,9 @@ The sinewaves module teaches the relationship between the unit circle and sine w
 
 ```
 src/components/modules/sinewaves/
-├── ObservatoryModule.tsx   # Entry: Observatory HUD, state, slot content
-├── Layout.tsx              # ObservatoryLayout (pure Tailwind responsive grid)
+├── InstrumentModule.tsx    # Entry: instrument state, guide states, slot content
+├── Layout.tsx              # InstrumentLayout (pure Tailwind responsive grid)
+├── guide-state.ts          # Guide states, config, speed multiplier
 ├── Scene.tsx               # Main 3D visualization (uses useSceneLayout)
 ├── scene-layout.ts         # Viewport-proportional positioning (useSceneLayout hook)
 ├── sinewaves-constants.ts  # Stage targets, match thresholds, slider config, challenge ranges
@@ -25,58 +26,56 @@ src/components/modules/sinewaves/
 ├── UnitCircle.tsx          # Interactive unit circle with rotating point
 ├── SineWave.tsx            # Animated sine wave trail visualization
 ├── Connector.tsx           # Dashed line connecting circle point to wave (scale-aware)
+├── GridLines.tsx           # Grid lines behind wave (optional)
 ├── animations.ts           # Boot sequence (consoleBootSequence) and stage transition helpers
 ├── sinewaves-copy.ts       # Stage prompts and copy (SINEWAVE_COPY)
-├── components/             # Module-local UI for Observatory HUD
+├── components/             # Module-local UI for instrument HUD
 │   ├── index.ts
-│   ├── StatusStrip.tsx     # Dot nav with 44px touch targets, proper ARIA (nav+ol+li)
+│   ├── StatusStrip.tsx     # Dot nav, SYS:NOM, ESC (44px touch targets, ARIA)
 │   ├── PromptReadout.tsx   # Instructional prompt + description
-│   ├── FormulaReadout.tsx  # Formula display (visible during parameter stages)
-│   ├── ControlStrip.tsx    # Hint line + formula slot (mobile) + sliders/buttons
-│   ├── ParameterSlider.tsx # Reusable slider component (uses SLIDER_CONFIG)
-│   ├── ContinueButton.tsx  # Continue / advance stage (Tailwind hover:)
-│   ├── DiagnosisChoices.tsx # Challenge: "What changed?" choices
-│   ├── RevealPanel.tsx     # Reveal stage: So What? + Try Another / Explore / Finish
-│   └── MatchFeedback.tsx   # Match celebration + continue
+│   ├── FormulaReadout.tsx  # Formula display
+│   ├── ControlStrip.tsx    # Wraps InstrumentControls (sliders + buttons)
+│   ├── InstrumentControls.tsx # Sliders, continue, speed; content by guide state
+│   ├── ParameterSlider.tsx # Reusable slider (uses SLIDER_CONFIG)
+│   └── ContinueButton.tsx  # Continue / advance (Tailwind hover:)
 └── ARCHITECTURE.md         # This documentation file
 ```
 
-### Component Hierarchy (Current — Observatory HUD)
+### Component Hierarchy (Current — Instrument HUD)
 
 ```
-ObservatoryModule (ObservatoryModule.tsx)
-└── ObservatoryLayout (Layout.tsx) — grid: statusStrip | readouts | visualization | controlStrip
-    │   Desktop (≥768px): 4 rows. Mobile (<768px): 3 rows (header | viz | controls), readouts hidden.
-    ├── statusStrip   → StatusStrip (dot nav + stage number/label, optional onBack)
+InstrumentModule (InstrumentModule.tsx)
+└── InstrumentLayout (Layout.tsx) — grid: statusStrip | readouts | visualization | controlStrip
+    │   Desktop (≥768px): 4 rows. Mobile (<768px): 6 rows (all elements visible, stacked).
+    ├── statusStrip   → StatusStrip (dot nav, SYS:NOM, optional onBack, ESC)
     ├── promptReadout → PromptReadout (prompt + description from sinewaves-copy)
-    ├── formulaReadout→ FormulaReadout (conditional; formula display)
+    ├── formulaReadout→ FormulaReadout (formula display)
     ├── visualization → Scene (main 3D area)
     │   └── Canvas (React Three Fiber)
-    │       └── UnitCircle, Connector (observe only), SineWave (user + ghost when applicable)
-    ├── controlStrip  → ControlStrip(ref, hintRef, hint=controlHint) → ContinueButton,
-    │                    sliders, DiagnosisChoices, RevealPanel, MatchFeedback (by stage)
+    │       └── UnitCircle, Connector, SineWave (user + ghost when applicable), GridLines
+    ├── controlStrip  → ControlStrip → InstrumentControls (sliders, ContinueButton by guide state)
     └── children      → (overlays if any)
 ```
 
-ObservatoryLayout owns the grid and regions; ObservatoryModule decides what to render in each slot. The layout root uses class `observatory-layout`; regions use `observatory-header`, `observatory-readouts`, `observatory-viz`, `observatory-controls` so that a scoped `<style>` block can switch to a 3-row mobile grid and hide readouts via media queries. On mount, `consoleBootSequence` in `animations.ts` runs (status strip → optional progress bar → prompt), then calls `onReadyForScene()`; ObservatoryModule sets `booted` and fades in the status strip and prompt. The Scene is mounted from first render (not conditionally after boot).
+InstrumentLayout owns the grid and regions; InstrumentModule decides what to render in each slot. The layout uses Tailwind grid classes (no observatory-* classes). On mount, `consoleBootSequence` in `animations.ts` runs (status strip → prompt), then calls the callback; InstrumentModule sets `booted`. The Scene is mounted from first render (not conditionally after boot).
 
 ### Integration Points
 
-**Entry Point**: `src/components/modules/sinewaves/ObservatoryModule.tsx` (loaded via ModuleLoader from config)
+**Entry Point**: `src/components/modules/sinewaves/InstrumentModule.tsx` (loaded via ModuleLoader from config)
 
 **Module Registration**: `src/config/modules.ts`
 ```typescript
 {
   id: 'sinewaves',
   title: 'Sinewaves',
-  component: () => import('@/components/modules/sinewaves/ObservatoryModule'),
+  component: () => import('@/components/modules/sinewaves/InstrumentModule'),
 }
 ```
 
 **App Integration**: `src/App.tsx`
 - Module is loaded dynamically by `DynamicModule`; fallback is `ModuleLoader` (spinner).
 - Receives `onComplete`, optional `isVisible`, and optional `onBack` (ModuleProps).
-- For `activeModuleId === 'sinewaves'`, the app hides the global nav status strip (Observatory HUD has its own StatusStrip).
+- For `activeModuleId === 'sinewaves'`, the app hides the global nav status strip (instrument HUD has its own StatusStrip).
 
 ---
 
@@ -110,7 +109,7 @@ observe
 
 **Primary State**:
 - `stage`: Current stage (Stage type)
-- `challengePhase`: Challenge-specific phase (ChallengePhase type). ObservatoryModule does not use `subStage`; flow is continue-driven via match flags.
+- `challengePhase`: Challenge-specific phase (ChallengePhase type). InstrumentModule does not use `subStage`; flow is continue-driven via match flags.
 
 **Wave Parameters**:
 - `amplitude`: Current amplitude value (0.5 - 2.0)
@@ -132,7 +131,7 @@ observe
 - `challengeTargetValue`: Single target value for the active parameter (random in range, rounded)
 - No separate `challengeWave` object; effective targets are derived from `challengeParam` + `challengeTargetValue` and fixed amplitude/frequency for the locked param
 
-**ObservatoryModule** does not use `subStage` or a reflect phase: it uses match flags (`amplitudeMatched`, `frequencyMatched`, `challengeMatched`) and user continues from MatchFeedback to advance. The flow above is the pedagogical template; implementation is continue-driven after match.
+**InstrumentModule** does not use `subStage` or a reflect phase: it uses match flags (`amplitudeMatched`, `frequencyMatched`, `challengeMatched`) and user continues from MatchFeedback to advance. The flow above is the pedagogical template; implementation is continue-driven after match.
 
 ### Stage Transitions
 
@@ -149,7 +148,7 @@ observe
 
 ### Transition Animation System
 
-**ObservatoryModule** uses three animation entry points from `animations.ts`:
+**InstrumentModule** uses three animation entry points from `animations.ts`:
 
 1. **Boot sequence** — On mount, `consoleBootSequence` runs (status strip → optional progress bar → prompt), then `onReadyForScene()` sets `booted`.
 2. **Match success** — When MatchFeedback is shown, it runs `matchSuccessSequence` (viz pulse → value highlight → feedback text → continue button). MatchFeedback receives optional `visualizationRef` for the pulse.
@@ -157,15 +156,15 @@ observe
 
 Readouts and control strip update with state; no separate exit/enter animation for readouts.
 
-### Boot Sequence (Observatory)
+### Boot Sequence (Instrument)
 
 **Location**: `src/components/modules/sinewaves/animations.ts`
 
-**Function**: `consoleBootSequence(refs, onReadyForScene)` — "power on" entrance for Observatory HUD.
+**Function**: `consoleBootSequence(refs, onReadyForScene)` — "power on" entrance for the instrument HUD.
 
-**Refs**: `statusStrip`, `progressBar`, `prompt` (HTML elements). `progressBar` may be `null` (Observatory uses dot nav in StatusStrip instead of a progress bar).
+**Refs**: `statusStrip`, `progressBar`, `prompt` (HTML elements). `progressBar` may be `null` (InstrumentModule uses dot nav in StatusStrip instead of a progress bar).
 
-**Sequence**: Status strip fades in → if present, progress bar draws left-to-right → prompt readout materializes → `onReadyForScene()` called (ObservatoryModule then sets `booted`). Respects `prefers-reduced-motion` (skips to ready).
+**Sequence**: Status strip fades in → if present, progress bar draws left-to-right → prompt readout materializes → `onReadyForScene()` called (InstrumentModule then sets `booted`). Respects `prefers-reduced-motion` (skips to ready).
 
 ---
 
@@ -314,9 +313,9 @@ interface ConnectorProps {
 - Dot at wave point emphasizes the y-value connection
 - Only rendered in 'observe' stage
 
-### 5. Observatory Module (`ObservatoryModule.tsx`)
+### 5. Instrument Module (`InstrumentModule.tsx`)
 
-**Purpose**: Main orchestrator for the Observatory HUD: stage flow, match detection, and slot content.
+**Purpose**: Main orchestrator for the instrument HUD: guide state flow, match detection, and slot content.
 
 **Key Responsibilities**:
 1. **Stage Management**: Tracks stage (`observe` → `amplitude` → `frequency` → `challenge` → `reveal`) and challenge phase (`observe` | `diagnose` | `match`)
@@ -334,13 +333,13 @@ interface ConnectorProps {
 - Frequency stage: same with `STAGE_TARGETS.frequency` and `MATCH_THRESHOLDS.frequency`.
 - Challenge match phase: same threshold for the single active param vs `challengeTargetValue` → `setChallengeMatched(true)`.
 
-**Progress (ObservatoryModule)**: Local `stageProgress` (0–100) and `stageNumber`/`TOTAL_STAGES` drive StatusStrip. StatusStrip shows progress dots (one per stage), optional `onBack`, `onStageSelect` (dot-nav back, no skip-ahead), and `statusText` (transition flash from stageTransitions). No `updateModuleProgress` call yet.
+**Progress (InstrumentModule)**: Local `stageProgress` (0–100) and `stageNumber`/`TOTAL_STAGES` drive StatusStrip. StatusStrip shows progress dots (one per stage), optional `onBack`, `onStageSelect` (dot-nav back, no skip-ahead), and `statusText` (transition flash from stageTransitions). No `updateModuleProgress` call yet.
 
 **StatusStrip (components/)**  
 Props: `currentStage`, `totalStages`, `progress?`, `onBack?`, `onStageSelect?`, `statusText?`, `title?`, `className`. Renders: back button (if onBack), progress dots (clickable when onStageSelect and index ≤ currentStage), optional stage title, optional status flash. Uses `STAGE_LABELS` for aria-labels.
 
 **ControlStrip (components/)**
-Props: `ref`, `children`, `hint?`, `hintRef?`, `formula?`, `className`. Renders hint line above children when `hint` is set; `hintRef` is used by `stageTransition` for fade-in. `formula` slot renders FormulaReadout on mobile only (hidden on `md+` where it shows in readouts row). ObservatoryModule passes `controlHint` from SINEWAVE_COPY.controlStripHints (or content.description in diagnose).
+Props: `ref`, `children`, `hint?`, `hintRef?`, `formula?`, `className`. Renders hint line above children when `hint` is set; `hintRef` is used by `stageTransition` for fade-in. `formula` slot renders FormulaReadout on mobile only (hidden on `md+` where it shows in readouts row). InstrumentModule passes `controlHint` from SINEWAVE_COPY.controlStripHints (or content.description in diagnose).
 
 ---
 
@@ -521,7 +520,7 @@ if (Math.abs(value - challengeTargetValue) <= threshold) {
 
 **Pattern**: UI elements conditionally render based on stage and challenge phase.
 
-**Implementation** (ObservatoryModule): StatusStrip, PromptReadout, FormulaReadout always rendered (content varies by stage). ControlStrip children: ContinueButton (observe, challenge observe; "Back to Results" in free explore), sliders (amplitude stage: amplitude only; frequency stage: frequency only; challenge match: one slider per `challengeParam`; free explore: both), DiagnosisChoices (challenge diagnose), MatchFeedback (when matched), RevealPanel (reveal). Visibility from `stage`, `challengePhase`, `challengeParam`, match flags, `isFreeExplore`.
+**Implementation** (InstrumentModule): StatusStrip, PromptReadout, FormulaReadout always rendered (content varies by stage). ControlStrip children: ContinueButton (observe, challenge observe; "Back to Results" in free explore), sliders (amplitude stage: amplitude only; frequency stage: frequency only; challenge match: one slider per `challengeParam`; free explore: both), DiagnosisChoices (challenge diagnose), MatchFeedback (when matched), RevealPanel (reveal). Visibility from `stage`, `challengePhase`, `challengeParam`, match flags, `isFreeExplore`.
 
 ### 5. Animation Coordination
 
@@ -610,7 +609,7 @@ stageNumber: observe 1 … reveal 5. TOTAL_STAGES = 5
 - `SINEWAVE_COPY.stages`: Copy for each stage (observe, amplitude, frequency, challenge, reveal) and challenge sub-phases
 - `discoveries`, `matchCelebration`, `behindThis`: Used by celebration/behind-this flows
 
-**Usage (ObservatoryModule)**:
+**Usage (InstrumentModule)**:
 ```typescript
 import { SINEWAVE_COPY } from './sinewaves-copy'
 // Stage content: SINEWAVE_COPY.stages[stage].prompt, .subtext (as description)
@@ -626,7 +625,7 @@ import { SINEWAVE_COPY } from './sinewaves-copy'
 
 ### Progress Tracking
 
-**ObservatoryModule**: Uses local `stageProgress` and `stageNumber` for StatusStrip display. Does not currently call `PortfolioContext.updateModuleProgress`; that can be added if portfolio-wide progress persistence is needed.
+**InstrumentModule**: Uses local `stageProgress` and `stageNumber` for StatusStrip display. Does not currently call `PortfolioContext.updateModuleProgress`; that can be added if portfolio-wide progress persistence is needed.
 
 ### Completion Flow
 
@@ -712,4 +711,4 @@ import { SINEWAVE_COPY } from './sinewaves-copy'
 
 ---
 
-*This documentation serves as the reference implementation for future modules. The vector transformations module should follow similar patterns while adapting to its specific learning goals and interactions.*
+*This documentation serves as the reference implementation for future modules. Subsequent modules (to be chosen from Algebra I and Geometry major content clusters) should follow similar patterns while adapting to their specific learning goals and interactions.*

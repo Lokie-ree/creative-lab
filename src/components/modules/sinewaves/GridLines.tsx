@@ -21,9 +21,9 @@ export function GridLines({
   height = 3,
   majorSpacing = 1,
   minorSpacing = 0.5,
-  majorOpacity = 0.15,
-  minorOpacity = 0.08,
-  axisOpacity = 0.25,
+  majorOpacity = 0.22,
+  minorOpacity = 0.12,
+  axisOpacity = 0.35,
 }: GridLinesProps) {
   const { minorLines, majorLines, axes } = useMemo(() => {
     const minorPoints: THREE.Vector3[] = []

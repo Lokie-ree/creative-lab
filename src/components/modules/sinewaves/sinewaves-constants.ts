@@ -46,3 +46,22 @@ export const CHALLENGE_RANGES = {
  * to what user just learned in guided stages.
  */
 export const CHALLENGE_MIN_DISTANCE = 0.4
+
+/**
+ * Proximity feedback thresholds (normalized 0-1 score).
+ * Used to show "Getting closer..." and "Almost there..." messages.
+ */
+export const PROXIMITY_THRESHOLDS = {
+  medium: 0.4,
+  close: 0.7,
+} as const
+
+/**
+ * Max distances for proximity normalization, derived from slider ranges.
+ * amplitude range: 0.5-2.0 → max distance = 1.5
+ * frequency range: 0.5-3.0 → max distance = 2.5
+ */
+export const MAX_DISTANCES = {
+  amplitude: SLIDER_CONFIG.amplitude.max - SLIDER_CONFIG.amplitude.min,
+  frequency: SLIDER_CONFIG.frequency.max - SLIDER_CONFIG.frequency.min,
+} as const

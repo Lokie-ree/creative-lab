@@ -2,6 +2,10 @@
 // Pedagogical copy for the Sinewaves module
 
 export interface SinewaveCopy {
+  proximity: {
+    medium: string
+    close: string
+  }
   matchCelebration: {
     amplitude: string
     frequency: string
@@ -37,6 +41,10 @@ export interface SinewaveCopy {
 }
 
 export const SINEWAVE_COPY: SinewaveCopy = {
+  proximity: {
+    medium: "Getting closer...",
+    close: "Almost there...",
+  },
   matchCelebration: {
     amplitude: "You found it — amplitude controls the height",
     frequency: "That's it — frequency controls the speed",

@@ -29,6 +29,8 @@ import {
 import { consoleBootSequence } from './animations'
 import { STAGE_TARGETS, MATCH_THRESHOLDS } from './sinewaves-constants'
 import { generateChallengeTarget, type ChallengeParam } from './challenge-utils'
+import { SINEWAVE_COPY } from './sinewaves-copy'
+import { useProximity } from './use-proximity'
 
 interface InstrumentModuleProps {
   onComplete: (values: { a: number; f: number }) => void
@@ -82,9 +84,29 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
   // Match state
   // ─────────────────────────────────────────────────────────────
   const [matchGlow, setMatchGlow] = useState(false)
+  const [matchMessage, setMatchMessage] = useState<string | null>(null)
 
   // Get config for current guide state
   const config = getGuideStateConfig(guideState, challengeParam)
+
+  // ─────────────────────────────────────────────────────────────
+  // Proximity feedback
+  // ─────────────────────────────────────────────────────────────
+  const activeParam = guideState === 'match-amplitude' ? 'amplitude'
+    : guideState === 'match-frequency' ? 'frequency'
+    : guideState === 'challenge' ? challengeParam
+    : null
+
+  const activeTarget = guideState === 'match-amplitude' ? STAGE_TARGETS.amplitude
+    : guideState === 'match-frequency' ? STAGE_TARGETS.frequency
+    : guideState === 'challenge' ? challengeTargetValue
+    : null
+
+  const activeValue = activeParam === 'amplitude' ? amplitude
+    : activeParam === 'frequency' ? frequency
+    : 0
+
+  const proximity = useProximity(activeParam, activeValue, activeTarget ?? 0)
 
   // ─────────────────────────────────────────────────────────────
   // State transitions
@@ -119,6 +141,21 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
   // ─────────────────────────────────────────────────────────────
   // Match detection
   // ─────────────────────────────────────────────────────────────
+  const getMatchMessage = useCallback((state: GuideState, param: ChallengeParam): string => {
+    const copy = SINEWAVE_COPY.matchCelebration
+    if (state === 'match-amplitude') return copy.amplitude
+    if (state === 'match-frequency') return copy.frequency
+    if (state === 'challenge' && param === 'amplitude') return copy.challengeAmplitude
+    if (state === 'challenge' && param === 'frequency') return copy.challengeFrequency
+    return copy.challengeBoth
+  }, [])
+
+  const handleMatchContinue = useCallback(() => {
+    setMatchGlow(false)
+    setMatchMessage(null)
+    advanceGuideState()
+  }, [advanceGuideState])
+
   const checkMatch = useCallback((param: 'amplitude' | 'frequency', value: number) => {
     if (matchGlow) return // Already matched, waiting for transition
 
@@ -139,14 +176,11 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
     }
 
     if (Math.abs(value - target) <= threshold) {
-      // Match found!
+      // Match found — show celebration overlay
       setMatchGlow(true)
-      setTimeout(() => {
-        setMatchGlow(false)
-        advanceGuideState()
-      }, 800)
+      setMatchMessage(getMatchMessage(guideState, challengeParam))
     }
-  }, [guideState, challengeParam, challengeTargetValue, matchGlow, advanceGuideState])
+  }, [guideState, challengeParam, challengeTargetValue, matchGlow, getMatchMessage])
 
   // Auto-advance from watch if user interacts with sliders
   const handleSliderChange = useCallback((param: 'amplitude' | 'frequency', value: number) => {
@@ -242,6 +276,7 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
         <PromptReadout
           ref={promptRef}
           title={config.prompt}
+          description={(!matchGlow && activeParam) ? proximity.feedback ?? undefined : undefined}
           className={booted ? '' : 'opacity-0'}
         />
       }
@@ -317,7 +352,21 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
           }
         />
       }
-    />
+    >
+      {/* Celebration overlay */}
+      {matchMessage && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[rgba(10,10,15,0.7)]">
+          <div className="flex flex-col items-center gap-4 rounded-lg bg-(--lab-surface) p-6 text-center shadow-lg border border-(--lab-accent)/20">
+            <p className="text-base font-medium text-(--lab-earned) font-[family-name:var(--font-display)] sm:text-lg">
+              {matchMessage}
+            </p>
+            <ContinueButton onClick={handleMatchContinue}>
+              Continue
+            </ContinueButton>
+          </div>
+        </div>
+      )}
+    </InstrumentLayout>
   )
 }
 

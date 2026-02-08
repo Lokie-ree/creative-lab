@@ -31,7 +31,7 @@ export function InstrumentControls({
         type="button"
         onClick={onTogglePause}
         className={cn(
-          'flex items-center gap-1.5 rounded border px-3 py-1.5',
+          'flex min-h-[44px] items-center gap-1.5 rounded border px-3 py-1.5',
           'text-xs font-medium uppercase tracking-wider',
           'transition-colors focus:outline-none focus:ring-2 focus:ring-(--lab-accent)',
           'font-[family-name:var(--font-data)]',
@@ -42,9 +42,9 @@ export function InstrumentControls({
         aria-label={isPaused ? 'Resume animation' : 'Pause animation'}
       >
         {isPaused ? (
-          <Play className="h-3 w-3" />
+          <Play className="h-4 w-4 sm:h-3 sm:w-3" />
         ) : (
-          <Pause className="h-3 w-3" />
+          <Pause className="h-4 w-4 sm:h-3 sm:w-3" />
         )}
         <span className="hidden sm:inline">{isPaused ? 'Play' : 'Pause'}</span>
       </button>
@@ -54,7 +54,7 @@ export function InstrumentControls({
         type="button"
         onClick={onReset}
         className={cn(
-          'flex items-center gap-1.5 rounded border border-(--lab-border) px-3 py-1.5',
+          'flex min-h-[44px] items-center gap-1.5 rounded border border-(--lab-border) px-3 py-1.5',
           'text-xs font-medium uppercase tracking-wider text-(--lab-text-muted)',
           'transition-colors hover:border-(--lab-accent) hover:text-(--lab-accent)',
           'focus:outline-none focus:ring-2 focus:ring-(--lab-accent)',
@@ -62,7 +62,7 @@ export function InstrumentControls({
         )}
         aria-label="Reset wave and sliders"
       >
-        <RotateCcw className="h-3 w-3" />
+        <RotateCcw className="h-4 w-4 sm:h-3 sm:w-3" />
         <span className="hidden sm:inline">Reset</span>
       </button>
 
@@ -71,7 +71,7 @@ export function InstrumentControls({
         type="button"
         onClick={onCycleSpeed}
         className={cn(
-          'flex items-center gap-1.5 rounded border border-(--lab-border) px-3 py-1.5',
+          'flex min-h-[44px] items-center gap-1.5 rounded border border-(--lab-border) px-3 py-1.5',
           'text-xs font-medium uppercase tracking-wider text-(--lab-text-muted)',
           'transition-colors hover:border-(--lab-accent) hover:text-(--lab-accent)',
           'focus:outline-none focus:ring-2 focus:ring-(--lab-accent)',

@@ -29,7 +29,7 @@ export function InstrumentLayout({
   return (
     <div
       className={cn(
-        'relative grid min-h-screen w-screen overflow-hidden',
+        'relative grid min-h-dvh w-screen overflow-x-hidden overflow-y-hidden',
         'bg-(--lab-bg) font-[family-name:var(--font-body)]',
         // Mobile: 6-row layout (all elements visible)
         'grid-rows-[auto_auto_auto_1fr_auto_auto] gap-2 p-2',
@@ -53,18 +53,23 @@ export function InstrumentLayout({
       </div>
 
       {/* DESKTOP ONLY: Combined readouts row */}
-      <div className="hidden md:flex md:flex-row md:gap-6">
+      <div className="hidden md:flex md:flex-row md:gap-4">
         <div className="flex-1">{promptReadout}</div>
         <div className="w-[280px] shrink-0">{formulaReadout}</div>
       </div>
 
       {/* ROW 4: PRIMARY VISUALIZATION */}
-      <main className="relative min-h-0 flex-1">
+      <main className="relative min-h-[200px] flex-1 rounded sm:min-h-[280px]">
         {visualization}
+        {/* Corner bracket frame — draws the eye to the viz */}
+        <div className="pointer-events-none absolute left-2 top-2 h-4 w-4 border-l border-t border-(--lab-accent) opacity-50" />
+        <div className="pointer-events-none absolute right-2 top-2 h-4 w-4 border-r border-t border-(--lab-accent) opacity-50" />
+        <div className="pointer-events-none absolute bottom-2 left-2 h-4 w-4 border-b border-l border-(--lab-accent) opacity-50" />
+        <div className="pointer-events-none absolute bottom-2 right-2 h-4 w-4 border-b border-r border-(--lab-accent) opacity-50" />
       </main>
 
       {/* ROW 5-6: CONTROL STRIP (sliders + buttons) */}
-      <footer className="flex flex-col items-center gap-3 pb-4 md:pb-0">
+      <footer className="flex flex-col items-center gap-2 pb-2 md:gap-4 md:pb-0">
         {controlStrip}
       </footer>
 

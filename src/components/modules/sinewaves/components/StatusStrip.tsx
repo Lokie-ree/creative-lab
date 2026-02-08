@@ -40,7 +40,7 @@ export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
       <div
         ref={ref}
         className={cn(
-          'flex w-full items-center gap-3 md:gap-4',
+          'flex w-full items-center gap-2 md:gap-4',
           className
         )}
       >
@@ -68,7 +68,7 @@ export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
           className="flex flex-1 items-center justify-center"
           aria-label={`Module progress: stage ${currentStage} of ${totalStages}`}
         >
-          <ol className="flex items-center gap-3" role="list">
+          <ol className="flex items-center gap-4" role="list">
             {Array.from({ length: totalStages }, (_, i) => {
               const oneBased = i + 1
               const isCompleted = oneBased < currentStage
@@ -88,7 +88,7 @@ export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
                     onClick={() => clickable && onStageSelect?.(i)}
                     className={cn(
                       'relative h-2 w-2 rounded-full transition-colors',
-                      "before:absolute before:-inset-4 before:content-['']",
+                      "before:absolute before:-inset-5 before:content-['']",
                       'focus:outline-none focus-visible:ring-2 focus-visible:ring-(--lab-accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--lab-bg)',
                       clickable ? 'cursor-pointer' : 'cursor-default',
                       isCompleted && 'bg-(--lab-accent)',
