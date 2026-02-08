@@ -2,60 +2,74 @@
 import { type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-interface ObservatoryLayoutProps {
+interface InstrumentLayoutProps {
   statusStrip: ReactNode
   promptReadout: ReactNode
-  formulaReadout?: ReactNode
+  formulaReadout: ReactNode
   visualization: ReactNode
   controlStrip: ReactNode
   children?: ReactNode // For overlays (celebrations, etc.)
 }
 
 /**
- * Observatory HUD layout for sinewaves module
+ * Instrument layout for sinewaves module
  *
- * Mobile (<768px): 3-row grid — header | viz | controls
- * Desktop (≥768px): 4-row grid — status strip | readouts | display | controls
+ * All elements always visible at every breakpoint.
+ * Mobile (<768px): Vertical stack — status | prompt | formula | viz | sliders | buttons
+ * Desktop (≥768px): 4-row grid — status strip | readouts side-by-side | viz | controls
  */
-export function ObservatoryLayout({
+export function InstrumentLayout({
   statusStrip,
   promptReadout,
   formulaReadout,
   visualization,
   controlStrip,
   children,
-}: ObservatoryLayoutProps) {
+}: InstrumentLayoutProps) {
   return (
     <div
       className={cn(
-        'relative grid min-h-screen w-screen overflow-hidden',
+        'relative grid min-h-dvh w-screen overflow-x-hidden overflow-y-hidden',
         'bg-(--lab-bg) font-[family-name:var(--font-body)]',
-        // Mobile: 3-row layout
-        'grid-rows-[2.5rem_1fr_auto] gap-2 p-2',
-        // Desktop: 4-row layout with readouts
+        // Mobile: 6-row layout (all elements visible)
+        'grid-rows-[auto_auto_auto_1fr_auto_auto] gap-2 p-2',
+        // Desktop: 4-row layout with side-by-side readouts
         'md:grid-rows-[3rem_auto_1fr_auto] md:gap-4 md:p-4'
       )}
     >
-      {/* STATUS STRIP */}
+      {/* ROW 1: STATUS STRIP */}
       <header className="flex items-center">
         {statusStrip}
       </header>
 
-      {/* READOUTS — hidden on mobile */}
-      <div className="hidden flex-col gap-4 md:flex lg:flex-row lg:gap-6">
-        <div className="flex-1">{promptReadout}</div>
-        {formulaReadout && (
-          <div className="lg:w-[280px] lg:shrink-0">{formulaReadout}</div>
-        )}
+      {/* ROW 2: PROMPT READOUT (mobile: own row, desktop: combined with formula) */}
+      <div className="md:hidden">
+        {promptReadout}
       </div>
 
-      {/* PRIMARY DISPLAY */}
-      <main className="relative min-h-0 flex-1">
+      {/* ROW 3: FORMULA READOUT (mobile: own row, desktop: combined with prompt) */}
+      <div className="md:hidden">
+        {formulaReadout}
+      </div>
+
+      {/* DESKTOP ONLY: Combined readouts row */}
+      <div className="hidden md:flex md:flex-row md:gap-4">
+        <div className="flex-1">{promptReadout}</div>
+        <div className="w-[280px] shrink-0">{formulaReadout}</div>
+      </div>
+
+      {/* ROW 4: PRIMARY VISUALIZATION */}
+      <main className="relative min-h-[200px] flex-1 rounded sm:min-h-[280px]">
         {visualization}
+        {/* Corner bracket frame — draws the eye to the viz */}
+        <div className="pointer-events-none absolute left-2 top-2 h-4 w-4 border-l border-t border-(--lab-accent) opacity-50" />
+        <div className="pointer-events-none absolute right-2 top-2 h-4 w-4 border-r border-t border-(--lab-accent) opacity-50" />
+        <div className="pointer-events-none absolute bottom-2 left-2 h-4 w-4 border-b border-l border-(--lab-accent) opacity-50" />
+        <div className="pointer-events-none absolute bottom-2 right-2 h-4 w-4 border-b border-r border-(--lab-accent) opacity-50" />
       </main>
 
-      {/* CONTROL STRIP — docked bottom on mobile */}
-      <footer className="flex flex-col items-center gap-3 pb-4 md:pb-0">
+      {/* ROW 5-6: CONTROL STRIP (sliders + buttons) */}
+      <footer className="flex flex-col items-center gap-2 pb-2 md:gap-4 md:pb-0">
         {controlStrip}
       </footer>
 
@@ -64,3 +78,6 @@ export function ObservatoryLayout({
     </div>
   )
 }
+
+// Keep old export for backwards compatibility during migration
+export { InstrumentLayout as ObservatoryLayout }

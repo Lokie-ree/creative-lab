@@ -12,6 +12,10 @@ description: Translate PRDs for interactive educational modules into UX specific
 
 ---
 
+**Foundational alignment:** UX specs must reinforce the pedagogy in [../philosophy.md](../philosophy.md) (understanding precedes notation, earned reveal, visual confirmation) and the product alignment in [../alignment-product.md](../alignment-product.md). Pass 1 (mental model) should explicitly align with "understanding precedes notation"; visual and interaction specs should support manipulation-first and visual confirmation, not multiple-choice or notation-first flows.
+
+---
+
 **Complete Planning Pipeline:**
 ```
 MVP Idea → PRD (prd-generator) → UX Spec (this module) → Build Prompts (ux-to-prompts) → Implementation
@@ -93,8 +97,8 @@ digraph passes {
 **Force these questions:**
 - What does the user believe this system does?
 - What are they trying to accomplish in one sentence?
-- What wrong mental models are likely?
-- How does this align with the Observe → Manipulate → Discover → Celebrate flow?
+- What wrong mental models are likely (e.g. "notation first" or "pick the right answer")?
+- How does this align with **understanding precedes notation** ([../philosophy.md](../philosophy.md)) and the Observe → Manipulate → Discover → Celebrate flow?
 
 **Required output:**
 ```markdown
@@ -273,10 +277,11 @@ Only after all 6 passes are complete, create:
 - Stage machine configuration (what's visible when)
 
 **Module-specific considerations:**
-- Reference `docs/modules/vector-transformations/module-anatomy.md` for stage patterns
+- Align with [../philosophy.md](../philosophy.md) and [../alignment-product.md](../alignment-product.md): manipulation-first, earned reveal, visual confirmation (no multiple choice), LSSM rigor where applicable
+- Reference existing module patterns (e.g. sinewaves) and `docs/modules/algebra/`, `docs/modules/geometry/` for product/technical framing
 - Consider progressive reveal (unlock complexity gradually)
 - Map to Observe → Manipulate → Discover → Celebrate flow
-- Define discovery feedback patterns (badges, proximity indicators)
+- Define discovery feedback patterns (badges, proximity indicators) that demonstrate competence through manipulation, not selection
 
 The 6 passes inform every visual decision.
 

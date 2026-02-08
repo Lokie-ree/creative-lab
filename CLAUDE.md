@@ -109,6 +109,8 @@ Heavy 3D code is lazy-loaded via React.lazy().
 
 | Topic | Location |
 |-------|----------|
+| **Pedagogy & LSSM alignment (foundational)** | [docs/philosophy.md](./docs/philosophy.md), [docs/alignment-product.md](./docs/alignment-product.md) |
+| Documentation index & module pipeline | [docs/README.md](./docs/README.md) |
 | Current state, agent guidelines | [AGENT.md](./AGENT.md) |
 | Vision, audience, principles | [PORTFOLIO_VISION.md](./PORTFOLIO_VISION.md) |
 | Module PRDs, UX specs | `docs/modules/` |

@@ -5,6 +5,12 @@ import { useThree } from '@react-three/fiber'
  * Scene layout configuration for viewport-proportional positioning.
  * Ratios are multiplied by viewport width/height to get world-space positions.
  */
+/**
+ * Wave width must match WAVE_WIDTH in SineWave.tsx.
+ * Used here to center the wave when the unit circle is hidden on mobile.
+ */
+const WAVE_WIDTH = 4
+
 export const SCENE_LAYOUT = {
   landscape: {
     circle: { xRatio: -0.32, yRatio: 0 },
@@ -44,6 +50,7 @@ export function useSceneLayout(stage: string): SceneLayoutResult {
   const { width, height } = viewport
 
   const isPortrait = width <= height
+  const isMobile = isPortrait || (typeof window !== 'undefined' && window.innerWidth < 768)
   const config = isPortrait ? SCENE_LAYOUT.portrait : SCENE_LAYOUT.landscape
 
   const baseDimension = Math.min(width, height)
@@ -58,10 +65,11 @@ export function useSceneLayout(stage: string): SceneLayoutResult {
     y: height * config.circle.yRatio,
   }
 
-  const wave = {
-    x: width * config.wave.xRatio,
-    y: height * config.wave.yRatio,
-  }
+  // On mobile the unit circle is hidden, so center the wave in the viewport.
+  // The wave draws from x=0 to x=WAVE_WIDTH, so offset by -WAVE_WIDTH/2.
+  const wave = isMobile
+    ? { x: -WAVE_WIDTH / 2, y: 0 }
+    : { x: width * config.wave.xRatio, y: height * config.wave.yRatio }
 
   // Connector only shows in landscape during observe stage
   const connector = (!isPortrait && stage === 'observe')
@@ -69,4 +77,17 @@ export function useSceneLayout(stage: string): SceneLayoutResult {
     : null
 
   return { isPortrait, circle, wave, scale, connector }
+}
+
+/**
+ * Hook to detect if we're in mobile viewport.
+ * Uses R3F viewport aspect AND actual screen width to reliably
+ * hide unit circle on phones (landscape phones slipped through
+ * the old R3F-only check because camera FOV inflates viewport units).
+ */
+export function useIsMobileViewport(): boolean {
+  const { viewport } = useThree()
+  const isPortrait = viewport.width <= viewport.height
+  const isNarrowScreen = typeof window !== 'undefined' && window.innerWidth < 768
+  return isPortrait || isNarrowScreen
 }

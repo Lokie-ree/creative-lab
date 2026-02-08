@@ -1,45 +1,10 @@
-// src/config/sinewave-copy.ts
+// src/components/modules/sinewaves/sinewaves-copy.ts
 // Pedagogical copy for the Sinewaves module
-// Challenge-first learning: discovery through manipulation before explanation
-
-export interface StageCopy {
-  setup: string
-  prompt: string
-  subtext?: string
-}
-
-export interface DiscoveryLabel {
-  title: string
-  description: string
-  formula?: string
-}
 
 export interface SinewaveCopy {
-  stages: {
-    observe: StageCopy
-    amplitude: StageCopy
-    frequency: StageCopy
-    challenge: {
-      observe: StageCopy
-      diagnose: {
-        question: string
-        choices: Array<{ label: string; value: string }>
-        wrongFeedback: string
-        hintHeight: string
-        hintSpeed: string
-        correctFeedback: string
-      }
-      match: StageCopy
-    }
-    reveal: {
-      title: string
-      description: string
-      soWhat: string
-    }
-  }
-  discoveries: {
-    amplitude: DiscoveryLabel
-    frequency: DiscoveryLabel
+  proximity: {
+    medium: string
+    close: string
   }
   matchCelebration: {
     amplitude: string
@@ -48,20 +13,10 @@ export interface SinewaveCopy {
     challengeFrequency: string
     challengeBoth: string
   }
-  /** Control strip hints by stage (mobile: description moves here) */
-  controlStripHints: {
-    observe: string
-    amplitude: string
-    frequency: string
-    challengeObserve: string
-    challengeMatch: string
-  }
-  /** Status flash and hint preview per stage transition (Phase 4) */
-  stageTransitions: {
-    observeToAmplitude: { status: string; hint: string }
-    amplitudeToFrequency: { status: string; hint: string }
-    frequencyToChallenge: { status: string; hint: string }
-    challengeToReveal: { status: string; hint?: string }
+  reveal: {
+    title: string
+    description: string
+    soWhat: string
   }
   behindThis: {
     approach: {
@@ -86,69 +41,9 @@ export interface SinewaveCopy {
 }
 
 export const SINEWAVE_COPY: SinewaveCopy = {
-  stages: {
-    observe: {
-      setup: "Watch how the dot's vertical position creates the wave. As it moves around the circle, its height traces the sine wave below.",
-      prompt: "Watch where the wave comes from",
-      subtext: "Drag the dot or use the slider to explore",
-    },
-    amplitude: {
-      setup: "The wave's height mirrors the circle's radius. As the dot moves farther from center, the wave grows taller.",
-      prompt: "Match the ghost wave by adjusting amplitude",
-      subtext: "The wave's height matches the circle's radius",
-    },
-    frequency: {
-      setup: "Frequency controls how many circles complete in the same time. Higher frequency means more waves fit in the same space.",
-      prompt: "Match the ghost wave by adjusting frequency",
-      subtext: "Frequency controls how fast it oscillates",
-    },
-    challenge: {
-      observe: {
-        setup: "One parameter changed. Can you figure out which?",
-        prompt: "Something changed",
-        subtext: "Look closely at both waves",
-      },
-      diagnose: {
-        question: "What changed?",
-        choices: [
-          { label: "Amplitude", value: "amplitude" },
-          { label: "Frequency", value: "frequency" },
-          { label: "Both", value: "both" },
-        ],
-        wrongFeedback: "Look again at the wave",
-        hintHeight: "Watch the wave's height",
-        hintSpeed: "Watch the wave's speed",
-        correctFeedback: "Right! Now match it",
-      },
-      match: {
-        setup: "Now make them match by adjusting the parameter that changed.",
-        prompt: "Now match it",
-        subtext: undefined,
-      },
-    },
-    reveal: {
-      title: "Challenge complete!",
-      description: "You've discovered how amplitude and frequency control the sine wave.",
-      soWhat: `Every sine wave is circular motion in disguise.
-
-Amplitude controls how far the dot travels from center—this determines the wave's height.
-
-Frequency controls how fast it completes each circle—this determines how many waves fit in the same space.
-
-This pattern appears everywhere: sound waves, light waves, springs, pendulums—any motion that repeats smoothly.`,
-    },
-  },
-  discoveries: {
-    amplitude: {
-      title: "Amplitude controls the wave's height",
-      description: "The wave's height matches the circle's radius. As amplitude increases, the dot travels farther from center, creating a taller wave.",
-      formula: "y = A sin(t)",
-    },
-    frequency: {
-      title: "Frequency controls how fast it oscillates",
-      description: "Frequency determines how many complete cycles happen in the same time. Higher frequency means more waves fit in the same space.",
-      formula: "y = A sin(ft)",
-    },
+  proximity: {
+    medium: "Getting closer...",
+    close: "Almost there...",
   },
   matchCelebration: {
     amplitude: "You found it — amplitude controls the height",
@@ -157,18 +52,16 @@ This pattern appears everywhere: sound waves, light waves, springs, pendulums—
     challengeFrequency: "Nice catch. The frequency shifted",
     challengeBoth: "You nailed it — both parameters changed",
   },
-  controlStripHints: {
-    observe: "Watch how the circle drives the wave",
-    amplitude: "Drag to match the ghost wave's height",
-    frequency: "Drag to match the ghost wave's speed",
-    challengeObserve: "What changed?",
-    challengeMatch: "Now match it",
-  },
-  stageTransitions: {
-    observeToAmplitude: { status: "AMPLITUDE CONTROL", hint: "Now you control the height" },
-    amplitudeToFrequency: { status: "FREQUENCY CONTROL", hint: "Same idea, different parameter" },
-    frequencyToChallenge: { status: "CHALLENGE MODE", hint: "Can you spot what changes?" },
-    challengeToReveal: { status: "COMPLETE" },
+  reveal: {
+    title: "Challenge complete!",
+    description: "You've discovered how amplitude and frequency control the sine wave.",
+    soWhat: `Every sine wave is circular motion in disguise.
+
+Amplitude controls how far the dot travels from center—this determines the wave's height.
+
+Frequency controls how fast it completes each circle—this determines how many waves fit in the same space.
+
+This pattern appears everywhere: sound waves, light waves, springs, pendulums—any motion that repeats smoothly.`,
   },
   behindThis: {
     approach: {

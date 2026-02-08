@@ -38,8 +38,8 @@ screenshots/
 .worktrees/
 
 
-
-
+# Storybook
+.storybook*
 *storybook.log
 storybook-static
 

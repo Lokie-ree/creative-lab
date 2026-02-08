@@ -3,44 +3,48 @@ import { forwardRef, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 interface ControlStripProps {
-  children: ReactNode
-  /** Contextual hint shown above controls (e.g. "Drag to match the ghost wave's height"). Mobile: description moves here. */
-  hint?: string
-  /** Ref for hint element (Phase 4: animate on stage change) */
-  hintRef?: React.RefObject<HTMLParagraphElement | null>
-  /** Formula readout for mobile inline display (hidden on desktop where it shows in readouts row) */
-  formula?: ReactNode
+  amplitudeSlider: ReactNode
+  frequencySlider: ReactNode
+  instrumentControls: ReactNode
+  actionButtons?: ReactNode // Continue, Try Another, Complete
   className?: string
 }
 
 /**
- * Control strip container for sliders, buttons, and feedback
- * Centers content with max-width constraint on desktop.
- * Optional formula slot for mobile (hidden on md+).
- * Optional hint line above children (muted, single line).
+ * Control strip with always-visible sliders and instrument controls
+ *
+ * Layout:
+ * - Mobile: sliders stacked, then buttons row
+ * - Desktop: sliders side-by-side, then buttons row
  */
 export const ControlStrip = forwardRef<HTMLDivElement, ControlStripProps>(
-  function ControlStrip({ children, hint, hintRef, formula, className = '' }, ref) {
+  function ControlStrip(
+    { amplitudeSlider, frequencySlider, instrumentControls, actionButtons, className = '' },
+    ref
+  ) {
     return (
       <div
         ref={ref}
         className={cn(
-          'mx-auto flex w-full max-w-md flex-col items-center',
-          'gap-2 sm:gap-3',
+          'mx-auto flex w-full max-w-2xl flex-col items-center gap-2 md:gap-4',
           className
         )}
       >
-        {/* Formula readout - mobile only (desktop shows in readouts row) */}
-        {formula && <div className="w-full md:hidden">{formula}</div>}
-        {hint && (
-          <p
-            ref={hintRef}
-            className="w-full text-center text-xs leading-relaxed sm:text-sm font-[family-name:var(--font-body)] text-(--lab-text-muted)"
-          >
-            {hint}
-          </p>
+        {/* Sliders row */}
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-4 md:gap-6">
+          <div className="flex-1">{amplitudeSlider}</div>
+          <div className="flex-1">{frequencySlider}</div>
+        </div>
+
+        {/* Instrument controls row */}
+        {instrumentControls}
+
+        {/* Action buttons (Continue, Try Another, Complete) */}
+        {actionButtons && (
+          <div className="flex items-center gap-3">
+            {actionButtons}
+          </div>
         )}
-        {children}
       </div>
     )
   }

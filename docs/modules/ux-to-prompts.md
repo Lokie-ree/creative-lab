@@ -13,6 +13,10 @@ description: Convert UX specifications into sequential, self-contained build-ord
 
 ---
 
+**Foundational alignment:** Build-order prompts must preserve the pedagogy in [../philosophy.md](../philosophy.md) and [../alignment-product.md](../alignment-product.md). Each prompt should reinforce: discovery before formula, manipulation before explanation, earned reveal (notation only after conceptual grounding), and visual confirmation (success via manipulation/construction, not multiple choice). When the module targets LSSM standards, prompts should reference the relevant rigor component and content cluster.
+
+---
+
 **Complete Planning Pipeline:**
 ```
 MVP Idea → PRD (prd-generator) → UX Spec (prd-to-ux) → Build Prompts (this module) → Implementation
@@ -24,7 +28,7 @@ Transform a completed UX specification into a sequence of actionable, self-conta
 
 **Core principle:** Each prompt is complete enough to be used independently with UI generation tools (v0, Bolt, Claude frontend-design) or as implementation guides for manual development.
 
-**Context:** These prompts are for building interactive learning modules using React Three Fiber, GSAP animations, and stage-based pedagogical flows. Reference existing module patterns from `docs/modules/vector-transformations/module-anatomy.md`.
+**Context:** These prompts are for building interactive learning modules using React Three Fiber, GSAP animations, and stage-based pedagogical flows. Pedagogy and product alignment are defined in [../philosophy.md](../philosophy.md) and [../alignment-product.md](../alignment-product.md). Reference existing module patterns in the codebase (e.g. sinewaves) and product/technical framing in `docs/modules/algebra/` and `docs/modules/geometry/`.
 
 ## When to Use
 
@@ -181,16 +185,19 @@ If multiple 3D elements need coordination:
 
 When generating prompts, reference:
 
-1. **Module Anatomy** (`docs/modules/vector-transformations/module-anatomy.md`)
+1. **Existing module patterns** (e.g. sinewaves in `src/components/modules/sinewaves/`)
    - Stage machine patterns
    - Component library patterns
    - Feedback loop architecture
 
-2. **Existing Build Prompts** (`docs/modules/vector-transformations/build-order-prompts.md`)
-   - Use as template for structure
-   - Adapt for module-specific needs
+2. **Foundational pedagogy and alignment**
+   - [../philosophy.md](../philosophy.md) — earned reveal, visual confirmation, understanding precedes notation
+   - [../alignment-product.md](../alignment-product.md) — LSSM rigor, Algebra I / Geometry clusters, ALDs
 
-3. **Tech Stack Assumptions**
+3. **Product/technical framing**
+   - `docs/modules/algebra/`, `docs/modules/geometry/` for standards and rigor alignment
+
+4. **Tech Stack Assumptions**
    - React Three Fiber for 3D
    - GSAP for animations
    - Tailwind + lab color system
@@ -209,13 +216,12 @@ Each prompt should:
 - [ ] Include accessibility requirements
 - [ ] Specify responsive behavior
 - [ ] Include performance considerations
-- [ ] Reference shared patterns from module-anatomy
+- [ ] Reference shared patterns from existing modules (e.g. sinewaves)
 
-## Example: Vector Transformations Reference
+## Example: Build-order structure
 
-See `docs/modules/vector-transformations/build-order-prompts.md` for a complete example of:
-- 9 sequential prompts
-- Self-contained structure
+Use existing modules (e.g. sinewaves) as a reference for:
+- Sequential, self-contained prompts
 - Technical detail level
 - Integration between prompts
 - Quality checklist at end

@@ -26,34 +26,36 @@ This narrative works across all audiences. It positions me as an interactive lea
 
 ## WHAT
 
-Build the next two modules and polish the overall experience.
+Build the next modules and polish the overall experience.
 
 ### The Module Architecture
+
+Roadmap is organized by **major content clusters** (Algebra I, Geometry). Which modules to build next will be decided later.
 
 ```
                     ┌─── Trigonometry ───────→ Sinewaves (COMPLETE)
                     │
-        HERO ───────┼─── Linear Algebra ─────→ Vector Transformations (DESIGN READY)
+        HERO ───────┼─── Algebra I (major content) ──→ Modules TBD (see docs/modules/algebra/)
                     │
-                    └─── Differential Eq. ───→ Phase Portraits (DESIGN READY)
+                    └─── Geometry (major content) ──→ Modules TBD (see docs/modules/geometry/)
 ```
 
 ### What This Creates
 
 A portfolio that **practices what it preaches**. Visitors don't read about my design philosophy—they experience it. The portfolio becomes a demonstration of competence, not a claim of competence.
 
-Each module embodies the same pedagogical principles:
-- Discovery before formula
-- Manipulation before explanation  
-- The "earned reveal" where understanding precedes notation
-- Visual confirmation over multiple choice assessment
+Each module embodies the same pedagogical principles (canonical definitions in [docs/philosophy.md](docs/philosophy.md) and [docs/alignment-product.md](docs/alignment-product.md)):
+
+- **Discovery before formula** — Engage with phenomena before formal shorthand.
+- **Manipulation before explanation** — Build a mental model through interaction, then definitions.
+- **The "earned reveal"** — Understanding precedes notation; symbols follow conceptual grounding.
+- **Visual confirmation over multiple choice** — Feedback from construction/manipulation success, not from choosing an answer.
 
 ### What Already Exists
 
 - Hero section (polished, ready)
 - Sinewaves module (complete)
-- Vector Transformations module design (waiting to be built)
-- Phase Portraits module design (waiting to be built)
+- Algebra I and Geometry product/technical framing (major content clusters; specific modules TBD)
 - Documentation principles established in codebase
 - Technical foundation (React Three Fiber, animation systems)
 
@@ -95,7 +97,7 @@ They think: "This person thinks about the *experience* of learning at every leve
 
 ### Tertiary: Myself
 
-A portfolio that reflects who I'm becoming, not just who I've been. Something that energizes me to maintain, share, and discuss with enthusiasm. A forcing function that demands I build the modules that are waiting.
+A portfolio that reflects who I'm becoming, not just who I've been. Something that energizes me to maintain, share, and discuss with enthusiasm. A forcing function that demands I build the next modules.
 
 Proof of what I'm capable of when direction and energy align.
 
@@ -156,6 +158,8 @@ When design decisions feel unclear, ask: "What serves the student encountering t
 A single source of truth for direction when decisions feel murky.
 
 A reference point for evaluating whether new ideas align with the vision.
+
+**Aligned with:** [docs/philosophy.md](docs/philosophy.md) (pedagogy) and [docs/alignment-product.md](docs/alignment-product.md) (LSSM/product alignment). For module planning and development, use [docs/README.md](docs/README.md) and the pipeline in `docs/modules/`.
 
 A reminder of the clarity that emerged from sitting with hard questions.
 
