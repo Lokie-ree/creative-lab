@@ -1,5 +1,5 @@
-import { useMemo } from "react"
-import { Canvas } from "@react-three/fiber"
+import { useMemo, useRef } from "react"
+import { Canvas, useFrame } from "@react-three/fiber"
 import { UnitCircle } from "./UnitCircle"
 import { SineWave } from "./SineWave"
 import { Connector } from "./Connector"
@@ -35,23 +35,36 @@ function Visualization({
   const { isPortrait, circle, wave, scale, connector } = useSceneLayout(stage)
   const isMobile = useIsMobileViewport()
 
+  // Shared animation time — accumulates delta only when unpaused, with speedMultiplier
+  const animTimeRef = useRef(0)
+  const lastClockRef = useRef(-1)
+
+  useFrame((state) => {
+    const now = state.clock.elapsedTime
+    if (lastClockRef.current >= 0 && !isPaused) {
+      animTimeRef.current += (now - lastClockRef.current) * speedMultiplier
+    }
+    lastClockRef.current = now
+  })
+
   // Use explicit prop if provided, otherwise fall back to stage-based logic
   const showGhost = showGhostProp ?? (stage !== 'observe')
   const showConnector = showConnectorProp ?? (connector !== null)
 
   // Get ghost wave parameters based on stage
+  // Mirror user's non-target parameter so only the relevant difference is visible
   const ghostParams = useMemo(() => {
     if (stage === 'amplitude' && stageTargets) {
-      return { a: stageTargets.amplitude, f: 1, p: 0 }
+      return { a: stageTargets.amplitude, f: frequency, p: 0 }
     }
     if (stage === 'frequency' && stageTargets) {
-      return { a: stageTargets.amplitude, f: stageTargets.frequency, p: 0 }
+      return { a: amplitude, f: stageTargets.frequency, p: 0 }
     }
     if (stage === 'phase' && stageTargets) {
       return { a: stageTargets.amplitude, f: stageTargets.frequency, p: stageTargets.phase }
     }
     return target
-  }, [stage, stageTargets, target])
+  }, [stage, stageTargets, target, amplitude, frequency])
 
   return (
     <>
@@ -65,18 +78,19 @@ function Visualization({
             isPaused={isPaused}
             onPauseChange={onPauseChange}
             speedMultiplier={speedMultiplier}
+            timeRef={animTimeRef}
           />
-          {/* Target point on circle (ghost) */}
-          {showGhost && (
-            <UnitCircle
-              amplitude={ghostParams.a}
-              frequency={ghostParams.f}
-              phase={ghostParams.p}
-              color={colors.ghost}
-              opacity={SCENE_LAYOUT.ghostOpacity}
-              speedMultiplier={speedMultiplier}
-            />
-          )}
+          {/* Target point on circle (ghost) — always rendered, opacity-faded */}
+          <UnitCircle
+            amplitude={ghostParams.a}
+            frequency={ghostParams.f}
+            phase={ghostParams.p}
+            color={colors.ghost}
+            opacity={SCENE_LAYOUT.ghostOpacity}
+            speedMultiplier={speedMultiplier}
+            timeRef={animTimeRef}
+            visible={showGhost}
+          />
         </group>
       )}
 
@@ -90,27 +104,25 @@ function Visualization({
           amplitude={amplitude}
           scale={scale}
           isPaused={isPaused}
+          speedMultiplier={speedMultiplier}
+          timeRef={animTimeRef}
         />
       )}
 
-      {/* Grid lines behind wave area */}
-      <group position={[wave.x, wave.y, 0]}>
-        <GridLines width={4.5} height={2.5} />
-      </group>
-
-      {/* Sine waves */}
+      {/* Sine waves + grid (same scaled group so grid matches wave area) */}
       <group position={[wave.x, wave.y, 0]} scale={isPortrait ? scale : 1}>
-        {/* Target wave (ghost) */}
-        {showGhost && (
-          <SineWave
-            amplitude={ghostParams.a}
-            frequency={ghostParams.f}
-            phase={ghostParams.p}
-            color={colors.ghost}
-            opacity={SCENE_LAYOUT.ghostOpacity}
-            speedMultiplier={speedMultiplier}
-          />
-        )}
+        <GridLines width={4.5} height={5} />
+        {/* Target wave (ghost) — always rendered, opacity-faded */}
+        <SineWave
+          amplitude={ghostParams.a}
+          frequency={ghostParams.f}
+          phase={ghostParams.p}
+          color={colors.ghost}
+          opacity={SCENE_LAYOUT.ghostOpacity}
+          speedMultiplier={speedMultiplier}
+          timeRef={animTimeRef}
+          visible={showGhost}
+        />
         {/* User's wave */}
         <SineWave
           amplitude={amplitude}
@@ -120,6 +132,7 @@ function Visualization({
           showLiveDot={stage !== 'observe'}
           glow={matchSuccess}
           speedMultiplier={speedMultiplier}
+          timeRef={animTimeRef}
         />
       </group>
     </>

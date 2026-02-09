@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react"
+import { useRef, useMemo, type MutableRefObject } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { colors } from "@/lib/colors"
@@ -13,9 +13,11 @@ interface ConnectorProps {
   isPaused?: boolean
   color?: string   // Custom color for line and dot
   opacity?: number // Opacity for styling (default 0.6 for line)
+  speedMultiplier?: number
+  timeRef?: MutableRefObject<number> // Shared animation time
 }
 
-export function Connector({ circleX, waveX, frequency, phase, amplitude, scale = 1, isPaused = false, color = colors.accent.primary, opacity = 0.6 }: ConnectorProps) {
+export function Connector({ circleX, waveX, frequency, phase, amplitude, scale = 1, isPaused = false, color = colors.accent.primary, opacity = 0.6, speedMultiplier = 1, timeRef }: ConnectorProps) {
   const lineRef = useRef<THREE.Line>(null)
   const dotRef = useRef<THREE.Mesh>(null)
 
@@ -36,10 +38,10 @@ export function Connector({ circleX, waveX, frequency, phase, amplitude, scale =
   }, [color, opacity])
 
   useFrame((state) => {
-    // Don't update when paused
-    if (isPaused) return
+    // Use shared time if available, otherwise fall back to local calculation
+    const t = timeRef ? timeRef.current : (isPaused ? 0 : state.clock.elapsedTime * speedMultiplier)
+    if (!timeRef && isPaused) return
 
-    const t = state.clock.elapsedTime
     const angle = frequency * t + phase
     const y = amplitude * Math.sin(angle)
 
