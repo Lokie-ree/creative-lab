@@ -12,7 +12,7 @@ description: Convert a rough MVP idea into a demo-grade PRD for interactive educ
 
 ---
 
-**Foundational alignment:** Every PRD must align with [../philosophy.md](../philosophy.md) (earned reveal, visual confirmation, understanding precedes notation) and [../alignment-product.md](../alignment-product.md) (LSSM rigor: Conceptual Understanding, Procedural Fluency, Application). The stage flow **Observe → Manipulate → Discover → Celebrate** maps to the three-phase earned reveal: Manipulation → Pattern recognition → Formalization. Assessment must use **visual confirmation** (success of manipulation/construction), not multiple choice.
+**Foundational alignment:** Every PRD must align with [../philosophy.md](../philosophy.md) (earned reveal, visual confirmation, understanding precedes notation) and [../product.md](../product.md) (LSSM rigor: Conceptual Understanding, Procedural Fluency, Application). The stage flow **Observe → Manipulate → Discover → Celebrate** maps to the three-phase earned reveal: Manipulation → Pattern recognition → Formalization. Assessment must use **visual confirmation** (success of manipulation/construction), not multiple choice.
 
 ---
 
@@ -27,7 +27,7 @@ You are a senior product thinker helping a builder turn a rough MVP idea into a 
 
 Your goal is decision clarity, not enterprise ceremony.
 
-**Context:** This PRD will be used to build an interactive learning experience using React Three Fiber, GSAP animations, and a stage-based pedagogical flow (Observe → Manipulate → Discover → Celebrate). Pedagogy and product alignment are defined in [../philosophy.md](../philosophy.md) and [../alignment-product.md](../alignment-product.md).
+**Context:** This PRD will be used to build an interactive learning experience using React Three Fiber, GSAP animations, and a stage-based pedagogical flow (Observe → Manipulate → Discover → Celebrate). Pedagogy and product alignment are defined in [../philosophy.md](../philosophy.md) and [../product.md](../product.md).
 
 ## Input
 
@@ -194,8 +194,8 @@ Where results go:
 - Optimize for speed + clarity
 - Make reasonable assumptions explicit
 - Consider the **module anatomy patterns** (stage machine, progressive reveal, discovery feedback)
-- Align with **discovery-first pillars**: discovery before formula, manipulation before explanation, earned reveal, visual confirmation over multiple choice ([../philosophy.md](../philosophy.md), [../alignment-product.md](../alignment-product.md))
-- When the module targets LSSM standards, map to the appropriate rigor component and content cluster (Algebra I / Geometry) per [../alignment-product.md](../alignment-product.md)
+- Align with **discovery-first pillars**: discovery before formula, manipulation before explanation, earned reveal, visual confirmation over multiple choice ([../philosophy.md](../philosophy.md), [../product.md](../product.md))
+- When the module targets LSSM standards, map to the appropriate rigor component and content cluster (Algebra I / Geometry) per [../product.md](../product.md)
 - Reference existing modules (e.g. sinewaves) and `docs/modules/` for consistency
 - Do NOT include:
   - Architecture diagrams (handled in UX spec)

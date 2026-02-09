@@ -11,7 +11,9 @@ These two documents define the **pedagogy** and **product alignment** that every
 | Document | Purpose |
 |----------|---------|
 | [**philosophy.md**](./philosophy.md) | Mastery through discovery: earned reveal, visual confirmation, understanding-before-notation. Design North Star for every module. |
-| [**alignment-product.md**](./alignment-product.md) | LSSM alignment: how discovery-first design maps to state rigor (Conceptual Understanding, Procedural Fluency, Application) and to Algebra I / Geometry standards. |
+| [**product.md**](./product.md) | LSSM alignment: how discovery-first design maps to state rigor (Conceptual Understanding, Procedural Fluency, Application) and to Algebra I / Geometry standards. |
+
+**Single source:** Pedagogy is defined in philosophy.md; product.md maps those principles to LSSM and does not redefine them.
 
 **Use them when:**
 
@@ -43,8 +45,8 @@ Generated artifacts (PRDs, UX specs, build-order prompts) live in the module’s
 
 | Path | Purpose |
 |------|---------|
-| [design/](./design/) | Design critiques, HUD direction, refactor specs (e.g. SINEWAVES-REFACTOR-SPEC.md). |
-| [plans/](./plans/) | Implementation plans and sprint notes (e.g. sinewaves polish, instrument refactor). |
+| [design/](./design/) | Design specs and audits. Specs (e.g. SINEWAVES-REFACTOR-SPEC.md) define what to build; audits (e.g. SINEWAVES-FRONTEND-DESIGN-AUDIT.md) assess current state. |
+| [plans/](./plans/) | Implementation plans: task-by-task execution (e.g. 2026-02-05-sinewaves-instrument-refactor.md). Use after a design spec is approved. |
 | [professional/](./professional/) | Resume and professional materials. |
 
 ---
@@ -52,5 +54,4 @@ Generated artifacts (PRDs, UX specs, build-order prompts) live in the module’s
 ## Root-level references
 
 - [**PORTFOLIO_VISION.md**](../PORTFOLIO_VISION.md) — Career thesis, audience, guiding principles. References the same pedagogy as [philosophy.md](./philosophy.md).
-- [**AGENT.md**](../AGENT.md) — Instructions for AI agents; points here and to foundational docs.
-- [**CLAUDE.md**](../CLAUDE.md) — Architecture, commands, design system; points here and to foundational docs.
+- [**AGENT.md**](../AGENT.md) — AI agent instructions: architecture, commands, design system, current state, guidelines; points here and to foundational docs.

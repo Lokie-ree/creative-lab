@@ -8,7 +8,7 @@ Bridging discovery-first pedagogy with Louisiana Student Standards for Mathemati
 
 For EdTech leadership, the competitive value of a digital learning platform is rarely found in the technical "tool" itself, but rather in the **pedagogical architecture** that governs the student's interaction with it. Strategic alignment requires more than tagging content with state codes; it demands a transformation of the learning experience from passive consumption to active, standard-compliant cognitive labor. By mapping high-fidelity interactive design directly to state-mandated rigor, we resolve the problem of passive consumption that traditional systems fail to address—moving the product from a digital textbook to a **pedagogical engine** where understanding is the natural byproduct of exploration.
 
-This framework rests on four core design pillars:
+This framework rests on four core design pillars (canonical definitions in [philosophy.md](./philosophy.md)); this document maps them to state rigor and content clusters:
 
 - **Discovery before formula** — Students engage with mathematical phenomena before being handed the formal shorthand.
 - **Manipulation before explanation** — Learning begins with tactile or visual movement of mathematical objects, creating a mental model before verbal or written definitions.

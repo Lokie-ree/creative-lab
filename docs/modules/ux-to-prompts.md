@@ -13,7 +13,7 @@ description: Convert UX specifications into sequential, self-contained build-ord
 
 ---
 
-**Foundational alignment:** Build-order prompts must preserve the pedagogy in [../philosophy.md](../philosophy.md) and [../alignment-product.md](../alignment-product.md). Each prompt should reinforce: discovery before formula, manipulation before explanation, earned reveal (notation only after conceptual grounding), and visual confirmation (success via manipulation/construction, not multiple choice). When the module targets LSSM standards, prompts should reference the relevant rigor component and content cluster.
+**Foundational alignment:** Build-order prompts must preserve the pedagogy in [../philosophy.md](../philosophy.md) and [../product.md](../product.md). Each prompt should reinforce: discovery before formula, manipulation before explanation, earned reveal (notation only after conceptual grounding), and visual confirmation (success via manipulation/construction, not multiple choice). When the module targets LSSM standards, prompts should reference the relevant rigor component and content cluster.
 
 ---
 
@@ -28,7 +28,7 @@ Transform a completed UX specification into a sequence of actionable, self-conta
 
 **Core principle:** Each prompt is complete enough to be used independently with UI generation tools (v0, Bolt, Claude frontend-design) or as implementation guides for manual development.
 
-**Context:** These prompts are for building interactive learning modules using React Three Fiber, GSAP animations, and stage-based pedagogical flows. Pedagogy and product alignment are defined in [../philosophy.md](../philosophy.md) and [../alignment-product.md](../alignment-product.md). Reference existing module patterns in the codebase (e.g. sinewaves) and product/technical framing in `docs/modules/algebra/` and `docs/modules/geometry/`.
+**Context:** These prompts are for building interactive learning modules using React Three Fiber, GSAP animations, and stage-based pedagogical flows. Pedagogy and product alignment are defined in [../philosophy.md](../philosophy.md) and [../product.md](../product.md). Reference existing module patterns in the codebase (e.g. sinewaves) and product/technical framing in `docs/modules/algebra/` and `docs/modules/geometry/`.
 
 ## When to Use
 
@@ -192,7 +192,7 @@ When generating prompts, reference:
 
 2. **Foundational pedagogy and alignment**
    - [../philosophy.md](../philosophy.md) — earned reveal, visual confirmation, understanding precedes notation
-   - [../alignment-product.md](../alignment-product.md) — LSSM rigor, Algebra I / Geometry clusters, ALDs
+   - [../product.md](../product.md) — LSSM rigor, Algebra I / Geometry clusters, ALDs
 
 3. **Product/technical framing**
    - `docs/modules/algebra/`, `docs/modules/geometry/` for standards and rigor alignment

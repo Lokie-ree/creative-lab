@@ -18,7 +18,6 @@ pnpm dev
 | [PORTFOLIO_VISION.md](./PORTFOLIO_VISION.md) | Vision, audience, guiding principles |
 | [docs/README.md](./docs/README.md) | **Doc index** — start here for planning and building modules |
 | [docs/philosophy.md](./docs/philosophy.md) | Pedagogy: earned reveal, visual confirmation, understanding precedes notation |
-| [docs/alignment-product.md](./docs/alignment-product.md) | LSSM alignment and product rigor |
+| [docs/product.md](./docs/product.md) | LSSM alignment and product rigor |
 | [docs/modules/](./docs/modules/) | Module pipeline: PRD → UX spec → build-order prompts |
-| [CLAUDE.md](./CLAUDE.md) | Architecture, commands, design system |
-| [AGENT.md](./AGENT.md) | AI agent context and guidelines |
+| [AGENT.md](./AGENT.md) | AI agent: architecture, commands, design system, guidelines |

@@ -3,7 +3,7 @@ import { colors } from "@/lib/colors"
 export function ModuleLoader() {
   return (
     <div
-      className="flex h-full w-full items-center justify-center"
+      className="flex min-h-dvh w-full items-center justify-center"
       style={{ backgroundColor: colors.background.primary }}
     >
       <div className="flex flex-col items-center gap-4">

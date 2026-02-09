@@ -44,7 +44,7 @@ Roadmap is organized by **major content clusters** (Algebra I, Geometry). Which 
 
 A portfolio that **practices what it preaches**. Visitors don't read about my design philosophy—they experience it. The portfolio becomes a demonstration of competence, not a claim of competence.
 
-Each module embodies the same pedagogical principles (canonical definitions in [docs/philosophy.md](docs/philosophy.md) and [docs/alignment-product.md](docs/alignment-product.md)):
+Each module embodies the same pedagogical principles (canonical definitions in [docs/philosophy.md](docs/philosophy.md) and [docs/product.md](docs/product.md)):
 
 - **Discovery before formula** — Engage with phenomena before formal shorthand.
 - **Manipulation before explanation** — Build a mental model through interaction, then definitions.
@@ -159,7 +159,7 @@ A single source of truth for direction when decisions feel murky.
 
 A reference point for evaluating whether new ideas align with the vision.
 
-**Aligned with:** [docs/philosophy.md](docs/philosophy.md) (pedagogy) and [docs/alignment-product.md](docs/alignment-product.md) (LSSM/product alignment). For module planning and development, use [docs/README.md](docs/README.md) and the pipeline in `docs/modules/`.
+**Aligned with:** [docs/philosophy.md](docs/philosophy.md) (pedagogy) and [docs/product.md](docs/product.md) (LSSM/product alignment). For module planning and development, use [docs/README.md](docs/README.md) and the pipeline in `docs/modules/`.
 
 A reminder of the clarity that emerged from sitting with hard questions.
 

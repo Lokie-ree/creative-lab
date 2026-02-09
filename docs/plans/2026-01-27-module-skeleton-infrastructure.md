@@ -1,30 +1,52 @@
 # Module Skeleton Infrastructure Implementation Plan
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+**Status:** Implemented. The skeleton lives in `src/lib/skeleton/`. This plan documents the built infrastructure and serves as the specification for verification and future changes.
 
-**Goal:** Create reusable skeleton infrastructure (hooks, types, utilities) that modules can adopt incrementally, implementing the patterns defined in `docs/plans/2026-01-22-module-skeleton.md`.
+> **For Claude:** When extending or changing the skeleton, read `src/lib/skeleton/` first; use this plan as the spec and for task history.
 
-**Architecture:** Extract the common flow logic (Idle → Explore → Challenge → Success → Reveal) into composable hooks. Modules provide configuration; skeleton handles orchestration. Existing modules (sinewaves, vector-transforms) remain functional and can migrate incrementally.
+**Goal:** Reusable skeleton infrastructure (hooks, types, utilities) that modules can adopt incrementally. Flow: Idle → Explore → Challenge → Success → Reveal. Modules provide configuration; skeleton handles orchestration.
 
-**Tech Stack:** React hooks, TypeScript, GSAP for animations, React Three Fiber context for WebGL recovery
+**Architecture:** Composable hooks; existing modules (sinewaves, vector-transforms) can migrate incrementally and remain functional without the skeleton until then.
+
+**Tech Stack:** React hooks, TypeScript. (GSAP and R3F are used by modules that consume the skeleton; WebGL recovery is partially in `useErrorRecovery`; context loss detection is typically wired in the Canvas layer.)
 
 ---
 
-## Phase 1: Core Types and Interfaces
+## Current implementation (src/lib/skeleton/)
 
-### Task 1: Create skeleton types
+| File | Purpose |
+|------|---------|
+| `types.ts` | InteractionMode, FlowPhase, sub-phases, StageUnlockConfig, ExploreStage, ChallengeConfig, FeedbackConfig, IdleConfig, ModuleConfig, ModuleState, analytics event types, ErrorRecoveryConfig, PerformanceConfig |
+| `useModuleFlow.ts` | Phase state (idle → explore → challenge → success → reveal). Actions: recordInteraction, advanceStage, enterChallenge, recordMatch, exitToReveal, reset. Computed: currentStage, isLastExploreStage, canUnlockStage (from engagement time). Tracks engagementTime in explore. |
+| `useStageUnlock.ts` | Unlock triggers: intensity (≥ threshold for 1s), range (10 buckets ≥ rangeExplorationThreshold), time (≥ timeFallbackSeconds). startEngagement, recordValue(normalizedValue, intensity), reset. Debug: engagementSeconds, exploredRangePercent, intensityHoldSeconds. |
+| `useChallengeAssist.ts` | Progressive assist: showDirectionalNudge (60s idle), showTryAnother (90s), showAssist (120s). startChallenge, recordInteraction (resets flags), onTryAnother/onAssist (no-ops; parent wires). elapsedSeconds, interactionCount. |
+| `useAccessibility.ts` | announce(message, priority), focusElement(selector), trapFocus(containerRef), prefersReducedMotion/HighContrast, handleArrowKeys. Injects `#skeleton-announcer` in document.body. |
+| `useErrorRecovery.ts` | Optional errorConfig/performanceConfig. State: isContextLost, isPerformanceDegraded, currentFPS, degradationLevel, isTabVisible, tabHiddenDuration. attemptRestore, startMonitoring/stopMonitoring (FPS). Context loss must be set by Canvas/consumer; hook provides state and attemptRestore. |
+| `useModuleAnalytics.ts` | trackSessionStart, trackSessionEnd, trackStageUnlock, trackChallengeEnd; getEvents, clearEvents. In DEV logs to console. Session end on unmount (exitReason 'abandoned') when session was started. |
+| `index.ts` | Re-exports all of the above. |
+| `README.md` | Quick start, hook list, migration guide. |
+| `__tests__/` | useModuleFlow.test.ts, useStageUnlock.test.ts, useChallengeAssist.test.ts. |
 
-**Files:**
-- Create: `src/lib/skeleton/types.ts`
+**Tests:** `pnpm vitest run src/lib/skeleton` to run skeleton tests.
 
-**Step 1: Create the types file with core interfaces**
+**Not yet consumed by modules:** Sinewaves uses its own InstrumentModule and guide-state flow; vector-transforms has its own flow. Migration to skeleton is optional and can be incremental (see Next Steps at end of plan).
+
+---
+
+## Phase 1: Core Types and Interfaces (implemented)
+
+### Task 1: Skeleton types
+
+**Files:** `src/lib/skeleton/types.ts` (exists; use as source of truth).
+
+**Spec (for reference):** The types file should contain the following. Verify or extend against `src/lib/skeleton/types.ts` when changing the skeleton.
 
 ```typescript
 /**
  * Module Skeleton Types
  *
  * Defines the shared interfaces for module configuration and state management.
- * See docs/plans/2026-01-22-module-skeleton.md for full specification.
+ * Full types and interfaces are in src/lib/skeleton/types.ts and this plan.
  */
 
 // =============================================================================
@@ -246,14 +268,14 @@ git commit -m "feat(skeleton): add core types and interfaces
 Define TypeScript interfaces for module configuration, flow phases,
 stage unlock conditions, challenge settings, and analytics events.
 
-Implements types from docs/plans/2026-01-22-module-skeleton.md"
+Implements skeleton types from this plan and src/lib/skeleton/types.ts"
 ```
 
 ---
 
-## Phase 2: Core Flow Hook
+## Phase 2: Core Flow Hook (implemented)
 
-### Task 2: Create useModuleFlow hook
+### Task 2: useModuleFlow hook
 
 **Files:**
 - Create: `src/lib/skeleton/useModuleFlow.ts`
@@ -535,9 +557,9 @@ Core flow orchestration hook that manages:
 
 ---
 
-## Phase 3: Stage Unlock Logic
+## Phase 3: Stage Unlock Logic (implemented)
 
-### Task 3: Create useStageUnlock hook
+### Task 3: useStageUnlock hook
 
 **Files:**
 - Create: `src/lib/skeleton/useStageUnlock.ts`
@@ -778,9 +800,9 @@ All require minimum engagement time before any unlock can trigger."
 
 ---
 
-## Phase 4: Challenge Failure Path
+## Phase 4: Challenge Failure Path (implemented)
 
-### Task 4: Create useChallengeAssist hook
+### Task 4: useChallengeAssist hook
 
 **Files:**
 - Create: `src/lib/skeleton/useChallengeAssist.ts`
@@ -1035,9 +1057,9 @@ active exploration."
 
 ---
 
-## Phase 5: Accessibility Infrastructure
+## Phase 5: Accessibility Infrastructure (implemented)
 
-### Task 5: Create useAccessibility hook
+### Task 5: useAccessibility hook
 
 **Files:**
 - Create: `src/lib/skeleton/useAccessibility.ts`
@@ -1227,9 +1249,9 @@ Provides accessibility infrastructure:
 
 ---
 
-## Phase 6: Error Recovery
+## Phase 6: Error Recovery (implemented)
 
-### Task 6: Create useErrorRecovery hook
+### Task 6: useErrorRecovery hook
 
 **Files:**
 - Create: `src/lib/skeleton/useErrorRecovery.ts`
@@ -1418,9 +1440,9 @@ Handles error conditions gracefully:
 
 ---
 
-## Phase 7: Analytics Hook
+## Phase 7: Analytics Hook (implemented)
 
-### Task 7: Create useModuleAnalytics hook
+### Task 7: useModuleAnalytics hook
 
 **Files:**
 - Create: `src/lib/skeleton/useModuleAnalytics.ts`
@@ -1573,9 +1595,9 @@ Event tracking for module usage:
 
 ---
 
-## Phase 8: Integration Example
+## Phase 8: Integration Example (implemented)
 
-### Task 8: Create example usage documentation
+### Task 8: Example usage documentation (README.md)
 
 **Files:**
 - Create: `src/lib/skeleton/README.md`
@@ -1719,9 +1741,9 @@ migration guide for existing modules."
 
 ---
 
-## Final Verification
+## Verification (run when changing the skeleton)
 
-### Task 9: Verify full build and tests
+### Task 9: Full build and tests
 
 **Step 1: Run all tests**
 
@@ -1759,11 +1781,16 @@ Ready for module migration in Phase 2."
 
 ---
 
-## Next Steps (Separate Plan)
+## Next Steps (optional, separate plans)
 
-After this infrastructure is in place, create a follow-up plan for:
+The skeleton is implemented and tested. Current modules do not yet use it:
 
-1. **Phase 2: Migrate Sinewaves Module** - Refactor `src/components/modules/sinewaves/ObservatoryModule.tsx` (or new module shell) to use skeleton hooks
-2. **Phase 3: Add UI Components** - FormulaReveal, DirectionalNudge, AssistOverlay
-3. **Phase 4: Migrate Vector Transforms** - Refactor to use skeleton hooks
-4. **Phase 5: Add Missing Features** - Per-parameter feedback, notation edge cases
+- **Sinewaves** uses `InstrumentModule` and a 5-state guide flow (`guide-state.ts`); no ObservatoryModule. Migrating to skeleton would mean mapping guide states to flow phases and optionally adopting useStageUnlock/useChallengeAssist/useAccessibility where they add value.
+- **Vector-transforms** has its own flow. Same idea: incremental adoption if desired.
+
+Possible follow-up work (each as its own plan if needed):
+
+1. **Migrate a module to skeleton** — Choose sinewaves or vector-transforms; refactor to use useModuleFlow + config, then add useStageUnlock, useChallengeAssist, useAccessibility, useModuleAnalytics as needed.
+2. **UI components** — FormulaReveal, DirectionalNudge, AssistOverlay that consume skeleton state (e.g. assist.showDirectionalNudge).
+3. **Error recovery wiring** — Have R3F Canvas (or a wrapper) set `isContextLost` on WebGL context loss and call `attemptRestore` from useErrorRecovery where appropriate.
+4. **Analytics integration** — Replace the DEV console log in useModuleAnalytics with a real backend or provider (Segment, PostHog, etc.).

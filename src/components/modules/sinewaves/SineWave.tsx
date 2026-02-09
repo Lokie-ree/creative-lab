@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect, useImperativeHandle, forwardRef } from "react"
+import { useRef, useMemo, useEffect, useImperativeHandle, forwardRef, type MutableRefObject } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { colors } from "@/lib/colors"
@@ -13,6 +13,8 @@ interface SineWaveProps {
   showLiveDot?: boolean  // Show dot at current wave position
   glow?: boolean  // Enable glow effect for match success
   speedMultiplier?: number // Animation speed multiplier
+  timeRef?: MutableRefObject<number> // Shared animation time
+  visible?: boolean // For opacity fade (always rendered, controls target opacity)
 }
 
 export interface SineWaveRef {
@@ -34,6 +36,8 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
     showLiveDot = false,
     glow = false,
     speedMultiplier = 1,
+    timeRef,
+    visible = true,
   }, ref) {
     const currentYRef = useRef(0)
     const dotRef = useRef<THREE.Mesh>(null)
@@ -57,20 +61,26 @@ export const SineWave = forwardRef<SineWaveRef, SineWaveProps>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    // Update material color/opacity without rebuilding geometry
+    // Update material color without rebuilding geometry (opacity handled by useFrame lerp)
     useEffect(() => {
       const effectiveColor = glow ? colors.learning.primary : color
       const mat = line.material as THREE.LineBasicMaterial
       mat.color.set(effectiveColor)
-      mat.opacity = opacity
       mat.needsUpdate = true
-    }, [glow, color, opacity, line])
+    }, [glow, color, line])
 
     useFrame((state) => {
-      // Don't update when paused
-      if (isPaused) return
+      // Use shared time if available, otherwise fall back to local calculation
+      const t = timeRef ? timeRef.current : (isPaused ? 0 : state.clock.elapsedTime * speedMultiplier)
 
-      const t = state.clock.elapsedTime * speedMultiplier
+      // Smooth opacity fade
+      const mat = line.material as THREE.LineBasicMaterial
+      const targetOpacity = visible ? opacity : 0
+      mat.opacity += (targetOpacity - mat.opacity) * 0.08
+
+      // Don't update positions when paused (time won't advance anyway with shared timeRef)
+      if (!timeRef && isPaused) return
+
       const y = amplitude * Math.sin(frequency * t + phase)
       currentYRef.current = y
 

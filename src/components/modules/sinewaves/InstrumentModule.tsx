@@ -295,7 +295,12 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
           frequency={frequency}
           phase={0}
           target={{ a: effectiveAmplitudeTarget, f: effectiveFrequencyTarget, p: 0 }}
-          stage={guideState === 'watch' || guideState === 'free' ? 'observe' : 'amplitude'}
+          stage={
+            guideState === 'watch' || guideState === 'free' ? 'observe'
+            : guideState === 'match-amplitude' ? 'amplitude'
+            : guideState === 'match-frequency' ? 'frequency'
+            : 'challenge'
+          }
           isPaused={isPaused}
           onPauseChange={setIsPaused}
           stageTargets={{ amplitude: effectiveAmplitudeTarget, frequency: effectiveFrequencyTarget, phase: 0 }}

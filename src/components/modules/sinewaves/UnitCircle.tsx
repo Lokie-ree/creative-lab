@@ -1,4 +1,4 @@
-import { useRef, useMemo, useImperativeHandle, forwardRef, useState, useCallback } from "react"
+import { useRef, useMemo, useImperativeHandle, forwardRef, useState, useCallback, type MutableRefObject } from "react"
 import { useFrame, useThree } from "@react-three/fiber"
 import { Line } from "@react-three/drei"
 import * as THREE from "three"
@@ -14,6 +14,8 @@ interface UnitCircleProps {
   onPauseChange?: (paused: boolean) => void
   draggable?: boolean
   speedMultiplier?: number // Animation speed multiplier
+  timeRef?: MutableRefObject<number> // Shared animation time
+  visible?: boolean // For opacity fade (always rendered, controls target opacity)
 }
 
 // Generate circle points with custom radius
@@ -41,6 +43,8 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
     onPauseChange,
     draggable = false,
     speedMultiplier = 1,
+    timeRef,
+    visible = true,
   }, ref) {
     const groupRef = useRef<THREE.Group>(null)
     const pointRef = useRef<THREE.Mesh>(null)
@@ -94,23 +98,43 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
     }, [radiusLine, amplitude])
 
     useFrame((state) => {
-      // If paused or dragging, don't update from clock
-      if (isPaused || isDragging) {
-        // Store pause time if we just paused
-        if (pausedAtTimeRef.current === null) {
-          pausedAtTimeRef.current = state.clock.elapsedTime
+      // Smooth opacity fade for ghost circles
+      if (radiusLine.material instanceof THREE.LineBasicMaterial) {
+        const targetOpacity = visible ? opacity : 0
+        // eslint-disable-next-line react-hooks/immutability -- R3F pattern: updating material in animation loop
+        radiusLine.material.opacity += (targetOpacity - radiusLine.material.opacity) * 0.08
+        radiusLine.material.transparent = true
+      }
+      if (pointRef.current) {
+        const pointMat = (pointRef.current as THREE.Mesh).material as THREE.MeshBasicMaterial
+        const targetOpacity = visible ? opacity : 0
+        pointMat.opacity += (targetOpacity - pointMat.opacity) * 0.08
+        pointMat.transparent = true
+      }
+
+      // If dragging, don't update from clock
+      if (isDragging) return
+
+      // Use shared time if available, otherwise fall back to local calculation
+      if (timeRef) {
+        const t = timeRef.current
+        const angle = frequency * t + phase
+        updatePosition(angle)
+      } else {
+        // Legacy path: local pause handling
+        if (isPaused) {
+          if (pausedAtTimeRef.current === null) {
+            pausedAtTimeRef.current = state.clock.elapsedTime
+          }
+          return
         }
-        return
+        if (pausedAtTimeRef.current !== null) {
+          pausedAtTimeRef.current = null
+        }
+        const t = state.clock.elapsedTime * speedMultiplier
+        const angle = frequency * t + phase
+        updatePosition(angle)
       }
-
-      // If we just resumed, adjust our phase to continue from where we paused
-      if (pausedAtTimeRef.current !== null) {
-        pausedAtTimeRef.current = null
-      }
-
-      const t = state.clock.elapsedTime * speedMultiplier
-      const angle = frequency * t + phase
-      updatePosition(angle)
     })
 
     // Convert screen coordinates to angle on circle

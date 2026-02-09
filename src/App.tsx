@@ -188,6 +188,7 @@ function App() {
 
   return (
     <PortfolioProvider>
+      <div className="min-h-dvh bg-(--lab-bg)">
       <AnimatePresence mode="wait">
         {/* Hero View */}
         {view === "hero" && (
@@ -261,6 +262,7 @@ function App() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
 
       {/* Escape hatch - only visible in module view, not during celebration */}
       {/* Hidden for sinewaves - Observatory HUD has its own status strip */}
