@@ -6,7 +6,7 @@ The sinewaves module teaches the relationship between the unit circle and sine w
 
 **Core Learning Goal**: Discover that amplitude controls wave height and frequency controls oscillation speed through hands-on exploration.
 
-**Doc scope**: This file describes the implementation as built, including uncommitted changes. Keep it updated when changing Layout, InstrumentModule, animations, or module-local components. The stage flow and pedagogy sections describe the intended design; for current wiring (e.g. InstrumentControls, guide states) see `InstrumentModule.tsx` and `guide-state.ts`.
+**Doc scope**: This file describes the implementation as built. Keep it updated when changing Layout, InstrumentModule, animations, or module-local components. Design spec: `docs/design/SINEWAVES-REFACTOR-SPEC.md`. Implementation plan: `docs/plans/2026-02-05-sinewaves-instrument-refactor.md`. Current wiring: `InstrumentModule.tsx`, `guide-state.ts`.
 
 ---
 
@@ -81,80 +81,55 @@ InstrumentLayout owns the grid and regions; InstrumentModule decides what to ren
 
 ## State Machine Pattern
 
-### Stage Types
+### Guide States (instrument refactor)
+
+The module uses a 5-state **guide** model; the instrument is always fully visible. Only prompts, formula highlights, and ghost/connector visibility change per state. No separate "diagnose" phase or MatchFeedback component—match triggers a wave glow and auto-advance.
 
 ```typescript
-type Stage = 'observe' | 'amplitude' | 'frequency' | 'challenge' | 'reveal'
-type SubStage = 'explore' | 'match' | 'reflect' | 'freeExplore'
-type ChallengePhase = 'observe' | 'diagnose' | 'match'
+type GuideState = 'watch' | 'match-amplitude' | 'match-frequency' | 'challenge' | 'free'
 ```
 
-### Stage Flow
+Defined in `guide-state.ts` with `getGuideStateConfig(state, challengeParam)` for prompt, showGhost, showConnector, and which parameter to highlight.
+
+### Guide Flow
 
 ```
-observe
-  └─> [Continue] ─> amplitude
-          └─> [match: amplitude within threshold] ─> MatchFeedback ─> [Continue] ─> frequency
-                  └─> [match: frequency within threshold] ─> MatchFeedback ─> [Continue] ─> challenge
-                          └─> observe phase ─> [Continue] ─> diagnose
-                                  └─> [correct choice] ─> match phase
-                                          └─> [match: active param within threshold] ─> MatchFeedback ─> [Continue] ─> reveal
-                                                  └─> [user choice]
-                                                      ├─> Try Another (new challenge)
-                                                      ├─> Explore (free explore; both sliders)
-                                                      └─> Finish (onComplete)
+watch ──> match-amplitude ──> match-frequency ──> challenge ──> free
+  │              │                    │                │          │
+  │   (user can  │    (user can       │    (user can   │          │
+  │    drag to   │     drag any       │     drag any   │          │
+  │    skip)     │     slider)        │     slider)    │          │
+  └──────────────┴────────────────────┴────────────────┘          │
+                                                                  │
+                                              "Try Another" ──> challenge
+                                              "Complete" ──> onComplete()
 ```
+
+- **watch**: Prompt "Watch how the circle drives the wave"; connector visible; no ghost. Continue or any slider drag → match-amplitude.
+- **match-amplitude** / **match-frequency**: Ghost appears; match within threshold → wave glows ~800ms → auto-advance (no separate modal).
+- **challenge**: One random parameter changed; match → glow → advance to free.
+- **free**: "So what" prompt; Try Another (new challenge) or Complete (onComplete).
 
 ### State Management
 
-**Primary State**:
-- `stage`: Current stage (Stage type)
-- `challengePhase`: Challenge-specific phase (ChallengePhase type). InstrumentModule does not use `subStage`; flow is continue-driven via match flags.
+**Primary state**: `guideState: GuideState` (from `guide-state.ts`). No `challengePhase` or `subStage`.
 
-**Wave Parameters**:
-- `amplitude`: Current amplitude value (0.5 - 2.0)
-- `frequency`: Current frequency value (0.5 - 3.0)
-- `phase`: Always 0 (removed from v2)
+**Wave parameters**: `amplitude`, `frequency` (phase always 0). Targets: `STAGE_TARGETS` in sinewaves-constants (amplitude 1.5, frequency 2.0); challenge uses `challengeParam` + `challengeTargetValue` from `generateChallengeTarget()`.
 
-**Guided targets** (fixed; not persisted as "discoveries"):
-- `amplitudeTarget`, `frequencyTarget`: 1.5 and 2.0 — targets for amplitude/frequency stages
-- Match flags (`amplitudeMatched`, `frequencyMatched`) drive progression; FormulaReadout uses current `amplitude`/`frequency` for display. A `discoveries` object could be added for locked-slider labels if desired.
+**UI state**: `booted` (after consoleBootSequence), `matchGlow` (briefly true on match, then auto-advance). No statusText, diagnosisAnswer, or showContinue derived from multiple phases—Continue appears only in watch and free (action buttons).
 
-**UI State**:
-- `booted`: After consoleBootSequence completes; used to fade in status strip and prompt
-- `statusText`: Optional status flash after stage transition (from sinewaves-copy.stageTransitions)
-- `diagnosisAnswer`, `diagnosisWrongAttempts`: Diagnosis phase selection and hint escalation
-- `showContinue`: Derived from stage content; show continue in observe and challenge observe
+**Challenge state**: `challengeParam`, `challengeTargetValue`; ghost mirrors user's non-challenge parameter (see docs/design/SINEWAVES-MATCH-PROXIMITY-AUDIT.md for sync details).
 
-**Challenge State**:
-- `challengeParam`: Which parameter changed ('amplitude' | 'frequency')
-- `challengeTargetValue`: Single target value for the active parameter (random in range, rounded)
-- No separate `challengeWave` object; effective targets are derived from `challengeParam` + `challengeTargetValue` and fixed amplitude/frequency for the locked param
+### Transitions
 
-**InstrumentModule** does not use `subStage` or a reflect phase: it uses match flags (`amplitudeMatched`, `frequencyMatched`, `challengeMatched`) and user continues from MatchFeedback to advance. The flow above is the pedagogical template; implementation is continue-driven after match.
+- **Match-driven**: When value within threshold, `checkMatch` sets `matchGlow`, then after 800ms clears glow and calls `advanceGuideState()`. No MatchFeedback component; no user Continue for parameter/challenge matches.
+- **Manual**: Continue (watch → match-amplitude); free state: Try Another → challenge, Complete → onComplete(). Dot nav: back to earlier guide state only (no skip-ahead).
 
-### Stage Transitions
+### Animation System
 
-**Match-driven (no timers)**:
-1. **Parameter stages**: When amplitude/frequency enters threshold, `amplitudeMatched`/`frequencyMatched` is set; MatchFeedback is shown (and runs `matchSuccessSequence`). User clicks Continue to advance.
-2. **Challenge match phase**: When the active parameter enters threshold, `challengeMatched` is set; MatchFeedback is shown. User clicks Continue → `stageTransition` → `setStage('reveal')`.
-
-**Manual Transitions**:
-- Continue (observe → amplitude; challenge observe → diagnose)
-- MatchFeedback continue (amplitude → frequency, frequency → challenge, challenge match → reveal)
-- Diagnosis correct choice (diagnose → match)
-- Reveal: Try Another, Explore, Finish (and "Back to Results" from free explore)
-- Dot nav: back to a previous stage (no skip-ahead)
-
-### Transition Animation System
-
-**InstrumentModule** uses three animation entry points from `animations.ts`:
-
-1. **Boot sequence** — On mount, `consoleBootSequence` runs (status strip → optional progress bar → prompt), then `onReadyForScene()` sets `booted`.
-2. **Match success** — When MatchFeedback is shown, it runs `matchSuccessSequence` (viz pulse → value highlight → feedback text → continue button). MatchFeedback receives optional `visualizationRef` for the pulse.
-3. **Stage transition** — `stageTransition(refs, callbacks)` runs on stage changes: control strip fades out → `onFadeOutComplete()` (state update) → hint and control strip fade in. Used for observe→amplitude, amplitude→frequency, frequency→challenge, and dot-nav back.
-
-Readouts and control strip update with state; no separate exit/enter animation for readouts.
+1. **Boot** — `consoleBootSequence(refs, onReadyForScene)` on mount; then `booted` set so status strip and prompt fade in. No progress bar; StatusStrip uses dots.
+2. **Match** — Wave glow via `matchSuccess={true}` on Scene (SineWave uses `glow` prop). A structured `matchSuccessSequence` exists in animations.ts but is not currently wired; overlay is static (see docs/design/SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md).
+3. **Stage transition** — Removed; no `stageTransition`. Controls and readouts are always visible.
 
 ### Boot Sequence (Instrument)
 
@@ -174,28 +149,13 @@ Readouts and control strip update with state; no separate exit/enter animation f
 
 **Purpose**: Wrapper around React Three Fiber Canvas that conditionally renders to prevent WebGL context conflicts. Uses viewport-proportional positioning via `useSceneLayout` hook.
 
-**Props**:
-```typescript
-interface SceneProps {
-  amplitude: number
-  frequency: number
-  phase: number
-  target: { a: number; f: number; p: number }  // Ghost wave target
-  stage: Stage
-  isPaused: boolean
-  onPauseChange: (paused: boolean) => void
-  stageTargets?: { amplitude: number; frequency: number; phase: number }
-  isVisible?: boolean  // When false, Canvas is not mounted (avoids WebGL conflicts)
-  matchSuccess?: boolean  // When true, user's SineWave shows glow (earned reveal)
-}
-```
+**Props** (see Scene.tsx): amplitude, frequency, phase, target (ghost a/f/p), stage (for layout), isPaused, onPauseChange, stageTargets, isVisible, matchSuccess (wave glow), showGhost, showConnector (override visibility), speedMultiplier (0.5 / 1 / 2).
 
 **Key Features**:
-- Conditionally renders Canvas based on `isVisible` (prevents WebGL conflicts during transitions)
-- Responsive layout via `useSceneLayout(stage)` hook from scene-layout.ts
-- Shows ghost/target wave when `stage !== 'observe'`
-- Shows connector line only in 'observe' stage
-- Passes stage-specific ghost parameters to child components
+- Conditionally renders Canvas based on `isVisible` (prevents WebGL conflicts)
+- Responsive layout via `useSceneLayout(stage)` from scene-layout.ts; mobile hides unit circle (useIsMobileViewport)
+- Ghost and connector visibility driven by InstrumentModule via showGhost, showConnector (from guide state config)
+- GridLines behind wave area (optional)
 
 **Layout System** (from `scene-layout.ts`):
 ```typescript
@@ -318,170 +278,32 @@ interface ConnectorProps {
 **Purpose**: Main orchestrator for the instrument HUD: guide state flow, match detection, and slot content.
 
 **Key Responsibilities**:
-1. **Stage Management**: Tracks stage (`observe` → `amplitude` → `frequency` → `challenge` → `reveal`) and challenge phase (`observe` | `diagnose` | `match`)
-2. **Parameter Control**: Amplitude and frequency state; targets for guided stages and challenge
-3. **Match Detection**: Monitors amplitude/frequency vs targets; user advances via MatchFeedback continue
-4. **Boot Sequence**: Runs `consoleBootSequence` (animations.ts) on mount, then mounts Scene when ready
-5. **UI Orchestration**: Renders StatusStrip, PromptReadout, FormulaReadout, ControlStrip, ContinueButton, DiagnosisChoices, RevealPanel, MatchFeedback by stage
+1. **Guide state**: Tracks `GuideState` (watch → match-amplitude → match-frequency → challenge → free); no challenge sub-phases
+2. **Parameter control**: Amplitude and frequency state; targets from STAGE_TARGETS and challenge from generateChallengeTarget()
+3. **Match detection**: checkMatch(param, value) on slider change; on match sets matchGlow, then after 800ms advances guide state (no separate modal)
+4. **Boot sequence**: Runs consoleBootSequence on mount; then sets booted so StatusStrip and PromptReadout fade in
+5. **UI orchestration**: Renders StatusStrip, PromptReadout, FormulaReadout, ControlStrip (sliders + InstrumentControls + action buttons: Continue in watch, Try Another / Complete in free)
 
 **Module-Local Components Used** (from `components/`):
-- `StatusStrip`, `PromptReadout`, `FormulaReadout`, `ControlStrip`, `ContinueButton`, `DiagnosisChoices`, `RevealPanel`, `MatchFeedback`
+- `StatusStrip`, `PromptReadout`, `FormulaReadout`, `ControlStrip`, `ParameterSlider`, `InstrumentControls`, `ContinueButton`. No DiagnosisChoices, RevealPanel, or MatchFeedback (removed in instrument refactor).
 
-**Match Detection Logic** (in module, called from slider onChange):
-- Imports thresholds from `sinewaves-constants.ts`: `MATCH_THRESHOLDS.amplitude` (0.1), `MATCH_THRESHOLDS.frequency` (0.15)
-- Amplitude stage: `Math.abs(value - STAGE_TARGETS.amplitude) <= MATCH_THRESHOLDS.amplitude` → `setAmplitudeMatched(true)`.
-- Frequency stage: same with `STAGE_TARGETS.frequency` and `MATCH_THRESHOLDS.frequency`.
-- Challenge match phase: same threshold for the single active param vs `challengeTargetValue` → `setChallengeMatched(true)`.
+**Match detection**: Thresholds from sinewaves-constants (MATCH_THRESHOLDS). On match: setMatchGlow(true), setTimeout 800ms then advanceGuideState(). Optionally snap matched parameter to target so ghost and user wave sync (see SINEWAVES-MATCH-PROXIMITY-AUDIT.md).
 
-**Progress (InstrumentModule)**: Local `stageProgress` (0–100) and `stageNumber`/`TOTAL_STAGES` drive StatusStrip. StatusStrip shows progress dots (one per stage), optional `onBack`, `onStageSelect` (dot-nav back, no skip-ahead), and `statusText` (transition flash from stageTransitions). No `updateModuleProgress` call yet.
+**StatusStrip**: Props include currentStage (1-based index), totalStages (5), onBack, onStageSelect (dot-nav). Desktop: [←] SINEWAVES ●●●○○ SYS:NOM [ESC]; mobile: [←] ●●●○○ SYS:NOM. No statusText or progress bar.
 
-**StatusStrip (components/)**  
-Props: `currentStage`, `totalStages`, `progress?`, `onBack?`, `onStageSelect?`, `statusText?`, `title?`, `className`. Renders: back button (if onBack), progress dots (clickable when onStageSelect and index ≤ currentStage), optional stage title, optional status flash. Uses `STAGE_LABELS` for aria-labels.
-
-**ControlStrip (components/)**
-Props: `ref`, `children`, `hint?`, `hintRef?`, `formula?`, `className`. Renders hint line above children when `hint` is set; `hintRef` is used by `stageTransition` for fade-in. `formula` slot renders FormulaReadout on mobile only (hidden on `md+` where it shows in readouts row). InstrumentModule passes `controlHint` from SINEWAVE_COPY.controlStripHints (or content.description in diagnose).
+**ControlStrip**: Slots for amplitudeSlider, frequencySlider, instrumentControls (TRACE/RESET/SPEED), actionButtons (Continue, Try Another, Complete). No hint or formula slot; readouts live in Layout.
 
 ---
 
 ## Example Flow
 
-### Stage 1: Observe
+- **watch**: Prompt "Watch how the circle drives the wave"; connector visible; no ghost. Continue or any slider drag → match-amplitude.
+- **match-amplitude**: Ghost with target amplitude (1.5), same frequency; amplitude highlighted in formula. Both sliders visible. Match within MATCH_THRESHOLDS.amplitude → wave glow → auto-advance to match-frequency.
+- **match-frequency**: Ghost with target frequency (2.0); frequency highlighted. Match → glow → auto-advance to challenge.
+- **challenge**: generateChallengeTarget() picks one param and value; ghost shows target for that param only (other mirrors user). Match → glow → advance to free.
+- **free**: Prompt "Every sine wave is circular motion in disguise." Action buttons: Try Another (new challenge) or Complete (onComplete). No ghost; connector visible again.
 
-**Goal**: Introduce the relationship between circle and wave visually.
-
-**UI State**:
-- StatusStrip: dots (stage 1 of 5), optional onBack; no statusText until after transition
-- PromptReadout: prompt + description (e.g. "Watch where the wave comes from")
-- Visualization: UnitCircle (left) + Connector + SineWave (right)
-- ControlStrip: hint from controlStripHints.observe, ContinueButton
-
-**User Actions**:
-- Observe the connector line showing y-value relationship
-- Clicks Continue when ready (UnitCircle supports `draggable` but Scene does not currently pass it)
-
-**Visual Elements**:
-- Connector line animates, connecting circle point to wave
-- No ghost wave (pure observation)
-- Circle radius = 1.0 (default amplitude)
-
-**Transition**: User clicks Continue → `runStageTransition` → `setStage('amplitude')`, `setStatusText(observeToAmplitude.status)`
-
----
-
-### Stage 2: Amplitude
-
-**Goal**: Match ghost wave by adjusting amplitude only.
-
-**UI State**:
-- PromptReadout: prompt + description (e.g. "Match the ghost wave by adjusting amplitude")
-- FormulaReadout: visible with amplitude highlighted in accent color
-- Visualization: UnitCircle + SineWave (user) + SineWave (ghost, opacity 0.5)
-- ControlStrip: amplitude slider only (uses ParameterSlider component)
-
-**User Actions**:
-- Adjusts amplitude slider (0.5 - 2.0 via SLIDER_CONFIG)
-- Sees circle radius and wave height change in real-time
-- Formula updates live: `y = [A] sin(2.0 t)` with A highlighted
-- Target: amplitude = STAGE_TARGETS.amplitude (1.5)
-
-**Match Detection**: When `Math.abs(amplitude - STAGE_TARGETS.amplitude) <= MATCH_THRESHOLDS.amplitude`, `amplitudeMatched` is set; MatchFeedback appears with continue.
-
-**Transition**: User clicks continue in MatchFeedback → `setStage('frequency')`
-
----
-
-### Stage 3: Frequency
-
-**Similar pattern to amplitude stage, but:**
-- FormulaReadout: frequency highlighted in accent color
-- ControlStrip: frequency slider only via ParameterSlider (amplitude remains at matched 1.5 and is not shown)
-- Target: frequency = STAGE_TARGETS.frequency (2.0)
-- MatchFeedback on match; user continues → challenge initialized via `generateChallengeTarget()`
-
-**Transition**: User clicks continue in MatchFeedback → `runStageTransition` → challenge params generated, `setStage('challenge')`
-
----
-
-### Stage 4: Challenge (Observe → Diagnose → Match)
-
-#### Observe Phase
-
-**Goal**: Observe that one parameter changed.
-
-**UI State**:
-- PromptReadout: e.g. "Something changed"
-- Visualization: User wave (at matched values) + Challenge wave (one param different)
-- ControlStrip: ContinueButton
-
-**Challenge Setup** (on entering challenge from frequency stage):
-```typescript
-import { generateChallengeTarget } from './challenge-utils'
-
-// Uses challenge-utils.ts with distance validation
-const { param, value } = generateChallengeTarget()
-// Ensures target is at least CHALLENGE_MIN_DISTANCE (0.4) away from guided values
-// - Amplitude range: 0.5–2.0 (but not near 1.5)
-// - Frequency range: 1.0–3.0 (but not near 2.0)
-setChallengeParam(param)
-setChallengeTargetValue(value)
-setChallengePhase('observe')
-// Other param stays at guided stage value (STAGE_TARGETS.amplitude=1.5, STAGE_TARGETS.frequency=2.0)
-```
-
-**Transition**: User clicks Continue → `setChallengePhase('diagnose')`
-
-#### Diagnose Phase
-
-**Goal**: Identify which parameter changed.
-
-**UI State**:
-- PromptReadout: question text
-- ControlStrip: DiagnosisChoices ("What changed?" — Amplitude, Frequency, Both)
-
-**User Actions**: Selects answer. Correct choice → `setChallengePhase('match')`. Wrong choice → `diagnosisWrongAttempts` incremented; after 2 wrong attempts, hint (height vs speed) is shown from copy.
-
-**Transition**: Correct diagnosis → match phase (single active slider).
-
-#### Match Phase
-
-**Goal**: Match the challenge wave by adjusting the changed parameter.
-
-**UI State**:
-- PromptReadout: e.g. "Now match it"
-- Visualization: User wave + Challenge wave (ghost)
-- ControlStrip: sliders (one locked, one active per challenge param)
-- MatchFeedback when threshold met
-
-**Match Detection** (single active parameter):
-```typescript
-// Only the parameter that changed is adjusted; the other stays at guided value
-// Thresholds from sinewaves-constants.ts
-const threshold = MATCH_THRESHOLDS[challengeParam]
-const value = challengeParam === 'amplitude' ? amplitude : frequency
-if (Math.abs(value - challengeTargetValue) <= threshold) {
-  setChallengeMatched(true)
-}
-```
-
-**Transition**: User sees MatchFeedback, clicks continue → `runStageTransition` → `setStage('reveal')`
-
----
-
-### Stage 5: Reveal
-
-**Goal**: Provide "So What?" context and completion options.
-
-**UI State**:
-- FormulaReadout: complete formula with discoveries
-- PromptReadout: reveal title + description
-- ControlStrip: RevealPanel (Try Another, Explore, Finish)
-
-**User Options**:
-1. **Try Another**: New challenge → returns to challenge stage
-2. **Explore**: Free explore mode — all sliders unlocked, no targets
-3. **Finish**: `onComplete({ a: amplitude, f: frequency })` → returns to constellation
-
-**Free Explore Mode**: All sliders unlocked; user experiments freely.
+All stages: StatusStrip (dots, back, ESC), PromptReadout, FormulaReadout, both sliders, InstrumentControls (TRACE/RESET/SPEED) always visible. Design spec: docs/design/SINEWAVES-REFACTOR-SPEC.md.
 
 ---
 
@@ -512,19 +334,19 @@ if (Math.abs(value - challengeTargetValue) <= threshold) {
 **Pattern**: Multiple feedback channels for user actions
 
 **Implementation**:
-- **Ghost Wave**: Shows target visually (no numbers needed)
-- **MatchFeedback**: On match, runs `matchSuccessSequence` then shows continue
-- **StatusStrip**: Progress and stage label
+- **Ghost wave**: Shows target visually (no numbers needed); challenge stage mirrors user's non-challenge param
+- **Match**: Wave glow (amber) for ~800ms then auto-advance; no separate modal
+- **StatusStrip**: Progress dots (1–5), back, ESC
 
 ### 4. State-Driven UI
 
-**Pattern**: UI elements conditionally render based on stage and challenge phase.
+**Pattern**: Content varies by guide state; layout and controls do not.
 
-**Implementation** (InstrumentModule): StatusStrip, PromptReadout, FormulaReadout always rendered (content varies by stage). ControlStrip children: ContinueButton (observe, challenge observe; "Back to Results" in free explore), sliders (amplitude stage: amplitude only; frequency stage: frequency only; challenge match: one slider per `challengeParam`; free explore: both), DiagnosisChoices (challenge diagnose), MatchFeedback (when matched), RevealPanel (reveal). Visibility from `stage`, `challengePhase`, `challengeParam`, match flags, `isFreeExplore`.
+**Implementation**: StatusStrip, PromptReadout, FormulaReadout, both sliders, InstrumentControls always rendered. Only prompt text, formula highlights, ghost/connector visibility, and action buttons (Continue in watch, Try Another / Complete in free) change by `guideState`. No DiagnosisChoices, RevealPanel, or MatchFeedback.
 
 ### 5. Animation Coordination
 
-**Implementation**: Boot — `consoleBootSequence` on mount; `onReadyForScene` sets `booted` (Scene is mounted from first render). Match — MatchFeedback runs `matchSuccessSequence` (viz pulse → value highlight → feedback → continue); optional `visualizationRef` for pulse. Stage changes — `stageTransition` (control strip fade out/in). All respect `prefers-reduced-motion`.
+**Implementation**: Boot — `consoleBootSequence` on mount; then `booted` set (Scene mounted from first render). Match — wave glow via Scene `matchSuccess` prop (SineWave `glow`); optional future use of `matchSuccessSequence` (see SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md). No stageTransition; controls always visible. Respects `prefers-reduced-motion`.
 
 ### 6. Responsive Layout
 
@@ -592,32 +414,15 @@ export const SCENE_LAYOUT = {
 ```
 
 ### Progress (StatusStrip)
-```typescript
-stageProgress: Record<ViewStage, number> = {
-  observe: 5, amplitude: 25, frequency: 50, challenge: 75, reveal: 100
-}
-stageNumber: observe 1 … reveal 5. TOTAL_STAGES = 5
-```
+Guide state index 1–5; TOTAL_GUIDE_STATES = 5. See guide-state.ts GUIDE_STATE_TO_INDEX, INDEX_TO_GUIDE_STATE.
 
 ---
 
 ## Copy & Content
 
-**Location**: `src/components/modules/sinewaves/sinewaves-copy.ts`
+**Guide prompts**: In `guide-state.ts` — `GUIDE_STATE_PROMPTS` (watch, match-amplitude, match-frequency, challenge, free) and "so what" for free.
 
-**Structure**:
-- `SINEWAVE_COPY.stages`: Copy for each stage (observe, amplitude, frequency, challenge, reveal) and challenge sub-phases
-- `discoveries`, `matchCelebration`, `behindThis`: Used by celebration/behind-this flows
-
-**Usage (InstrumentModule)**:
-```typescript
-import { SINEWAVE_COPY } from './sinewaves-copy'
-// Stage content: SINEWAVE_COPY.stages[stage].prompt, .subtext (as description)
-// stages.challenge.diagnose: question, choices, wrongFeedback, hintHeight, hintSpeed (hint after 2 wrong)
-// controlStripHints: observe, amplitude, frequency, challengeObserve, challengeMatch (hint in ControlStrip)
-// stageTransitions: status flash and hint per transition (e.g. observeToAmplitude.status, .hint)
-// matchCelebration: amplitude, frequency, challengeAmplitude, challengeFrequency (MatchFeedback message)
-```
+**Location**: `src/components/modules/sinewaves/sinewaves-copy.ts` — simplified post-refactor: match celebration strings, behindThis for celebration modal. No stage subphases, controlStripHints, or stageTransitions.
 
 ---
 
@@ -625,13 +430,13 @@ import { SINEWAVE_COPY } from './sinewaves-copy'
 
 ### Progress Tracking
 
-**InstrumentModule**: Uses local `stageProgress` and `stageNumber` for StatusStrip display. Does not currently call `PortfolioContext.updateModuleProgress`; that can be added if portfolio-wide progress persistence is needed.
+**InstrumentModule**: StatusStrip uses current guide state index (1–5) and total 5. No PortfolioContext.updateModuleProgress yet.
 
 ### Completion Flow
 
-1. User clicks "Finish" in reveal stage
+1. User clicks "Complete" in free state
 2. `onComplete({ a: amplitude, f: frequency })` called
-3. App.tsx receives completion → shows CelebrationModal
+3. App receives completion → shows CelebrationModal
 4. User can navigate back to constellation
 
 ---
@@ -671,10 +476,9 @@ import { SINEWAVE_COPY } from './sinewaves-copy'
 
 ### 🔄 Patterns to Refine for Future Modules
 
-1. **Stage Transitions**: Could be extracted to reusable hook
-2. **Match Detection**: Now centralized in `sinewaves-constants.ts`; could be extracted to reusable hook
-3. **Question System**: Hardcoded questions - could be config-driven
-4. **Copy Management**: Centralized copy is good, but stage-specific logic is scattered
+1. **Match detection**: Centralized in sinewaves-constants.ts; snap-to-target on match (see SINEWAVES-MATCH-PROXIMITY-AUDIT) for ghost/user sync
+2. **Celebration**: matchSuccessSequence in animations.ts not wired; overlay is static (see SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT)
+3. **Copy**: Guide prompts in guide-state.ts; sinewaves-copy.ts for celebrations and behindThis
 
 ### 📋 Checklist for New Modules
 

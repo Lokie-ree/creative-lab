@@ -12,7 +12,7 @@ description: Translate PRDs for interactive educational modules into UX specific
 
 ---
 
-**Foundational alignment:** UX specs must reinforce the pedagogy in [../philosophy.md](../philosophy.md) (understanding precedes notation, earned reveal, visual confirmation) and the product alignment in [../alignment-product.md](../alignment-product.md). Pass 1 (mental model) should explicitly align with "understanding precedes notation"; visual and interaction specs should support manipulation-first and visual confirmation, not multiple-choice or notation-first flows.
+**Foundational alignment:** UX specs must reinforce the pedagogy in [../philosophy.md](../philosophy.md) (understanding precedes notation, earned reveal, visual confirmation) and the product alignment in [../product.md](../product.md). Pass 1 (mental model) should explicitly align with "understanding precedes notation"; visual and interaction specs should support manipulation-first and visual confirmation, not multiple-choice or notation-first flows.
 
 ---
 
@@ -277,7 +277,7 @@ Only after all 6 passes are complete, create:
 - Stage machine configuration (what's visible when)
 
 **Module-specific considerations:**
-- Align with [../philosophy.md](../philosophy.md) and [../alignment-product.md](../alignment-product.md): manipulation-first, earned reveal, visual confirmation (no multiple choice), LSSM rigor where applicable
+- Align with [../philosophy.md](../philosophy.md) and [../product.md](../product.md): manipulation-first, earned reveal, visual confirmation (no multiple choice), LSSM rigor where applicable
 - Reference existing module patterns (e.g. sinewaves) and `docs/modules/algebra/`, `docs/modules/geometry/` for product/technical framing
 - Consider progressive reveal (unlock complexity gradually)
 - Map to Observe → Manipulate → Discover → Celebrate flow

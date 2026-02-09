@@ -7,17 +7,17 @@ Math Educator • Full-Stack Developer • Interactive Learning Designer
 
 ## Summary
 
-Mathematician first, with 15+ years as an educator learning how students learn. Former computer science major who returned to coding in 2024 through collaboration with a tight-knit developer community. I design interactive learning experiences that treat formulas as destinations to be earned through discovery, not prerequisites to be memorized. Currently building AI-powered coaching tools for Louisiana educators and interactive mathematics modules that demonstrate pedagogical approaches aligned with modern learning science.
+Mathematician first, with 15+ years as an educator learning how students learn. Former computer science major who returned to coding in 2024 through a tight-knit developer community. I design interactive learning experiences that treat formulas as rewards earned through discovery rather than prerequisites to memorize. I am building AI-powered coaching tools for Louisiana educators and interactive mathematics modules aligned with modern learning science.
 
-**Relevant Strengths:**
-- **Mathematical Depth:** Advanced degree with coursework spanning calculus, linear algebra, abstract algebra, analysis, and beyond
-- **Pedagogical Instinct:** Nearly two decades of watching students hit walls and finding ways around them
-- **Technical Execution:** Self-taught developer who ships working products
-- **Content Creation:** Strong writing skills developed through years of explaining complex ideas clearly
-- **Adaptability:** Comfortable pivoting between classroom teaching, technology coordination, mentoring, and development work
+**Relevant strengths**
+- **Mathematical depth:** Advanced degree with coursework in calculus, linear algebra, abstract algebra, analysis, and beyond
+- **Pedagogical instinct:** Nearly two decades of watching students hit walls and finding ways around them
+- **Technical execution:** Self-taught developer who ships working products
+- **Content creation:** Strong writing from years of explaining complex ideas clearly
+- **Adaptability:** Comfortable pivoting among classroom teaching, technology coordination, mentoring, and development
 
-**Philosophy:**
-I believe mathematical understanding should be earned through discovery, not delivered through explanation. The best learning experiences drop users into challenges that feel intuitive, then reveal the underlying structure after they've developed genuine insight. Formulas should feel like rewards—confirmation of something you've already understood—not arbitrary rules to memorize.
+**Philosophy**  
+Mathematical understanding should be earned through discovery, not delivered through explanation. The best learning experiences drop users into challenges that feel intuitive, then reveal the underlying structure after they have developed genuine insight. Formulas should feel like rewards—confirmation of something already understood—not arbitrary rules to memorize.
 
 ---
 
@@ -37,25 +37,25 @@ Iberville Virtual Learning Academy, 2024 – Present
 - Decomposed complex mathematical ideas into approachable, well-sequenced progressions for diverse learners
 - Designed visual, hands-on learning experiences that guided students toward mathematical thinking
 - Created content addressing common misconceptions in algebra, geometry, and trigonometry
-- Mentored new teachers on instructional best practices and classroom engagement strategies
+- Mentored new teachers on instructional best practices and classroom engagement
 
 **504 Coordinator & STEM Teacher**  
-Crescent Elementary School, 2023-2024
+Crescent Elementary School, 2023–2024
 
-- Inspired young minds through hands-on experiences teaching K-6 STEM
-- Balanced large workload across documentation, implementation, and stakeholder communication
+- Taught K–6 STEM through hands-on experiences
+- Balanced documentation, implementation, and stakeholder communication
 - Collaborated with educators, families, and specialists to ensure equitable access to learning
 
 **Mentor Teacher**  
-White Castle High School, 2019-2023
+White Castle High School, 2019–2023
 
-- Supported teachers in all content areas, not just mathematics
-- Trained colleagues on translating mathematical concepts into clear, simple, hands-on steps
+- Supported teachers across all content areas
+- Trained colleagues to translate mathematical concepts into clear, hands-on steps
 - Modeled instructional techniques that challenged students while building confidence
 - Supported context switching across content areas and competing priorities
 
 **Mathematics Teacher**  
-Vandebilt Catholic High School, 2010-2019
+Vandebilt Catholic High School, 2010–2019
 
 - Decomposed complex mathematical ideas into approachable, well-sequenced progressions for diverse learners
 - Designed visual, hands-on learning experiences that guided students toward mathematical thinking
@@ -65,13 +65,13 @@ Vandebilt Catholic High School, 2010-2019
 
 ## Technical Skills
 
-**Languages & Frameworks:** TypeScript, React, Next.js, Three.js, React Three Fiber, GSAP, Tailwind
+**Languages & frameworks:** TypeScript, React, Next.js, Three.js, React Three Fiber, GSAP, Tailwind
 
-**Backend & Infrastructure:** Convex, Node.js, REST APIs, AI/LLM integration, Sanity
+**Backend & infrastructure:** Convex, Node.js, REST APIs, AI/LLM integration, Sanity
 
-**Tools & Platforms:** GitHub, Vercel, Claude Code, Cursor IDE, Linear
+**Tools & platforms:** GitHub, Vercel, Claude Code, Cursor IDE, Linear
 
-**Design & Visualization:** Mathematical animation at 60fps, interactive data visualization, responsive UI design, component architecture
+**Design & visualization:** Mathematical animation at 60fps, interactive data visualization, responsive UI design, component architecture
 
 ---
 
@@ -79,24 +79,22 @@ Vandebilt Catholic High School, 2010-2019
 
 **Pelican AI** — Founder & Developer (2025 – Present)
 
-Built an intelligent coaching layer that helps Louisiana teachers generate high-quality, context-aligned prompts for AI tools. Currently serving active users during beta testing.
+Built an intelligent coaching layer that helps Louisiana teachers generate high-quality, context-aligned prompts for AI tools. Currently serving active users in beta.
 
-- Designed conversational interface that gathers pedagogical context through natural dialogue rather than form-filling
+- Designed a conversational interface that gathers pedagogical context through natural dialogue instead of forms
 - Integrated Louisiana Educator Rubric, Louisiana Student Standards, and LEADS evaluation framework into prompt generation
 - Created feedback loops where successful prompts become shareable exemplars for other educators
 - Tech stack: React, Convex backend, GPT integration with Louisiana-specific RAG
 
 **Creative Lab: Sine/Cosine Interactive Module** — Completed (December 2025)
 
-This project began as an idea I had after stepping up to teach a credentialed Web Development and Javascript course for high school students. The vision was to do what I was taught as a teacher: "begin with the end in mind." So, before I crafted the 12-day plan to apply for this role, I was actually planning to prepare students to do the same for any position/role they aspire to earn.
+Built an interactive visualization where users discover the wave equation by matching a target motion—the formula appears as a reward, not a prerequisite. The project grew from preparing high school students for a credentialed Web Development and JavaScript course: plan with the end in mind, then execute.
 
-Built an interactive visualization where users discover the wave equation by matching a target motion—formula appears as reward, not prerequisite.
-
-- Users immediately engage with synchronized unit circle, wave graph, and pulsing glow visualization
-- Pattern-matching challenge teaches amplitude and frequency through intuition (phase removed for depth over breadth)
-- No front-loaded explanations—the interface teaches through invitation to tinker
-- Built with React, React Three Fiber, GSAP, achieving 60fps mathematical animations
-- Complete presentation wrapper: hero landing page, smooth transitions, celebration modal with three tabs, escape hatch navigation, resume and design process dialogs
+- Users engage immediately with a synchronized unit circle, wave graph, and pulsing glow
+- Pattern-matching challenge teaches amplitude and frequency through intuition (phase omitted for depth over breadth)
+- No front-loaded explanations—the interface teaches by inviting users to tinker
+- Built with React, React Three Fiber, and GSAP; 60fps mathematical animations
+- Full presentation wrapper: hero landing page, smooth transitions, celebration modal with three tabs, escape-hatch navigation, resume and design-process dialogs
 
 ---
 
