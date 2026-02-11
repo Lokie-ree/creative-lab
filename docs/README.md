@@ -31,13 +31,7 @@ Planning and developing a new module follows a fixed pipeline. Each step consume
 MVP idea → PRD → UX spec → Build-order prompts → Implementation
 ```
 
-| Step | Document | Description |
-|------|----------|-------------|
-| 1 | [modules/prd-generator.md](./modules/prd-generator.md) | Turn a rough MVP idea into a demo-grade PRD (sections 1–7). |
-| 2 | [modules/prd-to-ux.md](./modules/prd-to-ux.md) | Turn the PRD into a UX specification (6 passes, then visual specs). |
-| 3 | [modules/ux-to-prompts.md](./modules/ux-to-prompts.md) | Turn the UX spec into sequential, self-contained build-order prompts. |
-
-Generated artifacts (PRDs, UX specs, build-order prompts) live in the module’s directory, e.g. `docs/modules/<module-name>/`.
+The pipeline is implemented as the `module-planning-pipeline` Claude Code skill. Generated artifacts (PRDs, UX specs, build-order prompts) live in the module's directory, e.g. `docs/modules/<module-name>/`.
 
 ---
 

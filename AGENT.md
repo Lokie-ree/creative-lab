@@ -61,23 +61,54 @@ Back navigation and Escape Hatch from modules; Celebration modal on completion.
 
 ## Design System
 
+### Aesthetic: Eurorack / Synth Module
+Warm matte faceplate, phosphor green accent, silk-screened labels, scored dividers, panel screws, no glow, no border-radius on module UI. Mockup reference: `mockups/eurorack-sinewaves.html`.
+
 ### Colors (from `src/lib/colors.ts` → `src/index.css`)
-- **accent.primary**: `#22d3ee` (cyan) — Active elements, success — CSS: `--lab-accent`
+- **accent.primary**: `#7cc87c` (phosphor green) — Active elements — CSS: `--lab-accent`
+- **accent.primaryHover**: `#96e496` — CSS: `--lab-accent-hover`
+- **accent.primaryMuted**: `#4a8a4a` — CSS: `--lab-accent-muted`
 - **learning.primary**: `#f5a623` (amber) — Feedback, reveals — CSS: `--lab-accent-warm`, `--lab-earned`
-- **background.primary**: `#0a0a0f` — Dark navy canvas — CSS: `--lab-bg`
-- **ghost**: `#888888` — Target/locked elements — CSS: `--lab-ghost`
+- **background.primary**: `#1e1d1c` (warm faceplate) — CSS: `--lab-bg`
+- **background.secondary**: `#252422` — CSS: `--lab-surface`
+- **text.primary**: `#b8b0a4` (silk cream) — CSS: `--lab-text`
+- **text.secondary**: `#7a746a` (silk dim) — CSS: `--lab-text-muted`
+- **ghost**: `#7a746a` — Target/locked elements — CSS: `--lab-ghost`
+- **success**: `#5a7a5a` (earthy green) — CSS: `--lab-success`
+- **danger**: `#8a4a4a` (muted red) — CSS: `--lab-danger`
+- **screw.border/bg/slot**: `#4a4844`/`#3a3836`/`#1a1918` — CSS: `--lab-screw-*`
+- **led.completedBorder/upcomingBorder**: `#3e5e3e`/`#3a3632` — CSS: `--lab-led-*`
+
+### Fonts
+- **Display & Body**: `Inter Tight` (`--font-display`, `--font-body`) — silk-screen labels, UI text
+- **Data**: `JetBrains Mono` (`--font-data`) — numeric readouts, formula, monospace values
+
+### Utility Classes (`src/index.css`)
+- **`lab-silk`** — Silk-screen label treatment: uppercase, 9px, 0.15em tracking, font-semibold. Composable — does NOT set font-family.
+- **`lab-display-font`** — `font-family: var(--font-display)` (Inter Tight)
+- **`lab-data-font`** — `font-family: var(--font-data)` (JetBrains Mono)
+- Always pair `lab-silk` with a font: `lab-silk lab-display-font` or `lab-silk lab-data-font`
+- **Tracking scale:** `0.2em` (micro-labels ≤8px) · `0.15em` (standard 9px) · `0.1em` (buttons ≥10px)
+- **Transitions:** Always use explicit `duration-150` on interactive elements
 
 ### Tailwind CSS 4
 - Spacing: `p-2`, `gap-3`, `m-4` (standard scale)
 - Colors: `bg-(--lab-bg)`, `text-(--lab-accent)` (parentheses syntax, not `bg-[var(--lab-accent)]`)
-- Fonts: `font-[family-name:var(--font-display)]`
+- Fonts: `lab-display-font`, `lab-data-font` (utility classes, not inline `font-[family-name:...]`)
 - Responsive: `text-sm sm:text-base md:text-lg` (mobile-first)
+- Silk-screen labels: `lab-silk lab-display-font` (+ override size/tracking as needed)
 
 ### Design Principles
-- Dark mode default with focused, mathematical aesthetic
-- Three semantic colors: accent (active), accentMuted (ghost/disabled), geometry (blue constructs)
+- Dark warm faceplate with Eurorack panel aesthetic
+- Semantic colors: accent (phosphor green active), success (earthy green), danger (muted red), learning (amber)
+- No glow effects, no rounded corners on module UI, scored dividers between sections
 - 60fps animations or instant—no jank
 - R3F for continuous/synchronized motion, SVG for static/simple
+
+### Follow-up Items (hardcoded cyan outside sinewaves)
+- `src/components/constellation/ModuleNode.tsx` — `rgba(34,211,238,...)` drop-shadow
+- `src/components/hero/HeroContent.tsx` — `rgba(34,211,238,...)` hover shadow
+- `src/components/hero/HeroBackground.tsx` — `rgba(34,211,238,...)` radial gradient
 
 ## Pedagogy
 
@@ -94,13 +125,13 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 - **Modules (see `src/config/modules.ts`):**
   - **sinewaves** — Actively polishing. Trigonometry; unit circle → sine/cosine. Instrument-style HUD (InstrumentModule). Instrument refactor completed; see [docs/plans/2026-02-05-sinewaves-instrument-refactor.md](./docs/plans/2026-02-05-sinewaves-instrument-refactor.md).
-  - **vector-transformations** — Implemented (in-app). Planning has shifted to major content clusters; see `docs/modules/algebra/` and `docs/modules/geometry/`. Specific next modules TBD.
+  - **vector-transformations** — Implemented (in-app). Planning has shifted to major content clusters; see `docs/modules/`. Specific modules are named as they are built.
   - **phase-portraits** — Placeholder/coming-soon.
-- **Roadmap:** Organized by **major content clusters** (Algebra I, Geometry). Which modules to build next will be decided later; see `docs/modules/algebra/` and `docs/modules/geometry/` for product and technical framing.
+- **Roadmap:** Organized by **major content clusters** (Algebra I, Geometry). Which modules to build next will be decided later; see `docs/modules/` for product and technical framing.
 
 ## Active Work
 
-**Sinewaves** — Actively polishing this module. The instrument refactor (layout, constants/utils extraction, Tailwind-first refactor, match detection) was completed per [docs/plans/2026-02-05-sinewaves-instrument-refactor.md](./docs/plans/2026-02-05-sinewaves-instrument-refactor.md). Ongoing polish and follow-ups reference that plan.
+**Sinewaves** — Eurorack reskin and design audit complete. Global design tokens shifted to warm/green palette. Sinewaves fully reskinned: fader sliders, scored dividers, panel screws (PanelScrew component, varied rotations), LED progress dots, silk-screen labels via `lab-silk` utility, inline match celebration (no blocking modal). Design audit fixes: button hierarchy (ghost variant for "Try Another"), contrast improvements, composable font utilities (`lab-silk`/`lab-display-font`/`lab-data-font`), hardcoded colors tokenized (screw/LED), hover states on instrument controls, proximity feedback transitions, visualization entrance animation, formula accent border, `color-mix()` for opacity helper. See [docs/plans/2026-02-10-sinewaves-eurorack-reskin.md](./docs/plans/2026-02-10-sinewaves-eurorack-reskin.md). Follow-up: hero and constellation need hardcoded cyan cleanup.
 
 ## Agent Guidelines
 
