@@ -45,9 +45,10 @@ export function Connector({ circleX, waveX, frequency, phase, amplitude, scale =
     const angle = frequency * t + phase
     const y = amplitude * Math.sin(angle)
 
-    // Circle point position (in world coords, accounting for scale)
-    const circlePointX = circleX + Math.cos(angle) * scale
-    const circlePointY = Math.sin(angle) * scale
+    // Circle point position (in world coords, accounting for amplitude and scale)
+    // UnitCircle draws at radius=amplitude inside a group with scale=scale
+    const circlePointX = circleX + Math.cos(angle) * amplitude * scale
+    const circlePointY = Math.sin(angle) * amplitude * scale
 
     // Wave live point position (in world coords)
     const wavePointX = waveX

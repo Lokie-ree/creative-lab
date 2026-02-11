@@ -83,10 +83,10 @@
 /* Ring pulse animation for recommended modules */
 @keyframes ring-pulse {
   0%, 100% {
-    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.4));
+    filter: drop-shadow(0 0 8px rgba(124, 200, 124, 0.4));
   }
   50% {
-    filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.6));
+    filter: drop-shadow(0 0 16px rgba(124, 200, 124, 0.6));
   }
 }
 
@@ -200,16 +200,16 @@
    - JS/TS: import { colors } from '@/lib/colors'
    =========================================== */
 :root {
-  /* Backgrounds */
-  --lab-bg: #0a0a0f;
-  --lab-surface: #12121a;
-  --lab-surface-elevated: #1a1a24;
-  --lab-bg-elevated: #2a2a3a;
+  /* Backgrounds (warm faceplate) */
+  --lab-bg: #1e1d1c;
+  --lab-surface: #252422;
+  --lab-surface-elevated: #2e2c28;
+  --lab-bg-elevated: #3a3733;
 
-  /* Accent - Primary interactive color (cyan) */
-  --lab-accent: #22d3ee;
-  --lab-accent-hover: #67e8f9;
-  --lab-accent-muted: #06b6d4;
+  /* Accent - Primary interactive color (phosphor green) */
+  --lab-accent: #7cc87c;
+  --lab-accent-hover: #96e496;
+  --lab-accent-muted: #4a8a4a;
 
   /* Accent Warm - Learning moments (amber) */
   --lab-accent-warm: #f5a623;
@@ -218,28 +218,38 @@
   /* Geometry - Visualization elements (blue) */
   --lab-geometry: #3B82F6;
 
-  /* Text */
-  --lab-text: #e0e0e0;
-  --lab-text-muted: #888888;
-  --lab-text-dim: #6b7280;
-  --lab-text-secondary: #888888;
+  /* Text (silk cream) */
+  --lab-text: #b8b0a4;
+  --lab-text-muted: #7a746a;
+  --lab-text-dim: #4a463e;
+  --lab-text-secondary: #7a746a;
 
   /* Borders */
-  --lab-border: #2a2a3a;
-  --lab-border-subtle: #1f1f2a;
-  --lab-border-muted: #888888;
+  --lab-border: #2e2c28;
+  --lab-border-subtle: #252422;
+  --lab-border-muted: #7a746a;
 
   /* Ghost/target visualization */
-  --lab-ghost: #888888;
+  --lab-ghost: #7a746a;
+
+  /* Panel hardware (screws) */
+  --lab-screw-border: #4a4844;
+  --lab-screw-bg: #3a3836;
+  --lab-screw-slot: #1a1918;
+
+  /* LED indicators */
+  --lab-led-completed-border: #3e5e3e;
+  --lab-led-upcoming-border: #3a3632;
 
   /* Semantic colors */
-  --lab-success: #22d3ee;
+  --lab-success: #5a7a5a;
+  --lab-danger: #8a4a4a;
   --lab-warning: #f5a623;
   --lab-earned: #f5a623;  /* Same as --lab-accent-warm / learning.primary */
 
-  /* Typography - Observatory HUD */
-  --font-display: 'JetBrains Mono', monospace;
-  --font-body: 'DM Sans', sans-serif;
+  /* Typography - Eurorack / silk-screen */
+  --font-display: 'Inter Tight', sans-serif;
+  --font-body: 'Inter Tight', sans-serif;
   --font-data: 'JetBrains Mono', monospace;
 
   /* Spacing - Observatory HUD semantic scale */
@@ -257,6 +267,26 @@
   --duration-slow: 500ms;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Eurorack utility classes */
+/*
+ * Silk-screen label treatment (composable — pair with lab-display-font or lab-data-font)
+ * Tracking scale: 0.2em (micro-labels ≤8px) · 0.15em (standard 9px) · 0.1em (buttons ≥10px)
+ */
+@utility lab-silk {
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+}
+
+@utility lab-display-font {
+  font-family: var(--font-display);
+}
+
+@utility lab-data-font {
+  font-family: var(--font-data);
 }
 
 @layer base {

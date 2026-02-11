@@ -1,6 +1,7 @@
 // src/components/modules/sinewaves/GridLines.tsx
 import { useMemo } from 'react'
 import * as THREE from 'three'
+import { colors } from '@/lib/colors'
 
 interface GridLinesProps {
   width?: number
@@ -63,7 +64,7 @@ export function GridLines({
       {/* Minor grid lines */}
       <lineSegments geometry={minorLines}>
         <lineBasicMaterial
-          color="#333344"
+          color={colors.background.tertiary}
           transparent
           opacity={minorOpacity}
         />
@@ -72,7 +73,7 @@ export function GridLines({
       {/* Major grid lines */}
       <lineSegments geometry={majorLines}>
         <lineBasicMaterial
-          color="#333344"
+          color={colors.background.tertiary}
           transparent
           opacity={majorOpacity}
         />
@@ -81,7 +82,7 @@ export function GridLines({
       {/* Axes */}
       <lineSegments geometry={axes}>
         <lineBasicMaterial
-          color="#333344"
+          color={colors.background.tertiary}
           transparent
           opacity={axisOpacity}
         />

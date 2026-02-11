@@ -14,8 +14,8 @@ interface ControlStripProps {
  * Control strip with always-visible sliders and instrument controls
  *
  * Layout:
- * - Mobile: sliders stacked, then buttons row
- * - Desktop: sliders side-by-side, then buttons row
+ * - Mobile: sliders stacked → instrument controls → action buttons
+ * - Desktop (sm+): [slider] [slider] [instrument controls] on one row, action buttons below
  */
 export const ControlStrip = forwardRef<HTMLDivElement, ControlStripProps>(
   function ControlStrip(
@@ -26,18 +26,18 @@ export const ControlStrip = forwardRef<HTMLDivElement, ControlStripProps>(
       <div
         ref={ref}
         className={cn(
-          'mx-auto flex w-full max-w-2xl flex-col items-center gap-2 md:gap-4',
+          'mx-auto flex w-full max-w-4xl flex-col items-center gap-3 md:gap-4',
           className
         )}
       >
-        {/* Sliders row */}
-        <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-4 md:gap-6">
+        {/* Main controls row: sliders + instrument buttons */}
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:gap-4 md:gap-6">
           <div className="flex-1">{amplitudeSlider}</div>
           <div className="flex-1">{frequencySlider}</div>
+          <div className="shrink-0 self-center sm:self-end sm:pb-3 sm:ml-auto">
+            {instrumentControls}
+          </div>
         </div>
-
-        {/* Instrument controls row */}
-        {instrumentControls}
 
         {/* Action buttons (Continue, Try Another, Complete) */}
         {actionButtons && (

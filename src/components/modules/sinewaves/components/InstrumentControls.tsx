@@ -14,7 +14,7 @@ interface InstrumentControlsProps {
 
 /**
  * Instrument control buttons: TRACE (play/pause), RESET, SPEED
- * Always visible, independent of guide state
+ * Eurorack style: no rounded corners, semantic colors per button
  */
 export function InstrumentControls({
   isPaused,
@@ -25,28 +25,29 @@ export function InstrumentControls({
   className,
 }: InstrumentControlsProps) {
   return (
-    <div className={cn('flex items-center justify-center gap-2', className)}>
+    <div className={cn('flex items-center justify-center gap-0.5', className)}>
       {/* TRACE (play/pause) */}
       <button
         type="button"
         onClick={onTogglePause}
         className={cn(
-          'flex min-h-[44px] items-center gap-1.5 rounded border px-3 py-1.5',
-          'text-xs font-medium uppercase tracking-wider',
-          'transition-colors focus:outline-none focus:ring-2 focus:ring-(--lab-accent)',
-          'font-[family-name:var(--font-data)]',
+          'flex min-h-[44px] flex-col items-center justify-center gap-1 border px-3 py-1.5',
+          'lab-silk lab-display-font text-[7.5px] font-bold',
+          'transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-(--lab-accent)',
+          'bg-(--lab-surface) border-(--lab-border)',
+          'hover:border-(--lab-accent)',
           isPaused
-            ? 'border-(--lab-accent) text-(--lab-accent)'
-            : 'border-(--lab-border) text-(--lab-text-muted) hover:border-(--lab-accent) hover:text-(--lab-accent)'
+            ? 'text-(--lab-accent)'
+            : 'text-(--lab-success)'
         )}
         aria-label={isPaused ? 'Resume animation' : 'Pause animation'}
       >
         {isPaused ? (
-          <Play className="h-4 w-4 sm:h-3 sm:w-3" />
+          <Play className="h-3.5 w-3.5" />
         ) : (
-          <Pause className="h-4 w-4 sm:h-3 sm:w-3" />
+          <Pause className="h-3.5 w-3.5" />
         )}
-        <span className="hidden sm:inline">{isPaused ? 'Play' : 'Pause'}</span>
+        <span>Trace</span>
       </button>
 
       {/* RESET */}
@@ -54,16 +55,16 @@ export function InstrumentControls({
         type="button"
         onClick={onReset}
         className={cn(
-          'flex min-h-[44px] items-center gap-1.5 rounded border border-(--lab-border) px-3 py-1.5',
-          'text-xs font-medium uppercase tracking-wider text-(--lab-text-muted)',
-          'transition-colors hover:border-(--lab-accent) hover:text-(--lab-accent)',
-          'focus:outline-none focus:ring-2 focus:ring-(--lab-accent)',
-          'font-[family-name:var(--font-data)]'
+          'flex min-h-[44px] flex-col items-center justify-center gap-1 border px-3 py-1.5',
+          'lab-silk lab-display-font text-[7.5px] font-bold',
+          'transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-(--lab-accent)',
+          'bg-(--lab-surface) border-(--lab-border)',
+          'text-(--lab-danger) hover:border-(--lab-danger)'
         )}
         aria-label="Reset wave and sliders"
       >
-        <RotateCcw className="h-4 w-4 sm:h-3 sm:w-3" />
-        <span className="hidden sm:inline">Reset</span>
+        <RotateCcw className="h-3.5 w-3.5" />
+        <span>Reset</span>
       </button>
 
       {/* SPEED (cycling toggle) */}
@@ -71,16 +72,20 @@ export function InstrumentControls({
         type="button"
         onClick={onCycleSpeed}
         className={cn(
-          'flex min-h-[44px] items-center gap-1.5 rounded border border-(--lab-border) px-3 py-1.5',
-          'text-xs font-medium uppercase tracking-wider text-(--lab-text-muted)',
-          'transition-colors hover:border-(--lab-accent) hover:text-(--lab-accent)',
-          'focus:outline-none focus:ring-2 focus:ring-(--lab-accent)',
-          'font-[family-name:var(--font-data)]',
-          'min-w-[4rem]'
+          'flex min-h-[44px] flex-col items-center justify-center gap-1 border px-3 py-1.5',
+          'lab-silk lab-display-font text-[7.5px] font-bold',
+          'transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-(--lab-accent)',
+          'bg-(--lab-surface) border-(--lab-border)',
+          'text-(--lab-text-muted)',
+          'hover:border-(--lab-accent) hover:text-(--lab-accent)',
+          'min-w-[3.5rem]'
         )}
         aria-label={`Speed: ${speed}x. Click to change.`}
       >
-        {speed}x
+        <span className="lab-data-font text-sm font-semibold text-(--lab-text)">
+          {speed}x
+        </span>
+        <span>Speed</span>
       </button>
     </div>
   )

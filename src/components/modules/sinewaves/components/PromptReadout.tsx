@@ -10,8 +10,8 @@ interface PromptReadoutProps {
 }
 
 /**
- * Prompt readout panel with left-edge cyan glow
- * Observatory HUD instrument panel aesthetic
+ * Prompt readout panel — Eurorack silk-screen style
+ * OBSERVATION micro-label above prompt text
  * Animates in when title changes
  */
 export const PromptReadout = forwardRef<HTMLDivElement, PromptReadoutProps>(
@@ -32,29 +32,35 @@ export const PromptReadout = forwardRef<HTMLDivElement, PromptReadoutProps>(
       <div
         ref={localRef}
         className={cn(
-          'relative rounded bg-(--lab-surface) p-3 sm:p-4',
-          'border-l-2 border-l-(--lab-accent)',
-          'shadow-[inset_4px_0_8px_-4px_rgba(34,211,238,0.3)]',
+          'relative bg-(--lab-surface) p-3 sm:p-4',
           className
         )}
         data-stage-overlay
         role="status"
         aria-live="polite"
       >
+        <div className="mb-1.5 lab-silk lab-display-font text-[8px] tracking-[0.2em] font-bold text-(--lab-text-muted)">
+          Observation
+        </div>
         <h2
           className={cn(
-            'text-sm font-medium sm:text-base lg:text-lg',
-            'font-[family-name:var(--font-display)] text-(--lab-text)',
+            'text-sm font-medium sm:text-base',
+            'lab-display-font text-(--lab-text)',
             description && 'mb-2'
           )}
         >
           {title}
         </h2>
-        {description && (
-          <p className="text-xs leading-relaxed sm:text-sm font-[family-name:var(--font-body)] text-(--lab-text-muted)">
-            {description}
-          </p>
-        )}
+        <p
+          className={cn(
+            'text-xs leading-relaxed sm:text-sm lab-display-font text-(--lab-text-muted)',
+            'transition-opacity duration-200',
+            description ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'
+          )}
+          aria-hidden={!description}
+        >
+          {description || '\u00A0'}
+        </p>
       </div>
     )
   }
