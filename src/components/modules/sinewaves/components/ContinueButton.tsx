@@ -8,6 +8,7 @@ interface ContinueButtonProps {
   disabled?: boolean
   children?: React.ReactNode
   className?: string
+  variant?: 'default' | 'ghost'
 }
 
 /**
@@ -16,7 +17,7 @@ interface ContinueButtonProps {
  */
 export const ContinueButton = forwardRef<HTMLButtonElement, ContinueButtonProps>(
   function ContinueButton(
-    { onClick, disabled = false, children = 'Continue', className = '' },
+    { onClick, disabled = false, children = 'Continue', className = '', variant = 'default' },
     ref
   ) {
     return (
@@ -27,10 +28,12 @@ export const ContinueButton = forwardRef<HTMLButtonElement, ContinueButtonProps>
         variant="outline"
         className={cn(
           'min-h-[44px] min-w-[120px] sm:min-h-[40px]',
-          'border-(--lab-accent) bg-transparent text-(--lab-accent)',
-          'font-[family-name:var(--font-display)]',
+          'bg-transparent',
+          'lab-silk lab-display-font text-[10px] tracking-[0.1em]',
           'transition-all duration-150 ease-out',
-          'hover:bg-[rgba(34,211,238,0.1)]',
+          variant === 'ghost'
+            ? 'border-(--lab-border) text-(--lab-text-muted) hover:border-(--lab-text-muted) hover:text-(--lab-text)'
+            : 'border-(--lab-accent) text-(--lab-accent) hover:bg-(--lab-accent)/10',
           className
         )}
       >

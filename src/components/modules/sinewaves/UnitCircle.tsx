@@ -187,7 +187,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
     return (
       <group ref={groupRef}>
         {/* Circle outline */}
-        <Line points={circlePoints} color={colors.text.muted} lineWidth={1.5} />
+        <Line points={circlePoints} color={colors.border.muted} lineWidth={1.5} />
 
         {/* Radius line from center to point */}
         <primitive object={radiusLine} />
@@ -220,7 +220,7 @@ export const UnitCircle = forwardRef<UnitCircleRef, UnitCircleProps>(
         {/* Center dot */}
         <mesh position={[0, 0, 0]}>
           <circleGeometry args={[0.03, 16]} />
-          <meshBasicMaterial color={colors.text.muted} />
+          <meshBasicMaterial color={colors.border.muted} />
         </mesh>
 
       </group>

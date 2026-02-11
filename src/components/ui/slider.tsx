@@ -37,13 +37,13 @@ function Slider({
       <SliderPrimitive.Track
         data-slot="slider-track"
         className={cn(
-          "bg-gray-700 relative grow overflow-hidden rounded-full data-[orientation=horizontal]:h-2 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2"
+          "bg-gray-700 relative grow overflow-hidden data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1"
         )}
       >
         <SliderPrimitive.Range
           data-slot="slider-range"
           className={cn(
-            "bg-[var(--lab-accent)] absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+            "bg-(--lab-accent) absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
           )}
         />
       </SliderPrimitive.Track>
@@ -51,7 +51,7 @@ function Slider({
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
           key={index}
-          className="block size-8 sm:size-5 shrink-0 rounded-full border-2 border-[var(--lab-accent)] bg-[var(--lab-accent)] shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all hover:shadow-[0_0_15px_rgba(34,211,238,0.7)] focus-visible:outline-2 focus-visible:outline-[var(--lab-accent)] focus-visible:outline-offset-2 focus-visible:shadow-[0_0_15px_rgba(34,211,238,0.7)] disabled:pointer-events-none disabled:opacity-50"
+          className="block h-6 w-3 sm:h-5 sm:w-2.5 shrink-0 border border-(--lab-accent) bg-(--lab-accent) transition-colors focus-visible:outline-2 focus-visible:outline-(--lab-accent) focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50"
         />
       ))}
     </SliderPrimitive.Root>

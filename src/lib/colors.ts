@@ -2,7 +2,8 @@
  * Design System Color Tokens
  *
  * Centralized color definitions for the interactive learning modules.
- * Dark, focused aesthetic optimized for mathematical visualization.
+ * Eurorack / synth module aesthetic: warm faceplate, phosphor green accent,
+ * silk-screened labels, scored dividers, no glow.
  *
  * Usage:
  * - Import: `import { colors } from '@/lib/colors'`
@@ -11,11 +12,11 @@
  */
 
 export const colors = {
-  // Primary accent (cyan)
+  // Primary accent (phosphor green)
   accent: {
-    primary: '#22d3ee',
-    primaryHover: '#67e8f9',
-    primaryMuted: '#06b6d4',
+    primary: '#7cc87c',
+    primaryHover: '#96e496',
+    primaryMuted: '#4a8a4a',
   },
 
   // Learning moment accent (amber/orange)
@@ -24,48 +25,57 @@ export const colors = {
     primaryHover: '#f7b84a',
   },
 
-  // Background colors
+  // Background colors (warm faceplate)
   background: {
-    primary: '#0a0a0f',
-    secondary: '#12121a',
-    tertiary: '#1a1a24',
-    elevated: '#2a2a3a',
+    primary: '#1e1d1c',
+    secondary: '#252422',
+    tertiary: '#2e2c28',
+    elevated: '#3a3733',
   },
 
   // Border colors
   border: {
-    primary: '#2a2a3a',
-    subtle: '#1f1f2a',
-    muted: '#888888',
+    primary: '#2e2c28',
+    subtle: '#252422',
+    muted: '#7a746a',
   },
 
-  // Text colors
+  // Text colors (silk cream)
   text: {
-    primary: '#e0e0e0',
-    secondary: '#888888',
-    muted: '#4a5568',
-    dim: '#6b7280',
+    primary: '#b8b0a4',
+    secondary: '#7a746a',
+    muted: '#4a463e',
+    dim: '#4a463e',
   },
 
   // Ghost/target visualization
-  ghost: '#888888',
+  ghost: '#7a746a',
+
+  // Panel hardware (screws)
+  screw: {
+    border: '#4a4844',
+    bg: '#3a3836',
+    slot: '#1a1918',
+  },
+
+  // LED indicators
+  led: {
+    completedBorder: '#3e5e3e',
+    upcomingBorder: '#3a3632',
+  },
 
   // Additional semantic colors
-  success: '#22d3ee',
+  success: '#5a7a5a',
+  danger: '#8a4a4a',
   warning: '#f5a623',
 } as const
 
 /**
  * Helper function to get color with opacity
- * Useful for inline styles or dynamic opacity needs
+ * Uses color-mix() for modern browsers, falling back to hex+alpha
  */
 export function colorWithOpacity(color: string, opacity: number): string {
-  // Convert hex to rgba
-  const hex = color.replace('#', '')
-  const r = parseInt(hex.substring(0, 2), 16)
-  const g = parseInt(hex.substring(2, 4), 16)
-  const b = parseInt(hex.substring(4, 6), 16)
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`
+  return `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`
 }
 
 /**

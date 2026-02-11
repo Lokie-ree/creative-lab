@@ -23,6 +23,7 @@ interface SceneProps {
   showGhost?: boolean      // Explicitly control ghost visibility
   showConnector?: boolean  // Explicitly control connector visibility
   speedMultiplier?: number // Animation speed multiplier
+  challengeParam?: 'amplitude' | 'frequency' // Which param is being challenged
 }
 
 function Visualization({
@@ -31,6 +32,7 @@ function Visualization({
   showGhost: showGhostProp,
   showConnector: showConnectorProp,
   speedMultiplier = 1,
+  challengeParam,
 }: SceneProps) {
   const { isPortrait, circle, wave, scale, connector } = useSceneLayout(stage)
   const isMobile = useIsMobileViewport()
@@ -60,11 +62,17 @@ function Visualization({
     if (stage === 'frequency' && stageTargets) {
       return { a: amplitude, f: stageTargets.frequency, p: 0 }
     }
+    if (stage === 'challenge' && stageTargets && challengeParam) {
+      if (challengeParam === 'amplitude') {
+        return { a: stageTargets.amplitude, f: frequency, p: 0 }
+      }
+      return { a: amplitude, f: stageTargets.frequency, p: 0 }
+    }
     if (stage === 'phase' && stageTargets) {
       return { a: stageTargets.amplitude, f: stageTargets.frequency, p: stageTargets.phase }
     }
     return target
-  }, [stage, stageTargets, target, amplitude, frequency])
+  }, [stage, stageTargets, target, amplitude, frequency, challengeParam])
 
   return (
     <>
@@ -142,7 +150,7 @@ function Visualization({
 export function Scene({
   amplitude, frequency, phase, target, stage, isPaused, onPauseChange,
   stageTargets, isVisible = true, matchSuccess,
-  showGhost, showConnector, speedMultiplier,
+  showGhost, showConnector, speedMultiplier, challengeParam,
 }: SceneProps) {
   // Conditionally render Canvas to prevent WebGL context conflicts
   // when both Hero and Module are mounted during SlideTransition
@@ -169,6 +177,7 @@ export function Scene({
         showGhost={showGhost}
         showConnector={showConnector}
         speedMultiplier={speedMultiplier}
+        challengeParam={challengeParam}
       />
     </Canvas>
   )

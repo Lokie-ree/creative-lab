@@ -12,7 +12,7 @@ interface FormulaReadoutProps {
 }
 
 /**
- * Formula readout panel with corner bracket accents
+ * Formula readout panel — Eurorack silk-screen style
  * Shows the formula being built: y = A sin(f t)
  * Animates in on highlight changes (stage transitions)
  */
@@ -56,11 +56,16 @@ export const FormulaReadout = forwardRef<HTMLDivElement, FormulaReadoutProps>(
     return (
       <div
         ref={localRef}
-        className={cn('relative rounded bg-(--lab-surface) p-3 sm:p-4', className)}
+        className={cn('relative bg-(--lab-surface) p-3 sm:p-4 border-l-2 border-l-(--lab-accent)/20', className)}
         data-stage-overlay
       >
+        {/* Label */}
+        <p className="mb-1.5 lab-silk lab-display-font text-[8px] tracking-[0.2em] font-bold text-(--lab-text-muted)">
+          Formula
+        </p>
+
         {/* Formula */}
-        <div className="text-center text-base font-[family-name:var(--font-data)] text-(--lab-text) sm:text-lg md:text-xl">
+        <div className="text-base lab-data-font text-(--lab-text) sm:text-lg md:text-xl">
           <span>y = </span>
           <span className={cn('font-medium', highlightAmplitude ? 'text-(--lab-accent)' : 'text-(--lab-text)')}>
             {amplitude.toFixed(1)}
@@ -71,11 +76,6 @@ export const FormulaReadout = forwardRef<HTMLDivElement, FormulaReadoutProps>(
           </span>
           <span> t)</span>
         </div>
-
-        {/* Label */}
-        <p className="mt-2 text-center text-[10px] uppercase tracking-wider font-[family-name:var(--font-body)] text-(--lab-text-muted) sm:text-xs">
-          You're Building
-        </p>
       </div>
     )
   }

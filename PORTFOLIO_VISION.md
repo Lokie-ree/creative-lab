@@ -35,9 +35,9 @@ Roadmap is organized by **major content clusters** (Algebra I, Geometry). Which 
 ```
                     ┌─── Trigonometry ───────→ Sinewaves (COMPLETE)
                     │
-        HERO ───────┼─── Algebra I (major content) ──→ Modules TBD (see docs/modules/algebra/)
+        HERO ───────┼─── Algebra I (major content) ──→ Modules TBD
                     │
-                    └─── Geometry (major content) ──→ Modules TBD (see docs/modules/geometry/)
+                    └─── Geometry (major content) ──→ Modules TBD
 ```
 
 ### What This Creates

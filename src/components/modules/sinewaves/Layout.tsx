@@ -8,15 +8,36 @@ interface InstrumentLayoutProps {
   formulaReadout: ReactNode
   visualization: ReactNode
   controlStrip: ReactNode
+  booted?: boolean
   children?: ReactNode // For overlays (celebrations, etc.)
 }
 
+const SCREW_POSITIONS = [
+  { className: 'top-1 left-1', rotation: -35 },
+  { className: 'top-1 right-1', rotation: 45 },
+  { className: 'bottom-1 left-1', rotation: 15 },
+  { className: 'bottom-1 right-1', rotation: -60 },
+] as const
+
+function PanelScrew({ className, rotation }: { className: string; rotation: number }) {
+  return (
+    <div className={cn('pointer-events-none absolute z-10 h-3 w-3 rounded-full border border-(--lab-screw-border) bg-(--lab-screw-bg)', className)}>
+      <div
+        className="absolute top-1/2 left-1/2 h-px w-1.5 -translate-x-1/2 -translate-y-1/2 bg-(--lab-screw-slot)"
+        style={{ rotate: `${rotation}deg` }}
+      />
+    </div>
+  )
+}
+
 /**
- * Instrument layout for sinewaves module
+ * Eurorack faceplate layout for sinewaves module
  *
  * All elements always visible at every breakpoint.
  * Mobile (<768px): Vertical stack — status | prompt | formula | viz | sliders | buttons
  * Desktop (≥768px): 4-row grid — status strip | readouts side-by-side | viz | controls
+ *
+ * Sections separated by scored borders. Panel screws at corners.
  */
 export function InstrumentLayout({
   statusStrip,
@@ -24,6 +45,7 @@ export function InstrumentLayout({
   formulaReadout,
   visualization,
   controlStrip,
+  booted = false,
   children,
 }: InstrumentLayoutProps) {
   return (
@@ -31,45 +53,50 @@ export function InstrumentLayout({
       className={cn(
         'relative grid min-h-dvh w-screen overflow-x-hidden overflow-y-hidden',
         'bg-(--lab-bg) font-[family-name:var(--font-body)]',
-        // Mobile: 6-row layout (all elements visible)
-        'grid-rows-[auto_auto_auto_1fr_auto_auto] gap-2 p-2',
+        // Mobile: 6-row layout (all elements visible), scored dividers via gap-0 + borders
+        'grid-rows-[auto_auto_auto_1fr_auto_auto] gap-0',
         // Desktop: 4-row layout with side-by-side readouts
-        'md:grid-rows-[3rem_auto_1fr_auto] md:gap-4 md:p-4'
+        'md:grid-rows-[3rem_auto_1fr_auto] md:gap-0'
       )}
     >
+      {/* Panel screws — decorative, tucked into extreme corners */}
+      {SCREW_POSITIONS.map((screw) => (
+        <PanelScrew key={screw.className} className={screw.className} rotation={screw.rotation} />
+      ))}
+
       {/* ROW 1: STATUS STRIP */}
-      <header className="flex items-center">
+      <header className="flex items-center border-b border-(--lab-border) px-5 py-2 md:px-6">
         {statusStrip}
       </header>
 
       {/* ROW 2: PROMPT READOUT (mobile: own row, desktop: combined with formula) */}
-      <div className="md:hidden">
+      <div className="min-h-[4.5rem] border-b border-(--lab-border) md:hidden">
         {promptReadout}
       </div>
 
       {/* ROW 3: FORMULA READOUT (mobile: own row, desktop: combined with prompt) */}
-      <div className="md:hidden">
+      <div className="border-b border-(--lab-border) md:hidden">
         {formulaReadout}
       </div>
 
       {/* DESKTOP ONLY: Combined readouts row */}
-      <div className="hidden md:flex md:flex-row md:gap-4">
-        <div className="flex-1">{promptReadout}</div>
-        <div className="w-[280px] shrink-0">{formulaReadout}</div>
+      <div className="hidden min-h-[5rem] border-b border-(--lab-border) md:flex md:flex-row">
+        <div className="flex-1 p-3">{promptReadout}</div>
+        <div className="w-px bg-(--lab-border)" />
+        <div className="w-[280px] shrink-0 p-3">{formulaReadout}</div>
       </div>
 
       {/* ROW 4: PRIMARY VISUALIZATION */}
-      <main className="relative min-h-[200px] flex-1 rounded sm:min-h-[280px]">
+      <main className={cn(
+        'relative min-h-[200px] flex-1 sm:min-h-[280px]',
+        'transition-opacity duration-500',
+        booted ? 'opacity-100' : 'opacity-0'
+      )}>
         {visualization}
-        {/* Corner bracket frame — draws the eye to the viz */}
-        <div className="pointer-events-none absolute left-2 top-2 h-4 w-4 border-l border-t border-(--lab-accent) opacity-50" />
-        <div className="pointer-events-none absolute right-2 top-2 h-4 w-4 border-r border-t border-(--lab-accent) opacity-50" />
-        <div className="pointer-events-none absolute bottom-2 left-2 h-4 w-4 border-b border-l border-(--lab-accent) opacity-50" />
-        <div className="pointer-events-none absolute bottom-2 right-2 h-4 w-4 border-b border-r border-(--lab-accent) opacity-50" />
       </main>
 
       {/* ROW 5-6: CONTROL STRIP (sliders + buttons) */}
-      <footer className="flex flex-col items-center gap-2 pb-2 md:gap-4 md:pb-0">
+      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-3 md:px-6 md:py-4">
         {controlStrip}
       </footer>
 
@@ -79,5 +106,3 @@ export function InstrumentLayout({
   )
 }
 
-// Keep old export for backwards compatibility during migration
-export { InstrumentLayout as ObservatoryLayout }

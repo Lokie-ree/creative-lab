@@ -106,7 +106,7 @@ export function matchSuccessSequence(
 
   const tl = gsap.timeline({ onComplete })
 
-  // 0ms: Pulse visualization (scale 1.0 → 1.05 → 1.0, back.out)
+  // 0ms: Pulse visualization (scale 1.0 → 1.05 → 1.0, smooth deceleration)
   if (refs.visualization) {
     tl.fromTo(
       refs.visualization,
@@ -114,7 +114,7 @@ export function matchSuccessSequence(
       {
         scale: 1.05,
         duration: toSeconds(0.15),
-        ease: 'back.out(1.7)',
+        ease: 'power2.out',
       },
       0
     ).to(refs.visualization, {

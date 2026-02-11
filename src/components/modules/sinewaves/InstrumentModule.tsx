@@ -26,7 +26,7 @@ import {
   getGuideStateConfig,
   cycleSpeed,
 } from './guide-state'
-import { consoleBootSequence } from './animations'
+import { consoleBootSequence, matchSuccessSequence } from './animations'
 import { STAGE_TARGETS, MATCH_THRESHOLDS } from './sinewaves-constants'
 import { generateChallengeTarget, type ChallengeParam } from './challenge-utils'
 import { SINEWAVE_COPY } from './sinewaves-copy'
@@ -72,7 +72,7 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
   // ─────────────────────────────────────────────────────────────
   const [isPaused, setIsPaused] = useState(false)
   const [speed, setSpeed] = useState<SpeedMultiplier>(1)
-  const clockRef = useRef(0) // For reset functionality
+  const [sceneKey, setSceneKey] = useState(0) // For reset functionality — forces Scene remount
 
   // ─────────────────────────────────────────────────────────────
   // Challenge state
@@ -85,6 +85,10 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
   // ─────────────────────────────────────────────────────────────
   const [matchGlow, setMatchGlow] = useState(false)
   const [matchMessage, setMatchMessage] = useState<string | null>(null)
+
+  // Refs for inline match feedback animation
+  const matchFeedbackRef = useRef<HTMLDivElement>(null)
+  const matchContinueRef = useRef<HTMLButtonElement>(null)
 
   // Get config for current guide state
   const config = getGuideStateConfig(guideState, challengeParam)
@@ -156,6 +160,20 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
     advanceGuideState()
   }, [advanceGuideState])
 
+  // Run match success animation when matchMessage appears
+  useEffect(() => {
+    if (matchMessage && matchFeedbackRef.current) {
+      matchSuccessSequence(
+        {
+          visualization: null,
+          feedback: matchFeedbackRef.current,
+          continueButton: matchContinueRef.current,
+        },
+        () => { /* animation complete */ }
+      )
+    }
+  }, [matchMessage])
+
   const checkMatch = useCallback((param: 'amplitude' | 'frequency', value: number) => {
     if (matchGlow) return // Already matched, waiting for transition
 
@@ -176,7 +194,11 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
     }
 
     if (Math.abs(value - target) <= threshold) {
-      // Match found — show celebration overlay
+      // Snap parameter to exact target value
+      if (param === 'amplitude') setAmplitude(target)
+      else setFrequency(target)
+
+      // Match found — show inline banner
       setMatchGlow(true)
       setMatchMessage(getMatchMessage(guideState, challengeParam))
     }
@@ -210,8 +232,8 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
     setAmplitude(1)
     setFrequency(1)
     setIsPaused(false)
-    // Clock reset handled by Scene via key change
-    clockRef.current = Date.now()
+    // Force Scene remount to reset animation
+    setSceneKey(k => k + 1)
   }, [])
 
   const handleCycleSpeed = useCallback(() => {
@@ -262,6 +284,7 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
   // ─────────────────────────────────────────────────────────────
   return (
     <InstrumentLayout
+      booted={booted}
       statusStrip={
         <StatusStrip
           ref={statusStripRef}
@@ -290,7 +313,7 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
       }
       visualization={
         <Scene
-          key={clockRef.current} // Reset animation on clock change
+          key={sceneKey} // Reset animation on reset
           amplitude={amplitude}
           frequency={frequency}
           phase={0}
@@ -309,6 +332,7 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
           showGhost={config.showGhost}
           showConnector={config.showConnector}
           speedMultiplier={speed}
+          challengeParam={guideState === 'challenge' ? challengeParam : undefined}
         />
       }
       controlStrip={
@@ -338,14 +362,32 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
           }
           actionButtons={
             <>
-              {guideState === 'watch' && (
+              {/* Inline match banner — NOT a full-screen overlay */}
+              {matchMessage && (
+                <div className="flex items-center gap-3">
+                  <div
+                    ref={matchFeedbackRef}
+                    className="opacity-0 text-sm font-medium text-(--lab-earned) lab-display-font"
+                  >
+                    {matchMessage}
+                  </div>
+                  <ContinueButton
+                    ref={matchContinueRef}
+                    onClick={handleMatchContinue}
+                    className="opacity-0"
+                  >
+                    Continue
+                  </ContinueButton>
+                </div>
+              )}
+              {!matchMessage && guideState === 'watch' && (
                 <ContinueButton onClick={handleContinue}>
                   Continue
                 </ContinueButton>
               )}
-              {guideState === 'free' && (
+              {!matchMessage && guideState === 'free' && (
                 <>
-                  <ContinueButton onClick={handleTryAnother}>
+                  <ContinueButton onClick={handleTryAnother} variant="ghost">
                     Try Another
                   </ContinueButton>
                   <ContinueButton onClick={handleComplete}>
@@ -357,21 +399,7 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
           }
         />
       }
-    >
-      {/* Celebration overlay */}
-      {matchMessage && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[rgba(10,10,15,0.7)]">
-          <div className="flex flex-col items-center gap-4 rounded-lg bg-(--lab-surface) p-6 text-center shadow-lg border border-(--lab-accent)/20">
-            <p className="text-base font-medium text-(--lab-earned) font-[family-name:var(--font-display)] sm:text-lg">
-              {matchMessage}
-            </p>
-            <ContinueButton onClick={handleMatchContinue}>
-              Continue
-            </ContinueButton>
-          </div>
-        </div>
-      )}
-    </InstrumentLayout>
+    />
   )
 }
 
