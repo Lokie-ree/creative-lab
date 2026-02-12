@@ -56,7 +56,7 @@ Back navigation and Escape Hatch from modules; Celebration modal on completion.
 ### Key Patterns
 - **3D inside Canvas, controls outside.** `Scene.tsx` (per module) owns the R3F Canvas; `ControlPanel` and other HTML controls live outside.
 - **Module state flows through App.tsx.** View state (hero vs module), celebration modals, and parameter tracking are managed at the app level, passed down as props. Modules call `onComplete(values)` when done.
-- **Stage-based learning.** Modules use stages (e.g. observe → amplitude → frequency → challenge → reveal). See module docs.
+- **Guide-state learning (sinewaves).** Five states: watch → match-amplitude → match-frequency → challenge → free. All controls always visible; only prompts and highlights change. See [sinewaves ARCHITECTURE.md](./src/components/modules/sinewaves/ARCHITECTURE.md).
 - **Adding a module.** Register in `src/config/modules.ts`, lazy-load the component, implement `ModuleProps`.
 
 ## Design System
@@ -105,10 +105,8 @@ Warm matte faceplate, phosphor green accent, silk-screened labels, scored divide
 - 60fps animations or instant—no jank
 - R3F for continuous/synchronized motion, SVG for static/simple
 
-### Follow-up Items (hardcoded cyan outside sinewaves)
-- `src/components/constellation/ModuleNode.tsx` — `rgba(34,211,238,...)` drop-shadow
-- `src/components/hero/HeroContent.tsx` — `rgba(34,211,238,...)` hover shadow
-- `src/components/hero/HeroBackground.tsx` — `rgba(34,211,238,...)` radial gradient
+### Hardcoded Cyan (outside sinewaves — not yet migrated)
+See "Follow-up Items" in Current State section for full file list.
 
 ## Pedagogy
 
@@ -124,21 +122,29 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 ## Current State
 
 - **Modules (see `src/config/modules.ts`):**
-  - **sinewaves** — Actively polishing. Trigonometry; unit circle → sine/cosine. Instrument-style HUD (InstrumentModule). Instrument refactor completed; see [docs/plans/2026-02-05-sinewaves-instrument-refactor.md](./docs/plans/2026-02-05-sinewaves-instrument-refactor.md).
-  - **vector-transformations** — Implemented (in-app). Planning has shifted to major content clusters; see `docs/modules/`. Specific modules are named as they are built.
+  - **sinewaves** — **Complete.** Trigonometry; unit circle → sine/cosine. Instrument-style HUD (InstrumentModule) with Eurorack design system. Instrument refactor and Eurorack reskin both done. See [docs/plans/2026-02-05-sinewaves-instrument-refactor.md](./docs/plans/2026-02-05-sinewaves-instrument-refactor.md) and [docs/plans/2026-02-10-sinewaves-eurorack-reskin.md](./docs/plans/2026-02-10-sinewaves-eurorack-reskin.md).
+  - **vector-transformations** — Implemented (in-app). Linear algebra; matrix transformations on vectors.
   - **phase-portraits** — Placeholder/coming-soon.
-- **Roadmap:** Organized by **major content clusters** (Algebra I, Geometry). Which modules to build next will be decided later; see `docs/modules/` for product and technical framing.
+- **Module skeleton** — Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, useAccessibility, useErrorRecovery, useModuleAnalytics). Not yet consumed by existing modules; available for next module. See [docs/plans/2026-01-27-module-skeleton-infrastructure.md](./docs/plans/2026-01-27-module-skeleton-infrastructure.md).
+- **Roadmap:** Organized by **major content clusters** (Algebra I, Geometry). Next modules TBD.
 
-## Active Work
+## Follow-up Items
 
-**Sinewaves** — Eurorack reskin and design audit complete. Global design tokens shifted to warm/green palette. Sinewaves fully reskinned: fader sliders, scored dividers, panel screws (PanelScrew component, varied rotations), LED progress dots, silk-screen labels via `lab-silk` utility, inline match celebration (no blocking modal). Design audit fixes: button hierarchy (ghost variant for "Try Another"), contrast improvements, composable font utilities (`lab-silk`/`lab-display-font`/`lab-data-font`), hardcoded colors tokenized (screw/LED), hover states on instrument controls, proximity feedback transitions, visualization entrance animation, formula accent border, `color-mix()` for opacity helper. See [docs/plans/2026-02-10-sinewaves-eurorack-reskin.md](./docs/plans/2026-02-10-sinewaves-eurorack-reskin.md). Follow-up: hero and constellation need hardcoded cyan cleanup.
+- **Hero and constellation hardcoded cyan:** These files still use `rgba(34,211,238,...)`, `#22d3ee`, `stroke-cyan-400`, `fill-cyan-400`:
+  - `src/components/constellation/ModuleNode.tsx`
+  - `src/components/constellation/NodeRings.tsx`
+  - `src/components/constellation/Constellation.tsx`
+  - `src/components/hero/HeroContent.tsx`
+  - `src/components/hero/HeroBackground.tsx`
+  - `src/config/courses.ts` (course color)
+- **Audits to address when relevant:** [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./docs/design/VERCEL-REACT-BEST-PRACTICES-AUDIT.md) (barrel imports, localStorage versioning, conditional rendering)
 
 ## Agent Guidelines
 
 - **Preserve pedagogy.** Don’t add quizzes, multiple choice, or "wrong answer" messaging. Keep discovery-first and earned reveals.
 - **Respect separation.** Don’t put HTML controls inside the Canvas or 3D inside control components.
 - **Follow the design system.** Use `@/lib/colors` and existing UI/shadcn components; avoid one-off palettes or layout patterns that clash.
-- **Check docs before big changes.** New modules or flow changes should align with [docs/philosophy.md](./docs/philosophy.md), [docs/product.md](./docs/product.md), `docs/modules/`, and PORTFOLIO_VISION.md.
+- **Check docs before big changes.** New modules or flow changes should align with [docs/philosophy.md](./docs/philosophy.md), [docs/product.md](./docs/product.md), and [PORTFOLIO_VISION.md](./PORTFOLIO_VISION.md). Use the `module-planning-pipeline` skill for new module planning.
 
 ## Related Documentation
 
@@ -147,7 +153,8 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 | **Pedagogy & LSSM alignment (foundational)** | [docs/philosophy.md](./docs/philosophy.md), [docs/product.md](./docs/product.md) |
 | Documentation index & module pipeline | [docs/README.md](./docs/README.md) |
 | Vision, audience, principles | [PORTFOLIO_VISION.md](./PORTFOLIO_VISION.md) |
-| Module PRDs, UX specs | `docs/modules/` |
+| Sinewaves architecture | [src/components/modules/sinewaves/ARCHITECTURE.md](./src/components/modules/sinewaves/ARCHITECTURE.md) |
+| Module skeleton infrastructure | [src/lib/skeleton/README.md](./src/lib/skeleton/README.md) |
 | Design critiques, HUD direction | `docs/design/` |
 | Implementation plans | `docs/plans/` |
 | Adding a module | Register in `src/config/modules.ts`; lazy-load component; implement `ModuleProps` |

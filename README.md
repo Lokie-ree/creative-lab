@@ -19,5 +19,6 @@ pnpm dev
 | [docs/README.md](./docs/README.md) | **Doc index** — start here for planning and building modules |
 | [docs/philosophy.md](./docs/philosophy.md) | Pedagogy: earned reveal, visual confirmation, understanding precedes notation |
 | [docs/product.md](./docs/product.md) | LSSM alignment and product rigor |
-| [docs/modules/](./docs/modules/) | Module pipeline: PRD → UX spec → build-order prompts |
+| [docs/design/](./docs/design/) | Design specs, audits, and current direction |
+| [docs/plans/](./docs/plans/) | Implementation plans |
 | [AGENT.md](./AGENT.md) | AI agent: architecture, commands, design system, guidelines |

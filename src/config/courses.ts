@@ -14,7 +14,7 @@ export const COURSES: Course[] = [
     id: 'advanced-math',
     name: 'Advanced Math',
     icon: '∞',
-    color: '#22d3ee',
+    color: '#7cc87c',
     order: 1,
     moduleIds: ['sinewaves', 'vector-transformations', 'phase-portraits'],
   },

@@ -1,7 +1,7 @@
 # Sinewaves to 100%: Eurorack Reskin + Bug Fixes
 
 **Date:** February 10, 2026
-**Status:** Ready for review
+**Status:** Complete
 **Mockup:** `mockups/eurorack-sinewaves.html`
 
 ---

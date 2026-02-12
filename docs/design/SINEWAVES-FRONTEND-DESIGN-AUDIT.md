@@ -4,6 +4,8 @@
 **Reference:** `.claude/skills/frontend-design/SKILL.md`  
 **Scope:** `src/components/modules/sinewaves/` and related tokens (`src/lib/colors.ts`, `src/index.css`, `src/components/ui/slider.tsx`)
 
+**Current direction (Feb 2026):** The recommendations below are being addressed by the **Eurorack / synth module** reskin: matte faceplate, phosphor green accent, silk-screened labels, scored dividers, no glow. See [README.md](./README.md) and [plans/2026-02-10-sinewaves-eurorack-reskin.md](../plans/2026-02-10-sinewaves-eurorack-reskin.md).
+
 ---
 
 ## Executive Summary

@@ -31,7 +31,7 @@ Planning and developing a new module follows a fixed pipeline. Each step consume
 MVP idea → PRD → UX spec → Build-order prompts → Implementation
 ```
 
-The pipeline is implemented as the `module-planning-pipeline` Claude Code skill. Generated artifacts (PRDs, UX specs, build-order prompts) live in the module's directory, e.g. `docs/modules/<module-name>/`.
+The pipeline is implemented as the `module-planning-pipeline` Claude Code skill. Generated artifacts (PRDs, UX specs, build-order prompts) are created per-module as needed during planning.
 
 ---
 
@@ -39,7 +39,7 @@ The pipeline is implemented as the `module-planning-pipeline` Claude Code skill.
 
 | Path | Purpose |
 |------|---------|
-| [design/](./design/) | Design specs and audits. Specs (e.g. SINEWAVES-REFACTOR-SPEC.md) define what to build; audits (e.g. SINEWAVES-FRONTEND-DESIGN-AUDIT.md) assess current state. |
+| [design/](./design/) | Design specs and audits. Start with [design/README.md](./design/README.md) for current direction (Eurorack, instrument UX). Specs define what to build; audits assess current state. |
 | [plans/](./plans/) | Implementation plans: task-by-task execution (e.g. 2026-02-05-sinewaves-instrument-refactor.md). Use after a design spec is approved. |
 | [professional/](./professional/) | Resume and professional materials. |
 
@@ -48,4 +48,6 @@ The pipeline is implemented as the `module-planning-pipeline` Claude Code skill.
 ## Root-level references
 
 - [**PORTFOLIO_VISION.md**](../PORTFOLIO_VISION.md) — Career thesis, audience, guiding principles. References the same pedagogy as [philosophy.md](./philosophy.md).
-- [**AGENT.md**](../AGENT.md) — AI agent instructions: architecture, commands, design system, current state, guidelines; points here and to foundational docs.
+- [**AGENT.md**](../AGENT.md) — AI agent instructions: architecture, commands, design system, current state, guidelines.
+- [**Sinewaves ARCHITECTURE.md**](../src/components/modules/sinewaves/ARCHITECTURE.md) — Implementation reference for the completed sinewaves module.
+- [**Module skeleton**](../src/lib/skeleton/README.md) — Reusable hooks for future modules.

@@ -54,10 +54,12 @@ Each module embodies the same pedagogical principles (canonical definitions in [
 ### What Already Exists
 
 - Hero section (polished, ready)
-- Sinewaves module (complete)
-- Algebra I and Geometry product/technical framing (major content clusters; specific modules TBD)
-- Documentation principles established in codebase
-- Technical foundation (React Three Fiber, animation systems)
+- Sinewaves module (complete — instrument refactor + Eurorack design system)
+- Vector Transformations module (implemented)
+- Module skeleton infrastructure (reusable hooks for future modules)
+- Eurorack design system: global tokens, utility classes, design principles
+- Documentation framework: philosophy, product alignment, design audits, implementation plans
+- Technical foundation (React Three Fiber, GSAP, Tailwind CSS 4, shadcn/ui)
 
 ---
 
@@ -159,7 +161,7 @@ A single source of truth for direction when decisions feel murky.
 
 A reference point for evaluating whether new ideas align with the vision.
 
-**Aligned with:** [docs/philosophy.md](docs/philosophy.md) (pedagogy) and [docs/product.md](docs/product.md) (LSSM/product alignment). For module planning and development, use [docs/README.md](docs/README.md) and the pipeline in `docs/modules/`.
+**Aligned with:** [docs/philosophy.md](docs/philosophy.md) (pedagogy) and [docs/product.md](docs/product.md) (LSSM/product alignment). For module planning and development, use [docs/README.md](docs/README.md) and the `module-planning-pipeline` skill.
 
 A reminder of the clarity that emerged from sitting with hard questions.
 

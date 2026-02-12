@@ -86,15 +86,15 @@ Built an intelligent coaching layer that helps Louisiana teachers generate high-
 - Created feedback loops where successful prompts become shareable exemplars for other educators
 - Tech stack: React, Convex backend, GPT integration with Louisiana-specific RAG
 
-**Creative Lab: Sine/Cosine Interactive Module** — Completed (December 2025)
+**Creative Lab: Interactive Mathematics Portfolio** — In development (2025–present)
 
-Built an interactive visualization where users discover the wave equation by matching a target motion—the formula appears as a reward, not a prerequisite. The project grew from preparing high school students for a credentialed Web Development and JavaScript course: plan with the end in mind, then execute.
+Building interactive modules where users discover mathematical relationships by matching visual targets — formulas appear as rewards, not prerequisites. Eurorack / synth module design system: warm faceplate, phosphor green accents, silk-screen labels, instrument-style controls.
 
-- Users engage immediately with a synchronized unit circle, wave graph, and pulsing glow
-- Pattern-matching challenge teaches amplitude and frequency through intuition (phase omitted for depth over breadth)
-- No front-loaded explanations—the interface teaches by inviting users to tinker
-- Built with React, React Three Fiber, and GSAP; 60fps mathematical animations
-- Full presentation wrapper: hero landing page, smooth transitions, celebration modal with three tabs, escape-hatch navigation, resume and design-process dialogs
+- Sinewaves module (complete): synchronized unit circle and wave graph teach amplitude and frequency through hands-on manipulation
+- Five-state guided experience: watch → match amplitude → match frequency → challenge → free exploration
+- No front-loaded explanations — the interface teaches by inviting users to tinker
+- Built with React 19, React Three Fiber, GSAP, and Tailwind CSS 4; 60fps mathematical animations
+- Full presentation wrapper: hero landing page, constellation navigation, inline match celebration, escape-hatch navigation
 
 ---
 

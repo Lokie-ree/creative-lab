@@ -314,10 +314,9 @@ All stages: StatusStrip (dots, back, ESC), PromptReadout, FormulaReadout, both s
 **Pattern**: User manipulates → sees formula update → matches target
 
 **Implementation**:
-- FormulaReadout visible during amplitude, frequency, and challenge stages (not observe)
-- Active parameter is highlighted with accent color (`--lab-accent`)
-- Formula shows current values: `y = 1.5 sin(2.0 t)` with active param in cyan
-- On mobile, FormulaReadout appears inline in ControlStrip via `formula` prop
+- FormulaReadout always visible (all guide states)
+- Active parameter is highlighted with accent color (`--lab-accent`, phosphor green)
+- Formula shows current values: `y = 1.5 sin(2.0 t)` with active param highlighted
 
 ### 2. Progressive Disclosure
 
@@ -495,24 +494,10 @@ Guide state index 1–5; TOTAL_GUIDE_STATES = 5. See guide-state.ts GUIDE_STATE_
 
 ---
 
-## Future Considerations
+## Reusable Infrastructure
 
-### Potential Refactorings
-
-1. **Abstract stage machine**: Extract to reusable hook for future modules
-2. **Module factory**: Create modules from configuration
-3. **Unified Animation System**: Standardize transition patterns
-4. **Question System**: Make questions config-driven
-5. **Match Detection**: Create flexible matching system
-
-### Extension Points
-
-1. **New Stages**: Easy to add stages to the flow
-2. **New Parameters**: Can add phase or other parameters
-3. **New Visualizations**: Can add additional 3D elements
-4. **New Interactions**: Can add drag, click, or other interactions
-5. **New Feedback**: Can add new feedback mechanisms
+A module skeleton with reusable hooks lives in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, useAccessibility, useErrorRecovery, useModuleAnalytics). Sinewaves uses its own InstrumentModule and guide-state flow; migration to skeleton is optional. See [skeleton README](../../../lib/skeleton/README.md).
 
 ---
 
-*This documentation serves as the reference implementation for future modules. Subsequent modules (to be chosen from Algebra I and Geometry major content clusters) should follow similar patterns while adapting to their specific learning goals and interactions.*
+*This documentation serves as the reference implementation for future modules. Subsequent modules should follow similar patterns while adapting to their specific learning goals and interactions.*

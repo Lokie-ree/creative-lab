@@ -2,6 +2,8 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
+**Status:** Complete
+
 **Goal:** Transform the sinewaves module from a staged tutorial into an always-visible scientific instrument with simplified state management.
 
 **Architecture:** Replace the complex stage machine with 5 simple guide states. All UI elements (sliders, formula, prompt) are always visible—only prompts and highlights change per state. Mobile shows wave-only visualization; desktop shows full circle-wave instrument.
