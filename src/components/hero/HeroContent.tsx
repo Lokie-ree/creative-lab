@@ -80,7 +80,7 @@ export function HeroContent({ onEnter }: HeroContentProps) {
       <button
         ref={ctaRef}
         onClick={onEnter}
-        className="group px-8 py-4 min-h-[48px] bg-[var(--lab-accent)] text-[var(--lab-bg)] font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:bg-[var(--lab-accent-hover)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)]"
+        className="group px-8 py-4 min-h-[48px] bg-[var(--lab-accent)] text-[var(--lab-bg)] font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:bg-[var(--lab-accent-hover)] hover:shadow-[0_0_30px_rgba(124,200,124,0.4)]"
       >
         Enter the Module
         <span className="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>

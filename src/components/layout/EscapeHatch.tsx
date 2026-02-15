@@ -23,9 +23,9 @@ export function EscapeHatch({
     <div className="fixed top-4 left-4 z-[var(--z-fixed)]">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-300 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:ring-offset-2 focus:ring-offset-zinc-900">
+          <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-300 transition-colors focus:outline-none focus:ring-2 focus:ring-[rgba(124,200,124,0.5)] focus:ring-offset-2 focus:ring-offset-zinc-900">
             <Avatar className="h-7 w-7">
-              <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-semibold">
+              <AvatarFallback className="bg-gradient-to-br from-[var(--lab-accent)] to-[var(--lab-accent-muted)] text-white text-xs font-semibold">
                 R
               </AvatarFallback>
             </Avatar>

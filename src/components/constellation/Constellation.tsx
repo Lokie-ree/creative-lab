@@ -149,7 +149,7 @@ export function Constellation({
                       // Desktop: horizontal connector
                       'md:w-8 md:h-px',
                       isCompleted
-                        ? 'bg-cyan-400 animate-ring-pulse'
+                        ? 'bg-[var(--lab-accent)] animate-ring-pulse'
                         : 'bg-gray-600'
                     )}
                   />
