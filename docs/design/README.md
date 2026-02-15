@@ -76,27 +76,17 @@ Geometry module — translations, reflections, rotations. "Predict & Reveal" int
 
 ## Outstanding work
 
-### Global — hardcoded cyan
+### Global — hardcoded cyan — RESOLVED
 
-Hero and constellation components still use hardcoded cyan (`#22d3ee`, `cyan-*` classes) instead of `--lab-accent` tokens. These are the last remnants of the pre-Eurorack palette.
+All cyan (`#22d3ee`, `cyan-*`) replaced with `--lab-accent` tokens across hero, constellation, escape hatch, and comment references. Zero cyan remaining in `src/`.
 
-**Files:**
-- `src/components/hero/HeroContent.tsx` — hover shadow with `rgba(34,211,238,*)`
-- `src/components/hero/HeroBackground.tsx` — radial gradient + `bg-cyan-500/5`
-- `src/components/constellation/ModuleNode.tsx` — focus ring, drop-shadow, text colors
-- `src/components/constellation/NodeRings.tsx` — stroke and fill colors
-- `src/components/constellation/Constellation.tsx` — ring pulse background
+### Global — barrel imports — RESOLVED
 
-### Global — barrel imports (performance)
+All 6 barrel `index.ts` files deleted; `App.tsx` uses direct file imports. `lucide-react` barrel imports left as-is — Vite ESM tree-shaking handles these efficiently (audit penalty was Next.js-specific).
 
-Barrel `index.ts` files in `constellation/`, `celebration/`, `dialogs/`, `hero/`, `layout/`, `skeleton/` add 200–800ms cold-start penalty. `lucide-react` imports also go through barrel. See [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md) for full findings.
+### Global — deleted stale files — RESOLVED
 
-### Global — deleted files not yet committed
-
-Three files removed during the Eurorack refactor are staged as deleted but uncommitted:
-- `src/components/controls/ControlPanel.tsx`
-- `src/components/transitions/SlideTransition.tsx`
-- `src/components/transitions/index.ts`
+`ControlPanel.tsx`, `SlideTransition.tsx`, `transitions/index.ts` removed and committed.
 
 ### Sinewaves — lower-priority polish
 

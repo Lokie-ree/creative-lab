@@ -13,10 +13,10 @@ interface InstrumentLayoutProps {
 }
 
 const SCREW_POSITIONS = [
-  { className: 'top-1 left-1', rotation: -35 },
-  { className: 'top-1 right-1', rotation: 45 },
-  { className: 'bottom-1 left-1', rotation: 15 },
-  { className: 'bottom-1 right-1', rotation: -60 },
+  { className: 'top-2.5 left-2.5', rotation: -35 },
+  { className: 'top-2.5 right-2.5', rotation: 45 },
+  { className: 'bottom-2.5 left-2.5', rotation: 15 },
+  { className: 'bottom-2.5 right-2.5', rotation: -60 },
 ] as const
 
 function PanelScrew({ className, rotation }: { className: string; rotation: number }) {
@@ -51,7 +51,7 @@ export function InstrumentLayout({
   return (
     <div
       className={cn(
-        'relative grid min-h-dvh w-screen overflow-x-hidden overflow-y-hidden',
+        'relative grid h-dvh w-screen overflow-hidden',
         'bg-(--lab-bg) font-[family-name:var(--font-body)]',
         // Mobile: 6-row layout (all elements visible), scored dividers via gap-0 + borders
         'grid-rows-[auto_auto_auto_1fr_auto_auto] gap-0',
@@ -65,12 +65,12 @@ export function InstrumentLayout({
       ))}
 
       {/* ROW 1: STATUS STRIP */}
-      <header className="flex items-center border-b border-(--lab-border) px-5 py-4 md:px-6">
+      <header className="flex items-center border-b border-(--lab-border) px-5 py-2 md:px-6 md:py-0">
         {statusStrip}
       </header>
 
       {/* ROW 2: PROMPT READOUT (mobile: own row, desktop: combined with formula) */}
-      <div className="min-h-[4.5rem] border-b border-(--lab-border) md:hidden">
+      <div className="min-h-[3.5rem] border-b border-(--lab-border) md:hidden">
         {promptReadout}
       </div>
 
@@ -96,7 +96,7 @@ export function InstrumentLayout({
       </main>
 
       {/* ROW 5-6: CONTROL STRIP (sliders + buttons) */}
-      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-3 md:px-6 md:py-4">
+      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2 md:px-6 md:py-4">
         {controlStrip}
       </footer>
 

@@ -24,7 +24,7 @@ export function ParameterSlider({
 
   return (
     <div className="w-full">
-      <div className="mb-2 flex justify-between items-baseline">
+      <div className="mb-1.5 flex justify-between items-baseline">
         <span className="lab-silk lab-display-font text-(--lab-text-muted)">
           {label}
         </span>
