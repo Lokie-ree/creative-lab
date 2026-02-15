@@ -1,7 +1,0 @@
-export * from './StatusStrip'
-export * from './PromptReadout'
-export * from './FormulaReadout'
-export * from './ControlStrip'
-export * from './ContinueButton'
-export * from './ParameterSlider'
-export * from './InstrumentControls'

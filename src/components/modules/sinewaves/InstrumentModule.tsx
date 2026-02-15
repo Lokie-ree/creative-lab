@@ -7,15 +7,13 @@
  */
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { InstrumentLayout } from './Layout'
-import {
-  StatusStrip,
-  PromptReadout,
-  FormulaReadout,
-  ControlStrip,
-  ParameterSlider,
-  ContinueButton,
-  InstrumentControls,
-} from './components'
+import { StatusStrip } from './components/StatusStrip'
+import { PromptReadout } from './components/PromptReadout'
+import { FormulaReadout } from './components/FormulaReadout'
+import { ControlStrip } from './components/ControlStrip'
+import { ParameterSlider } from './components/ParameterSlider'
+import { ContinueButton } from './components/ContinueButton'
+import { InstrumentControls } from './components/InstrumentControls'
 import { Scene } from './Scene'
 import {
   type GuideState,
