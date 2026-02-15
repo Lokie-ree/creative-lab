@@ -29,7 +29,7 @@ export function ModuleNode({
         isComingSoon
           ? 'cursor-not-allowed opacity-50'
           : 'hover:scale-108 active:scale-98',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]'
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(124,200,124,0.5)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]'
       )}
     >
       {/* Layered rings */}
@@ -66,7 +66,7 @@ export function ModuleNode({
           className={cn(
             'transition-all duration-150',
             'group-hover:[&_circle]:stroke-[3px]',
-            'group-hover:drop-shadow-[0_0_12px_rgba(34,211,238,0.3)]',
+            'group-hover:drop-shadow-[0_0_12px_rgba(124,200,124,0.3)]',
             isRecommended && status === 'not-started' && 'animate-ring-pulse'
           )}
         />
@@ -81,8 +81,8 @@ export function ModuleNode({
       <span
         className={cn(
           'text-sm font-medium transition-colors duration-150 max-w-[120px] text-center',
-          status === 'completed' ? 'text-cyan-400' : 'text-white',
-          !isComingSoon && 'group-hover:text-cyan-300'
+          status === 'completed' ? 'text-[var(--lab-accent)]' : 'text-white',
+          !isComingSoon && 'group-hover:text-[var(--lab-accent)]'
         )}
       >
         {module.title}

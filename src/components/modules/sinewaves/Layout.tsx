@@ -65,7 +65,7 @@ export function InstrumentLayout({
       ))}
 
       {/* ROW 1: STATUS STRIP */}
-      <header className="flex items-center border-b border-(--lab-border) px-5 py-2 md:px-6">
+      <header className="flex items-center border-b border-(--lab-border) px-5 py-4 md:px-6">
         {statusStrip}
       </header>
 

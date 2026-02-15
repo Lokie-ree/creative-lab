@@ -216,7 +216,7 @@ export function OriginalVector() {
 /**
  * Transformed Vector Component
  *
- * Animated cyan vector showing the result of the transformation.
+ * Animated vector showing the result of the transformation.
  * Smoothly interpolates to new positions as matrix changes.
  */
 interface TransformedVectorProps {

@@ -43,7 +43,7 @@ export function NodeRings({ status, progress, isRecommended, className }: NodeRi
         strokeWidth="2"
         className={cn(
           'transition-colors duration-150',
-          isActive || isRecommended ? 'stroke-cyan-400' : 'stroke-gray-600'
+          isActive || isRecommended ? 'stroke-[var(--lab-accent)]' : 'stroke-gray-600'
         )}
       />
 
@@ -54,7 +54,7 @@ export function NodeRings({ status, progress, isRecommended, className }: NodeRi
         cy="24"
         r="16"
         fill="none"
-        stroke="#22d3ee"
+        stroke="var(--lab-accent)"
         strokeWidth="2"
         strokeDasharray={`${progress * circumference} ${circumference}`}
         strokeLinecap="round"
@@ -74,9 +74,9 @@ export function NodeRings({ status, progress, isRecommended, className }: NodeRi
         className={cn(
           'transition-all duration-150',
           isCompleted
-            ? 'fill-cyan-400 stroke-cyan-400'
+            ? 'fill-[var(--lab-accent)] stroke-[var(--lab-accent)]'
             : isActive
-              ? 'fill-cyan-400/20 stroke-cyan-400'
+              ? 'fill-[rgba(124,200,124,0.2)] stroke-[var(--lab-accent)]'
               : 'fill-transparent stroke-gray-600'
         )}
       />

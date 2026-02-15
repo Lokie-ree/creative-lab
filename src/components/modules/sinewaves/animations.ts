@@ -124,7 +124,7 @@ export function matchSuccessSequence(
     })
   }
 
-  // 100ms: Matched value highlights (glow cyan)
+  // 100ms: Matched value highlights (glow accent)
   if (refs.valueHighlight) {
     tl.fromTo(
       refs.valueHighlight,

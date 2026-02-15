@@ -25,7 +25,7 @@ export function InstrumentControls({
   className,
 }: InstrumentControlsProps) {
   return (
-    <div className={cn('flex items-center justify-center gap-0.5', className)}>
+    <div className={cn('flex items-center justify-center gap-1', className)}>
       {/* TRACE (play/pause) */}
       <button
         type="button"
@@ -82,7 +82,7 @@ export function InstrumentControls({
         )}
         aria-label={`Speed: ${speed}x. Click to change.`}
       >
-        <span className="lab-data-font text-sm font-semibold text-(--lab-text)">
+        <span className="lab-data-font text-xs font-semibold text-(--lab-text)">
           {speed}x
         </span>
         <span>Speed</span>

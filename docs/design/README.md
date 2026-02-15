@@ -1,51 +1,134 @@
 # Design — Current Direction
 
-**Last updated:** February 12, 2026
+**Last updated:** February 15, 2026
 
-This folder holds design specs and audits for creative-lab. Below is the current direction; individual docs add detail and implementation plans.
+This folder holds design specs and audits for creative-lab. Below is the current direction, implementation status, and outstanding work.
 
 ---
 
-## Current direction
+## Design system
 
-### Product / UX
+### Aesthetic — Eurorack / synth module
 
-- **Sinewaves = scientific instrument, not a tutorial.** Everything is always visible and interactive. Pedagogy lives in what the instrument draws your attention to, not in what it withholds. Think oscilloscope, not slideshow.
-- **Five guide states:** watch → match-amplitude → match-frequency → challenge → free. No sub-phases; prompts only. User can always drag any slider; the guide points at the interesting part.
-- **Match feedback:** Wave glows (amber/earthy green), prompt advances. No blocking modal — inline banner or strip so the instrument stays visible.
-- **Controls:** TRACE (play/pause), RESET, SPEED (0.5x / 1x / 2x). Always visible. Grid lines behind the viz; silk-screen style labels; StatusStrip with SINEWAVES title, progress dots, SYS:NOM, ESC.
+Matte faceplate, phosphor green accent, silk-screened labels, scored dividers, no glow. Each module is a self-contained instrument panel.
 
-*Source:* [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md)
+### Palette
 
-### Visual / brand
+| Token | Hex | Role |
+|-------|-----|------|
+| `--lab-accent` | `#7cc87c` | Phosphor green — primary accent |
+| `--lab-bg` | `#1e1d1c` | Warm faceplate background |
+| `--lab-text` | `#b8b0a4` | Silk cream — body text |
+| `--lab-ghost` | `#7a746a` | Muted / ghost elements |
+| `--lab-success` | `#5a7a5a` | Earthy green — match/success |
+| `--lab-danger` | `#8a4a4a` | Muted red — reset/danger |
+| `--lab-earned` | `#f5a623` | Amber — earned reveals |
 
-- **Chosen direction: Eurorack / synth module.** Matte faceplate, phosphor green accent, silk-screened labels, scored dividers, no glow. Moves the app off “AI slop” (cyan-on-dark, monospace-as-technical, glow, blocking modal).
-- **Palette:** Warm neutrals (`#1e1d1c` faceplate, `#252422`, `#2e2c28`), phosphor green accent (`#7cc87c`), cream/silk text (`#b8b0a4`), muted red for RESET/danger (`#8a4a4a`). No cyan; no blur/glow.
-- **Typography:** Inter Tight for display and body; JetBrains Mono for data/readouts. Labels: small, UPPERCASE, wide tracking (silk-screen).
-- **Components:** Rectangular fader thumbs (no rounded glow); flat panels with scored borders; optional corner screws; no rounded cards or left-edge accent bar.
+### Typography
 
-*Source:* [plans/2026-02-10-sinewaves-eurorack-reskin.md](../plans/2026-02-10-sinewaves-eurorack-reskin.md), mockup `mockups/eurorack-sinewaves.html`
+- **Display & body:** Inter Tight (`--font-display`, `--font-body`)
+- **Data / readouts:** JetBrains Mono (`--font-data`)
+- **Labels:** `lab-silk` utility (uppercase, 9px, 0.15em tracking) — always paired with `lab-display-font` or `lab-data-font`
 
-### Implementation status
+### Components
 
-- **Refactor (instrument layout, guide states, grid lines):** Complete.
-- **Eurorack reskin:** Complete. Tokens, sliders, panels, R3F, bug fixes, typography, and polish all done.
-- **Bug fixes (design-relevant):** Ghost wave sync, snap-to-target, inline celebration banner, easing — all resolved.
-- **Remaining:** Hero and constellation still have hardcoded cyan values (see AGENT.md Follow-up Items).
+- Slider thumb: rectangular fader (`h-6 w-3`), no rounded, no glow
+- Scored dividers: `border-b border-(--lab-border)`
+- Panel screws: `PanelScrew` component, varied rotation per corner
+- Transitions: always explicit `duration-150`
 
-*Sources:* [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md), [plans/2026-02-10-sinewaves-eurorack-reskin.md](../plans/2026-02-10-sinewaves-eurorack-reskin.md), [SINEWAVES-MATCH-PROXIMITY-AUDIT.md](./SINEWAVES-MATCH-PROXIMITY-AUDIT.md), [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md)
+*Tokens defined in:* `src/lib/colors.ts` → `src/index.css` (--lab-* vars)
+
+---
+
+## Modules — status
+
+### Sinewaves — COMPLETE
+
+Scientific instrument ("oscilloscope, not slideshow"). Everything always visible and interactive. Pedagogy lives in what the instrument draws your attention to, not in what it withholds.
+
+- **Guide states:** watch → match-amplitude → match-frequency → challenge → free
+- **Match feedback:** Inline banner near controls (no blocking modal). Snap-to-target on match detection.
+- **Controls:** TRACE (play/pause), RESET, SPEED (0.5x / 1x / 2x). Grid lines, silk-screen labels, StatusStrip.
+- **Architecture:** `InstrumentModule.tsx` orchestrates state; `Scene.tsx` owns R3F Canvas
+- **Reference:** `src/components/modules/sinewaves/ARCHITECTURE.md`
+
+*Specs:* [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md), [plans/2026-02-05-sinewaves-instrument-refactor.md](../plans/2026-02-05-sinewaves-instrument-refactor.md), [plans/2026-02-10-sinewaves-eurorack-reskin.md](../plans/2026-02-10-sinewaves-eurorack-reskin.md)
+
+### Vector Transformations — IMPLEMENTED
+
+Linear algebra module — matrix transformations on 2D vectors. Progressive unlock, challenge mode, discovery badges. Uses its own flow (does not consume skeleton infrastructure).
+
+### Phase Portraits — PLACEHOLDER
+
+Single `Module.tsx` with "Coming Soon" message.
+
+### Rigid Motions — DESIGNED (next build)
+
+Geometry module — translations, reflections, rotations. "Predict & Reveal" interaction pattern (student drags ghost shape to predicted position, animation confirms/corrects). Distinct from sinewaves' continuous-parameter instrument.
+
+- **Guide states:** watch → predict-translate → predict-reflect → predict-rotate → challenge → free
+- **Controls:** Discrete (shadcn toggle/toggle-group) rather than continuous sliders
+- **Design spec:** [plans/2026-02-12-rigid-motions-design.md](../plans/2026-02-12-rigid-motions-design.md)
+- **Implementation plan:** [plans/2026-02-12-rigid-motions-implementation.md](../plans/2026-02-12-rigid-motions-implementation.md)
+
+---
+
+## Outstanding work
+
+### Global — hardcoded cyan
+
+Hero and constellation components still use hardcoded cyan (`#22d3ee`, `cyan-*` classes) instead of `--lab-accent` tokens. These are the last remnants of the pre-Eurorack palette.
+
+**Files:**
+- `src/components/hero/HeroContent.tsx` — hover shadow with `rgba(34,211,238,*)`
+- `src/components/hero/HeroBackground.tsx` — radial gradient + `bg-cyan-500/5`
+- `src/components/constellation/ModuleNode.tsx` — focus ring, drop-shadow, text colors
+- `src/components/constellation/NodeRings.tsx` — stroke and fill colors
+- `src/components/constellation/Constellation.tsx` — ring pulse background
+
+### Global — barrel imports (performance)
+
+Barrel `index.ts` files in `constellation/`, `celebration/`, `dialogs/`, `hero/`, `layout/`, `skeleton/` add 200–800ms cold-start penalty. `lucide-react` imports also go through barrel. See [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md) for full findings.
+
+### Global — deleted files not yet committed
+
+Three files removed during the Eurorack refactor are staged as deleted but uncommitted:
+- `src/components/controls/ControlPanel.tsx`
+- `src/components/transitions/SlideTransition.tsx`
+- `src/components/transitions/index.ts`
+
+### Sinewaves — lower-priority polish
+
+These are documented in [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md). None block the next module.
+
+1. **Resize distortion:** Scene layout may desync with Canvas on viewport resize. Needs reproduction and targeted fix.
+2. **Match-success animation:** `matchSuccessSequence` exists in `animations.ts` but is not wired — celebration uses a static overlay instead of the staged timeline (pulse → highlight → feedback → continue).
+3. **Mobile control spacing:** Control strip uses `gap-2` on mobile which feels cramped. Toggle-group for Speed would improve consistency and touch targets.
+
+### Sinewaves — match-proximity bugs — RESOLVED
+
+Ghost wave sync, snap-to-target, `challengeParam` for challenge stage — all fixed. See [SINEWAVES-MATCH-PROXIMITY-AUDIT.md](./SINEWAVES-MATCH-PROXIMITY-AUDIT.md).
+
+### Infrastructure — skeleton not consumed
+
+Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, etc.) are implemented and tested but not yet consumed by any module. Rigid Motions is the natural first consumer.
+
+### Performance — medium/low findings
+
+localStorage versioning, conditional rendering (`&&` vs ternary), `useTransition` for module loading, `useMemo` for primitives, event listener dedup. See [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md).
 
 ---
 
 ## Documents in this folder
 
-| Document | Purpose |
-|----------|---------|
-| **README.md** (this file) | Current direction and index. |
-| [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md) | Instrument layout, guide states, responsive grid, what to keep/remove/add. |
-| [SINEWAVES-FRONTEND-DESIGN-AUDIT.md](./SINEWAVES-FRONTEND-DESIGN-AUDIT.md) | Frontend-design skill audit: what was generic (cyan, glow, modal) and recommendations; superseded by Eurorack as the chosen direction. |
-| [SINEWAVES-MATCH-PROXIMITY-AUDIT.md](./SINEWAVES-MATCH-PROXIMITY-AUDIT.md) | Ghost/user wave sync and snap-to-target; challenge-stage ghost params. |
-| [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md) | Resize distortion, match-success sequence wiring, control panel spacing and ShadCN alignment. |
-| [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md) | React/Vercel best-practices audit. |
+| Document | Purpose | Status |
+|----------|---------|--------|
+| **README.md** (this file) | Current direction, status, and outstanding work | Active |
+| [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md) | Instrument layout, guide states, responsive grid | Complete — reference |
+| [SINEWAVES-FRONTEND-DESIGN-AUDIT.md](./SINEWAVES-FRONTEND-DESIGN-AUDIT.md) | AI slop audit (cyan, glow, modal) — led to Eurorack direction | Superseded |
+| [SINEWAVES-MATCH-PROXIMITY-AUDIT.md](./SINEWAVES-MATCH-PROXIMITY-AUDIT.md) | Ghost wave sync, snap-to-target, challenge params | Resolved |
+| [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md) | Resize distortion, match animation wiring, control spacing, shadcn registry scan | Open (low priority) |
+| [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md) | React performance audit (barrel imports, localStorage, etc.) | Open |
 
-Implementation plans (with task order and file lists) live in [docs/plans/](../plans/), e.g. the Eurorack reskin plan.
+Implementation plans live in [docs/plans/](../plans/).

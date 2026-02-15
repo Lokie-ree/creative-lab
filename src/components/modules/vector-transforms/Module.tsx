@@ -292,7 +292,7 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
             {/* Original vector (gray, static) */}
             <OriginalVector />
 
-            {/* Transformed vector (cyan, animated) */}
+            {/* Transformed vector (animated) */}
             <TransformedVector end={transformedVector} />
 
             {/* Target vector (dashed, challenge mode only) */}
