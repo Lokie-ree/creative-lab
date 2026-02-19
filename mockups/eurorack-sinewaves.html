@@ -11,51 +11,59 @@
      engraved dividers, functional color only, no glow
      ═══════════════════════════════════════════════════════════════ */
 
-  @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
   :root {
-    /* ── Faceplate ── */
-    --panel-bg: #1e1d1c;
-    --panel-bg-raised: #252423;
-    --panel-bg-inset: #161514;
-    --panel-bg-deep: #111010;
+    /* ── Faceplate (oklch) ── */
+    --panel-bg: oklch(0.14 0.008 75);
+    --panel-bg-raised: oklch(0.17 0.008 75);
+    --panel-bg-inset: oklch(0.11 0.008 75);
+    --panel-bg-deep: oklch(0.09 0.006 75);
 
     /* ── Silk-screen (labels, dividers) ── */
-    --silk: #b8b0a4;
-    --silk-dim: #7a746a;
-    --silk-faint: #4a463e;
-    --silk-bright: #d4cec4;
+    --silk: oklch(0.74 0.02 85);
+    --silk-dim: oklch(0.52 0.02 75);
+    --silk-faint: oklch(0.35 0.02 70);
+    --silk-bright: oklch(0.84 0.015 90);
 
-    /* ── Functional color ── */
-    --active: #7cc87c;           /* phosphor green — CRT accent */
-    --active-dim: #4a8a4a;
-    --active-bright: #96e496;
-    --sys-ok: #5a7a5a;           /* muted earthy — system status only */
-    --sys-ok-dim: #3e5e3e;
-    --danger: #8a4a4a;
-    --danger-dim: #6a3636;
-    --led-off: #2a2824;
-    --led-active: #7cc87c;       /* phosphor */
-    --led-done: #5a7a5a;         /* earthy — completed, not glowing */
+    /* ── Functional color (phosphor green / earthy) ── */
+    --active: oklch(0.72 0.15 145);
+    --active-dim: oklch(0.52 0.12 145);
+    --active-bright: oklch(0.88 0.18 145);
+    --sys-ok: oklch(0.52 0.08 145);
+    --sys-ok-dim: oklch(0.42 0.08 145);
+    --danger: oklch(0.52 0.12 25);
+    --danger-dim: oklch(0.38 0.10 25);
+    --led-off: oklch(0.20 0.01 80);
+    --led-active: oklch(0.72 0.15 145);
+    --led-done: oklch(0.52 0.08 145);
 
     /* ── Scored lines ── */
-    --score: #2e2c28;
-    --score-deep: #222120;
+    --score: oklch(0.22 0.01 80);
+    --score-deep: oklch(0.18 0.01 80);
 
     /* ── Screw ── */
-    --screw-face: #3a3836;
-    --screw-slot: #1a1918;
-    --screw-rim: #4a4844;
+    --screw-face: oklch(0.28 0.01 80);
+    --screw-slot: oklch(0.14 0.01 80);
+    --screw-rim: oklch(0.35 0.01 80);
+    --thumb-border: oklch(0.42 0.015 80);
 
-    /* ── Type ── */
-    --font-label: 'Inter Tight', 'Helvetica Neue', Arial, sans-serif;
+    /* ── Type: fluid scale ── */
+    --text-tiny: clamp(0.4375rem, 0.8vw + 0.35rem, 0.5625rem);
+    --text-label: clamp(0.5rem, 1.2vw + 0.4rem, 0.6875rem);
+    --text-body: clamp(0.75rem, 1.5vw + 0.5rem, 0.8125rem);
+    --text-formula: clamp(0.875rem, 2vw + 0.5rem, 1.125rem);
+    --text-value: clamp(0.75rem, 1.2vw + 0.5rem, 0.8125rem);
+
+    /* ── Fonts: label = distinctive sans; data = numeric/formula readout only ── */
+    --font-label: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
     --font-data: 'JetBrains Mono', 'Consolas', monospace;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #0e0d0c;
+    background: oklch(0.07 0.005 60);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -79,32 +87,21 @@
         rgba(255,255,255,0.008) 1px,
         rgba(255,255,255,0.008) 2px
       );
+    animation: module-entrance 0.4s ease-out both;
   }
-
-  /* ── PANEL SCREWS ── */
-  .screw {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--screw-face);
-    border: 1px solid var(--screw-rim);
-    position: absolute;
-    z-index: 10;
+  @media (prefers-reduced-motion: reduce) {
+    .module { animation: none; }
   }
-  .screw::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 8px;
-    height: 1.5px;
-    background: var(--screw-slot);
-    transform: translate(-50%, -50%) rotate(-35deg);
+  @keyframes module-entrance {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  .screw.tl { top: 8px; left: 8px; }
-  .screw.tr { top: 8px; right: 8px; }
-  .screw.bl { bottom: 8px; left: 8px; }
-  .screw.br { bottom: 8px; right: 8px; }
 
   /* ── SCORED DIVIDER ── */
   .score {
@@ -120,7 +117,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: rgba(0,0,0,0.3);
+    background: oklch(0 0 0 / 0.3);
   }
 
   /* ═══════════════════════════════════════════════════
@@ -136,27 +133,32 @@
   .nav-btn {
     display: flex;
     align-items: center;
-    gap: 4px;
-    color: var(--silk-dim);
+    gap: 5px;
+    color: var(--silk);
     font-family: var(--font-label);
-    font-size: 10px;
+    font-size: var(--text-label);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     cursor: pointer;
-    border: none;
-    background: none;
-    padding: 4px 0;
+    border: 1px solid var(--score);
+    background: var(--panel-bg-inset);
+    padding: 5px 10px;
+    transition: border-color 0.2s ease-out, background-color 0.2s ease-out;
+  }
+  .nav-btn:hover {
+    border-color: var(--silk-dim);
+    background: var(--panel-bg-deep);
   }
   .nav-btn svg {
     width: 12px;
     height: 12px;
-    stroke: var(--silk-dim);
+    stroke: currentColor;
   }
 
   .module-title {
     font-family: var(--font-label);
-    font-size: 11px;
+    font-size: var(--text-label);
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -173,7 +175,7 @@
     height: 7px;
     border-radius: 50%;
     background: var(--led-off);
-    border: 1px solid #3a3632;
+    border: 1px solid var(--score);
   }
   .led.done {
     background: var(--led-done);
@@ -190,7 +192,7 @@
     align-items: center;
     gap: 6px;
     font-family: var(--font-data);
-    font-size: 9px;
+    font-size: var(--text-tiny);
     letter-spacing: 0.06em;
     color: var(--sys-ok);
   }
@@ -203,15 +205,20 @@
 
   .esc-btn {
     font-family: var(--font-label);
-    font-size: 9px;
+    font-size: var(--text-tiny);
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--silk-dim);
+    color: var(--silk);
     border: 1px solid var(--score);
-    background: none;
-    padding: 3px 8px;
+    background: var(--panel-bg-inset);
+    padding: 5px 10px;
     cursor: pointer;
+    transition: border-color 0.2s ease-out, background-color 0.2s ease-out;
+  }
+  .esc-btn:hover {
+    border-color: var(--silk-dim);
+    background: var(--panel-bg-deep);
   }
 
   /* ═══════════════════════════════════════════════════
@@ -232,7 +239,7 @@
 
   .readout-label {
     font-family: var(--font-label);
-    font-size: 8.5px;
+    font-size: var(--text-tiny);
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -242,7 +249,7 @@
 
   .prompt-text {
     font-family: var(--font-label);
-    font-size: 13px;
+    font-size: var(--text-body);
     font-weight: 500;
     color: var(--silk-bright);
     line-height: 1.5;
@@ -253,7 +260,7 @@
 
   .formula {
     font-family: var(--font-data);
-    font-size: 18px;
+    font-size: var(--text-formula);
     font-weight: 500;
     color: var(--silk);
     letter-spacing: 0.02em;
@@ -265,7 +272,7 @@
 
   .theta-line {
     font-family: var(--font-data);
-    font-size: 11px;
+    font-size: var(--text-label);
     color: var(--silk-dim);
     margin-top: 4px;
   }
@@ -295,15 +302,15 @@
 
   /* SVG grid */
   .grid-line-major {
-    stroke: #2a2826;
+    stroke: oklch(0.20 0.01 80);
     stroke-width: 0.5;
   }
   .grid-line-minor {
-    stroke: #1f1e1c;
+    stroke: oklch(0.16 0.01 80);
     stroke-width: 0.3;
   }
   .grid-axis {
-    stroke: #3a3834;
+    stroke: oklch(0.28 0.01 80);
     stroke-width: 0.8;
   }
 
@@ -311,7 +318,7 @@
   .viz-label {
     position: absolute;
     font-family: var(--font-label);
-    font-size: 8px;
+    font-size: var(--text-tiny);
     font-weight: 600;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -444,7 +451,7 @@
 
   .fader-label {
     font-family: var(--font-label);
-    font-size: 8.5px;
+    font-size: var(--text-tiny);
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -456,7 +463,7 @@
 
   .fader-value {
     font-family: var(--font-data);
-    font-size: 13px;
+    font-size: var(--text-value);
     font-weight: 600;
     color: var(--silk);
   }
@@ -476,8 +483,8 @@
     height: 3px;
     background: var(--panel-bg-inset);
     position: relative;
-    border-top: 1px solid rgba(0,0,0,0.3);
-    border-bottom: 1px solid rgba(255,255,255,0.03);
+    border-top: 1px solid oklch(0 0 0 / 0.3);
+    border-bottom: 1px solid oklch(1 0 0 / 0.03);
   }
 
   .fader-fill {
@@ -523,8 +530,8 @@
     transform: translate(-50%, -50%);
     width: 14px;
     height: 22px;
-    background: #4a4844;
-    border: 1px solid #5a5854;
+    background: var(--screw-rim);
+    border: 1px solid var(--thumb-border);
     cursor: pointer;
   }
   .fader-thumb::after {
@@ -551,7 +558,7 @@
   }
   .fader-range-val {
     font-family: var(--font-data);
-    font-size: 8px;
+    font-size: var(--text-tiny);
     color: var(--silk-faint);
   }
 
@@ -574,6 +581,7 @@
     border: 1px solid var(--score);
     cursor: pointer;
     position: relative;
+    transition: border-color 0.2s ease-out, background-color 0.2s ease-out;
   }
   .inst-btn:active {
     background: var(--panel-bg-deep);
@@ -587,7 +595,7 @@
 
   .inst-btn-label {
     font-family: var(--font-label);
-    font-size: 7.5px;
+    font-size: var(--text-tiny);
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -605,7 +613,7 @@
   /* Speed */
   .inst-btn.speed .speed-val {
     font-family: var(--font-data);
-    font-size: 11px;
+    font-size: var(--text-label);
     font-weight: 600;
     color: var(--silk);
   }
@@ -633,15 +641,13 @@
   }
   .proximity-text {
     font-family: var(--font-label);
-    font-size: 9px;
+    font-size: var(--text-tiny);
     font-weight: 500;
     color: var(--active);
     letter-spacing: 0.04em;
   }
 
-  /* ═══════════════════════════════════════════════════
-     RESPONSIVE (tablet / mobile sketch)
-     ═══════════════════════════════════════════════════ */
+  /* ── Narrow viewports: keep unit circle, shrink and reflow ── */
   @media (max-width: 700px) {
     .readout-row {
       grid-template-columns: 1fr;
@@ -662,19 +668,41 @@
       margin-left: 0;
       justify-content: center;
     }
-    .wave-container {
-      left: 32px;
-    }
-    .circle-placeholder,
-    .connector-line,
-    .viz-label.circle-label {
-      display: none;
-    }
     .viz-container { height: 200px; }
     .status-strip { padding: 10px 16px; }
     .readout-cell { padding: 10px 16px; }
     .viz-area { padding: 12px 16px; }
     .control-strip { padding: 12px 16px 14px; }
+    /* Compact layout: smaller circle left, wave fills remainder */
+    .circle-placeholder {
+      width: 72px;
+      height: 72px;
+      left: 24px;
+    }
+    .circle-placeholder .circle-dot {
+      width: 5px;
+      height: 5px;
+      top: -2.5px;
+    }
+    .connector-line {
+      left: 96px;
+      width: 40px;
+    }
+    .wave-container {
+      left: 148px;
+      top: 12px;
+      bottom: 12px;
+      right: 16px;
+    }
+    .viz-label.circle-label {
+      bottom: 6px;
+      left: 36px;
+      font-size: 0.6em;
+    }
+    .viz-label.wave-label {
+      right: 20px;
+      bottom: 6px;
+    }
   }
 
   /* ═══════════════════════════════════════════════════
@@ -685,11 +713,11 @@
     width: 100%;
     margin-top: 32px;
     padding: 16px 0;
-    border-top: 1px solid #2a2826;
+    border-top: 1px solid var(--score);
   }
   .annotation-bar h2 {
     font-family: var(--font-label);
-    font-size: 10px;
+    font-size: var(--text-label);
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -704,7 +732,7 @@
   }
   .annotation-bar li {
     font-family: var(--font-label);
-    font-size: 11px;
+    font-size: var(--text-label);
     color: var(--silk-faint);
     line-height: 1.6;
   }
@@ -714,7 +742,7 @@
     height: 10px;
     vertical-align: middle;
     margin-right: 4px;
-    border: 1px solid #3a3632;
+    border: 1px solid var(--score);
   }
 </style>
 </head>
@@ -726,12 +754,6 @@
 <div style="max-width:960px; width:100%;">
 
 <div class="module">
-  <!-- Panel screws -->
-  <div class="screw tl"></div>
-  <div class="screw tr"></div>
-  <div class="screw bl"></div>
-  <div class="screw br"></div>
-
   <!-- ── STATUS STRIP ── -->
   <div class="status-strip">
     <button class="nav-btn">
@@ -770,7 +792,7 @@
     <div class="readout-cell">
       <div class="readout-label">FORMULA</div>
       <div class="formula">y = <span class="val">1.5</span> &middot; sin(1.0 t)</div>
-      <div class="theta-line">&theta; = 0.00&pi; rad</div>
+      <div class="theta-line">&theta; = 0° (0° → 360°)</div>
     </div>
   </div>
 
