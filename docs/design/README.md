@@ -1,6 +1,6 @@
 # Design — Current Direction
 
-**Last updated:** February 15, 2026
+**Last updated:** February 19, 2026
 
 This folder holds design specs and audits for creative-lab. Below is the current direction, implementation status, and outstanding work.
 
@@ -34,7 +34,7 @@ Matte faceplate, phosphor green accent, silk-screened labels, scored dividers, n
 
 - Slider thumb: rectangular fader (`h-6 w-3`), no rounded, no glow
 - Scored dividers: `border-b border-(--lab-border)`
-- Panel screws: `PanelScrew` component, varied rotation per corner
+- **No panel screws.** Decorative corner screws take up space and add no value; the design direction omits them. Updated mockups: `mockups/eurorack-sinewaves.html`, `mockups/eurorack-sinewaves-mobile.html`.
 - Transitions: always explicit `duration-150`
 
 *Tokens defined in:* `src/lib/colors.ts` → `src/index.css` (--lab-* vars)
@@ -52,6 +52,7 @@ Scientific instrument ("oscilloscope, not slideshow"). Everything always visible
 - **Controls:** TRACE (play/pause), RESET, SPEED (0.5x / 1x / 2x). Grid lines, silk-screen labels, StatusStrip.
 - **Architecture:** `InstrumentModule.tsx` orchestrates state; `Scene.tsx` owns R3F Canvas
 - **Reference:** `src/components/modules/sinewaves/ARCHITECTURE.md`
+- **Visual reference:** `mockups/eurorack-sinewaves.html` (desktop), `mockups/eurorack-sinewaves-mobile.html` (mobile). Use these for layout, spacing, and component treatment; panel screws are intentionally omitted (see Implementation vs mockups below).
 
 *Specs:* [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md), [plans/2026-02-05-sinewaves-instrument-refactor.md](../plans/2026-02-05-sinewaves-instrument-refactor.md), [plans/2026-02-10-sinewaves-eurorack-reskin.md](../plans/2026-02-10-sinewaves-eurorack-reskin.md)
 
@@ -65,12 +66,22 @@ Single `Module.tsx` with "Coming Soon" message.
 
 ### Rigid Motions — DESIGNED (next build)
 
-Geometry module — translations, reflections, rotations. "Predict & Reveal" interaction pattern (student drags ghost shape to predicted position, animation confirms/corrects). Distinct from sinewaves' continuous-parameter instrument.
+Grade 8 Geometry module (8.G.A.1–3) — translations, reflections, rotations, congruence. "Predict & Reveal" interaction pattern (student drags ghost shape to predicted position, animation confirms/corrects). Scalene triangle as the single shape family across all stages. Distinct from sinewaves' continuous-parameter instrument.
 
-- **Guide states:** watch → predict-translate → predict-reflect → predict-rotate → challenge → free
-- **Controls:** Discrete (shadcn toggle/toggle-group) rather than continuous sliders
-- **Design spec:** [plans/2026-02-12-rigid-motions-design.md](../plans/2026-02-12-rigid-motions-design.md)
-- **Implementation plan:** [plans/2026-02-12-rigid-motions-implementation.md](../plans/2026-02-12-rigid-motions-implementation.md)
+- **Guide states:** predict-translate → predict-reflect → predict-rotate → coordinate-reveal → predict-with-coordinates → capstone
+- **ALD progression:** L3 (spatial reasoning, no coordinates) → L4 (coordinate rules activate) → L5 (inverse task: identify the sequence)
+- **Controls:** Discrete (shadcn toggle/toggle-group) rather than continuous sliders; capstone uses a two-slot sequence builder
+- **Design spec (v2):** [plans/2026-02-19-rigid-motions-design-spec.md](../plans/2026-02-19-rigid-motions-design-spec.md)
+- **Part of:** Three-module Grade 8 geometry progression (Rigid Motions → Dilations & Similarity → Pythagorean Theorem)
+
+---
+
+## Implementation vs mockups (Sinewaves)
+
+When evaluating the current sinewaves implementation against the updated mockups (`mockups/eurorack-sinewaves.html`, `mockups/eurorack-sinewaves-mobile.html`), keep the following in mind:
+
+- **Panel screws:** The current implementation includes four decorative `PanelScrew` components at the layout corners. The design direction is to **omit** them: they consume space and add no functional or meaningful aesthetic value. The mockups do not rely on corner screws; the screw-related CSS variables in the mockups are used only for the fader thumb (metallic cap), not for standalone screw graphics.
+- **Reference:** Use the mockups for layout density, status strip, readout treatment, scored dividers, fader ticks, and instrument buttons. Do not add or retain decorative corner screws to match the design direction.
 
 ---
 
@@ -87,6 +98,10 @@ All 6 barrel `index.ts` files deleted; `App.tsx` uses direct file imports. `luci
 ### Global — deleted stale files — RESOLVED
 
 `ControlPanel.tsx`, `SlideTransition.tsx`, `transitions/index.ts` removed and committed.
+
+### Sinewaves — align with design direction (panel screws)
+
+The current implementation includes four decorative corner screws (`PanelScrew` in `Layout.tsx`). The design direction is to omit them; see **Implementation vs mockups** above. When touching the layout, remove the screws to match the mockups and free space.
 
 ### Sinewaves — lower-priority polish
 

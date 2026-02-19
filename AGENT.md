@@ -126,7 +126,7 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
   - **vector-transformations** — Implemented (in-app). Linear algebra; matrix transformations on vectors.
   - **phase-portraits** — Placeholder/coming-soon.
 - **Module skeleton** — Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, useAccessibility, useErrorRecovery, useModuleAnalytics). Not yet consumed by existing modules; available for next module. See [docs/plans/2026-01-27-module-skeleton-infrastructure.md](./docs/plans/2026-01-27-module-skeleton-infrastructure.md).
-- **Roadmap:** Organized by **major content clusters** (Algebra I, Geometry). Next modules TBD.
+- **Roadmap:** Organized by **major content clusters** (Algebra I, Geometry). Next: three-module Grade 8 Geometry progression — (1) Rigid Motions & Congruence (8.G.A.1–3), (2) Dilations, Similarity & Right Triangles (8.G.A.3–4, 8.G.B), (3) Pythagorean Theorem (8.G.B.7–8). Design spec: `docs/plans/2026-02-19-rigid-motions-design-spec.md`.
 
 ## Follow-up Items
 

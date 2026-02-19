@@ -31,7 +31,7 @@ import { SINEWAVE_COPY } from './sinewaves-copy'
 import { useProximity } from './use-proximity'
 
 interface InstrumentModuleProps {
-  onComplete: (values: { a: number; f: number }) => void
+  onComplete: (values: Record<string, number>) => void
   onBack?: () => void
 }
 

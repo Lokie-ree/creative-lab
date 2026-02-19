@@ -12,7 +12,7 @@ export interface ModuleConfig {
 }
 
 export interface ModuleProps {
-  onComplete: (values: { a: number; f: number }) => void
+  onComplete: (values: Record<string, number>) => void
   isVisible?: boolean
   onBack?: () => void
 }

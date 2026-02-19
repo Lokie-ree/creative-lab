@@ -19,11 +19,19 @@ export const COURSES: Course[] = [
     moduleIds: ['sinewaves', 'vector-transformations', 'phase-portraits'],
   },
   {
+    id: 'grade-8-geometry',
+    name: 'Grade 8 Geometry',
+    icon: '△',
+    color: '#7cc87c',
+    order: 2,
+    moduleIds: ['rigid-motions'],
+  },
+  {
     id: 'cs',
     name: 'CS',
     icon: '</>',
     color: '#a855f7',
-    order: 2,
+    order: 3,
     moduleIds: [],
   },
 ]

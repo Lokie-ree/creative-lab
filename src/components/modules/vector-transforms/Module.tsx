@@ -40,7 +40,7 @@ import {
  * Matches the shared ModuleProps interface from config/modules.ts
  */
 interface ModuleProps {
-  onComplete: (values: { a: number; f: number }) => void
+  onComplete: (values: Record<string, number>) => void
   isVisible?: boolean
 }
 

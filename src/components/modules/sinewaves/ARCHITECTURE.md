@@ -30,7 +30,6 @@ src/components/modules/sinewaves/
 ├── animations.ts           # Boot sequence (consoleBootSequence) and stage transition helpers
 ├── sinewaves-copy.ts       # Stage prompts and copy (SINEWAVE_COPY)
 ├── components/             # Module-local UI for instrument HUD
-│   ├── index.ts
 │   ├── StatusStrip.tsx     # Dot nav, SYS:NOM, ESC (44px touch targets, ARIA)
 │   ├── PromptReadout.tsx   # Instructional prompt + description
 │   ├── FormulaReadout.tsx  # Formula display

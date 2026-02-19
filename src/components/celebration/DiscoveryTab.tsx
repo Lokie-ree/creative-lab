@@ -1,7 +1,7 @@
 import { CheckCircle } from "lucide-react"
 
 interface DiscoveryTabProps {
-  values: { a: number; f: number } | null
+  values: Record<string, number> | null
   skipped?: boolean
 }
 

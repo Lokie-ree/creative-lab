@@ -21,7 +21,7 @@ type TabId = "discovery" | "behind" | "deeper"
  */
 interface DynamicModuleProps {
   moduleId: string
-  onComplete: (values: { a: number; f: number }) => void
+  onComplete: (values: Record<string, number>) => void
   isVisible: boolean
   onBack?: () => void
 }
@@ -78,7 +78,7 @@ function App() {
   } | null>(null)
 
   // Completed values from module
-  const [completedValues, setCompletedValues] = useState<{ a: number; f: number } | null>(null)
+  const [completedValues, setCompletedValues] = useState<Record<string, number> | null>(null)
 
   // Modal states
   const [showCelebration, setShowCelebration] = useState(false)
@@ -112,7 +112,7 @@ function App() {
   }, [])
 
   // Module completion → Celebration modal
-  const handleModuleComplete = useCallback((values: { a: number; f: number }) => {
+  const handleModuleComplete = useCallback((values: Record<string, number>) => {
     setCompletedValues(values)
     setSkippedToEnd(false)
     setCelebrationTab("discovery")
