@@ -1,53 +1,59 @@
 # Documentation
 
-This folder holds the documentation for planning, designing, and building interactive learning modules.
+Planning, designing, and building interactive learning modules that help students discover mathematical relationships through manipulation before formal notation.
 
 ---
 
 ## Foundational documents (read first)
 
-These two documents define the **pedagogy** and **product alignment** that every module must satisfy. All planning and development docs assume and extend them.
+These two documents define the **pedagogy** and **standards alignment** that every module must satisfy.
 
 | Document | Purpose |
 |----------|---------|
-| [**philosophy.md**](./philosophy.md) | Mastery through discovery: earned reveal, visual confirmation, understanding-before-notation. Design North Star for every module. |
-| [**product.md**](./product.md) | LSSM alignment: how discovery-first design maps to state rigor (Conceptual Understanding, Procedural Fluency, Application) and to Algebra I / Geometry standards. |
+| [**philosophy.md**](./philosophy.md) | Discovery-first pedagogy: earned reveal, visual confirmation, understanding before notation. Students manipulate, observe patterns, then receive formalization as confirmation. |
+| [**product.md**](./product.md) | LSSM standards alignment: maps discovery-first interactions to Achievement Level Descriptors (ALDs) and demonstrates how modules move students from Level 3 (Basic) to Level 5 (Advanced). |
 
-**Single source:** Pedagogy is defined in philosophy.md; product.md maps those principles to LSSM and does not redefine them.
+**Use these when:**
 
-**Use them when:**
-
-- Defining or reviewing a new module idea
-- Writing or reviewing a PRD, UX spec, or build-order prompts
-- Making design tradeoffs (e.g., when to show notation, how to assess)
+- Designing a new module or feature
+- Evaluating whether an interaction satisfies rigor requirements
+- Making tradeoffs between complexity and clarity
 
 ---
 
 ## Module planning pipeline
 
-Planning and developing a new module follows a fixed pipeline. Each step consumes the output of the previous one and must stay aligned with the foundational docs.
+New modules follow this design process:
 
 ```
-MVP idea → PRD → UX spec → Build-order prompts → Implementation
+Design Spec → Static Mockups → Validation → Implementation → Architecture Doc
 ```
 
-The pipeline is implemented as the `module-planning-pipeline` Claude Code skill. Generated artifacts (PRDs, UX specs, build-order prompts) are created per-module as needed during planning.
+1. **Design Spec** — Standards-grounded design (pedagogy, ALD progression, interactions)
+2. **Static Mockups** — HTML/CSS prototypes validating visual design and layout
+3. **Validation** — Verify mockups satisfy spec requirements
+4. **Implementation** — Build components matching validated mockups
+5. **Architecture Doc** — Document as-built implementation for future reference
+
+The `module-planning-pipeline` skill guides this process.
 
 ---
 
-## Other docs
+## Documentation structure
 
 | Path | Purpose |
 |------|---------|
-| [design/](./design/) | Design specs and audits. Start with [design/README.md](./design/README.md) for current direction (Eurorack, instrument UX). Specs define what to build; audits assess current state. |
-| [plans/](./plans/) | Implementation plans: task-by-task execution (e.g. 2026-02-05-sinewaves-instrument-refactor.md). Use after a design spec is approved. |
-| [professional/](./professional/) | Resume and professional materials. |
+| [**design/**](./design/) | Design specs, audits, and current direction. Start with [design/README.md](./design/README.md) for Eurorack design system and module status. |
+| [**plans/**](./plans/) | Active design specs for modules in development (e.g., rigid motions). |
+| [**archive/**](./archive/) | Completed implementation plans and resolved audits. Historical reference only. |
+| [**professional/**](./professional/) | Resume and career materials. |
 
 ---
 
 ## Root-level references
 
-- [**PORTFOLIO_VISION.md**](../PORTFOLIO_VISION.md) — Career thesis, audience, guiding principles. References the same pedagogy as [philosophy.md](./philosophy.md).
-- [**AGENT.md**](../AGENT.md) — AI agent instructions: architecture, commands, design system, current state, guidelines.
-- [**Sinewaves ARCHITECTURE.md**](../src/components/modules/sinewaves/ARCHITECTURE.md) — Implementation reference for the completed sinewaves module.
+- [**PORTFOLIO_VISION.md**](../PORTFOLIO_VISION.md) — Career positioning, audience, guiding principles.
+- [**AGENT.md**](../AGENT.md) — AI agent instructions: architecture, commands, design system.
+- [**Sinewaves ARCHITECTURE.md**](../src/components/modules/sinewaves/ARCHITECTURE.md) — Reference implementation for completed module.
 - [**Module skeleton**](../src/lib/skeleton/README.md) — Reusable hooks for future modules.
+- [**Mockups**](../mockups/) — Static HTML prototypes for design validation.

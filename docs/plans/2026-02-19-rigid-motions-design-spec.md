@@ -1,17 +1,19 @@
 # Rigid Motions Module — Design Specification v2
 
-**Date:** February 19, 2026
-**Status:** Draft — Supersedes v1 (February 12, 2026)
-**Revision:** Shape family simplified to scalene triangle; module roadmap confirmed
-**Standards:** 8.G.A.1, 8.G.A.2, 8.G.A.3
-**Course:** Grade 8 Mathematics
-**ALD Target:** Level 3 entry → Level 4 primary → Level 5 capstone
+**Date:** February 19, 2026  
+**Status:** Draft — Implementation-ready (supersedes v1, February 12, 2026)  
+**Revision:** Shape family simplified to scalene triangle; module roadmap confirmed; implementation details added (component interfaces, match scoring, animations, mockup validation).  
+**Standards:** 8.G.A.1, 8.G.A.2, 8.G.A.3  
+**Course:** Grade 8 Mathematics  
+**ALD Target:** Level 3 entry → Level 4 primary → Level 5 capstone  
+
+**Related documentation:** [philosophy.md](../philosophy.md) (discovery-first pedagogy) · [product.md](../product.md) (LSSM alignment) · [design/README.md](../design/README.md) (Eurorack system) · [mockups/rigid-motions-all-states.html](../../mockups/rigid-motions-all-states.html) (static prototype).
 
 ---
 
 ## Why This Document Exists
 
-Version 1 of this design was grounded in the sinewaves module pattern and aimed broadly at Geometry course standards. After working through the Grade 8 and Geometry ALDs, the rigor alignment document, and both teacher companion documents, the target has been sharpened. This version is built from the standards up, with the R3F scene treated as the primary pedagogical instrument rather than a canvas for a UI pattern.
+Version 1 of this design was grounded in the sinewaves module pattern and aimed broadly at Geometry course standards. After working through the Grade 8 and Geometry ALDs, the standards alignment in [product.md](../product.md), and grade-level curriculum expectations, the target was sharpened. This version is built from the standards up, with the R3F scene treated as the primary pedagogical instrument rather than a canvas for a UI pattern.
 
 Three decisions made before this spec was written:
 
@@ -55,11 +57,19 @@ The Grade 8 Congruence & Similarity cluster (8.G.A.1–8.G.A.4) has a clear prog
 
 **Note on dilations:** The Level 4 ALD includes dilations. This module does not cover them. A student completing this module will have satisfied the rigid transformation portion of Level 4 but will need the subsequent similarity module to fully satisfy the cluster at Level 4.
 
+### ALD performance evidence (quick reference)
+
+| Interaction | ALD level | Evidence produced |
+|-------------|-----------|-------------------|
+| Predict translation/reflection/rotation without coordinates | L3 | Spatial reasoning only; congruence via transformation |
+| Predict with coordinate readouts active | L4 | Connects spatial prediction to coordinate change |
+| Build two-step sequence in capstone | L5 | Describes sequence to justify congruence |
+
 ---
 
 ## The R3F Scene
 
-The scene is the instrument. Everything else — the ControlStrip, the FormulaReadout, the earned reveals — is in service of what the scene makes visible. The design principle here comes directly from the teacher companion documents: Grade 8 teachers currently teach this content by having students fold paper over axes, pin paper to the origin and rotate it, and slide paper by hand. Each physical action makes a geometric constraint tangible. The scene replaces those physical manipulatives with digital equivalents that are more precise, more readable, and — critically — able to show coordinate values.
+The scene is the instrument. Everything else — the ControlStrip, the FormulaReadout, the earned reveals — is in service of what the scene makes visible. The design principle aligns with grade-level practice: students often learn this content by folding paper over axes, pinning paper at the origin to rotate it, and sliding paper by hand. Each physical action makes a geometric constraint tangible. The scene replaces those physical manipulatives with digital equivalents that are more precise, more readable, and — critically — able to show coordinate values.
 
 ### Permanent scene elements
 
@@ -83,7 +93,7 @@ The ghost is the student's prediction. It is the interactive element in the main
 
 - Rendered in `--lab-accent` (`#7cc87c`) at 50% opacity with dashed outline
 - Snaps to grid intersections on drag
-- Vertex labels update to A′, B′, C′ (prime notation) — the companion doc explicitly identifies reading "A prime" as required vocabulary
+- Vertex labels update to A′, B′, C′ (prime notation); reading "A prime" is required vocabulary and is introduced at the coordinate reveal
 - Coordinate labels at each vertex update live as the ghost moves — initially hidden, visible once the coordinate layer activates
 - Position is set by dragging on the canvas
 - Reflection (flip) and rotation are set via ControlStrip controls, not canvas manipulation
@@ -125,7 +135,7 @@ The student proves understanding by predicting, not by watching. Every geometry 
 
 ## Guide States
 
-Seven states. The watch state is removed from v1 — per pedagogy guidelines, the student should engage with the challenge first, not watch a demonstration first. The coordinate layer activates as a mid-module reveal rather than being present from the start.
+Six states. The watch state was removed from v1 — per [philosophy.md](../philosophy.md), the student engages with the challenge first rather than watching a demonstration. The coordinate layer activates as a mid-module reveal rather than being present from the start.
 
 ```
 predict-translate → predict-reflect → predict-rotate → [coordinate reveal] → predict-with-coordinates → capstone
@@ -320,7 +330,7 @@ Alternate capstone vertices:
 
 ## Architecture
 
-Flat file structure. No barrel exports. All patterns from sinewaves — not shared code.
+Flat file structure. No barrel exports. Layout and instrument pattern follow the sinewaves module; see [sinewaves ARCHITECTURE.md](../../../src/components/modules/sinewaves/ARCHITECTURE.md) for the reference implementation. After implementation, add an `ARCHITECTURE.md` in this module per the [documentation pipeline](../README.md#module-planning-pipeline).
 
 ```
 src/components/modules/rigid-motions/
@@ -370,7 +380,7 @@ The coordinate layer activation is a UI state flag in InstrumentModule (`coordin
 
 ## Vocabulary Arc
 
-The companion document identifies vocabulary students should learn "with increasing precision." This module introduces terms at the point where the student has already built the concept — never before.
+Grade-level expectations emphasize vocabulary learned "with increasing precision." This module introduces terms only after the student has built the concept — never before.
 
 | Term | Introduced when |
 |---|---|
@@ -410,10 +420,567 @@ The scalene triangle introduced in this module is the shape family that carries 
 
 ---
 
+## Component Interfaces
+
+TypeScript interfaces define the contract between components. These are implementation-ready specifications.
+
+### Core Types
+
+```typescript
+// Guide state progression
+type GuideState = 
+  | 'predict-translate' 
+  | 'predict-reflect' 
+  | 'predict-rotate' 
+  | 'coordinate-reveal' 
+  | 'predict-with-coordinates' 
+  | 'capstone'
+
+// Transformation types
+type TransformationType = 'translate' | 'reflect' | 'rotate'
+type ReflectionAxis = 'x' | 'y'
+type RotationDegrees = 90 | 180 | 270
+type RotationDirection = 'cw' | 'ccw'
+
+// Geometric primitives
+interface Point {
+  x: number
+  y: number
+}
+
+interface Shape {
+  vertices: Point[]
+  labels: string[] // ['A', 'B', 'C'] or ['A', 'B', 'C', 'D']
+}
+
+// Transformation parameters
+interface TranslationParams {
+  type: 'translate'
+  dx: number
+  dy: number
+}
+
+interface ReflectionParams {
+  type: 'reflect'
+  axis: ReflectionAxis
+}
+
+interface RotationParams {
+  type: 'rotate'
+  degrees: RotationDegrees
+  direction: RotationDirection
+}
+
+type TransformationParams = TranslationParams | ReflectionParams | RotationParams
+
+// Capstone sequence
+interface SequenceStep {
+  id: string
+  params: TransformationParams
+}
+```
+
+### Scene Component Props
+
+```typescript
+// Main scene orchestrator
+interface SceneProps {
+  preImage: Shape
+  ghostPosition: Point[] // Dragged position
+  guideState: GuideState
+  onGhostDrag: (position: Point[]) => void
+  onGhostFlip: () => void
+  onGhostRotate: (degrees: RotationDegrees) => void
+  coordinatesActive: boolean
+  speedMultiplier: 0.5 | 1 | 2
+}
+
+// Pre-image shape (always visible)
+interface PreImageShapeProps {
+  shape: Shape
+  coordinatesActive: boolean
+  color: string // --lab-text
+}
+
+// Ghost shape (prediction)
+interface GhostShapeProps {
+  vertices: Point[]
+  labels: string[] // ['A′', 'B′', 'C′']
+  coordinatesActive: boolean
+  color: string // --lab-accent
+  opacity: number // 0.5
+  onDrag: (vertices: Point[]) => void
+}
+
+// Image shape (post-reveal)
+interface ImageShapeProps {
+  vertices: Point[]
+  labels: string[]
+  coordinatesActive: boolean
+  color: string // --lab-accent full opacity
+  animateFrom: Point[] // Start position for reveal animation
+}
+
+// Translation vector
+interface TranslationVectorProps {
+  from: Point // Pre-image centroid
+  to: Point // Ghost centroid
+  color: string // --lab-ghost
+  visible: boolean
+}
+
+// Reflection axis ticks
+interface ReflectionAxisTicksProps {
+  axis: ReflectionAxis
+  preImageVertices: Point[]
+  ghostVertices: Point[]
+  color: string // --lab-ghost
+  visible: boolean
+}
+
+// Rotation arcs
+interface RotationArcsProps {
+  preImageVertices: Point[]
+  degrees: RotationDegrees
+  direction: RotationDirection
+  color: string // --lab-ghost
+  visible: boolean
+}
+
+// Capstone preview ghost
+interface PreviewGhostProps {
+  preImage: Shape
+  sequence: SequenceStep[]
+  color: string // --lab-accent at 30% opacity
+  style: 'dotted' // Distinct from prediction ghost
+}
+```
+
+---
+
+## Match Scoring Algorithm
+
+Match detection determines when the student's prediction is correct. The algorithm uses separate thresholds for position and orientation.
+
+### Position Scoring
+
+```typescript
+function checkPositionMatch(
+  ghostVertices: Point[],
+  targetVertices: Point[]
+): { match: boolean; distance: number } {
+  // Calculate centroids
+  const ghostCentroid = calculateCentroid(ghostVertices)
+  const targetCentroid = calculateCentroid(targetVertices)
+  
+  // Euclidean distance
+  const distance = Math.sqrt(
+    Math.pow(ghostCentroid.x - targetCentroid.x, 2) +
+    Math.pow(ghostCentroid.y - targetCentroid.y, 2)
+  )
+  
+  const POSITION_THRESHOLD = 0.3 // Grid units
+  return {
+    match: distance <= POSITION_THRESHOLD,
+    distance
+  }
+}
+```
+
+### Orientation Scoring
+
+```typescript
+function checkOrientationMatch(
+  ghostVertices: Point[],
+  targetVertices: Point[]
+): { match: boolean; angleDiff: number } {
+  // Use longest edge to determine orientation
+  const ghostAngle = calculateLongestEdgeAngle(ghostVertices)
+  const targetAngle = calculateLongestEdgeAngle(targetVertices)
+  
+  // Angular difference (handle wrap-around)
+  let angleDiff = Math.abs(ghostAngle - targetAngle)
+  if (angleDiff > 180) angleDiff = 360 - angleDiff
+  
+  const ORIENTATION_THRESHOLD = 5 // Degrees
+  return {
+    match: angleDiff <= ORIENTATION_THRESHOLD,
+    angleDiff
+  }
+}
+```
+
+### Combined Match Detection
+
+```typescript
+function checkMatch(
+  ghostVertices: Point[],
+  targetVertices: Point[]
+): MatchResult {
+  const position = checkPositionMatch(ghostVertices, targetVertices)
+  const orientation = checkOrientationMatch(ghostVertices, targetVertices)
+  
+  if (position.match && orientation.match) {
+    return { type: 'match' }
+  } else if (position.match && !orientation.match) {
+    return { type: 'close', hint: 'Check the orientation' }
+  } else if (!position.match && orientation.match) {
+    return { type: 'close', hint: 'Check the position' }
+  } else {
+    return { 
+      type: 'miss',
+      showGapLines: true,
+      distance: position.distance
+    }
+  }
+}
+```
+
+### Thresholds Rationale
+
+- **Position: 0.3 grid units** — Allows for minor dragging imprecision while requiring intentional placement
+- **Orientation: 5 degrees** — Tight enough to require correct reflection/rotation, loose enough for snap-to-grid constraints
+
+---
+
+## Animation Specifications
+
+All animations use GSAP with `prefers-reduced-motion` support. Durations are calibrated for clarity without feeling sluggish.
+
+### Reveal Animation (Match Success)
+
+```typescript
+// Animate pre-image along transformation path to correct position
+const revealSequence = gsap.timeline()
+
+// Step 1: Pre-image shape animates to correct position
+revealSequence.to(preImageVertices, {
+  duration: 0.6,
+  ease: 'power2.inOut',
+  // Transform vertices along the geometric path
+  onUpdate: (progress) => {
+    // For translation: linear interpolation
+    // For reflection: arc over axis
+    // For rotation: circular arc around origin
+  }
+})
+
+// Step 2: Arrival pulse (both shapes)
+revealSequence.to([preImageShape, imageShape], {
+  duration: 0.2,
+  ease: 'power2.out',
+  scale: 1.05,
+  yoyo: true,
+  repeat: 1
+}, '-=0.1')
+```
+
+### Gap Lines (Miss Feedback)
+
+```typescript
+// Render dashed lines from ghost vertices to correct positions
+const gapLines = ghostVertices.map((ghostVertex, i) => {
+  const targetVertex = targetVertices[i]
+  return gsap.fromTo(gapLine, 
+    { drawSVG: '0%' },
+    {
+      drawSVG: '100%',
+      duration: 0.3,
+      ease: 'power1.out',
+      delay: i * 0.05 // Stagger
+    }
+  )
+})
+```
+
+### Coordinate Reveal
+
+```typescript
+// Fade in coordinate labels and FormulaReadout rules
+gsap.to(coordinateLabels, {
+  duration: 0.4,
+  opacity: 1,
+  ease: 'power2.out',
+  stagger: 0.05
+})
+
+gsap.to(formulaReadout, {
+  duration: 0.6,
+  opacity: 1,
+  y: 0,
+  ease: 'power2.out'
+}, '-=0.2')
+```
+
+### Capstone Preview Ghost
+
+```typescript
+// Update preview ghost position on sequence change (no animation)
+// Instant update — student needs immediate feedback
+function updatePreviewGhost(sequence: SequenceStep[]) {
+  const transformedVertices = applySequence(preImage.vertices, sequence)
+  setPreviewGhostVertices(transformedVertices)
+  // No tween — instant update
+}
+```
+
+### Animation Timing Summary
+
+| Animation | Duration | Easing | Trigger |
+|-----------|----------|--------|---------|
+| Reveal path animation | 600ms | power2.inOut | CHECK with match |
+| Arrival pulse | 200ms (×2) | power2.out | Shape settles |
+| Gap line render | 300ms | power1.out | CHECK with miss |
+| Gap line stagger | 50ms | — | Per vertex |
+| Coordinate fade-in | 400ms | power2.out | Coordinate reveal |
+| Formula slide-up | 600ms | power2.out | Coordinate reveal |
+| Preview ghost update | 0ms | — | Sequence change |
+
+---
+
+## Coordinate System Mapping
+
+The module uses mathematical coordinates (origin at center, y-up) but renders in SVG/Canvas coordinates (origin at top-left, y-down). All transformations are computed in math coordinates and converted for rendering.
+
+### Conversion Functions
+
+```typescript
+// Math coords → SVG coords
+function mathToSVG(point: Point, canvasSize: number): Point {
+  const scale = canvasSize / 14 // -7 to 7 grid → canvas size
+  const center = canvasSize / 2
+  return {
+    x: center + point.x * scale,
+    y: center - point.y * scale // Y inverted
+  }
+}
+
+// SVG coords → Math coords
+function svgToMath(point: Point, canvasSize: number): Point {
+  const scale = canvasSize / 14
+  const center = canvasSize / 2
+  return {
+    x: (point.x - center) / scale,
+    y: (center - point.y) / scale // Y inverted
+  }
+}
+```
+
+### Grid Coordinate Range
+
+- **Visible range:** −6 to 6 on both axes (13 units total)
+- **Canvas size:** 400×400px (mockup) or responsive
+- **Grid major lines:** Every 1 unit (30px at 400px canvas)
+- **Grid minor lines:** Every 0.5 units (15px)
+- **Snap-to-grid:** Ghost vertices snap to 0.5-unit increments
+
+### Default Shape Placement
+
+```typescript
+// Scalene triangle in Quadrant I
+const DEFAULT_PRE_IMAGE: Shape = {
+  vertices: [
+    { x: 1, y: 1 },  // A
+    { x: 4, y: 2 },  // B
+    { x: 2, y: 4 }   // C
+  ],
+  labels: ['A', 'B', 'C']
+}
+
+// Capstone alternate (irregular quadrilateral)
+const CAPSTONE_ALTERNATE: Shape = {
+  vertices: [
+    { x: 1, y: 1 },  // A
+    { x: 3, y: 0 },  // B
+    { x: 4, y: 3 },  // C
+    { x: 1, y: 3 }   // D
+  ],
+  labels: ['A', 'B', 'C', 'D']
+}
+```
+
+---
+
+## Capstone Target Generation
+
+The capstone generates valid 1-2 step transformation sequences that map the pre-image to a target position. The algorithm ensures the target is achievable and unambiguous.
+
+### Valid Sequence Types
+
+```typescript
+type CapstoneSequenceType =
+  | 'single-translate'
+  | 'single-reflect'
+  | 'single-rotate'
+  | 'reflect-then-translate'
+  | 'rotate-then-translate'
+
+// Excluded: reflect + rotate, rotate + reflect
+// Reason: Require arbitrary-center transformations to feel intuitive
+```
+
+### Generation Algorithm
+
+```typescript
+function generateCapstoneTarget(): {
+  targetVertices: Point[]
+  correctSequence: SequenceStep[]
+  sequenceType: CapstoneSequenceType
+} {
+  const sequenceType = randomChoice([
+    'single-translate',
+    'single-reflect',
+    'single-rotate',
+    'reflect-then-translate',
+    'rotate-then-translate'
+  ])
+  
+  let sequence: SequenceStep[]
+  
+  switch (sequenceType) {
+    case 'single-translate':
+      sequence = [generateTranslation()]
+      break
+    case 'single-reflect':
+      sequence = [generateReflection()]
+      break
+    case 'single-rotate':
+      sequence = [generateRotation()]
+      break
+    case 'reflect-then-translate':
+      sequence = [generateReflection(), generateTranslation()]
+      break
+    case 'rotate-then-translate':
+      sequence = [generateRotation(), generateTranslation()]
+      break
+  }
+  
+  const targetVertices = applySequence(DEFAULT_PRE_IMAGE.vertices, sequence)
+  
+  // Validate: target must be fully visible within −6 to 6 range
+  if (!isFullyVisible(targetVertices)) {
+    return generateCapstoneTarget() // Retry
+  }
+  
+  return { targetVertices, correctSequence: sequence, sequenceType }
+}
+```
+
+### Parameter Constraints
+
+```typescript
+function generateTranslation(): TranslationParams {
+  return {
+    type: 'translate',
+    dx: randomInt(-5, 5), // Exclude 0
+    dy: randomInt(-5, 5)
+  }
+}
+
+function generateReflection(): ReflectionParams {
+  return {
+    type: 'reflect',
+    axis: randomChoice(['x', 'y'])
+  }
+}
+
+function generateRotation(): RotationParams {
+  return {
+    type: 'rotate',
+    degrees: randomChoice([90, 180, 270]),
+    direction: 'cw' // Grade 8 standard uses CW
+  }
+}
+```
+
+### Ambiguity Prevention
+
+For sequences where the scalene triangle's rotational symmetry could create ambiguity, use the irregular quadrilateral:
+
+```typescript
+function selectShapeForSequence(sequenceType: CapstoneSequenceType): Shape {
+  // Use quadrilateral for rotate + translate to avoid ambiguity
+  if (sequenceType === 'rotate-then-translate') {
+    return CAPSTONE_ALTERNATE
+  }
+  return DEFAULT_PRE_IMAGE
+}
+```
+
+---
+
+## Mockup Validation
+
+Static mockups in [mockups/rigid-motions-all-states.html](../../mockups/rigid-motions-all-states.html) demonstrate all six guide states. They were validated against this spec before implementation begins.
+
+### Validation Checklist
+
+- [x] **All guide states render correctly**
+  - Predict-translate with translation vector
+  - Predict-reflect with axis ticks
+  - Predict-rotate with rotation arcs
+  - Coordinate reveal with formula readout
+  - Predict-with-coordinates with composed sequence
+  - Capstone with sequence builder
+
+- [x] **Constraint elements are geometrically accurate**
+  - Translation vector points from pre-image centroid to ghost centroid
+  - Reflection ticks show equidistance from axis
+  - Rotation arcs sweep correct angular distance around origin
+
+- [x] **Coordinate labels positioned correctly**
+  - Labels appear at vertices with `(x, y)` format
+  - Prime notation (A′, B′, C′) on image/ghost
+  - Labels hidden until coordinate reveal, then persist
+
+- [x] **Sequence builder in capstone is usable**
+  - Two-slot structure: STEP 1 and STEP 2
+  - Type selector (TRANSLATE / REFLECT / ROTATE)
+  - Parameters appear based on type selection
+  - FormulaReadout shows structured sequence description
+
+- [x] **Mobile layout maintains readability**
+  - Status strip: dots + SYS:NOM only (title and ESC hidden)
+  - Readouts: stacked (prompt then formula)
+  - Canvas: full-width square
+  - Controls: 44px minimum touch targets
+
+- [x] **Color tokens match Eurorack design system**
+  - `--lab-bg`, `--lab-surface`, `--lab-accent`, `--lab-text`, `--lab-ghost` all correct
+  - Typography: Inter Tight (UI) + JetBrains Mono (data)
+  - Scored dividers between sections
+
+### Implementation Notes from Mockups
+
+1. **Translation vector:** SVG `<line>` with `marker-end="url(#arrow)"` for arrowhead
+2. **Reflection ticks:** Perpendicular dashed lines from vertices to axis
+3. **Rotation arcs:** SVG `<path>` with arc commands (`A rx ry x-axis-rotation large-arc-flag sweep-flag x y`)
+4. **Grid pattern:** Nested SVG patterns (minor 30px + major 150px at 400px canvas)
+5. **Coordinate labels:** `<text>` elements with JetBrains Mono, positioned near vertices
+6. **Sequence builder:** HTML `<select>` dropdowns with `min-height: 44px` on mobile
+
+### Differences from Sinewaves
+
+| Aspect | Sinewaves | Rigid Motions | Rationale |
+|--------|-----------|---------------|-----------|
+| **Controls** | Continuous sliders | Discrete toggles | Transformations are discrete operations |
+| **Ghost visibility** | Always in match states | Predict states only | Capstone shows both figures simultaneously |
+| **Constraint elements** | Connector line | Vector, ticks, arcs | Each transformation has distinct geometric constraint |
+| **Coordinate layer** | Always visible | Earned reveal | Coordinates are Level 4 ALD boundary |
+| **Animation path** | Continuous wave | Geometric transformation | Shape follows transformation path (arc, line, etc.) |
+
+---
+
 ## Open Questions for Implementation
 
-Two items that are resolved at the design level but will need implementation decisions:
+Two items are resolved at the design level but will need implementation decisions:
 
 **Grid bounds and shape placement:** The scene needs to fit a shape, its image, and constraint elements legibly at all viewport sizes. The sinewaves module had one shape centered in the canvas. This module will sometimes need to show two shapes (post-reveal, capstone) simultaneously. The `scene-layout.ts` file will need to calculate shape placement such that both figures are visible without scrolling, across mobile and desktop viewports. This is a non-trivial layout problem worth prototyping early.
 
 **Rotation arc rendering in R3F:** The arcs for the rotation stage are geometric — each arc is a partial circle at the radius of each vertex from the origin. R3F doesn't have a native arc primitive. These will likely be rendered as `Line` components using a computed array of points along the arc. With three vertices on the scalene triangle, three arcs render simultaneously. The point-count needs to be high enough to look smooth without affecting performance on mobile. Worth testing at 32 points per arc before committing.
+
+---
+
+## Next Steps
+
+Per the [documentation pipeline](../README.md#module-planning-pipeline): this spec and the validated mockups are the inputs for implementation. After the module is built, add `ARCHITECTURE.md` in `src/components/modules/rigid-motions/` to document the as-built implementation.
