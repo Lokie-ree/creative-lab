@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rigid Motions Module — Design Mockups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --lab-bg: #1e1d1c;
+      --lab-surface: #252422;
+      --lab-surface-elevated: #2e2c28;
+      --lab-accent: #7cc87c;
+      --lab-accent-muted: #4a8a4a;
+      --lab-text: #b8b0a4;
+      --lab-text-muted: #7a746a;
+      --lab-ghost: #7a746a;
+      --lab-border: #2e2c28;
+      --lab-success: #5a7a5a;
+      --lab-danger: #8a4a4a;
+      --lab-led-completed: #3e5e3e;
+      --lab-led-upcoming: #3a3632;
+      --lab-screw-border: #4a4844;
+      --lab-screw-bg: #3a3836;
+      --lab-screw-slot: #1a1918;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--lab-bg);
+      color: var(--lab-text);
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .mockup-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 12px;
+      background: var(--lab-surface-elevated);
+      border-bottom: 1px solid var(--lab-border);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .mockup-nav a {
+      color: var(--lab-text-muted);
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 2px;
+    }
+    .mockup-nav a:hover {
+      color: var(--lab-accent);
+      background: var(--lab-surface);
+    }
+
+    .mockup-section {
+      min-height: 100vh;
+      padding: 52px 0 24px;
+      border-bottom: 1px solid var(--lab-border);
+    }
+    .mockup-section h2 {
+      margin: 0 0 12px;
+      padding: 0 24px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--lab-text-muted);
+    }
+
+    /* Eurorack panel layout */
+    .instrument {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--lab-bg);
+      border: 1px solid var(--lab-border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .instrument .row {
+      border-bottom: 1px solid var(--lab-border);
+    }
+    .instrument .row:last-child { border-bottom: none; }
+
+    .status-strip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      min-height: 3rem;
+    }
+    .status-strip .title {
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--lab-text);
+    }
+    .status-strip .dots {
+      display: flex;
+      gap: 6px;
+    }
+    .status-strip .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: 1px solid;
+    }
+    .status-strip .dot.done {
+      background: var(--lab-success);
+      border-color: var(--lab-led-completed);
+    }
+    .status-strip .dot.current {
+      background: var(--lab-accent);
+      border-color: var(--lab-accent-muted);
+    }
+    .status-strip .dot.upcoming {
+      background: var(--lab-border);
+      border-color: var(--lab-led-upcoming);
+    }
+    .status-strip .sys { margin-left: auto; color: var(--lab-success); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .status-strip .esc {
+      border: 1px solid var(--lab-border);
+      padding: 4px 8px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--lab-text-muted);
+      background: transparent;
+    }
+
+    .readouts-row {
+      display: flex;
+      min-height: 5rem;
+    }
+    .prompt-readout {
+      flex: 1;
+      padding: 12px 16px;
+      background: var(--lab-surface);
+    }
+    .prompt-readout .micro {
+      font-size: 8px;
+      letter-spacing: 0.2em;
+      font-weight: 700;
+      color: var(--lab-text-muted);
+      margin-bottom: 6px;
+    }
+    .prompt-readout .prompt {
+      font-weight: 500;
+      color: var(--lab-text);
+    }
+    .formula-readout {
+      width: 280px;
+      flex-shrink: 0;
+      padding: 12px 16px;
+      background: var(--lab-surface);
+      border-left: 2px solid rgba(124, 200, 124, 0.2);
+    }
+    .formula-readout .micro {
+      font-size: 8px;
+      letter-spacing: 0.2em;
+      font-weight: 700;
+      color: var(--lab-text-muted);
+      margin-bottom: 6px;
+    }
+    .formula-readout .formula {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--lab-text);
+    }
+    .formula-readout .formula .accent { color: var(--lab-accent); }
+
+    .canvas-row {
+      min-height: 320px;
+      background: var(--lab-surface-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .canvas-wrap {
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 1;
+      background: var(--lab-bg);
+      border: 1px solid var(--lab-border);
+    }
+    .canvas-wrap svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .control-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+    }
+    .control-strip .btn {
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      border: 1px solid var(--lab-border);
+      background: var(--lab-surface);
+      color: var(--lab-text);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .control-strip .btn.check {
+      background: var(--lab-accent);
+      color: var(--lab-bg);
+      border-color: var(--lab-accent-muted);
+    }
+    .control-strip .btn.reset { color: var(--lab-danger); border-color: var(--lab-danger); }
+    .control-strip .toggle-group {
+      display: flex;
+      border: 1px solid var(--lab-border);
+    }
+    .control-strip .toggle-group button {
+      padding: 6px 10px;
+      font-size: 11px;
+      background: var(--lab-surface);
+      color: var(--lab-text-muted);
+      border: none;
+      border-right: 1px solid var(--lab-border);
+      cursor: pointer;
+    }
+    .control-strip .toggle-group button:last-child { border-right: none; }
+    .control-strip .toggle-group button.active { background: var(--lab-surface-elevated); color: var(--lab-accent); }
+
+    .sequence-builder {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+    .sequence-builder .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--lab-surface);
+      border: 1px solid var(--lab-border);
+      font-size: 12px;
+    }
+    .sequence-builder .step label { color: var(--lab-text-muted); min-width: 60px; }
+    .sequence-builder select {
+      background: var(--lab-bg);
+      color: var(--lab-text);
+      border: 1px solid var(--lab-border);
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    /* Mobile layout: stacked rows (matches InstrumentLayout < 768px) */
+    @media (max-width: 767px) {
+      .mockup-nav {
+        padding: 6px 8px;
+        gap: 4px;
+        font-size: 10px;
+      }
+      .mockup-nav a { padding: 6px 8px; }
+
+      .mockup-section {
+        padding: 44px 0 16px;
+      }
+      .mockup-section h2 {
+        padding: 0 12px 8px;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+      }
+
+      .instrument {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+
+      /* Status: compact — dots + SYS:NOM only (title and ESC hidden) */
+      .status-strip {
+        padding: 8px 12px;
+        min-height: 2.75rem;
+        gap: 8px;
+      }
+      .status-strip .title { display: none; }
+      .status-strip .dots { flex: 1; justify-content: center; }
+      .status-strip .esc { display: none; }
+      .status-strip .sys { margin-left: 0; font-size: 10px; }
+
+      /* Readouts: stacked — prompt then formula, full width */
+      .readouts-row {
+        flex-direction: column;
+        min-height: auto;
+      }
+      .prompt-readout {
+        padding: 10px 12px;
+        min-height: 3.5rem;
+      }
+      .prompt-readout .micro { font-size: 7px; }
+      .prompt-readout .prompt { font-size: 13px; }
+      .formula-readout {
+        width: 100%;
+        padding: 10px 12px;
+        border-left: none;
+        border-top: 2px solid rgba(124, 200, 124, 0.2);
+      }
+      .formula-readout .formula { font-size: 12px; }
+
+      /* Canvas: full-width square, touch-friendly */
+      .canvas-row {
+        min-height: 200px;
+        padding: 12px;
+      }
+      .canvas-wrap {
+        max-width: 100%;
+        min-height: 0;
+      }
+
+      /* Controls: larger touch targets, stacked when needed */
+      .control-strip {
+        padding: 12px;
+        gap: 10px;
+        justify-content: center;
+      }
+      .control-strip .btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+      .control-strip .toggle-group button {
+        min-height: 44px;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+      .sequence-builder .step {
+        flex-wrap: wrap;
+        padding: 10px 12px;
+      }
+      .sequence-builder select {
+        min-height: 44px;
+        padding: 8px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="mockup-nav" aria-label="Mockup screens">
+    <a href="#translate">Translate</a>
+    <a href="#reflect">Reflect</a>
+    <a href="#rotate">Rotate</a>
+    <a href="#coordinate-reveal">Coordinate reveal</a>
+    <a href="#predict-coords">Predict + coords</a>
+    <a href="#capstone">Capstone</a>
+  </nav>
+
+  <!-- 1. PREDICT-TRANSLATE -->
+  <section id="translate" class="mockup-section">
+    <h2>1. Predict — Translate</h2>
+    <div class="instrument">
+      <div class="row status-strip">
+        <span class="title">RIGID MOTIONS</span>
+        <div class="dots">
+          <span class="dot current" aria-current="step"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+        </div>
+        <span class="sys">SYS:NOM</span>
+        <button type="button" class="esc">ESC</button>
+      </div>
+      <div class="row readouts-row">
+        <div class="prompt-readout">
+          <div class="micro">Prompt</div>
+          <div class="prompt">TRANSLATE · 4 RIGHT, 2 UP</div>
+        </div>
+        <div class="formula-readout">
+          <div class="micro">Formula</div>
+          <div class="formula">—</div>
+        </div>
+      </div>
+      <div class="row canvas-row">
+        <div class="canvas-wrap">
+          <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#2e2c28" stroke-width="0.5"/>
+              </pattern>
+              <pattern id="gridMajor" width="150" height="150" patternUnits="userSpaceOnUse">
+                <rect width="150" height="150" fill="url(#grid)"/>
+                <path d="M 150 0 L 0 0 0 150" fill="none" stroke="#7a746a" stroke-width="0.8"/>
+              </pattern>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><polygon points="0 0, 8 4, 0 8" fill="#7a746a"/></marker>
+            </defs>
+            <rect width="400" height="400" fill="#1e1d1c"/>
+            <rect width="400" height="400" fill="url(#gridMajor)"/>
+            <line x1="200" y1="0" x2="200" y2="400" stroke="#b8b0a4" stroke-width="1"/>
+            <line x1="0" y1="200" x2="400" y2="200" stroke="#b8b0a4" stroke-width="1"/>
+            <circle cx="200" cy="200" r="3" fill="#b8b0a4"/>
+            <!-- Pre-image: A(1,1) B(4,2) C(2,4) → (230,170) (320,140) (260,80) -->
+            <polygon points="230,170 320,140 260,80" fill="#b8b0a4" stroke="#b8b0a4" stroke-width="1"/>
+            <text x="218" y="178" font-family="JetBrains Mono" font-size="10" fill="#b8b0a4">A</text>
+            <text x="328" y="135" font-family="JetBrains Mono" font-size="10" fill="#b8b0a4">B</text>
+            <text x="268" y="72" font-family="JetBrains Mono" font-size="10" fill="#b8b0a4">C</text>
+            <!-- Ghost: 4 right 2 up → A'(5,3) B'(8,4) C'(6,6) → (350,110) (440,80) (380,20) - clamp to ~380 for view -->
+            <polygon points="350,110 380,80 380,20" fill="#7cc87c" fill-opacity="0.5" stroke="#7cc87c" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <text x="358" y="118" font-family="JetBrains Mono" font-size="10" fill="#7cc87c">A′</text>
+            <text x="388" y="75" font-family="JetBrains Mono" font-size="10" fill="#7cc87c">B′</text>
+            <text x="388" y="28" font-family="JetBrains Mono" font-size="10" fill="#7cc87c">C′</text>
+            <!-- Translation vector: centroid (2.33,2.33)→(250,175) to (6.33,4.33)→(390,115) -->
+            <line x1="250" y1="175" x2="390" y2="115" stroke="#7a746a" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+          </svg>
+        </div>
+      </div>
+      <div class="row control-strip">
+        <button type="button" class="btn check">CHECK</button>
+        <button type="button" class="btn reset">RESET</button>
+        <div class="toggle-group">
+          <button type="button">0.5×</button>
+          <button type="button" class="active">1×</button>
+          <button type="button">2×</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. PREDICT-REFLECT -->
+  <section id="reflect" class="mockup-section">
+    <h2>2. Predict — Reflect (over x-axis)</h2>
+    <div class="instrument">
+      <div class="row status-strip">
+        <span class="title">RIGID MOTIONS</span>
+        <div class="dots">
+          <span class="dot done"></span>
+          <span class="dot current"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+        </div>
+        <span class="sys">SYS:NOM</span>
+        <button type="button" class="esc">ESC</button>
+      </div>
+      <div class="row readouts-row">
+        <div class="prompt-readout">
+          <div class="micro">Prompt</div>
+          <div class="prompt">REFLECT · OVER X-AXIS</div>
+        </div>
+        <div class="formula-readout">
+          <div class="micro">Formula</div>
+          <div class="formula">—</div>
+        </div>
+      </div>
+      <div class="row canvas-row">
+        <div class="canvas-wrap">
+          <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid2" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#2e2c28" stroke-width="0.5"/></pattern>
+              <pattern id="gridMajor2" width="150" height="150" patternUnits="userSpaceOnUse"><rect width="150" height="150" fill="url(#grid2)"/><path d="M 150 0 L 0 0 0 150" fill="none" stroke="#7a746a" stroke-width="0.8"/></pattern>
+            </defs>
+            <rect width="400" height="400" fill="#1e1d1c"/>
+            <rect width="400" height="400" fill="url(#gridMajor2)" />
+            <line x1="200" y1="0" x2="200" y2="400" stroke="#b8b0a4" stroke-width="1"/>
+            <line x1="0" y1="200" x2="400" y2="200" stroke="#7a746a" stroke-width="2"/>
+            <circle cx="200" cy="200" r="3" fill="#b8b0a4"/>
+            <!-- Pre-image: A(1,1) B(4,2) C(2,4) -->
+            <polygon points="230,170 320,140 260,80" fill="#b8b0a4" stroke="#b8b0a4" stroke-width="1"/>
+            <text x="218" y="178" font-family="JetBrains Mono" font-size="10" fill="#b8b0a4">A</text>
+            <text x="328" y="135" font-family="JetBrains Mono" font-size="10" fill="#b8b0a4">B</text>
+            <text x="268" y="72" font-family="JetBrains Mono" font-size="10" fill="#b8b0a4">C</text>
+            <!-- Ghost: reflect over x → A'(1,-1) B'(4,-2) C'(2,-4) → (230,230) (320,260) (260,320) -->
+            <polygon points="230,230 320,260 260,320" fill="#7cc87c" fill-opacity="0.5" stroke="#7cc87c" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <text x="218" y="222" font-family="JetBrains Mono" font-size="10" fill="#7cc87c">A′</text>
+            <text x="328" y="268" font-family="JetBrains Mono" font-size="10" fill="#7cc87c">B′</text>
+            <text x="268" y="328" font-family="JetBrains Mono" font-size="10" fill="#7cc87c">C′</text>
+            <!-- Equidistance ticks: short lines perpendicular to axis from each vertex to axis and to image -->
+            <line x1="230" y1="170" x2="230" y2="200" stroke="#7a746a" stroke-width="1" stroke-dasharray="2 2"/>
+            <line x1="230" y1="200" x2="230" y2="230" stroke="#7a746a" stroke-width="1" stroke-dasharray="2 2"/>
+            <line x1="320" y1="140" x2="320" y2="200" stroke="#7a746a" stroke-width="1" stroke-dasharray="2 2"/>
+            <line x1="320" y1="200" x2="320" y2="260" stroke="#7a746a" stroke-width="1" stroke-dasharray="2 2"/>
+            <line x1="260" y1="80" x2="260" y2="200" stroke="#7a746a" stroke-width="1" stroke-dasharray="2 2"/>
+            <line x1="260" y1="200" x2="260" y2="320" stroke="#7a746a" stroke-width="1" stroke-dasharray="2 2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="row control-strip">
+        <button type="button" class="btn">FLIP</button>
+        <button type="button" class="btn check">CHECK</button>
+        <button type="button" class="btn reset">RESET</button>
+        <div class="toggle-group">
+          <button type="button">0.5×</button>
+          <button type="button" class="active">1×</button>
+          <button type="button">2×</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. PREDICT-ROTATE -->
+  <section id="rotate" class="mockup-section">
+    <h2>3. Predict — Rotate (90° CW about origin)</h2>
+    <div class="instrument">
+      <div class="row status-strip">
+        <span class="title">RIGID MOTIONS</span>
+        <div class="dots">
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot current"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+        </div>
+        <span class="sys">SYS:NOM</span>
+        <button type="button" class="esc">ESC</button>
+      </div>
+      <div class="row readouts-row">
+        <div class="prompt-readout">
+          <div class="micro">Prompt</div>
+          <div class="prompt">ROTATE · 90° CLOCKWISE · ABOUT ORIGIN</div>
+        </div>
+        <div class="formula-readout">
+          <div class="micro">Formula</div>
+          <div class="formula">—</div>
+        </div>
+      </div>
+      <div class="row canvas-row">
+        <div class="canvas-wrap">
+          <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid3" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#2e2c28" stroke-width="0.5"/></pattern>
+              <pattern id="gridMajor3" width="150" height="150" patternUnits="userSpaceOnUse"><rect width="150" height="150" fill="url(#grid3)"/><path d="M 150 0 L 0 0 0 150" fill="none" stroke="#7a746a" stroke-width="0.8"/></pattern>
+            </defs>
+            <rect width="400" height="400" fill="#1e1d1c"/>
+            <rect width="400" height="400" fill="url(#gridMajor3)" />
+            <line x1="200" y1="0" x2="200" y2="400" stroke="#b8b0a4" stroke-width="1"/>
+            <line x1="0" y1="200" x2="400" y2="200" stroke="#b8b0a4" stroke-width="1"/>
+            <circle cx="200" cy="200" r="3" fill="#b8b0a4"/>
+            <!-- Pre-image -->
+            <polygon points="230,170 320,140 260,80" fill="#b8b0a4" stroke="#b8b0a4" stroke-width="1"/>
+            <text x="218" y="178" font-family="JetBrains Mono" font-size="10" fill="#b8b0a4">A</text>
+            <text x="328" y="135" font-family="JetBrains Mono" font-size="10" fill="#b8b0a4">B</text>
+            <text x="268" y="72" font-family="JetBrains Mono" font-size="10" fill="#b8b0a4">C</text>
+            <!-- 90° CW: (x,y)→(y,-x). A(1,1)→(1,-1), B(4,2)→(2,-4), C(2,4)→(4,-2) → SVG (230,230) (260,320) (320,260) -->
+            <polygon points="230,230 260,320 320,260" fill="#7cc87c" fill-opacity="0.5" stroke="#7cc87c" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <text x="218" y="222" font-family="JetBrains Mono" font-size="10" fill="#7cc87c">A′</text>
+            <text x="268" y="328" font-family="JetBrains Mono" font-size="10" fill="#7cc87c">B′</text>
+            <text x="328" y="268" font-family="JetBrains Mono" font-size="10" fill="#7cc87c">C′</text>
+            <!-- Rotation arcs (simplified: quarter circles from each vertex) -->
+            <path d="M 230 170 A 42 42 0 0 1 230 230" fill="none" stroke="#7a746a" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <path d="M 320 140 A 120 120 0 0 1 260 320" fill="none" stroke="#7a746a" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <path d="M 260 80 A 120 120 0 0 1 320 260" fill="none" stroke="#7a746a" stroke-width="1.5" stroke-dasharray="4 3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="row control-strip">
+        <div class="toggle-group">
+          <button type="button" class="active">90°</button>
+          <button type="button">180°</button>
+          <button type="button">270°</button>
+        </div>
+        <button type="button" class="btn check">CHECK</button>
+        <button type="button" class="btn reset">RESET</button>
+        <div class="toggle-group">
+          <button type="button">0.5×</button>
+          <button type="button" class="active">1×</button>
+          <button type="button">2×</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. COORDINATE REVEAL -->
+  <section id="coordinate-reveal" class="mockup-section">
+    <h2>4. Coordinate reveal (earned)</h2>
+    <div class="instrument">
+      <div class="row status-strip">
+        <span class="title">RIGID MOTIONS</span>
+        <div class="dots">
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot current"></span>
+          <span class="dot upcoming"></span>
+          <span class="dot upcoming"></span>
+        </div>
+        <span class="sys">SYS:NOM</span>
+        <button type="button" class="esc">ESC</button>
+      </div>
+      <div class="row readouts-row">
+        <div class="prompt-readout">
+          <div class="micro">Prompt</div>
+          <div class="prompt">What you just did — here's the rule.</div>
+        </div>
+        <div class="formula-readout">
+          <div class="micro">Formula</div>
+          <div class="formula">Translation: <span class="accent">(x, y) → (x + 4, y + 2)</span></div>
+          <div class="formula" style="margin-top:6px">Reflect y-axis: <span class="accent">(x, y) → (−x, y)</span></div>
+          <div class="formula" style="margin-top:2px">Reflect x-axis: <span class="accent">(x, y) → (x, −y)</span></div>
+          <div class="formula" style="margin-top:2px">Rotate 90° CW: <span class="accent">(x, y) → (y, −x)</span></div>
+        </div>
+      </div>
+      <div class="row canvas-row">
+        <div class="canvas-wrap">
+          <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid4" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#2e2c28" stroke-width="0.5"/></pattern>
+              <pattern id="gridMajor4" width="150" height="150" patternUnits="userSpaceOnUse"><rect width="150" height="150" fill="url(#grid4)"/><path d="M 150 0 L 0 0 0 150" fill="none" stroke="#7a746a" stroke-width="0.8"/></pattern>
+            </defs>
+            <rect width="400" height="400" fill="#1e1d1c"/>
+            <rect width="400" height="400" fill="url(#gridMajor4)" />
+            <line x1="200" y1="0" x2="200" y2="400" stroke="#b8b0a4" stroke-width="1"/>
+            <line x1="0" y1="200" x2="400" y2="200" stroke="#b8b0a4" stroke-width="1"/>
+            <circle cx="200" cy="200" r="3" fill="#b8b0a4"/>
+            <polygon points="230,170 320,140 260,80" fill="#b8b0a4" stroke="#b8b0a4" stroke-width="1"/>
+            <text x="218" y="178" font-family="JetBrains Mono" font-size="9" fill="#b8b0a4">A (1, 1)</text>
+            <text x="328" y="135" font-family="JetBrains Mono" font-size="9" fill="#b8b0a4">B (4, 2)</text>
+            <text x="268" y="72" font-family="JetBrains Mono" font-size="9" fill="#b8b0a4">C (2, 4)</text>
+          </svg>
+        </div>
+      </div>
+      <div class="row control-strip">
+        <button type="button" class="btn check">Continue</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. PREDICT-WITH-COORDINATES -->
+  <section id="predict-coords" class="mockup-section">
+    <h2>5. Predict with coordinates (labels active)</h2>
+    <div class="instrument">
+      <div class="row status-strip">
+        <span class="title">RIGID MOTIONS</span>
+        <div class="dots">
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot current"></span>
+          <span class="dot upcoming"></span>
+        </div>
+        <span class="sys">SYS:NOM</span>
+        <button type="button" class="esc">ESC</button>
+      </div>
+      <div class="row readouts-row">
+        <div class="prompt-readout">
+          <div class="micro">Prompt</div>
+          <div class="prompt">REFLECT OVER Y-AXIS · THEN TRANSLATE 3 RIGHT, 2 UP</div>
+        </div>
+        <div class="formula-readout">
+          <div class="micro">Formula</div>
+          <div class="formula">Coordinates visible on both shapes</div>
+        </div>
+      </div>
+      <div class="row canvas-row">
+        <div class="canvas-wrap">
+          <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid5" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#2e2c28" stroke-width="0.5"/></pattern>
+              <pattern id="gridMajor5" width="150" height="150" patternUnits="userSpaceOnUse"><rect width="150" height="150" fill="url(#grid5)"/><path d="M 150 0 L 0 0 0 150" fill="none" stroke="#7a746a" stroke-width="0.8"/></pattern>
+            </defs>
+            <rect width="400" height="400" fill="#1e1d1c"/>
+            <rect width="400" height="400" fill="url(#gridMajor5)" />
+            <line x1="200" y1="0" x2="200" y2="400" stroke="#b8b0a4" stroke-width="1"/>
+            <line x1="0" y1="200" x2="400" y2="200" stroke="#b8b0a4" stroke-width="1"/>
+            <circle cx="200" cy="200" r="3" fill="#b8b0a4"/>
+            <polygon points="230,170 320,140 260,80" fill="#b8b0a4" stroke="#b8b0a4" stroke-width="1"/>
+            <text x="218" y="178" font-family="JetBrains Mono" font-size="9" fill="#b8b0a4">A (1, 1)</text>
+            <text x="328" y="135" font-family="JetBrains Mono" font-size="9" fill="#b8b0a4">B (4, 2)</text>
+            <text x="268" y="72" font-family="JetBrains Mono" font-size="9" fill="#b8b0a4">C (2, 4)</text>
+            <!-- Ghost: reflect over y then translate 3R 2U. (-1,1)+ (3,2)=(2,3), (-4,2)+(3,2)=(-1,4), (-2,4)+(3,2)=(1,6) → need scale; (-1,1)→(170,170) (2,3)→(260,110) etc -->
+            <polygon points="170,170 140,110 260,80" fill="#7cc87c" fill-opacity="0.5" stroke="#7cc87c" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <text x="158" y="178" font-family="JetBrains Mono" font-size="9" fill="#7cc87c">A′ (2, 3)</text>
+            <text x="128" y="118" font-family="JetBrains Mono" font-size="9" fill="#7cc87c">B′ (−1, 4)</text>
+            <text x="268" y="88" font-family="JetBrains Mono" font-size="9" fill="#7cc87c">C′ (1, 6)</text>
+          </svg>
+        </div>
+      </div>
+      <div class="row control-strip">
+        <button type="button" class="btn">FLIP</button>
+        <div class="toggle-group">
+          <button type="button">90°</button>
+          <button type="button">180°</button>
+          <button type="button">270°</button>
+        </div>
+        <button type="button" class="btn check">CHECK</button>
+        <button type="button" class="btn reset">RESET</button>
+        <div class="toggle-group">
+          <button type="button">0.5×</button>
+          <button type="button" class="active">1×</button>
+          <button type="button">2×</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. CAPSTONE -->
+  <section id="capstone" class="mockup-section">
+    <h2>6. Capstone — Identify the sequence</h2>
+    <div class="instrument">
+      <div class="row status-strip">
+        <span class="title">RIGID MOTIONS</span>
+        <div class="dots">
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot done"></span>
+          <span class="dot current"></span>
+        </div>
+        <span class="sys">SYS:NOM</span>
+        <button type="button" class="esc">ESC</button>
+      </div>
+      <div class="row readouts-row">
+        <div class="prompt-readout">
+          <div class="micro">Prompt</div>
+          <div class="prompt">Both figures are shown. What sequence of transformations maps the first onto the second?</div>
+        </div>
+        <div class="formula-readout">
+          <div class="micro">Sequence</div>
+          <div class="formula">REFLECT · OVER Y-AXIS</div>
+          <div class="formula">THEN TRANSLATE · 3 RIGHT, 2 UP</div>
+        </div>
+      </div>
+      <div class="row canvas-row">
+        <div class="canvas-wrap">
+          <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid6" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#2e2c28" stroke-width="0.5"/></pattern>
+              <pattern id="gridMajor6" width="150" height="150" patternUnits="userSpaceOnUse"><rect width="150" height="150" fill="url(#grid6)"/><path d="M 150 0 L 0 0 0 150" fill="none" stroke="#7a746a" stroke-width="0.8"/></pattern>
+            </defs>
+            <rect width="400" height="400" fill="#1e1d1c"/>
+            <rect width="400" height="400" fill="url(#gridMajor6)" />
+            <line x1="200" y1="0" x2="200" y2="400" stroke="#b8b0a4" stroke-width="1"/>
+            <line x1="0" y1="200" x2="400" y2="200" stroke="#b8b0a4" stroke-width="1"/>
+            <circle cx="200" cy="200" r="3" fill="#b8b0a4"/>
+            <!-- Pre-image (solid) -->
+            <polygon points="230,170 320,140 260,80" fill="#b8b0a4" stroke="#b8b0a4" stroke-width="1"/>
+            <text x="218" y="178" font-family="JetBrains Mono" font-size="9" fill="#b8b0a4">A (1, 1)</text>
+            <text x="328" y="135" font-family="JetBrains Mono" font-size="9" fill="#b8b0a4">B (4, 2)</text>
+            <text x="268" y="72" font-family="JetBrains Mono" font-size="9" fill="#b8b0a4">C (2, 4)</text>
+            <!-- Image (solid accent, no ghost — confirmed figure) -->
+            <polygon points="170,170 140,110 260,80" fill="#7cc87c" stroke="#7cc87c" stroke-width="1"/>
+            <text x="158" y="178" font-family="JetBrains Mono" font-size="9" fill="#7cc87c">A′ (2, 3)</text>
+            <text x="128" y="118" font-family="JetBrains Mono" font-size="9" fill="#7cc87c">B′ (−1, 4)</text>
+            <text x="268" y="88" font-family="JetBrains Mono" font-size="9" fill="#7cc87c">C′ (1, 6)</text>
+          </svg>
+        </div>
+      </div>
+      <div class="row control-strip">
+        <div class="sequence-builder">
+          <div class="step">
+            <span class="label">STEP 1</span>
+            <select><option>TRANSLATE</option><option selected>REFLECT</option><option>ROTATE</option></select>
+            <select><option>X-AXIS</option><option selected>Y-AXIS</option></select>
+          </div>
+          <div class="step">
+            <span class="label">STEP 2</span>
+            <select><option selected>TRANSLATE</option><option>REFLECT</option><option>ROTATE</option></select>
+            <span>3 RIGHT, 2 UP</span>
+          </div>
+        </div>
+        <button type="button" class="btn check">CHECK</button>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

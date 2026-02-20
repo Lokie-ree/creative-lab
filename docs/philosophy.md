@@ -1,85 +1,111 @@
-# Mastery through discovery
+# Discovery-First Pedagogy
 
-A philosophy of earned reveals and visual confirmation in secondary mathematics.
-
----
-
-## 1. The paradigm shift: understanding precedes notation
-
-Traditional mathematics instruction relies on a **notation-first** model. Leading with formulas and abstract symbols creates a barrier that keeps many students from reaching "Advanced" achievement levels. When a student memorizes a formula before grasping the underlying logic, they mimic math rather than reason mathematically. That rote-heavy approach is a main reason students stall at "Basic"—they lack the conceptual schema to apply knowledge in novel, complex contexts.
-
-The strategic thesis is clear: *"I build interactive experiences that help people understand things they thought were hard."* As a Principal Learning Architect, a single classroom teacher can impact 150 students per year, but a carefully engineered digital experience can scale that same pedagogical "Aha!" to millions. This is not digitizing content—it is using high-leverage design to support the cognitive shifts needed for mastery. By designing experiences where **understanding precedes notation**, we turn learning from a push of obligation into a pull of discovery.
+Earned reveals and visual confirmation in secondary mathematics.
 
 ---
 
-## 2. The mechanics of the "earned reveal"
+## Understanding Precedes Notation
 
-The **earned reveal** is the intentional delay of formal mathematical language until a student has built solid conceptual grounding through interaction. By holding back the "shorthand" of symbols, we let the student construct an internal model of the behavior first.
+Traditional mathematics instruction relies on a **notation-first** model: formulas and abstract symbols appear before students understand what they represent. This creates a barrier that prevents many students from reaching "Advanced" achievement levels. When students memorize formulas before grasping underlying logic, they mimic mathematics rather than reason mathematically.
 
-The "Discovery before formula" principle follows a three-phase design:
-
-1. **Manipulation** — The student interacts with raw mathematical properties (e.g., adjusting the amplitude of a wave, dragging vertices to explore similarity).
-2. **Pattern recognition** — Through repeated interaction, the student sees the "why" behind a behavior (e.g., that certain ratios stay constant regardless of triangle size).
-3. **Formalization** — Only after the concept is owned do we introduce notation. The symbol becomes a label for an idea they already understand, not an abstract hurdle.
-
-For students at "Basic" or "Approaching Basic," this lowers the floor for entry and demystifies high-stakes topics like Trigonometry or Algebra I by validating understanding through feedback before intimidating symbols appear.
+Discovery-first pedagogy inverts this sequence. Students manipulate mathematical objects, observe patterns, and build conceptual understanding before formal notation appears. By designing experiences where **understanding precedes notation**, learning shifts from obligation to discovery.
 
 ---
 
-## 3. Visual confirmation: replacing multiple choice with competence
+## The Earned Reveal
 
-Traditional assessments often measure a "claim of competence" through multiple-choice selection. **Visual confirmation** replaces that with evidence: a **demonstration of competence** through active manipulation.
+The **earned reveal** is the intentional delay of formal mathematical language until students have built conceptual grounding through interaction. Symbols appear as labels for ideas students already understand, not as abstract hurdles.
 
-| Visual confirmation           | Traditional assessment           |
-|------------------------------|----------------------------------|
-| **Active manipulation** — Students interact with mathematical properties to solve problems. | **Passive selection** — Students choose from pre-defined answers. |
-| **Real-time feedback** — Results are immediate and visually apparent from student input.   | **Delayed feedback** — Correctness is confirmed only after submission. |
-| **Demonstration of competence** — Mastery is proven by constructing or adjusting models.    | **Claims of competence** — Mastery is inferred from recognizing a correct answer. |
+### Three-Phase Design
 
-In this model, the technology acts as an **Automated Reasoning Assessment**. For example, in the "Sinewaves" module, a student does not just "pick" the frequency—they manipulate the wave to match a target. Success proves they understand the relationship; guessing is not viable. This aligns with GM: G-CO.A.2, where transformations are "functions that take points in the plane as inputs and give other points as outputs." By seeing the input literally taken to an output, the student confirms the function's behavior visually and satisfies state-level Achievement Level Descriptor (ALD) performance requirements.
+1. **Manipulation** — Students interact with mathematical properties directly (adjusting amplitude, dragging vertices, predicting transformations)
+2. **Pattern Recognition** — Through repeated interaction, students observe consistent behaviors (ratios remain constant, distances are preserved)
+3. **Formalization** — Notation appears as confirmation: "What you just discovered—here's the rule"
 
----
-
-## 4. Engineering "Mastery" and "Advanced" achievement levels
-
-The ALDs are the design North Star. To reach Level 4 (Mastery) and Level 5 (Advanced), a student must do more than find a solution—they must produce a **chain of reasoning**. Modules are designed to elicit these behaviors:
-
-- **Constructing a complete response from a chain of reasoning** — Students justify or refute geometric and algebraic propositions by testing them against interactive models.
-- **Analyzing equivalent expressions (Level 5)** — In Algebra I, "Advanced" students analyze equivalent numerical and polynomial expressions in one variable, including multi-step problems (A1: A-SSE.A.2).
-- **Proving relationships (Level 5)** — In Geometry, "Advanced" students use transformations to prove relationships among geometric figures (GM: G-SRT.A.2), moving from identification to generalizable arguments.
-
-Visual confirmation lets students test conjectures in real time, providing the evidentiary base to "critique the validity" of different approaches. They are not only solving a problem—they are justifying a mathematical viewpoint.
+This sequence lowers the entry barrier for students at "Basic" or "Approaching Basic" levels. High-stakes topics like trigonometry or transformations become accessible because understanding is validated through feedback before formal symbols appear.
 
 ---
 
-## 5. Rigor as a design framework: conceptual, procedural, application
+## Visual Confirmation
 
-Rigor is not "difficulty"—it is the intentional balance of three components. The "Discovery-first" philosophy aligns with the LSSM Guide to Rigor so every module is academically grounded.
+Traditional assessments measure competence through selection: students choose from pre-defined answers. **Visual confirmation** measures competence through construction: students demonstrate understanding by building or manipulating mathematical objects.
 
-| Rigor component              | Design philosophy link           | Standard example |
-|-----------------------------|-----------------------------------|------------------|
-| **Conceptual understanding** | "Manipulation before explanation" | GM: G-SRT.C.6: Understanding side ratios as properties of angles. |
-| **Procedural skill and fluency** | "Earned reveal" (notation as efficiency) | A1: A-APR.A.1: Understanding polynomials as an integer-like system while mastering operations. |
-| **Application**             | Modeling real-world problems      | A1: A-CED.A.3 / GM: G-MG.A.3: Solving design problems within physical constraints. |
+### Comparison
 
-A critical bridge is A1: A-SSE.A.2—**identifying structure**. We design experiences where students recognize visual patterns (e.g., seeing *x⁴ − y⁴* as a difference of squares *(x²)² − (y²)²*). That identification of structure is the visual recognition that moves them from a conceptual "Aha!" to advanced procedural skill.
+| Visual Confirmation | Traditional Assessment |
+|---------------------|------------------------|
+| **Active manipulation** — Students interact with mathematical properties | **Passive selection** — Students choose from pre-defined answers |
+| **Real-time feedback** — Results are immediate and visually apparent | **Delayed feedback** — Correctness confirmed only after submission |
+| **Demonstration of competence** — Mastery proven by construction | **Claims of competence** — Mastery inferred from recognition |
 
----
+### Example: Sinewaves Module
 
-## 6. Content clusters in action: Algebra I and Geometry
+Students don't "pick" the frequency—they manipulate the wave to match a target. Success proves understanding; guessing is not viable. When the ghost wave aligns with the target, the student has demonstrated mastery of the amplitude-frequency relationship.
 
-We prioritize depth over breadth by focusing on major content clusters. Polishing one module to a high standard—as in the Sinewaves work—provides a repeatable blueprint for the portfolio.
+### Example: Rigid Motions Module
 
-- **Trigonometry (GM: G-SRT.C.6)** — Similarity transformations are used to "earn" the definition of sine and cosine. Students observe that ratios are constant for a given angle, so the formula is a logical conclusion, not a mystery to memorize.
-- **Functions (A1: F-IF.B.4)** — Visual manipulation is used to identify key features (intercepts, relative maximums/minimums) before symbolic analysis is required.
-- **Transformations (GM: G-CO.A.2, G-CO.B.6)** — Rigid motion is used to "earn" the definition of congruence. Instead of only stating that figures are congruent, students use transformations to carry one figure onto another, proving congruence through the properties of rigid motion.
-
-The designer acts as the architect of these moments, so the *structure* of the math is felt before it is written.
+Students don't select "reflection over y-axis"—they drag the ghost shape to the predicted position and flip it. When the reveal animation confirms their prediction, they've demonstrated spatial understanding of reflection properties.
 
 ---
 
-## 7. Strategic impact: scaling pedagogical innovation
+## Achievement Level Design
 
-This philosophy is the execution of a mathematician with 15 years of classroom experience. Technical tools—especially React Three Fiber and advanced animation systems—are used not as decoration, but as the medium that can deliver the "Earned Reveal" at scale.
+Achievement Level Descriptors (ALDs) define proficiency. Discovery-first modules are designed to move students from Level 3 (Basic) to Level 5 (Advanced) by requiring chains of reasoning rather than single-step solutions.
 
-For EdTech leaders, this yields a product that provides a **demonstration of competence** rather than a mere claim. We build tools that pull the student forward through the energy of discovery. When a student meets a high-rigor, Level 5 reasoning task and describes it as "sick," we have reached the pedagogical goal: we have made the hardest things to understand the most exciting to master. We do not push students through obligation; we pull them through an experience they want to solve.
+### Level 4 (Mastery) Behaviors
+
+- **Constructing complete responses** — Students justify geometric and algebraic propositions by testing against interactive models
+- **Connecting representations** — Students relate spatial reasoning to coordinate rules (e.g., seeing that reflection over y-axis maps (x, y) → (−x, y))
+- **Describing transformations** — Students articulate what transformations do, not just identify them
+
+### Level 5 (Advanced) Behaviors
+
+- **Analyzing equivalent expressions** — Students manipulate expressions to reveal structure before symbolic analysis
+- **Describing sequences** — Students build multi-step transformation sequences to justify congruence
+- **Proving relationships** — Students use transformations to prove geometric relationships
+
+Visual confirmation provides the evidentiary base for these behaviors. Students test conjectures in real time and critique validity through construction.
+
+---
+
+## Rigor Framework
+
+Rigor is not difficulty—it is the intentional balance of three components. Discovery-first design naturally satisfies all three.
+
+| Rigor Component | Discovery-First Approach | Example |
+|-----------------|-------------------------|---------|
+| **Conceptual Understanding** | Manipulation before explanation | Students observe that side ratios in similar triangles remain constant before learning sine/cosine definitions |
+| **Procedural Skill and Fluency** | Notation as efficient shorthand | Coordinate rules appear after students have mastered spatial transformations |
+| **Application** | Modeling and validation cycles | Students formulate predictions, test against visual feedback, and refine understanding |
+
+### Identifying Structure
+
+Discovery-first design makes mathematical structure visible. Students see *x⁴ − y⁴* as a difference of squares *(x²)² − (y²)²* through visual area models before symbolic manipulation. This visual recognition bridges conceptual understanding to procedural fluency.
+
+---
+
+## Content Cluster Examples
+
+### Trigonometry (GM: G-SRT.C.6)
+
+Students observe that side ratios in similar right triangles remain constant for a given angle. The sine and cosine definitions emerge as logical conclusions, not mysteries to memorize.
+
+### Functions (A1: F-IF.B.4)
+
+Students manipulate parameters to observe how intercepts and extrema change before formal analysis. Key features are discovered through interaction, then formalized through notation.
+
+### Transformations (8.G.A.1–3, GM: G-CO.A.2)
+
+Students predict transformation outputs spatially, then see coordinate rules as algebraic descriptions of what they've already mastered. Congruence is earned through the observation that rigid motions preserve distances and angles.
+
+---
+
+## Design Principles Summary
+
+1. **Understanding precedes notation** — Students manipulate, observe patterns, then receive formalization
+2. **Earned reveals** — Notation appears as confirmation, not prerequisite
+3. **Visual confirmation** — Competence demonstrated through construction, not selection
+4. **ALD progression** — Interactions designed to produce evidence of Level 4-5 performance
+5. **Rigor balance** — Conceptual understanding, procedural fluency, and application integrated naturally
+
+When students describe a high-rigor reasoning task as "sick," pedagogy has succeeded: the hardest concepts have become the most engaging to master.

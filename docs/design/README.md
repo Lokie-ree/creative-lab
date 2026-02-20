@@ -111,9 +111,17 @@ These are documented in [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWA
 2. **Match-success animation:** `matchSuccessSequence` exists in `animations.ts` but is not wired — celebration uses a static overlay instead of the staged timeline (pulse → highlight → feedback → continue).
 3. **Mobile control spacing:** Control strip uses `gap-2` on mobile which feels cramped. Toggle-group for Speed would improve consistency and touch targets.
 
-### Sinewaves — match-proximity bugs — RESOLVED
+### Sinewaves — completed work (archived)
 
-Ghost wave sync, snap-to-target, `challengeParam` for challenge stage — all fixed. See [SINEWAVES-MATCH-PROXIMITY-AUDIT.md](./SINEWAVES-MATCH-PROXIMITY-AUDIT.md).
+Implementation plans and resolved audits moved to [docs/archive/](../archive/):
+- Instrument refactor (2026-02-05)
+- Eurorack reskin (2026-02-10)
+- Frontend design audit (superseded)
+- Match proximity fixes (resolved)
+
+### Hero → Module journey — cohesion and scalability
+
+Course Hub and Constellation use cold blue-black background and generic grays; nodes use rounded shapes and glow. The journey feels disconnected from hero and sinewaves (Eurorack). See [HERO-TO-MODULE-JOURNEY-AUDIT.md](./HERO-TO-MODULE-JOURNEY-AUDIT.md) for full audit and P0/P1/P2 fixes (background, tokens, copy, nodes, back control, scalability).
 
 ### Infrastructure — skeleton not consumed
 
@@ -130,10 +138,11 @@ localStorage versioning, conditional rendering (`&&` vs ternary), `useTransition
 | Document | Purpose | Status |
 |----------|---------|--------|
 | **README.md** (this file) | Current direction, status, and outstanding work | Active |
+| [HERO-TO-MODULE-JOURNEY-AUDIT.md](./HERO-TO-MODULE-JOURNEY-AUDIT.md) | Course Hub, Constellation, nodes — cohesion and scalability vs hero/sinewaves | Open |
 | [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md) | Instrument layout, guide states, responsive grid | Complete — reference |
-| [SINEWAVES-FRONTEND-DESIGN-AUDIT.md](./SINEWAVES-FRONTEND-DESIGN-AUDIT.md) | AI slop audit (cyan, glow, modal) — led to Eurorack direction | Superseded |
-| [SINEWAVES-MATCH-PROXIMITY-AUDIT.md](./SINEWAVES-MATCH-PROXIMITY-AUDIT.md) | Ghost wave sync, snap-to-target, challenge params | Resolved |
-| [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md) | Resize distortion, match animation wiring, control spacing, shadcn registry scan | Open (low priority) |
+| [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md) | Resize distortion, match animation wiring, control spacing | Open (low priority) |
 | [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md) | React performance audit (barrel imports, localStorage, etc.) | Open |
 
-Implementation plans live in [docs/plans/](../plans/).
+**Archived documents:** Completed implementation plans and resolved audits moved to [docs/archive/](../archive/).
+
+**Active design specs:** Module design specs live in [docs/plans/](../plans/).
