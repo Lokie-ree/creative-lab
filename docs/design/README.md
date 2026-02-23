@@ -1,6 +1,6 @@
 # Design — Current Direction
 
-**Last updated:** February 19, 2026
+**Last updated:** February 23, 2026
 
 This folder holds design specs and audits for creative-lab. Below is the current direction, implementation status, and outstanding work.
 
@@ -34,8 +34,9 @@ Matte faceplate, phosphor green accent, silk-screened labels, scored dividers, n
 
 - Slider thumb: rectangular fader (`h-6 w-3`), no rounded, no glow
 - Scored dividers: `border-b border-(--lab-border)`
-- **No panel screws.** Decorative corner screws take up space and add no value; the design direction omits them. Updated mockups: `mockups/eurorack-sinewaves.html`, `mockups/eurorack-sinewaves-mobile.html`.
+- **No panel screws.** Decorative corner screws omitted by design direction. Mockups reflect this.
 - Transitions: always explicit `duration-150`
+- Touch targets: 44px minimum (WCAG / Apple HIG) — use `min-h-[44px] min-w-[44px]` on buttons; never use `::before` pseudo-element expansion when ancestor has `overflow-hidden`
 
 *Tokens defined in:* `src/lib/colors.ts` → `src/index.css` (--lab-* vars)
 
@@ -64,72 +65,76 @@ Linear algebra module — matrix transformations on 2D vectors. Progressive unlo
 
 Single `Module.tsx` with "Coming Soon" message.
 
-### Rigid Motions — DESIGNED (next build)
+### Rigid Motions — DESIGNED, NOT STARTED (next build)
 
 Grade 8 Geometry module (8.G.A.1–3) — translations, reflections, rotations, congruence. "Predict & Reveal" interaction pattern (student drags ghost shape to predicted position, animation confirms/corrects). Scalene triangle as the single shape family across all stages. Distinct from sinewaves' continuous-parameter instrument.
 
 - **Guide states:** predict-translate → predict-reflect → predict-rotate → coordinate-reveal → predict-with-coordinates → capstone
 - **ALD progression:** L3 (spatial reasoning, no coordinates) → L4 (coordinate rules activate) → L5 (inverse task: identify the sequence)
 - **Controls:** Discrete (shadcn toggle/toggle-group) rather than continuous sliders; capstone uses a two-slot sequence builder
-- **Design spec (v2):** [plans/2026-02-19-rigid-motions-design-spec.md](../plans/2026-02-19-rigid-motions-design-spec.md)
+- **Design spec (v2):** [plans/2026-02-19-rigid-motions-design-spec.md](../plans/2026-02-19-rigid-motions-design-spec.md) — **implementation-ready**
+- **Mockup:** `mockups/rigid-motions-all-states.html` — validated against spec
+- **Not yet in `modules.ts`.** Listed in `courses.ts` (Geometry course, `moduleIds: ['rigid-motions']`). Add the `modules.ts` entry as the first step of implementation.
 - **Part of:** Three-module Grade 8 geometry progression (Rigid Motions → Dilations & Similarity → Pythagorean Theorem)
 
 ---
 
-## Implementation vs mockups (Sinewaves)
+## Implementation notes (Sinewaves)
 
-When evaluating the current sinewaves implementation against the updated mockups (`mockups/eurorack-sinewaves.html`, `mockups/eurorack-sinewaves-mobile.html`), keep the following in mind:
+Reference mockups: `mockups/eurorack-sinewaves.html` (desktop), `mockups/eurorack-sinewaves-mobile.html` (mobile). Use for layout density, status strip, readout treatment, scored dividers, fader ticks, and instrument buttons.
 
-- **Panel screws:** The current implementation includes four decorative `PanelScrew` components at the layout corners. The design direction is to **omit** them: they consume space and add no functional or meaningful aesthetic value. The mockups do not rely on corner screws; the screw-related CSS variables in the mockups are used only for the fader thumb (metallic cap), not for standalone screw graphics.
-- **Reference:** Use the mockups for layout density, status strip, readout treatment, scored dividers, fader ticks, and instrument buttons. Do not add or retain decorative corner screws to match the design direction.
+**Panel screws:** Decorative corner screws were removed from `Layout.tsx` in commit `7257ce5`. The design direction omits them. Do not re-add.
 
 ---
 
 ## Outstanding work
 
-### Global — hardcoded cyan — RESOLVED
+### Rigid Motions — not yet started ← **next priority**
 
-All cyan (`#22d3ee`, `cyan-*`) replaced with `--lab-accent` tokens across hero, constellation, escape hatch, and comment references. Zero cyan remaining in `src/`.
-
-### Global — barrel imports — RESOLVED
-
-All 6 barrel `index.ts` files deleted; `App.tsx` uses direct file imports. `lucide-react` barrel imports left as-is — Vite ESM tree-shaking handles these efficiently (audit penalty was Next.js-specific).
-
-### Global — deleted stale files — RESOLVED
-
-`ControlPanel.tsx`, `SlideTransition.tsx`, `transitions/index.ts` removed and committed.
-
-### Sinewaves — align with design direction (panel screws)
-
-The current implementation includes four decorative corner screws (`PanelScrew` in `Layout.tsx`). The design direction is to omit them; see **Implementation vs mockups** above. When touching the layout, remove the screws to match the mockups and free space.
+Design spec and mockup are complete and validated. Implementation has not begun. See **Modules** section above for status and spec location. Use the `module-planning-pipeline` skill to generate the implementation plan.
 
 ### Sinewaves — lower-priority polish
 
-These are documented in [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md). None block the next module.
+Documented in [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md). None block Rigid Motions.
 
-1. **Resize distortion:** Scene layout may desync with Canvas on viewport resize. Needs reproduction and targeted fix.
-2. **Match-success animation:** `matchSuccessSequence` exists in `animations.ts` but is not wired — celebration uses a static overlay instead of the staged timeline (pulse → highlight → feedback → continue).
-3. **Mobile control spacing:** Control strip uses `gap-2` on mobile which feels cramped. Toggle-group for Speed would improve consistency and touch targets.
+1. **Resize distortion:** Scene layout may desync with Canvas on viewport resize.
+2. **Match-success animation:** `matchSuccessSequence` in `animations.ts` exists but is not wired — celebration uses a static overlay instead of the staged timeline.
+3. **Mobile control spacing:** Control strip `gap-2` feels cramped on mobile.
 
-### Sinewaves — completed work (archived)
+### Vestigial `color` field in `courses.ts`
 
-Implementation plans and resolved audits moved to [docs/archive/](../archive/):
-- Instrument refactor (2026-02-05)
-- Eurorack reskin (2026-02-10)
-- Frontend design audit (superseded)
-- Match proximity fixes (resolved)
-
-### Hero → Module journey — cohesion and scalability
-
-Course Hub and Constellation use cold blue-black background and generic grays; nodes use rounded shapes and glow. The journey feels disconnected from hero and sinewaves (Eurorack). See [HERO-TO-MODULE-JOURNEY-AUDIT.md](./HERO-TO-MODULE-JOURNEY-AUDIT.md) for full audit and P0/P1/P2 fixes (background, tokens, copy, nodes, back control, scalability).
+The `Course` type has a `color` field; CS course has `color: '#a855f7'` (purple, off-palette). The field is not used in rendering (glow removed in 4465f32). Either remove the field from the type or replace with a design-system color when the CS course is built.
 
 ### Infrastructure — skeleton not consumed
 
-Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, etc.) are implemented and tested but not yet consumed by any module. Rigid Motions is the natural first consumer.
+Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, etc.) implemented but not consumed. Rigid Motions is the intended first consumer.
 
 ### Performance — medium/low findings
 
 localStorage versioning, conditional rendering (`&&` vs ternary), `useTransition` for module loading, `useMemo` for primitives, event listener dedup. See [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md).
+
+---
+
+## Resolved (archived)
+
+The following items from earlier audits are now complete:
+
+| Item | Resolved in |
+|------|-------------|
+| Hardcoded cyan everywhere | `4465f32` |
+| Barrel imports | `8a4e5f5` |
+| Stale files (`ControlPanel.tsx`, etc.) | `4465f32` |
+| Panel screws (sinewaves `Layout.tsx`) | `7257ce5` |
+| Cold background on CourseHub / Constellation | `7257ce5` + `397136e` |
+| Generic grays / no lab tokens in journey | `4465f32` |
+| Author name in student-facing UI | `7257ce5` |
+| Rounded + glow on course/module nodes | `4465f32` |
+| CourseNode shape inconsistency | `c704eed` |
+| StatusStrip touch targets (44px minimum) | `3ac0fab` |
+| Vertical centering on CourseHub / Constellation | `397136e` |
+| Navigation.tsx cold palette | `907de66` |
+
+Full audit history: [HERO-TO-MODULE-JOURNEY-AUDIT.md](./HERO-TO-MODULE-JOURNEY-AUDIT.md). Implementation plans and earlier audits: [docs/archive/](../archive/).
 
 ---
 
@@ -138,11 +143,11 @@ localStorage versioning, conditional rendering (`&&` vs ternary), `useTransition
 | Document | Purpose | Status |
 |----------|---------|--------|
 | **README.md** (this file) | Current direction, status, and outstanding work | Active |
-| [HERO-TO-MODULE-JOURNEY-AUDIT.md](./HERO-TO-MODULE-JOURNEY-AUDIT.md) | Course Hub, Constellation, nodes — cohesion and scalability vs hero/sinewaves | Open |
+| [HERO-TO-MODULE-JOURNEY-AUDIT.md](./HERO-TO-MODULE-JOURNEY-AUDIT.md) | Hero → module journey cohesion audit | Largely resolved — see Resolved table above |
 | [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md) | Instrument layout, guide states, responsive grid | Complete — reference |
 | [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md) | Resize distortion, match animation wiring, control spacing | Open (low priority) |
-| [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md) | React performance audit (barrel imports, localStorage, etc.) | Open |
+| [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md) | React performance audit (localStorage versioning, etc.) | Open (low priority) |
 
-**Archived documents:** Completed implementation plans and resolved audits moved to [docs/archive/](../archive/).
+**Archived documents:** Completed implementation plans and resolved audits — [docs/archive/](../archive/).
 
-**Active design specs:** Module design specs live in [docs/plans/](../plans/).
+**Active design specs:** Module design specs — [docs/plans/](../plans/).
