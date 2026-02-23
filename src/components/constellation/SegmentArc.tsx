@@ -5,7 +5,6 @@ interface SegmentArcProps {
   completed: number
   size: number
   strokeWidth?: number
-  color: string
   className?: string
 }
 
@@ -13,16 +12,33 @@ export function SegmentArc({
   total,
   completed,
   size,
-  strokeWidth = 3,
-  color,
+  strokeWidth = 2,
   className,
 }: SegmentArcProps) {
-  if (total === 0) return null
+  if (total === 0) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        className={cn('absolute inset-0', className)}
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={(size - strokeWidth) / 2}
+          fill="none"
+          stroke="var(--lab-border)"
+          strokeWidth={strokeWidth}
+          strokeDasharray="4 4"
+        />
+      </svg>
+    )
+  }
 
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const segmentLength = circumference / total
-  const gapLength = 4 // Gap between segments in pixels
+  const gapLength = 4
   const arcLength = segmentLength - gapLength
 
   return (
@@ -33,7 +49,7 @@ export function SegmentArc({
     >
       {Array.from({ length: total }).map((_, index) => {
         const isCompleted = index < completed
-        const rotation = (index / total) * 360 - 90 // Start from top
+        const rotation = (index / total) * 360 - 90
 
         return (
           <circle
@@ -42,17 +58,13 @@ export function SegmentArc({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke={isCompleted ? color : '#4b5563'}
+            stroke={isCompleted ? 'var(--lab-accent)' : 'var(--lab-border)'}
             strokeWidth={strokeWidth}
             strokeDasharray={`${arcLength} ${circumference - arcLength}`}
             strokeDashoffset={0}
             strokeLinecap="round"
             transform={`rotate(${rotation} ${size / 2} ${size / 2})`}
-            className={cn(
-              'transition-all duration-300',
-              isCompleted && 'drop-shadow-[0_0_6px_currentColor]'
-            )}
-            style={{ color: isCompleted ? color : undefined }}
+            className="transition-all duration-300"
           />
         )
       })}

@@ -68,33 +68,30 @@ export function Constellation({
   const recommendedId = getRecommendedModule(courseModules, getModuleProgress)
 
   if (!course) {
-    return <div className="text-white">Course not found</div>
+    return <div className="text-[var(--lab-text)]">Course not found</div>
   }
 
   return (
-    <div
-      className="relative flex flex-col items-center justify-center min-h-screen px-4"
-      style={{
-        background:
-          'radial-gradient(ellipse at center, #0a0a0f 0%, #050508 100%)',
-      }}
-    >
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        className="absolute top-6 left-6 text-gray-400 hover:text-white transition-colors flex items-center gap-2"
-      >
-        <ArrowLeft className="w-5 h-5" />
-        <span>Courses</span>
-      </button>
-
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-2xl md:text-3xl font-light text-white mb-2">
-          {course.name}
-        </h1>
-        <p className="text-gray-400 text-sm">Choose a module to explore</p>
+    <div className="flex flex-col h-dvh bg-[var(--lab-bg)]">
+      {/* Header row */}
+      <div className="flex items-center px-4 h-12 shrink-0">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 min-h-[44px] px-2 text-[var(--lab-ghost)] hover:text-[var(--lab-text)] transition-colors duration-150"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="lab-silk lab-display-font">Courses</span>
+        </button>
       </div>
+
+      {/* Content area — centered in remaining height */}
+      <div className="flex flex-1 flex-col items-center justify-center px-4">
+        <div className="text-center mb-12">
+          <h1 className="text-2xl md:text-3xl font-light text-[var(--lab-text)] mb-2">
+            {course.name}
+          </h1>
+          <p className="text-[var(--lab-ghost)] text-sm lab-silk lab-display-font">Select a module</p>
+        </div>
 
       {/* Module constellation - hybrid layout */}
       <motion.div
@@ -150,7 +147,7 @@ export function Constellation({
                       'md:w-8 md:h-px',
                       isCompleted
                         ? 'bg-[var(--lab-accent)] animate-ring-pulse'
-                        : 'bg-gray-600'
+                        : 'bg-[var(--lab-border)]'
                     )}
                   />
                 )}
@@ -158,6 +155,7 @@ export function Constellation({
             )
           })}
       </motion.div>
+      </div>
     </div>
   )
 }

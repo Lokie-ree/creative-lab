@@ -9,7 +9,6 @@ import { getModuleById, type ModuleProps } from "@/config/modules"
 import { EscapeHatch } from "./components/layout/EscapeHatch"
 import { Navigation } from "./components/layout/Navigation"
 import { CelebrationModal } from "./components/celebration/CelebrationModal"
-import { ResumeDialog } from "./components/dialogs/ResumeDialog"
 import { ProcessDialog } from "./components/dialogs/ProcessDialog"
 
 type View = "hero" | "courses" | "constellation" | "module"
@@ -84,7 +83,6 @@ function App() {
   const [showCelebration, setShowCelebration] = useState(false)
   const [celebrationTab, setCelebrationTab] = useState<TabId>("discovery")
   const [skippedToEnd, setSkippedToEnd] = useState(false)
-  const [showResume, setShowResume] = useState(false)
   const [showProcess, setShowProcess] = useState(false)
 
   // Hero → Courses transition
@@ -151,11 +149,6 @@ function App() {
     setShowCelebration(false)
     setCompletedValues(null)
     // Module will reset internally when re-rendered
-  }, [])
-
-  // Open resume dialog
-  const handleOpenResume = useCallback(() => {
-    setShowResume(true)
   }, [])
 
   // Open process dialog
@@ -272,7 +265,6 @@ function App() {
       {view === "module" && !showCelebration && activeModuleId !== "sinewaves" && (
         <EscapeHatch
           onBackToStart={handleBackToConstellation}
-          onViewResume={handleOpenResume}
           onSkipToEnd={handleSkipToEnd}
         />
       )}
@@ -286,12 +278,8 @@ function App() {
         onDismiss={() => setShowCelebration(false)}
         onNewChallenge={handleNewChallenge}
         onNextModule={handleBackToConstellation}
-        onOpenResume={handleOpenResume}
         onOpenProcess={handleOpenProcess}
       />
-
-      {/* Resume Dialog */}
-      <ResumeDialog open={showResume} onOpenChange={setShowResume} />
 
       {/* Process Dialog */}
       <ProcessDialog open={showProcess} onOpenChange={setShowProcess} />

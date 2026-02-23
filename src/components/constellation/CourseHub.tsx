@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { ArrowLeft } from 'lucide-react'
 import { COURSES } from '@/config/courses'
 import { CourseNode } from './CourseNode'
 
@@ -20,57 +21,41 @@ const containerVariants = {
 
 export function CourseHub({ onSelectCourse, onBack }: CourseHubProps) {
   return (
-    <div
-      className="relative flex flex-col items-center justify-center min-h-screen px-4"
-      style={{
-        background:
-          'radial-gradient(ellipse at center, #0a0a0f 0%, #050508 100%)',
-      }}
-    >
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        className="absolute top-6 left-6 text-gray-400 hover:text-white transition-colors flex items-center gap-2"
-      >
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+    <div className="flex flex-col h-dvh bg-[var(--lab-bg)]">
+      {/* Header row */}
+      <div className="flex items-center px-4 h-12 shrink-0">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 min-h-[44px] px-2 text-[var(--lab-ghost)] hover:text-[var(--lab-text)] transition-colors duration-150"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
-        <span>Back</span>
-      </button>
-
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-light text-white mb-2">
-          Randall LaPoint, Jr.
-        </h1>
-        <p className="text-gray-400">Interactive Learning Experiences</p>
+          <ArrowLeft className="w-5 h-5" />
+          <span className="lab-silk lab-display-font">Back</span>
+        </button>
       </div>
 
-      {/* Course grid */}
-      <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {COURSES.sort((a, b) => a.order - b.order).map((course) => (
-          <CourseNode
-            key={course.id}
-            course={course}
-            onClick={(e) => onSelectCourse(course.id, e)}
-          />
-        ))}
-      </motion.div>
+      {/* Content area — centered in remaining height */}
+      <div className="flex flex-1 flex-col items-center justify-center px-4">
+        <div className="text-center mb-12">
+          <h1 className="text-3xl md:text-4xl font-light text-[var(--lab-text)]">
+            IVLA STEM Club
+          </h1>
+        </div>
+
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {COURSES.sort((a, b) => a.order - b.order).map((course) => (
+            <CourseNode
+              key={course.id}
+              course={course}
+              onClick={(e) => onSelectCourse(course.id, e)}
+            />
+          ))}
+        </motion.div>
+      </div>
     </div>
   )
 }

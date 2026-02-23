@@ -93,8 +93,7 @@ export function DiscoveryBadge({
       role="status"
       aria-live="polite"
     >
-      <span aria-hidden>✨</span>
-      <span>You discovered: {BADGE_LABELS[type]}</span>
+      <span>Discovered: {BADGE_LABELS[type]}</span>
     </div>
   )
 }

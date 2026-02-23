@@ -1,7 +1,7 @@
 import { useRef } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import { AnimatedShinyText } from "@/components/ui/animated-shiny-text"
+import RotatingText from "./RotatingText"
 
 interface HeroContentProps {
   onEnter: () => void
@@ -10,71 +10,56 @@ interface HeroContentProps {
 export function HeroContent({ onEnter }: HeroContentProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const nameRef = useRef<HTMLHeadingElement>(null)
-  const roleRef = useRef<HTMLParagraphElement>(null)
-  const hook1Ref = useRef<HTMLParagraphElement>(null)
-  const hook2Ref = useRef<HTMLParagraphElement>(null)
-  const hook3Ref = useRef<HTMLDivElement>(null)
+  const taglineRef = useRef<HTMLParagraphElement>(null)
   const ctaRef = useRef<HTMLButtonElement>(null)
 
   useGSAP(() => {
     if (!containerRef.current) return
 
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } })
+    const tl = gsap.timeline({ defaults: { ease: "power2.out" } })
 
-    // Initial state
-    gsap.set([nameRef.current, roleRef.current, hook1Ref.current, hook2Ref.current, hook3Ref.current, ctaRef.current], {
-      opacity: 0,
-      y: 20,
-    })
+    gsap.set([nameRef.current, taglineRef.current, ctaRef.current], { opacity: 0, y: 16 })
 
-    // Staggered reveal
-    tl.to(nameRef.current, { opacity: 1, y: 0, duration: 0.8 }, 0.3)
-      .to(roleRef.current, { opacity: 1, y: 0, duration: 0.6 }, 0.6)
-      .to(hook1Ref.current, { opacity: 1, y: 0, duration: 0.5 }, 1.0)
-      .to(hook2Ref.current, { opacity: 1, y: 0, duration: 0.5 }, 1.3)
-      .to(hook3Ref.current, { opacity: 1, y: 0, duration: 0.5 }, 1.6)
-      .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.6 }, 2.0)
+    tl.to(nameRef.current, { opacity: 1, y: 0, duration: 0.6 }, 0.2)
+      .to(taglineRef.current, { opacity: 1, y: 0, duration: 0.5 }, 0.5)
+      .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.5 }, 0.9)
   }, { scope: containerRef })
 
   return (
     <div
       ref={containerRef}
-      className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6"
+      className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 gap-6 md:gap-8"
     >
       {/* Name */}
       <h1
         ref={nameRef}
-        className="text-5xl md:text-6xl font-semibold text-white tracking-tight mb-4"
+        className="text-5xl md:text-6xl font-semibold text-[var(--lab-text)] tracking-tight"
       >
-        Randall LaPoint, Jr.
+        IVLA STEM Club
       </h1>
 
-      {/* Role line */}
-      <p ref={roleRef} className="text-base sm:text-lg md:text-xl text-[var(--lab-text-muted)] mb-12 flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
-        <span>Math Educator</span>
-        <span className="text-[var(--lab-accent)] hidden sm:inline">→</span>
-        <span>Full-Stack Developer</span>
-        <span className="text-[var(--lab-accent)] hidden sm:inline">→</span>
-        <span>Learning Designer</span>
+      {/* Tagline: Where we [build / discover / explore / prove] */}
+      <p
+        ref={taglineRef}
+        className="inline-flex flex-wrap items-baseline justify-center gap-x-2"
+      >
+        <span className="text-lg sm:text-xl md:text-2xl text-[var(--lab-text-muted)]">
+          Where we
+        </span>
+        <span className="inline-flex min-w-[8ch] justify-start rounded-full bg-[var(--lab-surface)]/95 px-4 py-2 shadow-sm ring-1 ring-[var(--lab-border)] backdrop-blur-sm">
+          <RotatingText
+            texts={['build', 'discover', 'explore', 'prove']}
+            mainClassName="text-base sm:text-lg md:text-xl font-medium text-[var(--lab-text)]"
+            splitBy="words"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
+            staggerDuration={0}
+            rotationInterval={2200}
+          />
+        </span>
       </p>
-
-      {/* Hook lines */}
-      <div className="space-y-2 mb-12">
-        <p ref={hook1Ref} className="text-xl sm:text-2xl md:text-3xl font-light text-[var(--lab-text-dim)]">
-          15 years in math classrooms.
-        </p>
-        <p ref={hook2Ref} className="text-xl sm:text-2xl md:text-3xl font-light text-[var(--lab-text-muted)]">
-          12 days learning R3F.
-        </p>
-        <div ref={hook3Ref}>
-          <AnimatedShinyText
-            shimmerWidth={200}
-            className="text-xl sm:text-2xl md:text-3xl font-light !text-[var(--lab-accent)]"
-          >
-            This is what I built.
-          </AnimatedShinyText>
-        </div>
-      </div>
 
       {/* CTA Button */}
       <button
@@ -82,7 +67,7 @@ export function HeroContent({ onEnter }: HeroContentProps) {
         onClick={onEnter}
         className="group px-8 py-4 min-h-[48px] bg-[var(--lab-accent)] text-[var(--lab-bg)] font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:bg-[var(--lab-accent-hover)] hover:shadow-[0_0_30px_rgba(124,200,124,0.4)]"
       >
-        Enter the Module
+        Enter the Lab
         <span className="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>
       </button>
     </div>

@@ -62,7 +62,7 @@ Back navigation and Escape Hatch from modules; Celebration modal on completion.
 ## Design System
 
 ### Aesthetic: Eurorack / Synth Module
-Warm matte faceplate, phosphor green accent, silk-screened labels, scored dividers, panel screws, no glow, no border-radius on module UI. Mockup reference: `mockups/eurorack-sinewaves.html`.
+Warm matte faceplate, phosphor green accent, silk-screened labels, scored dividers, no glow, no border-radius on module UI. No decorative corner screws — omitted by design. Mockup reference: `mockups/eurorack-sinewaves.html`.
 
 ### Colors (from `src/lib/colors.ts` → `src/index.css`)
 - **accent.primary**: `#7cc87c` (phosphor green) — Active elements — CSS: `--lab-accent`
@@ -105,8 +105,7 @@ Warm matte faceplate, phosphor green accent, silk-screened labels, scored divide
 - 60fps animations or instant—no jank
 - R3F for continuous/synchronized motion, SVG for static/simple
 
-### Hardcoded Cyan (outside sinewaves — not yet migrated)
-See "Follow-up Items" in Current State section for full file list.
+**Palette is complete — no hardcoded cyan, no raw gray-* classes anywhere in `src/`.** All journey screens (hero, CourseHub, Constellation, Navigation) use lab tokens.
 
 ## Pedagogy
 
@@ -121,23 +120,51 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 ## Current State
 
-- **Modules (see `src/config/modules.ts`):**
-  - **sinewaves** — **Complete.** Trigonometry; unit circle → sine/cosine. Instrument-style HUD (InstrumentModule) with Eurorack design system. Instrument refactor and Eurorack reskin both done. See [docs/plans/2026-02-05-sinewaves-instrument-refactor.md](./docs/plans/2026-02-05-sinewaves-instrument-refactor.md) and [docs/plans/2026-02-10-sinewaves-eurorack-reskin.md](./docs/plans/2026-02-10-sinewaves-eurorack-reskin.md).
-  - **vector-transformations** — Implemented (in-app). Linear algebra; matrix transformations on vectors.
-  - **phase-portraits** — Placeholder/coming-soon.
-- **Module skeleton** — Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, useAccessibility, useErrorRecovery, useModuleAnalytics). Not yet consumed by existing modules; available for next module. See [docs/plans/2026-01-27-module-skeleton-infrastructure.md](./docs/plans/2026-01-27-module-skeleton-infrastructure.md).
-- **Roadmap:** Organized by **major content clusters** (Algebra I, Geometry). Next: three-module Grade 8 Geometry progression — (1) Rigid Motions & Congruence (8.G.A.1–3), (2) Dilations, Similarity & Right Triangles (8.G.A.3–4, 8.G.B), (3) Pythagorean Theorem (8.G.B.7–8). Design spec: `docs/plans/2026-02-19-rigid-motions-design-spec.md`.
+**Last updated:** February 23, 2026
 
-## Follow-up Items
+### App framing
+The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IVLA STEM Club" with a `DotGrid` canvas background (interactive dot field with mouse proximity) and a `RotatingText` tagline ("Where we build / discover / explore / prove"). No personal name in the student-facing UI.
 
-- **Hero and constellation hardcoded cyan:** These files still use `rgba(34,211,238,...)`, `#22d3ee`, `stroke-cyan-400`, `fill-cyan-400`:
-  - `src/components/constellation/ModuleNode.tsx`
-  - `src/components/constellation/NodeRings.tsx`
-  - `src/components/constellation/Constellation.tsx`
-  - `src/components/hero/HeroContent.tsx`
-  - `src/components/hero/HeroBackground.tsx`
-  - `src/config/courses.ts` (course color)
-- **Audits to address when relevant:** [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./docs/design/VERCEL-REACT-BEST-PRACTICES-AUDIT.md) (barrel imports, localStorage versioning, conditional rendering)
+### Modules (see `src/config/modules.ts`)
+- **sinewaves** — **Complete.** Trigonometry; unit circle → sine/cosine. Instrument-style HUD with Eurorack design system. No panel screws. StatusStrip touch targets 44px minimum.
+- **vector-transformations** — Implemented. Linear algebra; matrix transformations on vectors.
+- **phase-portraits** — Placeholder/coming-soon.
+- **rigid-motions** — **Design complete, not yet started.** Listed in `courses.ts` (Geometry course), not yet in `modules.ts`. See design spec below.
+
+### Journey (hero → CourseHub → Constellation → module)
+- All screens use `--lab-bg` warm faceplate background.
+- All text uses lab tokens — no raw `gray-*` or `text-white` anywhere in the journey.
+- CourseHub and Constellation use a consistent 2-row layout: `h-12 shrink-0` header (back button in flow) + `flex-1 justify-center` content area (`h-dvh`).
+- CourseNode shape consistency: `SegmentArc` always renders; `total === 0` shows a dashed ghost circle so all nodes are circular.
+- `Navigation.tsx` uses `from-[var(--lab-bg)]/70` gradient and lab text tokens.
+
+### Module skeleton
+Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, useAccessibility, useErrorRecovery, useModuleAnalytics). Not yet consumed by any module. Rigid Motions is the first intended consumer.
+
+### Next build: Rigid Motions & Congruence
+- **Standards:** 8.G.A.1, 8.G.A.2, 8.G.A.3 (Grade 8 Geometry)
+- **Design spec:** [`docs/plans/2026-02-19-rigid-motions-design-spec.md`](./docs/plans/2026-02-19-rigid-motions-design-spec.md) — implementation-ready
+- **Mockup:** `mockups/rigid-motions-all-states.html` — validated against spec
+- **Roadmap:** First module in three-module Grade 8 Geometry progression: (1) Rigid Motions, (2) Dilations & Similarity, (3) Pythagorean Theorem
+
+## Outstanding Work
+
+### Rigid Motions — not yet started
+- Add entry to `src/config/modules.ts` as first step
+- Follow the sinewaves file structure as reference implementation
+- Consult [`docs/plans/2026-02-19-rigid-motions-design-spec.md`](./docs/plans/2026-02-19-rigid-motions-design-spec.md) for all design decisions
+- Use `module-planning-pipeline` skill to generate the implementation plan
+
+### Sinewaves — lower-priority polish
+- **Resize distortion:** Scene layout may desync with Canvas on viewport resize.
+- **Match-success animation:** `matchSuccessSequence` in `animations.ts` exists but is not wired — celebration uses a static overlay instead of the staged timeline.
+- **Mobile control spacing:** Control strip uses `gap-2` on mobile which feels cramped.
+
+### Vestigial `color` field in `courses.ts`
+CS course still has `color: '#a855f7'` (purple, off-palette). The field is no longer used in rendering (glow removed), but it's in the `Course` type. Either remove the field from the type or replace with a design-system color when the CS course is built out.
+
+### Performance audit (medium/low priority)
+See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRACTICES-AUDIT.md): localStorage versioning, conditional rendering patterns, `useTransition` for module loading.
 
 ## Agent Guidelines
 

@@ -133,9 +133,9 @@ export const VECTOR_TRANSFORMS_COPY: VectorTransformsCopy = {
       title: 'The Bigger Picture',
       content: `Linear algebra becomes intuitive when you see it.
 
-Matrices describe every kind of 2D transformation: scaling, rotation, reflection, shearing. The same 2×2 grid of numbers can rotate an image, transform coordinates, or describe how forces interact.
+Matrices describe every kind of 2D transformation: scaling, rotation, reflection, shearing. The same 2×2 grid of numbers drives every rendering engine, every coordinate system, every graphics pipeline.
 
-Understanding matrices visually—before symbolically—builds the intuition that makes higher mathematics accessible.`,
+You matched the target before I named it. The formula becomes the label for what you've already discovered.`,
     },
   },
 }

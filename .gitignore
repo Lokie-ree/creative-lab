@@ -27,9 +27,13 @@ dist-ssr
 
 .cursor/
 .agents/
-# Playwright MCP screenshots
+# Playwright CLI session files and screenshots
 .playwright-mcp/
+.playwright-cli/
 screenshots/
+*.png
+*.jpeg
+*.jpg
 
 # MCP config (local)
 .mcp.json
@@ -42,6 +46,3 @@ screenshots/
 .storybook*
 *storybook.log
 storybook-static
-
-# Generated images (mockups, references)
-Gemini_Generated_Image_*

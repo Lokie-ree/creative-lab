@@ -12,24 +12,6 @@ interface InstrumentLayoutProps {
   children?: ReactNode // For overlays (celebrations, etc.)
 }
 
-const SCREW_POSITIONS = [
-  { className: 'top-2.5 left-2.5', rotation: -35 },
-  { className: 'top-2.5 right-2.5', rotation: 45 },
-  { className: 'bottom-2.5 left-2.5', rotation: 15 },
-  { className: 'bottom-2.5 right-2.5', rotation: -60 },
-] as const
-
-function PanelScrew({ className, rotation }: { className: string; rotation: number }) {
-  return (
-    <div className={cn('pointer-events-none absolute z-10 h-3 w-3 rounded-full border border-(--lab-screw-border) bg-(--lab-screw-bg)', className)}>
-      <div
-        className="absolute top-1/2 left-1/2 h-px w-1.5 -translate-x-1/2 -translate-y-1/2 bg-(--lab-screw-slot)"
-        style={{ rotate: `${rotation}deg` }}
-      />
-    </div>
-  )
-}
-
 /**
  * Eurorack faceplate layout for sinewaves module
  *
@@ -37,7 +19,7 @@ function PanelScrew({ className, rotation }: { className: string; rotation: numb
  * Mobile (<768px): Vertical stack — status | prompt | formula | viz | sliders | buttons
  * Desktop (≥768px): 4-row grid — status strip | readouts side-by-side | viz | controls
  *
- * Sections separated by scored borders. Panel screws at corners.
+ * Sections separated by scored borders.
  */
 export function InstrumentLayout({
   statusStrip,
@@ -59,11 +41,6 @@ export function InstrumentLayout({
         'md:grid-rows-[3rem_auto_1fr_auto] md:gap-0'
       )}
     >
-      {/* Panel screws — decorative, tucked into extreme corners */}
-      {SCREW_POSITIONS.map((screw) => (
-        <PanelScrew key={screw.className} className={screw.className} rotation={screw.rotation} />
-      ))}
-
       {/* ROW 1: STATUS STRIP */}
       <header className="flex items-center border-b border-(--lab-border) px-5 py-2 md:px-6 md:py-0">
         {statusStrip}

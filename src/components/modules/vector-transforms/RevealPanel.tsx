@@ -219,14 +219,11 @@ export function RevealPanel({
       >
         {/* Header */}
         <div className="text-center mb-6">
-          <span className="text-2xl" aria-hidden>
-            🎉
-          </span>
           <h2
             id="reveal-title"
-            className="text-xl font-semibold text-[var(--lab-text)] mt-2"
+            className="text-xl font-semibold text-[var(--lab-text)]"
           >
-            Perfect Match!
+            Perfect Match
           </h2>
           <p className="text-sm text-[var(--lab-text-muted)] mt-1">
             You created a{' '}

@@ -30,54 +30,46 @@ export function CourseNode({ course, onClick }: CourseNodeProps) {
       className="flex flex-col items-center gap-3 group"
       disabled={!hasModules}
     >
-      {/* Node ring */}
+      {/* Node panel */}
       <div
         className={cn(
-          'relative w-28 h-28 rounded-full flex items-center justify-center',
-          'border-2 transition-all duration-300',
+          'relative w-24 h-24 rounded flex items-center justify-center',
+          'border transition-all duration-150',
           hasModules
-            ? 'cursor-pointer group-hover:scale-105'
-            : 'cursor-not-allowed opacity-50'
+            ? 'cursor-pointer border-[var(--lab-border)] group-hover:border-[var(--lab-accent)]'
+            : 'cursor-not-allowed opacity-40 border-[var(--lab-border)]'
         )}
-        style={{
-          borderColor: course.color,
-          boxShadow: hasModules ? `0 0 20px ${course.color}33` : undefined,
-        }}
       >
         {/* Segment arc for progress */}
-        {hasModules && (
-          <SegmentArc
-            total={progress.total}
-            completed={progress.completed}
-            size={112}
-            color={course.color}
-          />
-        )}
+        <SegmentArc
+          total={progress.total}
+          completed={progress.completed}
+          size={96}
+        />
 
         {/* Icon */}
-        <span
-          className="text-3xl font-mono"
-          style={{ color: course.color }}
-        >
+        <span className="text-2xl font-mono text-[var(--lab-accent)]">
           {course.icon}
         </span>
       </div>
 
       {/* Course name */}
-      <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+      <span className="text-sm text-[var(--lab-text-muted)] group-hover:text-[var(--lab-text)] transition-colors duration-150">
         {course.name}
       </span>
 
       {/* Module count */}
       {hasModules && (
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-[var(--lab-ghost)] lab-silk lab-display-font">
           {progress.completed}/{progress.total} modules
         </span>
       )}
 
-      {/* Coming soon badge for empty courses */}
+      {/* Coming soon */}
       {!hasModules && (
-        <span className="text-xs text-gray-600 italic">Coming soon</span>
+        <span className="text-xs text-[var(--lab-ghost)] lab-silk lab-display-font">
+          Coming soon
+        </span>
       )}
     </motion.button>
   )

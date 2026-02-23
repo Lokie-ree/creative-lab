@@ -17,7 +17,6 @@ interface CelebrationModalProps {
   onDismiss: () => void
   onNewChallenge: () => void
   onNextModule: () => void
-  onOpenResume: () => void
   onOpenProcess: () => void
 }
 
@@ -29,7 +28,6 @@ export function CelebrationModal({
   onDismiss,
   onNewChallenge,
   onNextModule,
-  onOpenResume,
   onOpenProcess,
 }: CelebrationModalProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -186,7 +184,6 @@ export function CelebrationModal({
             </TabsContent>
             <TabsContent value="deeper" className="mt-0">
               <GoDeeperTab
-                onOpenResume={onOpenResume}
                 onOpenProcess={onOpenProcess}
               />
             </TabsContent>

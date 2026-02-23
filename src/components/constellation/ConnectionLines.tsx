@@ -16,7 +16,7 @@ export function ConnectionLines({ nodeCount }: ConnectionLinesProps) {
         y1="20%"
         x2="50%"
         y2="80%"
-        stroke="#4b5563"
+        stroke="var(--lab-border)"
         strokeWidth="1"
       />
     </svg>

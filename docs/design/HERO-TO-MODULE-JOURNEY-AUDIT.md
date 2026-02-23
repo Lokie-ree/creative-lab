@@ -1,9 +1,41 @@
 # Hero → Module Journey Audit
 
-**Date:** February 20, 2026  
-**Scope:** Course Hub, Constellation, and course/module nodes (Hero → Courses → Constellation → Module).  
-**Reference:** Eurorack design system in [README.md](./README.md); "AI slop" patterns from [docs/archive/SINEWAVES-FRONTEND-DESIGN-AUDIT.md](../archive/SINEWAVES-FRONTEND-DESIGN-AUDIT.md).  
+**Date:** February 20, 2026
+**Resolved:** February 23, 2026
+**Scope:** Course Hub, Constellation, and course/module nodes (Hero → Courses → Constellation → Module).
+**Reference:** Eurorack design system in [README.md](./README.md); "AI slop" patterns from [docs/archive/SINEWAVES-FRONTEND-DESIGN-AUDIT.md](../archive/SINEWAVES-FRONTEND-DESIGN-AUDIT.md).
 **Goal:** Identify why the journey feels sloppy and less scalable so it can be aligned with hero and sinewaves.
+
+---
+
+## Resolution Status (February 23, 2026)
+
+All P0 and P1 items, and all P2 items, have been resolved.
+
+| Priority | Issue | Status | Commit |
+|----------|-------|--------|--------|
+| P0 | Cold background (CourseHub, Constellation) | ✅ Resolved | `7257ce5`, `397136e` |
+| P0 | No design tokens in journey | ✅ Resolved | `4465f32` |
+| P1 | Author-centric Course Hub copy | ✅ Resolved — "IVLA STEM Club" | `7257ce5` |
+| P1 | Rounded + glow on nodes | ✅ Resolved — flat, no glow | `4465f32` |
+| P1 | Off-palette color on nodes | ✅ Resolved — lab tokens only | `4465f32` |
+| P2 | Inconsistent back control | ✅ Resolved — consistent 2-row layout | `397136e` |
+| P2 | CourseNode shape inconsistency | ✅ Resolved — SegmentArc always renders | `c704eed` |
+| P2 | Navigation.tsx cold palette | ✅ Resolved — lab tokens | `907de66` |
+| — | Hero redesign | ✅ Done — DotGrid canvas, RotatingText, IVLA branding | `7257ce5` |
+| — | StatusStrip touch targets | ✅ Resolved — 44px minimum | `3ac0fab` |
+
+**Cohesion checklist from section 10 (all items now checked):**
+- [x] CourseHub and Constellation use `--lab-bg` background
+- [x] All journey text uses lab tokens
+- [x] CourseHub headline is about content/journey, not the author
+- [x] Course and module nodes have no glow, no off-palette colors
+- [x] One back control pattern and one connector style
+- [x] New module can be added by config only (no new one-off styles)
+
+**One remaining vestigial item:** `courses.ts` CS course has `color: '#a855f7'` — the field is not rendered (glow removed) but exists in the type. Track in [README.md outstanding work](./README.md#outstanding-work).
+
+---
 
 ---
 
