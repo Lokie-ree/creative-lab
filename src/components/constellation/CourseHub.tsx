@@ -34,7 +34,7 @@ export function CourseHub({ onSelectCourse, onBack }: CourseHubProps) {
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-3xl md:text-4xl font-light text-[var(--lab-text)] mb-2">
-          Randall LaPoint, Jr.
+          IVLA STEM Club
         </h1>
       </div>
 
