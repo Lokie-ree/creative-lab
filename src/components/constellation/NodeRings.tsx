@@ -34,7 +34,7 @@ export function NodeRings({ status, progress, isRecommended, className }: NodeRi
       className={cn('w-12 h-12', className)}
       aria-hidden="true"
     >
-      {/* Outer ring - always visible */}
+      {/* Outer ring */}
       <circle
         cx="24"
         cy="24"
@@ -43,11 +43,13 @@ export function NodeRings({ status, progress, isRecommended, className }: NodeRi
         strokeWidth="2"
         className={cn(
           'transition-colors duration-150',
-          isActive || isRecommended ? 'stroke-[var(--lab-accent)]' : 'stroke-gray-600'
+          isActive || isRecommended
+            ? 'stroke-[var(--lab-accent)]'
+            : 'stroke-[var(--lab-border)]'
         )}
       />
 
-      {/* Middle ring - progress arc */}
+      {/* Progress arc */}
       <circle
         ref={progressRef}
         cx="24"
@@ -65,7 +67,7 @@ export function NodeRings({ status, progress, isRecommended, className }: NodeRi
         )}
       />
 
-      {/* Inner circle - core state */}
+      {/* Inner circle */}
       <circle
         cx="24"
         cy="24"
@@ -76,8 +78,8 @@ export function NodeRings({ status, progress, isRecommended, className }: NodeRi
           isCompleted
             ? 'fill-[var(--lab-accent)] stroke-[var(--lab-accent)]'
             : isActive
-              ? 'fill-[rgba(124,200,124,0.2)] stroke-[var(--lab-accent)]'
-              : 'fill-transparent stroke-gray-600'
+              ? 'fill-[rgba(124,200,124,0.15)] stroke-[var(--lab-accent)]'
+              : 'fill-transparent stroke-[var(--lab-border)]'
         )}
       />
     </svg>

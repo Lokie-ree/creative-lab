@@ -181,20 +181,13 @@ export function getProximityFeedbackText(level: ProximityLevel): string {
  * @returns A helpful hint string
  */
 export function generateHint(current: Vector2, target: Vector2): string {
-  const proximity = calculateProximity(current, target)
+  const score = calculateMatchScore(current, target)
 
-  // Prioritize angle adjustment if that's the bigger issue
-  if (proximity.angleDiff > 15) {
-    return 'Try adjusting the off-diagonal entries (a₁₂ or a₂₁) to change the rotation.'
+  if (score > 70) {
+    return 'Look closely — you\'re nearly there.'
   }
 
-  // Focus on magnitude if angle is close
-  if (proximity.magnitudeDiff > 25) {
-    return 'Try adjusting the diagonal entries (a₁₁ or a₂₂) to change the size.'
-  }
-
-  // User is close, encourage fine-tuning
-  return "You're close! Make small adjustments to fine-tune."
+  return 'Try changing one value at a time.'
 }
 
 /**

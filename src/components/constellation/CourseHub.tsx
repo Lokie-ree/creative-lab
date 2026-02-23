@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { ArrowLeft } from 'lucide-react'
 import { COURSES } from '@/config/courses'
 import { CourseNode } from './CourseNode'
 
@@ -20,40 +21,21 @@ const containerVariants = {
 
 export function CourseHub({ onSelectCourse, onBack }: CourseHubProps) {
   return (
-    <div
-      className="relative flex flex-col items-center justify-center min-h-screen px-4"
-      style={{
-        background:
-          'radial-gradient(ellipse at center, #0a0a0f 0%, #050508 100%)',
-      }}
-    >
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-4 bg-[var(--lab-bg)]">
       {/* Back button */}
       <button
         onClick={onBack}
-        className="absolute top-6 left-6 text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+        className="absolute top-6 left-6 text-[var(--lab-ghost)] hover:text-[var(--lab-text)] transition-colors duration-150 flex items-center gap-2"
       >
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
-        <span>Back</span>
+        <ArrowLeft className="w-5 h-5" />
+        <span className="lab-silk lab-display-font">Back</span>
       </button>
 
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-light text-white mb-2">
+        <h1 className="text-3xl md:text-4xl font-light text-[var(--lab-text)] mb-2">
           Randall LaPoint, Jr.
         </h1>
-        <p className="text-gray-400">Interactive Learning Experiences</p>
       </div>
 
       {/* Course grid */}
