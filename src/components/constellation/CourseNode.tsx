@@ -41,13 +41,11 @@ export function CourseNode({ course, onClick }: CourseNodeProps) {
         )}
       >
         {/* Segment arc for progress */}
-        {hasModules && (
-          <SegmentArc
-            total={progress.total}
-            completed={progress.completed}
-            size={96}
-          />
-        )}
+        <SegmentArc
+          total={progress.total}
+          completed={progress.completed}
+          size={96}
+        />
 
         {/* Icon */}
         <span className="text-2xl font-mono text-[var(--lab-accent)]">

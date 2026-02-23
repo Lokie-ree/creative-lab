@@ -15,7 +15,25 @@ export function SegmentArc({
   strokeWidth = 2,
   className,
 }: SegmentArcProps) {
-  if (total === 0) return null
+  if (total === 0) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        className={cn('absolute inset-0', className)}
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={(size - strokeWidth) / 2}
+          fill="none"
+          stroke="var(--lab-border)"
+          strokeWidth={strokeWidth}
+          strokeDasharray="4 4"
+        />
+      </svg>
+    )
+  }
 
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
