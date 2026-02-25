@@ -15,11 +15,11 @@ pnpm dev
 
 | Doc | Purpose |
 |-----|---------|
-| [PORTFOLIO_VISION.md](./PORTFOLIO_VISION.md) | Vision, audience, guiding principles |
+| [VISION.md](./VISION.md) | Vision, audience, guiding principles |
 | [docs/README.md](./docs/README.md) | **Doc index** — start here for planning and building modules |
 | [docs/philosophy.md](./docs/philosophy.md) | Discovery-first pedagogy: earned reveal, visual confirmation |
 | [docs/product.md](./docs/product.md) | LSSM standards alignment and ALD progression |
 | [docs/design/](./docs/design/) | Design specs, audits, and current direction |
 | [docs/plans/](./docs/plans/) | Active design specs for modules in development |
-| [mockups/](./mockups/) | Static HTML prototypes for design validation |
+| [mockups/](./mockups/) | React/JSX prototypes for design validation (exemplar: RigidMotions.jsx) |
 | [AGENT.md](./AGENT.md) | AI agent: architecture, commands, design system |
