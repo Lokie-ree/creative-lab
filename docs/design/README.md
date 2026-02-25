@@ -53,9 +53,9 @@ Scientific instrument ("oscilloscope, not slideshow"). Everything always visible
 - **Controls:** TRACE (play/pause), RESET, SPEED (0.5x / 1x / 2x). Grid lines, silk-screen labels, StatusStrip.
 - **Architecture:** `InstrumentModule.tsx` orchestrates state; `Scene.tsx` owns R3F Canvas
 - **Reference:** `src/components/modules/sinewaves/ARCHITECTURE.md`
-- **Visual reference:** `mockups/eurorack-sinewaves.html` (desktop), `mockups/eurorack-sinewaves-mobile.html` (mobile). Use these for layout, spacing, and component treatment; panel screws are intentionally omitted (see Implementation vs mockups below).
+- **Visual reference:** For layout and component treatment, see sinewaves in codebase; panel screws are intentionally omitted. For **new modules**, use `mockups/RigidMotions.jsx` as the mockup exemplar.
 
-*Specs:* [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md), [plans/2026-02-05-sinewaves-instrument-refactor.md](../plans/2026-02-05-sinewaves-instrument-refactor.md), [plans/2026-02-10-sinewaves-eurorack-reskin.md](../plans/2026-02-10-sinewaves-eurorack-reskin.md)
+*Specs:* [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md); implementation plans in [archive/](../archive/) (2026-02-05 instrument refactor, 2026-02-10 Eurorack reskin).
 
 ### Vector Transformations — IMPLEMENTED
 
@@ -73,7 +73,7 @@ Grade 8 Geometry module (8.G.A.1–3) — translations, reflections, rotations, 
 - **ALD progression:** L3 (spatial reasoning, no coordinates) → L4 (coordinate rules activate) → L5 (inverse task: identify the sequence)
 - **Controls:** Discrete (shadcn toggle/toggle-group) rather than continuous sliders; capstone uses a two-slot sequence builder
 - **Design spec (v2):** [plans/2026-02-19-rigid-motions-design-spec.md](../plans/2026-02-19-rigid-motions-design-spec.md) — **implementation-ready**
-- **Mockup:** `mockups/rigid-motions-all-states.html` — validated against spec
+- **Mockup:** `mockups/RigidMotions.jsx` — exemplar; validated against spec
 - **Not yet in `modules.ts`.** Listed in `courses.ts` (Geometry course, `moduleIds: ['rigid-motions']`). Add the `modules.ts` entry as the first step of implementation.
 - **Part of:** Three-module Grade 8 geometry progression (Rigid Motions → Dilations & Similarity → Pythagorean Theorem)
 
@@ -81,13 +81,15 @@ Grade 8 Geometry module (8.G.A.1–3) — translations, reflections, rotations, 
 
 ## Implementation notes (Sinewaves)
 
-Reference mockups: `mockups/eurorack-sinewaves.html` (desktop), `mockups/eurorack-sinewaves-mobile.html` (mobile). Use for layout density, status strip, readout treatment, scored dividers, fader ticks, and instrument buttons.
+For layout density, status strip, readout treatment, and controls: see sinewaves implementation and `mockups/RigidMotions.jsx` (mockup exemplar).
 
 **Panel screws:** Decorative corner screws were removed from `Layout.tsx` in commit `7257ce5`. The design direction omits them. Do not re-add.
 
 ---
 
 ## Outstanding work
+
+**Canonical list:** [AGENT.md § Outstanding Work](../../AGENT.md#outstanding-work). Summary below.
 
 ### Rigid Motions — not yet started ← **next priority**
 
@@ -107,7 +109,7 @@ The `Course` type has a `color` field; CS course has `color: '#a855f7'` (purple,
 
 ### Infrastructure — skeleton not consumed
 
-Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, etc.) implemented but not consumed. Rigid Motions is the intended first consumer.
+Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, etc.) implemented but not consumed. Rigid Motions is the intended first consumer. Implementation plan (spec): [archive/2026-01-27-module-skeleton-infrastructure.md](../archive/2026-01-27-module-skeleton-infrastructure.md).
 
 ### Performance — medium/low findings
 
@@ -134,7 +136,7 @@ The following items from earlier audits are now complete:
 | Vertical centering on CourseHub / Constellation | `397136e` |
 | Navigation.tsx cold palette | `907de66` |
 
-Full audit history: [HERO-TO-MODULE-JOURNEY-AUDIT.md](./HERO-TO-MODULE-JOURNEY-AUDIT.md). Implementation plans and earlier audits: [docs/archive/](../archive/).
+Full audit history: [HERO-TO-MODULE-JOURNEY-AUDIT.md](../archive/HERO-TO-MODULE-JOURNEY-AUDIT.md). Implementation plans and earlier audits: [docs/archive/](../archive/).
 
 ---
 
@@ -143,7 +145,6 @@ Full audit history: [HERO-TO-MODULE-JOURNEY-AUDIT.md](./HERO-TO-MODULE-JOURNEY-A
 | Document | Purpose | Status |
 |----------|---------|--------|
 | **README.md** (this file) | Current direction, status, and outstanding work | Active |
-| [HERO-TO-MODULE-JOURNEY-AUDIT.md](./HERO-TO-MODULE-JOURNEY-AUDIT.md) | Hero → module journey cohesion audit | Largely resolved — see Resolved table above |
 | [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md) | Instrument layout, guide states, responsive grid | Complete — reference |
 | [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md) | Resize distortion, match animation wiring, control spacing | Open (low priority) |
 | [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md) | React performance audit (localStorage versioning, etc.) | Open (low priority) |

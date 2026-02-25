@@ -26,11 +26,11 @@ These two documents define the **pedagogy** and **standards alignment** that eve
 New modules follow this design process:
 
 ```
-Design Spec → Static Mockups → Validation → Implementation → Architecture Doc
+Design Spec → Mockups → Validation → Implementation → Architecture Doc
 ```
 
 1. **Design Spec** — Standards-grounded design (pedagogy, ALD progression, interactions)
-2. **Static Mockups** — HTML/CSS prototypes validating visual design and layout
+2. **Mockups** — Single-file React/JSX prototypes (all states, all viewports); exemplar: `mockups/RigidMotions.jsx`
 3. **Validation** — Verify mockups satisfy spec requirements
 4. **Implementation** — Build components matching validated mockups
 5. **Architecture Doc** — Document as-built implementation for future reference
@@ -44,16 +44,16 @@ The `module-planning-pipeline` skill guides this process.
 | Path | Purpose |
 |------|---------|
 | [**design/**](./design/) | Design specs, audits, and current direction. Start with [design/README.md](./design/README.md) for Eurorack design system and module status. |
-| [**plans/**](./plans/) | Active design specs for modules in development (e.g., rigid motions). |
-| [**archive/**](./archive/) | Completed implementation plans and resolved audits. Historical reference only. |
+| [**plans/**](./plans/) | Active design specs for modules in development (e.g., rigid motions). Completed infrastructure plans (e.g. module skeleton) are in [archive/](./archive/). |
+| [**archive/**](./archive/) | Completed implementation plans and resolved audits. Historical reference only. Feb 2026 cleanup log: [DOCUMENTATION-CLEANUP-2026-02-20.md](./archive/DOCUMENTATION-CLEANUP-2026-02-20.md). |
 | [**professional/**](./professional/) | Resume and career materials. |
 
 ---
 
 ## Root-level references
 
-- [**PORTFOLIO_VISION.md**](../PORTFOLIO_VISION.md) — Career positioning, audience, guiding principles.
+- [**VISION.md**](../VISION.md) — Career positioning, audience, guiding principles.
 - [**AGENT.md**](../AGENT.md) — AI agent instructions: architecture, commands, design system.
 - [**Sinewaves ARCHITECTURE.md**](../src/components/modules/sinewaves/ARCHITECTURE.md) — Reference implementation for completed module.
 - [**Module skeleton**](../src/lib/skeleton/README.md) — Reusable hooks for future modules.
-- [**Mockups**](../mockups/) — Static HTML prototypes for design validation.
+- [**Mockups**](../mockups/) — React/JSX prototypes for design validation; see [mockups/README.md](../mockups/README.md) and exemplar `RigidMotions.jsx`.

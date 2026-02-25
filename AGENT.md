@@ -62,7 +62,7 @@ Back navigation and Escape Hatch from modules; Celebration modal on completion.
 ## Design System
 
 ### Aesthetic: Eurorack / Synth Module
-Warm matte faceplate, phosphor green accent, silk-screened labels, scored dividers, no glow, no border-radius on module UI. No decorative corner screws — omitted by design. Mockup reference: `mockups/eurorack-sinewaves.html`.
+Warm matte faceplate, phosphor green accent, silk-screened labels, scored dividers, no glow, no border-radius on module UI. No decorative corner screws — omitted by design. Module mockup exemplar: `mockups/RigidMotions.jsx`. See `mockups/README.md`.
 
 ### Colors (from `src/lib/colors.ts` → `src/index.css`)
 - **accent.primary**: `#7cc87c` (phosphor green) — Active elements — CSS: `--lab-accent`
@@ -144,7 +144,7 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 ### Next build: Rigid Motions & Congruence
 - **Standards:** 8.G.A.1, 8.G.A.2, 8.G.A.3 (Grade 8 Geometry)
 - **Design spec:** [`docs/plans/2026-02-19-rigid-motions-design-spec.md`](./docs/plans/2026-02-19-rigid-motions-design-spec.md) — implementation-ready
-- **Mockup:** `mockups/rigid-motions-all-states.html` — validated against spec
+- **Mockup:** `mockups/RigidMotions.jsx` — exemplar; validated against spec
 - **Roadmap:** First module in three-module Grade 8 Geometry progression: (1) Rigid Motions, (2) Dilations & Similarity, (3) Pythagorean Theorem
 
 ## Outstanding Work
@@ -171,7 +171,7 @@ See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRA
 - **Preserve pedagogy.** Don’t add quizzes, multiple choice, or "wrong answer" messaging. Keep discovery-first and earned reveals.
 - **Respect separation.** Don’t put HTML controls inside the Canvas or 3D inside control components.
 - **Follow the design system.** Use `@/lib/colors` and existing UI/shadcn components; avoid one-off palettes or layout patterns that clash.
-- **Check docs before big changes.** New modules or flow changes should align with [docs/philosophy.md](./docs/philosophy.md), [docs/product.md](./docs/product.md), and [PORTFOLIO_VISION.md](./PORTFOLIO_VISION.md). Use the `module-planning-pipeline` skill for new module planning.
+- **Check docs before big changes.** New modules or flow changes should align with [docs/philosophy.md](./docs/philosophy.md), [docs/product.md](./docs/product.md), and [VISION.md](./VISION.md). Use the `module-planning-pipeline` skill for new module planning.
 
 ## Related Documentation
 
@@ -179,9 +179,9 @@ See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRA
 |-------|----------|
 | **Pedagogy & LSSM alignment (foundational)** | [docs/philosophy.md](./docs/philosophy.md), [docs/product.md](./docs/product.md) |
 | Documentation index & module pipeline | [docs/README.md](./docs/README.md) |
-| Vision, audience, principles | [PORTFOLIO_VISION.md](./PORTFOLIO_VISION.md) |
+| Vision, audience, principles | [VISION.md](./VISION.md) |
 | Sinewaves architecture | [src/components/modules/sinewaves/ARCHITECTURE.md](./src/components/modules/sinewaves/ARCHITECTURE.md) |
 | Module skeleton infrastructure | [src/lib/skeleton/README.md](./src/lib/skeleton/README.md) |
 | Design critiques, HUD direction | `docs/design/` |
-| Implementation plans | `docs/plans/` |
+| Implementation plans | `docs/plans/` (active module specs); completed/infrastructure plans in `docs/archive/` (e.g. module skeleton) |
 | Adding a module | Register in `src/config/modules.ts`; lazy-load component; implement `ModuleProps` |

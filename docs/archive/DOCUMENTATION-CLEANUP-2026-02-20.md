@@ -72,7 +72,7 @@ Key changes:
 - Added concrete standard-to-interaction mapping tables
 - Included rigid motions ALD progression example (L3 → L4 → L5)
 - Added "Module Design Requirements" checklist
-- Removed "one teacher reaches 150 students" rhetoric (belongs in PORTFOLIO_VISION.md)
+- Removed "one teacher reaches 150 students" rhetoric (belongs in VISION.md)
 
 #### `docs/README.md`
 

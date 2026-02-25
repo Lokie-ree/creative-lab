@@ -7,7 +7,7 @@
 **Course:** Grade 8 Mathematics  
 **ALD Target:** Level 3 entry → Level 4 primary → Level 5 capstone  
 
-**Related documentation:** [philosophy.md](../philosophy.md) (discovery-first pedagogy) · [product.md](../product.md) (LSSM alignment) · [design/README.md](../design/README.md) (Eurorack system) · [mockups/rigid-motions-all-states.html](../../mockups/rigid-motions-all-states.html) (static prototype).
+**Related documentation:** [philosophy.md](../philosophy.md) (discovery-first pedagogy) · [product.md](../product.md) (LSSM alignment) · [design/README.md](../design/README.md) (Eurorack system) · [mockups/RigidMotions.jsx](../../mockups/RigidMotions.jsx) (module mockup exemplar).
 
 ---
 
@@ -911,7 +911,7 @@ function selectShapeForSequence(sequenceType: CapstoneSequenceType): Shape {
 
 ## Mockup Validation
 
-Static mockups in [mockups/rigid-motions-all-states.html](../../mockups/rigid-motions-all-states.html) demonstrate all six guide states. They were validated against this spec before implementation begins.
+The module mockup [mockups/RigidMotions.jsx](../../mockups/RigidMotions.jsx) demonstrates all guide states and viewports. It was validated against this spec before implementation begins. See [mockups/README.md](../../mockups/README.md) for the mockup format and structure.
 
 ### Validation Checklist
 

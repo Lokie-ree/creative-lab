@@ -3,7 +3,7 @@
 **Date:** February 20, 2026
 **Resolved:** February 23, 2026
 **Scope:** Course Hub, Constellation, and course/module nodes (Hero → Courses → Constellation → Module).
-**Reference:** Eurorack design system in [README.md](./README.md); "AI slop" patterns from [docs/archive/SINEWAVES-FRONTEND-DESIGN-AUDIT.md](../archive/SINEWAVES-FRONTEND-DESIGN-AUDIT.md).
+**Reference:** Eurorack design system in [design/README.md](../design/README.md); "AI slop" patterns from [SINEWAVES-FRONTEND-DESIGN-AUDIT.md](./SINEWAVES-FRONTEND-DESIGN-AUDIT.md).
 **Goal:** Identify why the journey feels sloppy and less scalable so it can be aligned with hero and sinewaves.
 
 ---
@@ -33,7 +33,7 @@ All P0 and P1 items, and all P2 items, have been resolved.
 - [x] One back control pattern and one connector style
 - [x] New module can be added by config only (no new one-off styles)
 
-**One remaining vestigial item:** `courses.ts` CS course has `color: '#a855f7'` — the field is not rendered (glow removed) but exists in the type. Track in [README.md outstanding work](./README.md#outstanding-work).
+**One remaining vestigial item:** `courses.ts` CS course has `color: '#a855f7'` — the field is not rendered (glow removed) but exists in the type. Track in [design/README.md#outstanding-work](../design/README.md#outstanding-work).
 
 ---
 
