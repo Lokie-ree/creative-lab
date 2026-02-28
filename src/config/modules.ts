@@ -28,6 +28,15 @@ export const MODULES: ModuleConfig[] = [
     component: () => import('@/components/modules/sinewaves/InstrumentModule'),
   },
   {
+    id: 'rigid-motions',
+    title: 'Rigid Motions',
+    domain: 'Geometry',
+    description: 'What stays the same when a shape moves?',
+    order: 2,
+    courseId: 'geometry',
+    component: () => import('@/components/modules/rigid-motions/InstrumentModule'),
+  },
+  {
     id: 'vector-transformations',
     title: 'Vector Transformations',
     domain: 'Linear Algebra',
