@@ -2,43 +2,32 @@
 /**
  * Rigid Motions — Phase 1
  *
- * Infrastructure only: coordinate grid, fixed pre-image triangle,
- * draggable ghost triangle that snaps to grid intersections.
- * No transformation logic, no scoring. Phase 2 adds those.
+ * Navigation handled by the app shell EscapeHatch (LAB dropdown).
+ * No back button or ESC in the status strip — that would duplicate it.
  */
-import { ChevronLeft } from 'lucide-react'
 import type { ModuleProps } from '@/config/modules'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
 import { RigidMotionsScene } from './scene/RigidMotionsScene'
 import { ControlStrip } from './controls/ControlStrip'
 
-// onComplete accepted per ModuleProps contract — wired in Phase 2
-export function InstrumentModule({ onBack }: ModuleProps) {
+// Props accepted per ModuleProps contract; onComplete and onBack wired in Phase 2.
+// Navigation is handled by the app shell EscapeHatch (LAB dropdown).
+export function InstrumentModule(_: ModuleProps) {
   const { ghostOffset, handleGhostMove } = useRigidMotionsState()
 
   return (
     <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[3rem_auto_1fr_auto]">
 
       {/* ── ROW 1: STATUS STRIP ─────────────────────────────── */}
-      <header className="flex items-center gap-2 border-b border-(--lab-border) px-5 md:gap-4 md:px-6">
-        {/* Back chevron */}
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex shrink-0 min-h-[44px] min-w-[44px] items-center justify-center transition-colors duration-150 hover:bg-(--lab-surface) focus:outline-none focus:ring-2 focus:ring-(--lab-accent)"
-            aria-label="Back to course"
-          >
-            <ChevronLeft className="h-5 w-5 text-(--lab-text-muted) md:h-6 md:w-6" />
-          </button>
-        )}
+      {/* Left pad clears the floating EscapeHatch LAB button (~72px wide at left-4) */}
+      <header className="flex items-center gap-4 border-b border-(--lab-border) pl-24 pr-5 md:pr-6">
 
-        {/* Module title — desktop only */}
-        <span className="hidden shrink-0 lab-silk lab-display-font font-bold text-(--lab-text) md:block">
+        {/* Module title */}
+        <span className="shrink-0 lab-silk lab-display-font font-bold text-(--lab-text)">
           Rigid Motions
         </span>
 
-        {/* Progress dots — one dot, active */}
+        {/* Progress dot — one stage, active */}
         <nav
           className="flex flex-1 items-center justify-center"
           aria-label="Module progress: stage 1 of 1"
@@ -58,18 +47,6 @@ export function InstrumentModule({ onBack }: ModuleProps) {
         <span className="shrink-0 lab-silk text-(--lab-success) lab-data-font">
           SYS:NOM
         </span>
-
-        {/* ESC — desktop only */}
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="hidden shrink-0 min-h-[44px] border border-(--lab-border) px-3 lab-silk lab-display-font tracking-[0.1em] text-(--lab-text-muted) transition-colors duration-150 hover:border-(--lab-accent) hover:text-(--lab-accent) focus:outline-none focus:ring-2 focus:ring-(--lab-accent) md:flex md:items-center"
-            aria-label="Exit module"
-          >
-            ESC
-          </button>
-        )}
       </header>
 
       {/* ── ROW 2: PROMPT ───────────────────────────────────── */}
