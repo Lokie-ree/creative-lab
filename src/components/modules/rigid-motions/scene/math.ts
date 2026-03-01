@@ -1,5 +1,4 @@
 // src/components/modules/rigid-motions/scene/math.ts
-import { CANVAS_SIZE, GRID_RANGE, SCALE, CENTER } from '../constants'
 
 /**
  * Convert math coordinates to SVG pixel coordinates.
@@ -77,5 +76,3 @@ export function vertexLabelPos(
   return { x: svgVx + nx * offset, y: svgVy + ny * offset, textAnchor: anchor }
 }
 
-// Re-export for convenience
-export { CANVAS_SIZE, GRID_RANGE, SCALE, CENTER }
