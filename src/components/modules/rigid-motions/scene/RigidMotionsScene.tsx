@@ -1,7 +1,7 @@
 // src/components/modules/rigid-motions/scene/RigidMotionsScene.tsx
-import { useMemo, useEffect, useRef, useState } from 'react'
-import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber'
-import { Text, Line } from '@react-three/drei'
+import { useMemo, useRef, useState } from 'react'
+import { Canvas, useThree, useFrame, type ThreeEvent } from '@react-three/fiber'
+import { Text } from '@react-three/drei'
 import * as THREE from 'three'
 import {
   PRE_IMAGE_VERTICES,
@@ -22,12 +22,15 @@ interface RigidMotionsSceneProps {
 
 function CameraSetup() {
   const { camera, size } = useThree()
-  useEffect(() => {
-    if (camera instanceof THREE.OrthographicCamera) {
-      camera.zoom = (size.width / (GRID_RANGE * 2)) * WORLD_SCALE
+  useFrame(() => {
+    if (!(camera instanceof THREE.OrthographicCamera)) return
+    if (size.width === 0) return
+    const zoom = (size.width / (GRID_RANGE * 2)) * WORLD_SCALE
+    if (Math.abs(camera.zoom - zoom) > 0.001) {
+      camera.zoom = zoom
       camera.updateProjectionMatrix()
     }
-  }, [camera, size.width])
+  })
   return null
 }
 
@@ -133,8 +136,13 @@ function centroidOf(verts: readonly [number, number][]): [number, number] {
 function PreImageTriangle() {
   const verts = PRE_IMAGE_VERTICES
   const centroid = centroidOf(verts)
-  const linePoints = verts.map(([x, y]) => new THREE.Vector3(x, y, 0.02))
-  const shape = useMemo(() => makeTriangleShape(verts), [])
+  const { outlineGeometry, shape } = useMemo(() => {
+    const pts = [...verts, verts[0]].map(([x, y]) => new THREE.Vector3(x, y, 0.02))
+    return {
+      outlineGeometry: new THREE.BufferGeometry().setFromPoints(pts),
+      shape: makeTriangleShape(verts),
+    }
+  }, [])
 
   return (
     <group>
@@ -144,13 +152,10 @@ function PreImageTriangle() {
         <meshBasicMaterial color="#b8b0a4" transparent opacity={0.07} />
       </mesh>
 
-      {/* Outline */}
-      <Line
-        points={linePoints}
-        closed
-        color="#b8b0a4"
-        lineWidth={1.5}
-      />
+      {/* Outline — lineLoop closes back to first point */}
+      <lineLoop geometry={outlineGeometry}>
+        <lineBasicMaterial color="#b8b0a4" />
+      </lineLoop>
 
       {/* Vertex labels */}
       {verts.map((v, idx) => {
@@ -184,8 +189,18 @@ function GhostTriangle({ ghostOffset }: GhostTriangleProps) {
     [ghostOffset]
   )
   const centroid = centroidOf(verts)
-  const linePoints = verts.map(([x, y]) => new THREE.Vector3(x, y, 0.02))
-  const shape = useMemo(() => makeTriangleShape(verts), [verts])
+  const lineLoopRef = useRef<THREE.LineLoop>(null)
+
+  const { outlineGeometry, shape } = useMemo(() => {
+    const pts = [...verts, verts[0]].map(([x, y]) => new THREE.Vector3(x, y, 0.02))
+    const geo = new THREE.BufferGeometry().setFromPoints(pts)
+    return { outlineGeometry: geo, shape: makeTriangleShape(verts) }
+  }, [verts])
+
+  // LineDashedMaterial requires line distances to be computed on the object
+  useFrame(() => {
+    if (lineLoopRef.current) lineLoopRef.current.computeLineDistances()
+  })
 
   return (
     <group>
@@ -196,15 +211,9 @@ function GhostTriangle({ ghostOffset }: GhostTriangleProps) {
       </mesh>
 
       {/* Dashed outline */}
-      <Line
-        points={linePoints}
-        closed
-        color="#7cc87c"
-        lineWidth={1.5}
-        dashed
-        dashSize={0.3}
-        gapSize={0.18}
-      />
+      <lineLoop ref={lineLoopRef} geometry={outlineGeometry}>
+        <lineDashedMaterial color="#7cc87c" dashSize={0.3} gapSize={0.18} />
+      </lineLoop>
 
       {/* Vertex labels */}
       {verts.map((v, idx) => {
