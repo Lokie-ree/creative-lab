@@ -9,6 +9,7 @@ import {
   GHOST_VERTEX_LABELS,
   GRID_RANGE,
   CONTENT_RANGE,
+  WORLD_SCALE,
 } from '../constants'
 import { vertexLabelOffset, clampOffset } from './scene-math'
 
@@ -23,7 +24,7 @@ function CameraSetup() {
   const { camera, size } = useThree()
   useEffect(() => {
     if (camera instanceof THREE.OrthographicCamera) {
-      camera.zoom = size.width / (GRID_RANGE * 2)
+      camera.zoom = (size.width / (GRID_RANGE * 2)) * WORLD_SCALE
       camera.updateProjectionMatrix()
     }
   }, [camera, size.width])
