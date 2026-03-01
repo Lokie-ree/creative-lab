@@ -171,6 +171,60 @@ function PreImageTriangle() {
   )
 }
 
+// ─── Ghost triangle ───────────────────────────────────────────────────────────
+
+interface GhostTriangleProps {
+  ghostOffset: [number, number]
+}
+
+function GhostTriangle({ ghostOffset }: GhostTriangleProps) {
+  const verts = useMemo<[number, number][]>(
+    () => PRE_IMAGE_VERTICES.map(([x, y]) => [x + ghostOffset[0], y + ghostOffset[1]]),
+    [ghostOffset]
+  )
+  const centroid = centroidOf(verts)
+  const linePoints = verts.map(([x, y]) => new THREE.Vector3(x, y, 0.02))
+  const shape = useMemo(() => makeTriangleShape(verts), [verts])
+
+  return (
+    <group>
+      {/* Fill */}
+      <mesh position={[0, 0, 0.01]}>
+        <shapeGeometry args={[shape]} />
+        <meshBasicMaterial color="#7cc87c" transparent opacity={0.12} />
+      </mesh>
+
+      {/* Dashed outline */}
+      <Line
+        points={linePoints}
+        closed
+        color="#7cc87c"
+        lineWidth={1.5}
+        dashed
+        dashSize={0.3}
+        gapSize={0.18}
+      />
+
+      {/* Vertex labels */}
+      {verts.map((v, idx) => {
+        const [lx, ly] = vertexLabelOffset(v, centroid, 0.5)
+        return (
+          <Text
+            key={GHOST_VERTEX_LABELS[idx]}
+            position={[lx, ly, 0.03]}
+            fontSize={0.55}
+            color="#7cc87c"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {GHOST_VERTEX_LABELS[idx]}
+          </Text>
+        )
+      })}
+    </group>
+  )
+}
+
 // ─── Visualization (inner component, runs inside Canvas) ──────────────────────
 
 function Visualization({ ghostOffset, onGhostMove }: RigidMotionsSceneProps) {
@@ -179,6 +233,7 @@ function Visualization({ ghostOffset, onGhostMove }: RigidMotionsSceneProps) {
       <CameraSetup />
       <CoordinateGrid />
       <PreImageTriangle />
+      <GhostTriangle ghostOffset={ghostOffset} />
     </>
   )
 }
