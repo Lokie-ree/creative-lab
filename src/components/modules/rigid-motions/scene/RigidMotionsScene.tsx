@@ -1,7 +1,7 @@
 // src/components/modules/rigid-motions/scene/RigidMotionsScene.tsx
 import { useMemo, useEffect } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
-import { Text } from '@react-three/drei'
+import { Text, Line } from '@react-three/drei'
 import * as THREE from 'three'
 import {
   PRE_IMAGE_VERTICES,
@@ -10,6 +10,7 @@ import {
   GRID_RANGE,
   CONTENT_RANGE,
 } from '../constants'
+import { vertexLabelOffset } from './scene-math'
 
 interface RigidMotionsSceneProps {
   ghostOffset: [number, number]
@@ -108,6 +109,68 @@ function CoordinateGrid() {
   )
 }
 
+// ─── PreImageTriangle helpers ─────────────────────────────────────────────────
+
+/** Build a THREE.Shape from an array of [x, y] vertices */
+function makeTriangleShape(verts: readonly [number, number][]): THREE.Shape {
+  const shape = new THREE.Shape()
+  shape.moveTo(verts[0][0], verts[0][1])
+  for (let i = 1; i < verts.length; i++) shape.lineTo(verts[i][0], verts[i][1])
+  shape.closePath()
+  return shape
+}
+
+/** Math centroid of an array of [x, y] vertices */
+function centroidOf(verts: readonly [number, number][]): [number, number] {
+  const cx = verts.reduce((s, [x]) => s + x, 0) / verts.length
+  const cy = verts.reduce((s, [, y]) => s + y, 0) / verts.length
+  return [cx, cy]
+}
+
+// ─── Pre-image triangle ───────────────────────────────────────────────────────
+
+function PreImageTriangle() {
+  const verts = PRE_IMAGE_VERTICES
+  const centroid = centroidOf(verts)
+  const linePoints = verts.map(([x, y]) => new THREE.Vector3(x, y, 0.02))
+  const shape = useMemo(() => makeTriangleShape(verts), [])
+
+  return (
+    <group>
+      {/* Fill */}
+      <mesh position={[0, 0, 0.01]}>
+        <shapeGeometry args={[shape]} />
+        <meshBasicMaterial color="#b8b0a4" transparent opacity={0.07} />
+      </mesh>
+
+      {/* Outline */}
+      <Line
+        points={linePoints}
+        closed
+        color="#b8b0a4"
+        lineWidth={1.5}
+      />
+
+      {/* Vertex labels */}
+      {verts.map((v, idx) => {
+        const [lx, ly] = vertexLabelOffset(v, centroid, 0.5)
+        return (
+          <Text
+            key={VERTEX_LABELS[idx]}
+            position={[lx, ly, 0.03]}
+            fontSize={0.55}
+            color="#b8b0a4"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {VERTEX_LABELS[idx]}
+          </Text>
+        )
+      })}
+    </group>
+  )
+}
+
 // ─── Visualization (inner component, runs inside Canvas) ──────────────────────
 
 function Visualization({ ghostOffset, onGhostMove }: RigidMotionsSceneProps) {
@@ -115,6 +178,7 @@ function Visualization({ ghostOffset, onGhostMove }: RigidMotionsSceneProps) {
     <>
       <CameraSetup />
       <CoordinateGrid />
+      <PreImageTriangle />
     </>
   )
 }
