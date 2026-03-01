@@ -1,6 +1,6 @@
 // src/components/modules/rigid-motions/scene/RigidMotionsScene.tsx
-import { useMemo, useEffect } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { useMemo, useEffect, useRef, useState } from 'react'
+import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Text, Line } from '@react-three/drei'
 import * as THREE from 'three'
 import {
@@ -10,7 +10,7 @@ import {
   GRID_RANGE,
   CONTENT_RANGE,
 } from '../constants'
-import { vertexLabelOffset } from './scene-math'
+import { vertexLabelOffset, clampOffset } from './scene-math'
 
 interface RigidMotionsSceneProps {
   ghostOffset: [number, number]
@@ -225,15 +225,71 @@ function GhostTriangle({ ghostOffset }: GhostTriangleProps) {
   )
 }
 
+// ─── Drag plane ───────────────────────────────────────────────────────────────
+
+interface DragPlaneProps {
+  ghostOffset: [number, number]
+  onGhostMove: (rawOffset: [number, number]) => void
+  onDragChange: (dragging: boolean) => void
+}
+
+function DragPlane({ ghostOffset, onGhostMove, onDragChange }: DragPlaneProps) {
+  const dragging = useRef(false)
+  const dragStartWorld = useRef<[number, number]>([0, 0])
+  const offsetAtDragStart = useRef<[number, number]>([0, 0])
+
+  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation()
+    dragging.current = true
+    dragStartWorld.current = [e.point.x, e.point.y]
+    offsetAtDragStart.current = ghostOffset
+    onDragChange(true)
+  }
+
+  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
+    if (!dragging.current) return
+    const dx = e.point.x - dragStartWorld.current[0]
+    const dy = e.point.y - dragStartWorld.current[1]
+    const rawOffset: [number, number] = [
+      offsetAtDragStart.current[0] + dx,
+      offsetAtDragStart.current[1] + dy,
+    ]
+    onGhostMove(clampOffset(rawOffset))
+  }
+
+  const handlePointerUp = () => {
+    dragging.current = false
+    onDragChange(false)
+  }
+
+  return (
+    <mesh
+      position={[0, 0, -0.5]}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+    >
+      <planeGeometry args={[GRID_RANGE * 2, GRID_RANGE * 2]} />
+      <meshBasicMaterial transparent opacity={0} />
+    </mesh>
+  )
+}
+
 // ─── Visualization (inner component, runs inside Canvas) ──────────────────────
 
-function Visualization({ ghostOffset, onGhostMove }: RigidMotionsSceneProps) {
+interface VisualizationProps extends RigidMotionsSceneProps {
+  onDragChange: (dragging: boolean) => void
+}
+
+function Visualization({ ghostOffset, onGhostMove, onDragChange }: VisualizationProps) {
   return (
     <>
       <CameraSetup />
       <CoordinateGrid />
       <PreImageTriangle />
       <GhostTriangle ghostOffset={ghostOffset} />
+      <DragPlane ghostOffset={ghostOffset} onGhostMove={onGhostMove} onDragChange={onDragChange} />
     </>
   )
 }
@@ -241,15 +297,24 @@ function Visualization({ ghostOffset, onGhostMove }: RigidMotionsSceneProps) {
 // ─── Scene shell ─────────────────────────────────────────────────────────────
 
 export function RigidMotionsScene({ ghostOffset, onGhostMove }: RigidMotionsSceneProps) {
+  const [isDragging, setIsDragging] = useState(false)
+
   return (
-    <div className="flex h-full w-full items-center justify-center" style={{ touchAction: 'none' }}>
+    <div
+      className="flex h-full w-full items-center justify-center"
+      style={{ touchAction: 'none', cursor: isDragging ? 'grabbing' : 'grab' }}
+    >
       <Canvas
         orthographic
         camera={{ position: [0, 0, 10] }}
         dpr={[1, 1.5]}
         style={{ width: '100%', height: '100%', background: '#1e1d1c' }}
       >
-        <Visualization ghostOffset={ghostOffset} onGhostMove={onGhostMove} />
+        <Visualization
+          ghostOffset={ghostOffset}
+          onGhostMove={onGhostMove}
+          onDragChange={setIsDragging}
+        />
       </Canvas>
     </div>
   )
