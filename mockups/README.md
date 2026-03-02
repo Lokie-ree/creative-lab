@@ -22,36 +22,68 @@ Interactive React/JSX prototypes for design validation before implementation. Mo
 Single-file React mockup. Contains:
 
 - **Design tokens** → `:root` CSS variables (Eurorack palette)
-- **All guide states** → Data-driven; one config object per state (prompt, canvas, controls, formula, feedback, ALD)
-- **Viewport switcher** → Mobile, tablet, desktop (with device chrome for mobile)
-- **State nav** → Jump to any state; journey overview cards for flow
-- **Annotation** → Designer-facing note describing the current state
+- **Guide state index map** → `GUIDE_STATE_MAP` mapping every display state ID (including feedback substates) to its guide state index; drives progress dots and desktop panel
+- **All display states** → Data-driven; one config object per display state (prompt, canvas, controls, formula, feedback, ALD)
+- **Viewport switcher** → Mobile (with device chrome), tablet, desktop
+- **State nav** → Jump to any display state; journey overview cards for high-level flow
+- **Annotation** → Designer-facing note describing the current state — what's on canvas, what controls are active, what the student is doing
 
-**How to view:** Mount the default export in a route (e.g. `/mockups/rigid-motions`) or open the file as the reference. The mockup is self-contained (tokens + CSS in file; no app theme required).
+**How to view:** Mount the default export in a route (e.g. `/mockups/rigid-motions`) or open the file as a reference. The mockup is self-contained (tokens + CSS inline; no app theme required).
 
-**States covered:** Predict (translate, reflect, rotate), feedback (match/miss), coordinate reveal, predict-with-coordinates, capstone. Matches the six-stage journey in the design spec.
+**Display states covered:**
+
+| Display state | Guide state | Notes |
+|---|---|---|
+| `predict` | predict-translate | Ghost visible; translation vector live |
+| `feedback-match` | predict-translate | Image settles on ghost; earned insight fires |
+| `feedback-miss` | predict-translate | Gap lines from ghost to correct position |
+| `feedback-close` | predict-translate | Specific hint (orientation or position) |
+| `reflect` | predict-reflect | FLIP toggle; axis ticks |
+| `rotate` | predict-rotate | Degree + CW/CCW toggles; rotation arcs |
+| `coord-reveal` | coordinate-reveal | FormulaReadout; coordinates activate on both shapes |
+| `predict-coords` | predict-with-coordinates | Coordinates live; composed sequences |
+| `capstone` | capstone | Sequence builder; live preview ghost |
 
 ---
 
 ## Mockup format and structure
 
-New module mockups should follow the same structure as `RigidMotions.jsx`. See [MOCKUP-STRUCTURE.md](./MOCKUP-STRUCTURE.md) for the required sections and order. In short:
+New module mockups must follow the same structure as `RigidMotions.jsx`. See [MOCKUP-STRUCTURE.md](./MOCKUP-STRUCTURE.md) for required sections, order, and implementation notes. In short:
 
 | Section | Purpose |
 |--------|---------|
 | Design tokens `T` | Single source for colors; inject into `:root` |
-| Global `css` | Fonts, scrollbar, section labels, viewport tabs, state nav, module frame, status strip, prompt, canvas, controls, formula, overlays, desktop panel, journey cards, annotations |
-| Canvas/visual component | SVG or placeholder that renders by state (e.g. `CoordGrid`) |
-| `STATES` | Array of state configs driving prompt, canvas, formula, controls, feedback, ALD |
-| `ModuleMobile` / `ModuleDesktop` | Layouts that take current state `cfg` and render strip, prompt, canvas, controls, formula (desktop + side panel) |
-| `JOURNEY_CARDS` | High-level journey for overview; maps to state indices |
-| Root `App` | Top bar, journey overview, viewport tabs, state nav, device chrome, module, annotation |
+| Global `css` | Fonts, layout, all component classes |
+| `GUIDE_STATE_MAP` | Maps display state IDs → guide state index; drives progress dots and desktop panel |
+| `STATES` | Array of display state configs; drives prompt, canvas, formula, controls, feedback, ALD |
+| Canvas component | SVG that renders by `canvasState` (pre-image, ghost, image, constraint elements) |
+| `ModuleMobile` / `ModuleDesktop` | Layouts that take `cfg` and render the full instrument; architecturally distinct (not just scaled) |
+| `JOURNEY_CARDS` | One card per guide state; maps to display state index on click |
+| Root `App` | Top bar, journey overview, viewport tabs, state nav, device chrome, module render, annotation |
 
 ---
 
 ## Design system alignment
 
-Mockups use the same Eurorack tokens as production. In `RigidMotions.jsx`: `--lab-bg`, `--lab-surface`, `--lab-surface-hi`, `--lab-border`, `--lab-text`, `--lab-text-dim`, `--lab-accent`, `--lab-ghost`, `--lab-danger`, `--lab-info`, `--lab-white`. **Fonts:** Production uses **Inter Tight** (display/body) and **JetBrains Mono** (data); mockups may use different typefaces for speed—align with `src/index.css` when implementing.
+Mockups use the same Eurorack tokens as production:
+
+| Token | Value | Role |
+|---|---|---|
+| `--lab-bg` | `#0f0e0d` | Canvas and app background |
+| `--lab-surface` | `#1a1917` | Module panel, control strip |
+| `--lab-surface-hi` | `#232220` | Prompt readout, elevated surfaces |
+| `--lab-border` | `#2e2c29` | All dividers and borders |
+| `--lab-text` | `#b8b0a4` | Pre-image shape, primary text |
+| `--lab-text-dim` | `#6b6460` | Labels, secondary text |
+| `--lab-accent` | `#7cc87c` | Ghost, confirmed image, active states |
+| `--lab-ghost` | `#7a746a` | Constraint elements, muted overlays |
+| `--lab-danger` | `#c87c7c` | RESET button, miss feedback |
+| `--lab-info` | `#7caac8` | Close feedback, reflect badge |
+| `--lab-white` | `#e8e2da` | Prompt text (highest contrast) |
+
+**Fonts:** Production uses **Inter Tight** (display/body) and **JetBrains Mono** (data/readouts). Mockups use the same fonts; import from Google Fonts in the CSS block.
+
+**Coordinate system:** Scale factor is `canvasSize / 18`, mapping ±9 math units to the canvas dimension. Content is constrained to ±6 units. This is the authoritative value — do not use `/ 14`.
 
 ---
 
@@ -60,15 +92,15 @@ Mockups use the same Eurorack tokens as production. In `RigidMotions.jsx`: `--la
 When designing a new module:
 
 1. **Create design spec** — Pedagogy, ALD progression, interactions (per module-planning-pipeline).
-2. **Build mockup** — Copy [MOCKUP-STRUCTURE.md](./MOCKUP-STRUCTURE.md), then implement a single JSX file following `RigidMotions.jsx` (tokens, states, viewports, journey, annotation).
-3. **Validate against spec** — Confirm every required state and viewport is represented and matches the spec.
+2. **Build mockup** — Copy [MOCKUP-STRUCTURE.md](./MOCKUP-STRUCTURE.md), implement a single JSX file following `RigidMotions.jsx`.
+3. **Validate against spec** — Confirm every required guide state, viewport, and constraint element is represented and matches the spec. Update both the mockup and spec if discrepancies are found.
 4. **Implement** — Build React components to match the validated mockup.
 5. **Document as-built** — Add `ARCHITECTURE.md` in the module folder after implementation.
 
-Mockups are design-validation artifacts. They are not maintained as living docs after implementation; the codebase and ARCHITECTURE.md are.
+Mockups are design-validation artifacts. They are not maintained as living docs after implementation; the codebase and `ARCHITECTURE.md` are.
 
 ---
 
 ## Other references
 
-- **Sinewaves:** Module complete; see `src/components/modules/sinewaves/ARCHITECTURE.md` for as-built. Historical Eurorack layout reference only if needed; **RigidMotions.jsx is the current exemplar.**
+- **Sinewaves:** Module complete; see `src/components/modules/sinewaves/ARCHITECTURE.md` for as-built. Historical Eurorack layout reference only — **RigidMotions.jsx is the current exemplar.**
