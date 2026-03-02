@@ -471,12 +471,37 @@ Guide state index 1–5; TOTAL_GUIDE_STATES = 5. See guide-state.ts GUIDE_STATE_
 4. **Progressive Disclosure**: One concept at a time reduces cognitive load
 5. **Animation Coordination**: Promise-based transitions prevent glitches
 6. **Responsive Layout**: Viewport detection for mobile optimization
+7. **No `Text` from drei**: Sinewaves uses `Line` from drei and custom geometry — never `Text`. This is intentional. See "Do not use `@react-three/drei` `Text`" below.
 
 ### 🔄 Patterns to Refine for Future Modules
 
 1. **Match detection**: Centralized in sinewaves-constants.ts; snap-to-target on match (see SINEWAVES-MATCH-PROXIMITY-AUDIT) for ghost/user sync
 2. **Celebration**: matchSuccessSequence in animations.ts not wired; overlay is static (see SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT)
 3. **Copy**: Guide prompts in guide-state.ts; sinewaves-copy.ts for celebrations and behindThis
+
+### ⚠️ Do not use `@react-three/drei` `Text`
+
+**Never use `<Text>` from `@react-three/drei` in any R3F scene in this project.**
+
+`Text` uses `troika-three-text` under the hood, which creates its own offscreen WebGL context for SDF font rendering. In development, React StrictMode double-mounts every component. The combination of:
+- R3F `Canvas` creating a `WebGLRenderer` (1 WebGL context per mount)
+- troika creating its font renderer (1 WebGL context per mount)
+- StrictMode triggering mount → unmount → remount
+
+...exhausts the browser's WebGL context limit (~8 in Chromium). When the limit is hit, the browser forcibly kills the oldest context — which is the main scene's context — causing an immediate blank/white canvas on load.
+
+**Verified by Playwright**: `THREE.WebGLRenderer: Context Lost` fires immediately on module mount when `Text` is present; removing it eliminates the error entirely.
+
+**The fix**: Render text as a `CanvasTexture` on a `PlaneGeometry` mesh. Use a `2d` canvas context to draw text, upload it as a `THREE.CanvasTexture`, and display it on a plane. This uses zero extra WebGL contexts. See `SpriteLabel` in `src/components/modules/rigid-motions/scene/RigidMotionsScene.tsx` for the reference implementation.
+
+```tsx
+// ❌ Never do this in R3F scenes
+import { Text } from '@react-three/drei'
+<Text position={[x, y, z]} fontSize={0.5} color="#fff">label</Text>
+
+// ✅ Use SpriteLabel (CanvasTexture on PlaneGeometry) instead
+<SpriteLabel text="label" position={[x, y, z]} color="#fff" planeWidth={0.6} />
+```
 
 ### 📋 Checklist for New Modules
 
@@ -489,7 +514,7 @@ Guide state index 1–5; TOTAL_GUIDE_STATES = 5. See guide-state.ts GUIDE_STATE_
 - [ ] Implement progress tracking
 - [ ] Add responsive layout support
 - [ ] Test animation coordination
-- [ ] Verify WebGL context handling (if using 3D)
+- [ ] Verify WebGL context handling — **do not use `Text` from drei** (see warning above)
 
 ---
 

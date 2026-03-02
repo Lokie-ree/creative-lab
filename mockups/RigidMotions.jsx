@@ -17,7 +17,7 @@ const T = {
 };
 
 const css = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -34,8 +34,8 @@ const css = `
     --lab-danger: ${T.danger};
     --lab-info: ${T.info};
     --lab-white: ${T.white};
-    --mono: 'Space Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter Tight', sans-serif;
   }
 
   body {
@@ -499,65 +499,6 @@ const css = `
     font-size: 8px;
   }
 
-  /* ── Coordinate reveal overlay ─────────────── */
-  .coord-reveal-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(15,14,13,0.88);
-    z-index: 10;
-    animation: overlayIn 0.3s ease;
-  }
-  @keyframes overlayIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  .coord-reveal-card {
-    background: var(--lab-surface);
-    border: 1px solid var(--lab-accent);
-    border-radius: 6px;
-    padding: 20px 24px;
-    max-width: 320px;
-    text-align: center;
-  }
-  .coord-reveal-title {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--lab-accent);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .coord-reveal-formula {
-    font-family: var(--mono);
-    font-size: 18px;
-    color: var(--lab-white);
-    margin-bottom: 10px;
-    letter-spacing: 0.06em;
-  }
-  .coord-reveal-sub {
-    font-family: var(--sans);
-    font-size: 12px;
-    color: var(--lab-text);
-    line-height: 1.5;
-    font-weight: 300;
-  }
-  .coord-reveal-continue {
-    margin-top: 14px;
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    background: var(--lab-accent);
-    color: var(--lab-bg);
-    border: none;
-    padding: 7px 20px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: 700;
-  }
 
   /* ── Side-by-side layout for desktop ──────── */
   .desktop-layout {
@@ -808,11 +749,13 @@ function CoordGrid({ width, height, state, showCoords }) {
   // Transformed vertices by state
   const getImage = () => {
     if (state === 'translate')      return [{ x: 5, y: 3 }, { x: 8, y: 4 }, { x: 6, y: 6 }];
+    if (state === 'feedback-match') return [{ x: 5, y: 3 }, { x: 8, y: 4 }, { x: 6, y: 6 }];
+    if (state === 'feedback-miss')  return [{ x: 5, y: 3 }, { x: 8, y: 4 }, { x: 6, y: 6 }];
     if (state === 'reflect-x')      return [{ x: 1, y: -1 }, { x: 4, y: -2 }, { x: 2, y: -4 }];
     if (state === 'reflect-y')      return [{ x: -1, y: 1 }, { x: -4, y: 2 }, { x: -2, y: 4 }];
-    if (state === 'rotate')         return [{ x: -1, y: 1 }, { x: -2, y: 4 }, { x: -4, y: 2 }];
+    if (state === 'rotate')         return [{ x: 1, y: -1 }, { x: 2, y: -4 }, { x: 4, y: -2 }];
     if (state === 'coords')         return [{ x: 5, y: 3 }, { x: 8, y: 4 }, { x: 6, y: 6 }];
-    if (state === 'capstone')       return [{ x: -1, y: 1 }, { x: -2, y: 4 }, { x: -4, y: 2 }];
+    if (state === 'capstone')       return [{ x: 1, y: -1 }, { x: 2, y: -4 }, { x: 4, y: -2 }];
     if (state === 'predict')        return null; // ghost only
     return null;
   };
@@ -847,9 +790,9 @@ function CoordGrid({ width, height, state, showCoords }) {
   const axisNums = [-6, -4, -2, 2, 4, 6];
   const axisLabels = axisNums.map(n => [
     <text key={`xl${n}`} x={ox + n * scale} y={oy + 12} textAnchor="middle"
-      fill={T.textDim} fontSize={8} fontFamily="'Space Mono'" opacity={0.7}>{n}</text>,
+      fill={T.textDim} fontSize={8} fontFamily="'JetBrains Mono'" opacity={0.7}>{n}</text>,
     <text key={`yl${n}`} x={ox - 10} y={oy - n * scale + 3} textAnchor="end"
-      fill={T.textDim} fontSize={8} fontFamily="'Space Mono'" opacity={0.7}>{n}</text>
+      fill={T.textDim} fontSize={8} fontFamily="'JetBrains Mono'" opacity={0.7}>{n}</text>
   ]);
 
   // Translation vector (arrow)
@@ -864,13 +807,13 @@ function CoordGrid({ width, height, state, showCoords }) {
   const showAxisTicks = state === 'reflect-x' || state === 'reflect-y';
   const reflAxis = state === 'reflect-x' ? 'x' : 'y';
 
-  // Rotation arcs
+  // Rotation arcs — sweep CW (negative direction in math coords where y-up)
   const showArcs = state === 'rotate';
   const arcPts = pts.map(p => {
     const r = Math.sqrt(p.x * p.x + p.y * p.y);
     const startAngle = Math.atan2(p.y, p.x);
-    const endAngle = startAngle + Math.PI / 2;
-    const steps = 24;
+    const endAngle = startAngle - Math.PI / 2; // CW = subtract in math coords
+    const steps = 32;
     return Array.from({ length: steps + 1 }, (_, i) => {
       const a = startAngle + (endAngle - startAngle) * i / steps;
       return { x: r * Math.cos(a), y: r * Math.sin(a) };
@@ -937,7 +880,7 @@ function CoordGrid({ width, height, state, showCoords }) {
               <g key={`gv${i}`}>
                 <circle cx={s.x} cy={s.y} r={3} fill={T.accent} opacity={0.7} />
                 <text x={s.x + 6} y={s.y - 4} fill={T.accent} fontSize={9}
-                  fontFamily="'Space Mono'" opacity={0.8}>{labels[i]}′</text>
+                  fontFamily="'JetBrains Mono'" opacity={0.8}>{labels[i]}′</text>
               </g>
             );
           })}
@@ -954,10 +897,10 @@ function CoordGrid({ width, height, state, showCoords }) {
             <g key={`pv${i}`}>
               <circle cx={s.x} cy={s.y} r={3} fill={T.text} />
               <text x={s.x - 14} y={s.y - 4} fill={T.text} fontSize={9}
-                fontFamily="'Space Mono'">{labels[i]}</text>
+                fontFamily="'JetBrains Mono'">{labels[i]}</text>
               {showCoords && (
                 <text x={s.x - 14} y={s.y + 14} fill={T.textDim} fontSize={8}
-                  fontFamily="'Space Mono'">({p.x},{p.y})</text>
+                  fontFamily="'JetBrains Mono'">({p.x},{p.y})</text>
               )}
             </g>
           );
@@ -975,10 +918,10 @@ function CoordGrid({ width, height, state, showCoords }) {
               <g key={`iv${i}`}>
                 <circle cx={s.x} cy={s.y} r={3} fill={T.accent} />
                 <text x={s.x + 6} y={s.y - 4} fill={T.accent} fontSize={9}
-                  fontFamily="'Space Mono'">{labels[i]}′</text>
+                  fontFamily="'JetBrains Mono'">{labels[i]}′</text>
                 {showCoords && (
                   <text x={s.x + 6} y={s.y + 14} fill={T.accent} fontSize={8}
-                    fontFamily="'Space Mono'">({v.x},{v.y})</text>
+                    fontFamily="'JetBrains Mono'">({v.x},{v.y})</text>
                 )}
               </g>
             );
@@ -997,6 +940,20 @@ function CoordGrid({ width, height, state, showCoords }) {
     </svg>
   );
 }
+
+// ─── Guide state index map ────────────────────────────────────────────────────
+// Feedback substates belong to the same guide state as their parent predict state.
+const GUIDE_STATE_MAP = {
+  'predict':        0,
+  'feedback-match': 0,
+  'feedback-miss':  0,
+  'feedback-close': 0,
+  'reflect':        1,
+  'rotate':         2,
+  'coord-reveal':   3,
+  'predict-coords': 4,
+  'capstone':       5,
+};
 
 // ─── State config ─────────────────────────────────────────────────────────────
 const STATES = [
@@ -1046,6 +1003,22 @@ const STATES = [
     insight: null,
   },
   {
+    id: 'feedback-close',
+    label: 'Feedback · Close',
+    badge: 'translate',
+    badgeClass: '',
+    prompt: 'TRANSLATE · 4 RIGHT, 2 UP',
+    promptSub: 'Position is right — check the orientation.',
+    canvasState: 'predict',
+    formula: '─── FORMULA LOCKED ──────────────────',
+    controls: ['reset', 'speed', 'check'],
+    showCoords: false,
+    feedback: 'close',
+    closeHint: 'orientation',
+    ald: 'L3',
+    insight: null,
+  },
+  {
     id: 'reflect',
     label: 'Predict · Reflect',
     badge: 'reflect',
@@ -1065,8 +1038,8 @@ const STATES = [
     label: 'Predict · Rotate',
     badge: 'rotate',
     badgeClass: 'rotate',
-    prompt: 'ROTATE · 90° COUNTERCLOCKWISE · ABOUT ORIGIN',
-    promptSub: 'Set the rotation, then drag the triangle to your predicted position.',
+    prompt: 'ROTATE · 90° CLOCKWISE · ABOUT ORIGIN',
+    promptSub: 'Set the rotation and direction, then drag the triangle to your predicted position.',
     canvasState: 'rotate',
     formula: '─── FORMULA LOCKED ──────────────────',
     controls: ['rotation', 'reset', 'speed', 'check'],
@@ -1080,16 +1053,15 @@ const STATES = [
     label: 'Coordinate Reveal',
     badge: 'translate',
     badgeClass: '',
-    prompt: 'TRANSLATE · 4 RIGHT, 2 UP',
-    promptSub: 'You\'ve earned this. The rule behind what you already understand.',
+    prompt: 'WHAT YOU JUST DID — HERE\'S THE RULE',
+    promptSub: 'Every point moved by the same amount. Now see it in coordinates.',
     canvasState: 'coords',
     formula: '(x, y)  →  (x + 4, y + 2)',
-    controls: ['reset', 'speed', 'check'],
+    controls: ['continue'],
     showCoords: true,
     feedback: null,
     ald: 'L4',
     insight: null,
-    revealOverlay: true,
   },
   {
     id: 'predict-coords',
@@ -1123,10 +1095,26 @@ const STATES = [
   },
 ];
 
+// ─── Sequence label helper ────────────────────────────────────────────────────
+function sequenceLabel(step) {
+  if (!step?.type) return null;
+  if (step.type === 'TRANSLATE') {
+    const dx = step.params?.dx ?? 0;
+    const dy = step.params?.dy ?? 0;
+    const xPart = dx === 0 ? '' : dx > 0 ? `${dx} RIGHT` : `${Math.abs(dx)} LEFT`;
+    const yPart = dy === 0 ? '' : dy > 0 ? `${dy} UP` : `${Math.abs(dy)} DOWN`;
+    return `TRANSLATE · ${[xPart, yPart].filter(Boolean).join(', ') || '0'}`;
+  }
+  if (step.type === 'REFLECT') return `REFLECT · OVER ${step.params?.axis ?? 'X'}-AXIS`;
+  if (step.type === 'ROTATE') return `ROTATE · ${step.params?.deg ?? '90°'} ${step.params?.dir ?? 'CW'}`;
+  return null;
+}
+
 // ─── Module — Mobile Layout ───────────────────────────────────────────────────
 function ModuleMobile({ cfg }) {
   const dots = [0, 1, 2, 3, 4, 5];
-  const activeIdx = STATES.findIndex(s => s.id === cfg.id);
+  const activeIdx = GUIDE_STATE_MAP[cfg.id] ?? 0;
+  const [sequenceSteps, setSequenceSteps] = useState({ step1: null, step2: null });
 
   return (
     <div className="module-frame">
@@ -1159,24 +1147,33 @@ function ModuleMobile({ cfg }) {
       {/* Canvas */}
       <div className="canvas-area mobile" style={{ position: 'relative' }}>
         <CoordGridResponsive height={320} cfg={cfg} />
-        {cfg.revealOverlay && <CoordRevealOverlay formula={cfg.formula} />}
         {cfg.feedback && (
           <div className={`feedback-banner ${cfg.feedback}`}>
             {cfg.feedback === 'match' ? '✓ CORRECT PREDICTION' :
              cfg.feedback === 'miss'  ? '✗ OFF TARGET — SEE CORRECTION' :
-                                        '◈ CHECK ORIENTATION'}
+             cfg.closeHint === 'position' ? '◈ CHECK THE POSITION' :
+                                            '◈ CHECK THE ORIENTATION'}
           </div>
         )}
         {cfg.insight && <div className="earned-insight">"{cfg.insight}"</div>}
-        {!cfg.revealOverlay && <div className="canvas-hint">drag to predict</div>}
+        {!cfg.feedback && cfg.id !== 'capstone' && cfg.id !== 'coord-reveal' && (
+          <div className="canvas-hint">drag to predict</div>
+        )}
       </div>
 
       {/* Controls */}
-      <ControlStrip cfg={cfg} />
+      <ControlStrip cfg={cfg} onSequenceChange={setSequenceSteps} />
 
       {/* Formula */}
       <div className={`formula-readout ${cfg.showCoords ? 'active' : 'dim'}`}>
-        {cfg.formula}
+        {cfg.id === 'capstone'
+          ? (() => {
+              const s1 = sequenceLabel(sequenceSteps.step1);
+              const s2 = sequenceLabel(sequenceSteps.step2);
+              if (!s1) return '─── SEQUENCE PENDING ────────────────────';
+              return s2 ? `${s1}  ·  THEN  ·  ${s2}` : s1;
+            })()
+          : cfg.formula}
       </div>
     </div>
   );
@@ -1185,20 +1182,22 @@ function ModuleMobile({ cfg }) {
 // ─── Module — Desktop Layout ──────────────────────────────────────────────────
 function ModuleDesktop({ cfg }) {
   const dots = [0, 1, 2, 3, 4, 5];
-  const activeIdx = STATES.findIndex(s => s.id === cfg.id);
+  const activeIdx = GUIDE_STATE_MAP[cfg.id] ?? 0;
+  const [sequenceSteps, setSequenceSteps] = useState({ step1: null, step2: null });
 
   const allInsights = [
     'Every point moves the same direction and distance.',
     'Every point is equidistant from the axis as its image.',
     'Every point sweeps the same arc around the origin.',
   ];
-  const earnedCount = activeIdx >= 5 ? 3 : activeIdx >= 4 ? 2 : activeIdx >= 2 ? 1 : 0;
+  const earnedCount = activeIdx >= 3 ? 3 : activeIdx >= 2 ? 2 : activeIdx >= 1 ? 1 : 0;
 
+  // activeIdx is now a guide state index (0–5): translate=0, reflect=1, rotate=2, coord-reveal=3, predict-coords=4, capstone=5
   const progressStages = [
-    { label: 'TRANSLATE', pct: activeIdx >= 2 ? 100 : activeIdx >= 1 ? 60 : 0, state: activeIdx >= 2 ? 'done' : activeIdx >= 0 ? 'active' : 'locked' },
-    { label: 'REFLECT',   pct: activeIdx >= 5 ? 100 : activeIdx >= 4 ? 60 : 0, state: activeIdx >= 5 ? 'done' : activeIdx >= 3 ? 'active' : 'locked' },
-    { label: 'ROTATE',    pct: activeIdx >= 6 ? 100 : activeIdx >= 5 ? 60 : 0, state: activeIdx >= 6 ? 'done' : activeIdx >= 4 ? 'active' : 'locked' },
-    { label: 'CAPSTONE',  pct: activeIdx >= 8 ? 100 : 0, state: activeIdx >= 7 ? 'active' : 'locked' },
+    { label: 'TRANSLATE', pct: activeIdx >= 1 ? 100 : 60, state: activeIdx >= 1 ? 'done' : 'active' },
+    { label: 'REFLECT',   pct: activeIdx >= 2 ? 100 : activeIdx >= 1 ? 60 : 0, state: activeIdx >= 2 ? 'done' : activeIdx >= 1 ? 'active' : 'locked' },
+    { label: 'ROTATE',    pct: activeIdx >= 3 ? 100 : activeIdx >= 2 ? 60 : 0, state: activeIdx >= 3 ? 'done' : activeIdx >= 2 ? 'active' : 'locked' },
+    { label: 'CAPSTONE',  pct: activeIdx >= 5 ? 100 : 0, state: activeIdx >= 5 ? 'active' : 'locked' },
   ];
 
   return (
@@ -1234,20 +1233,31 @@ function ModuleDesktop({ cfg }) {
 
           <div className="canvas-area desktop" style={{ flex: 1, position: 'relative' }}>
             <CoordGridResponsive height={440} cfg={cfg} desktop />
-            {cfg.revealOverlay && <CoordRevealOverlay formula={cfg.formula} />}
             {cfg.feedback && (
               <div className={`feedback-banner ${cfg.feedback}`}>
                 {cfg.feedback === 'match' ? '✓ CORRECT PREDICTION' :
                  cfg.feedback === 'miss'  ? '✗ OFF TARGET — SEE CORRECTION' :
-                                            '◈ CHECK ORIENTATION'}
+                 cfg.closeHint === 'position' ? '◈ CHECK THE POSITION' :
+                                                '◈ CHECK THE ORIENTATION'}
               </div>
             )}
             {cfg.insight && <div className="earned-insight">"{cfg.insight}"</div>}
-            {!cfg.revealOverlay && <div className="canvas-hint">drag to predict</div>}
+            {!cfg.feedback && cfg.id !== 'capstone' && cfg.id !== 'coord-reveal' && (
+              <div className="canvas-hint">drag to predict</div>
+            )}
           </div>
 
-          <ControlStrip cfg={cfg} />
-          <div className={`formula-readout ${cfg.showCoords ? 'active' : 'dim'}`}>{cfg.formula}</div>
+          <ControlStrip cfg={cfg} onSequenceChange={setSequenceSteps} />
+          <div className={`formula-readout ${cfg.showCoords ? 'active' : 'dim'}`}>
+            {cfg.id === 'capstone'
+              ? (() => {
+                  const s1 = sequenceLabel(sequenceSteps.step1);
+                  const s2 = sequenceLabel(sequenceSteps.step2);
+                  if (!s1) return '─── SEQUENCE PENDING ────────────────────';
+                  return s2 ? `${s1}  ·  THEN  ·  ${s2}` : s1;
+                })()
+              : cfg.formula}
+          </div>
         </div>
 
         {/* RIGHT — info panel */}
@@ -1343,43 +1353,109 @@ function CoordGridResponsive({ height, cfg, desktop }) {
   );
 }
 
-function CoordRevealOverlay({ formula }) {
+
+// ─── Sequence step component ──────────────────────────────────────────────────
+function SequenceStep({ stepNum, value, onChange, disabled }) {
+  const type = value?.type ?? null;
+  const params = value?.params ?? {};
+
+  const setType = (t) => onChange({ type: t, params: {} });
+  const setParam = (key, val) => onChange({ type, params: { ...params, [key]: val } });
+
   return (
-    <div className="coord-reveal-overlay">
-      <div className="coord-reveal-card">
-        <div className="coord-reveal-title">⬡ Coordinate Rule Unlocked</div>
-        <div className="coord-reveal-formula">{formula}</div>
-        <div className="coord-reveal-sub">
-          What you just did — here's the rule.<br />
-          The coordinates confirm what you already understood spatially.
-        </div>
-        <button className="coord-reveal-continue">Continue →</button>
+    <div className="seq-step" style={{ opacity: disabled ? 0.4 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+      <div className="seq-step-label">Step {stepNum}</div>
+      <div className="seq-step-val" style={{ marginBottom: 6 }}>{sequenceLabel(value) ?? '─ SET TYPE ─'}</div>
+
+      {/* Type selector */}
+      <div className="ctrl-group" style={{ marginBottom: 4 }}>
+        {['TRANSLATE', 'REFLECT', 'ROTATE'].map(t => (
+          <button key={t} className={`ctrl-btn ${type === t ? 'selected' : ''}`}
+            style={{ fontSize: 8, padding: '3px 7px' }}
+            onClick={() => setType(t)}>{t}</button>
+        ))}
       </div>
+
+      {/* Conditional parameters */}
+      {type === 'TRANSLATE' && (
+        <div className="ctrl-group" style={{ flexWrap: 'wrap', gap: 3 }}>
+          <span className="ctrl-label">dx</span>
+          {[-3, -2, -1, 1, 2, 3].map(n => (
+            <button key={`dx${n}`} className={`ctrl-btn ${params.dx === n ? 'selected' : ''}`}
+              style={{ fontSize: 8, padding: '3px 6px', minWidth: 24 }}
+              onClick={() => setParam('dx', n)}>{n > 0 ? `+${n}` : n}</button>
+          ))}
+          <span className="ctrl-label" style={{ marginLeft: 4 }}>dy</span>
+          {[-3, -2, -1, 1, 2, 3].map(n => (
+            <button key={`dy${n}`} className={`ctrl-btn ${params.dy === n ? 'selected' : ''}`}
+              style={{ fontSize: 8, padding: '3px 6px', minWidth: 24 }}
+              onClick={() => setParam('dy', n)}>{n > 0 ? `+${n}` : n}</button>
+          ))}
+        </div>
+      )}
+      {type === 'REFLECT' && (
+        <div className="ctrl-group">
+          {['X', 'Y'].map(ax => (
+            <button key={ax} className={`ctrl-btn ${params.axis === ax ? 'selected' : ''}`}
+              style={{ fontSize: 8, padding: '3px 8px' }}
+              onClick={() => setParam('axis', ax)}>{ax}-AXIS</button>
+          ))}
+        </div>
+      )}
+      {type === 'ROTATE' && (
+        <div className="ctrl-group" style={{ flexWrap: 'wrap', gap: 3 }}>
+          {['90°', '180°', '270°'].map(d => (
+            <button key={d} className={`ctrl-btn ${params.deg === d ? 'selected' : ''}`}
+              style={{ fontSize: 8, padding: '3px 7px' }}
+              onClick={() => setParam('deg', d)}>{d}</button>
+          ))}
+          {['CW', 'CCW'].map(dir => (
+            <button key={dir} className={`ctrl-btn ${params.dir === dir ? 'selected' : ''}`}
+              style={{ fontSize: 8, padding: '3px 7px' }}
+              onClick={() => setParam('dir', dir)}>{dir}</button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function ControlStrip({ cfg }) {
+function ControlStrip({ cfg, onSequenceChange }) {
   const [speed, setSpeed] = useState('1×');
+  const [flipped, setFlipped] = useState(false);
   const [rotation, setRotation] = useState('90°');
-  const [seq1, setSeq1] = useState('ROTATE · 90° CCW');
-  const [seq2, setSeq2] = useState(null);
+  const [rotDir, setRotDir] = useState('CW');
+  const [step1, setStep1] = useState(null);
+  const [step2, setStep2] = useState(null);
+
+  const handleStep1Change = (val) => {
+    setStep1(val);
+    setStep2(null);
+    onSequenceChange?.({ step1: val, step2: null });
+  };
+  const handleStep2Change = (val) => {
+    setStep2(val);
+    onSequenceChange?.({ step1, step2: val });
+  };
+
+  if (cfg.controls.includes('continue')) {
+    return (
+      <div className="control-strip">
+        <div className="ctrl-spacer" />
+        <button className="ctrl-btn check">CONTINUE</button>
+      </div>
+    );
+  }
 
   if (cfg.controls.includes('sequence')) {
     return (
       <div className="control-strip" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
         <div className="seq-builder">
-          <div className="seq-step">
-            <div className="seq-step-label">Step 1</div>
-            <div className="seq-step-val">{seq1 || '─ SET TYPE ─'}</div>
-          </div>
-          <div className={`seq-step ${seq2 ? '' : 'empty'}`}>
-            <div className="seq-step-label">Step 2</div>
-            <div className="seq-step-val">{seq2 || '─ OPTIONAL ─'}</div>
-          </div>
+          <SequenceStep stepNum={1} value={step1} onChange={handleStep1Change} disabled={false} />
+          <SequenceStep stepNum={2} value={step2} onChange={handleStep2Change} disabled={step1 === null} />
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="ctrl-btn reset">RESET</button>
+          <button className="ctrl-btn reset" onClick={() => { setStep1(null); setStep2(null); onSequenceChange?.({ step1: null, step2: null }); }}>RESET</button>
           <div className="ctrl-spacer" />
           <button className="ctrl-btn check">CHECK SEQUENCE</button>
         </div>
@@ -1391,9 +1467,8 @@ function ControlStrip({ cfg }) {
     <div className="control-strip">
       {cfg.controls.includes('flip') && (
         <div className="ctrl-group">
-          <span className="ctrl-label">Flip</span>
-          <button className="ctrl-btn">H</button>
-          <button className="ctrl-btn">V</button>
+          <button className={`ctrl-btn ${flipped ? 'selected' : ''}`}
+            onClick={() => setFlipped(f => !f)}>FLIP</button>
         </div>
       )}
       {cfg.controls.includes('rotation') && (
@@ -1402,6 +1477,10 @@ function ControlStrip({ cfg }) {
           {['90°', '180°', '270°'].map(r => (
             <button key={r} className={`ctrl-btn ${rotation === r ? 'selected' : ''}`}
               onClick={() => setRotation(r)}>{r}</button>
+          ))}
+          {['CW', 'CCW'].map(d => (
+            <button key={d} className={`ctrl-btn ${rotDir === d ? 'selected' : ''}`}
+              onClick={() => setRotDir(d)}>{d}</button>
           ))}
         </div>
       )}
@@ -1495,7 +1574,7 @@ export default function App() {
         )}
         {viewport === 'tablet' && (
           <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 16, padding: 20, width: 808, margin: '0 auto', overflow: 'hidden' }}>
-            <ModuleMobile cfg={cfg} />
+            <ModuleDesktop cfg={cfg} />
           </div>
         )}
         {viewport === 'desktop' && (
@@ -1506,7 +1585,7 @@ export default function App() {
         <div className="annotation">
           <span className="annotation-icon">⬡</span>
           <span>
-            <strong style={{ fontWeight: 500 }}>Current state:</strong> <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: T.accent }}>{cfg.label}</span> — {cfg.id === 'predict' ? 'Ghost is visible, draggable. No coordinate overlay. Transformation vector renders as student drags.' : cfg.id === 'feedback-match' ? 'Image settles on ghost position. Both pulse green. Earned insight fires at bottom of canvas. Stage advances on dismiss.' : cfg.id === 'feedback-miss' ? 'Image animates to correct position. Dashed gap lines connect each misplaced ghost vertex to correct landing. Nudge offered.' : cfg.id === 'reflect' ? 'FLIP control activates. Axis equidistance ticks render dynamically as student drags. Orientation challenge introduced.' : cfg.id === 'rotate' ? 'Degree selector controls ghost rotation. Rotation arcs render at each vertex radius from origin. Origin-centered rotation constraint.' : cfg.id === 'coord-reveal' ? 'Earned reveal overlay. Coordinate rule surfaces after student has mastered all three transformation types spatially. Coordinates activate on both shapes.' : cfg.id === 'predict-coords' ? 'Same Predict & Reveal loop. Coordinate labels now live on both shapes. Student connects spatial reasoning to coordinate rule.' : 'Inverse task. Both pre-image and image shown simultaneously. Sequence builder replaces all prediction controls. Live preview ghost for Step 1.'}
+            <strong style={{ fontWeight: 500 }}>Current state:</strong> <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: T.accent }}>{cfg.label}</span> — {cfg.id === 'predict' ? 'Ghost is visible, draggable. No coordinate overlay. Transformation vector renders as student drags.' : cfg.id === 'feedback-match' ? 'Image settles at correct position. Ghost stays visible for comparison. CHECK relabels to NEXT. Both pulse green. Earned insight fires.' : cfg.id === 'feedback-miss' ? 'Image animates to correct position. Dashed gap lines connect each misplaced ghost vertex to correct landing. Nudge offered.' : cfg.id === 'feedback-close' ? 'Ghost position is right but orientation is wrong (or vice versa). Specific hint shown. Ghost stays — student adjusts and resubmits.' : cfg.id === 'reflect' ? 'Single FLIP toggle mirrors the ghost. Axis equidistance ticks render dynamically as student drags. Orientation challenge introduced.' : cfg.id === 'rotate' ? 'Degree selector + CW/CCW toggle control ghost rotation. Rotation arcs sweep CW at each vertex radius from origin.' : cfg.id === 'coord-reveal' ? 'Coordinate rule surfaces in FormulaReadout after student has mastered all three transformation types spatially. Coordinates activate on both shapes.' : cfg.id === 'predict-coords' ? 'Same Predict & Reveal loop. Coordinate labels now live on both shapes. Student connects spatial reasoning to coordinate rule.' : 'Inverse task. Both pre-image and image shown simultaneously. Sequence builder replaces all prediction controls. Live preview ghost for Step 1.'}
           </span>
         </div>
       </div>

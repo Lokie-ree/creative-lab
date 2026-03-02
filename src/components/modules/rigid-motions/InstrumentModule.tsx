@@ -20,42 +20,19 @@ export function InstrumentModule(_: ModuleProps) {
 
       {/* ── ROW 1: STATUS STRIP ─────────────────────────────── */}
       {/* Left pad clears the floating EscapeHatch LAB button (~72px wide at left-4) */}
-      <header className="flex items-center gap-4 border-b border-(--lab-border) pl-24 pr-5 md:pr-6">
-
-        {/* Module title */}
+      <header className="flex items-center border-b border-(--lab-border) pl-24 pr-5 md:pr-6">
         <span className="shrink-0 lab-silk lab-display-font font-bold text-(--lab-text)">
           Rigid Motions
-        </span>
-
-        {/* Progress dot — one stage, active */}
-        <nav
-          className="flex flex-1 items-center justify-center"
-          aria-label="Module progress: stage 1 of 1"
-        >
-          <ol className="flex items-center" role="list">
-            <li>
-              <span
-                className="block h-[7px] w-[7px] rounded-full bg-(--lab-accent) border border-(--lab-accent-muted)"
-                aria-label="Stage 1, current"
-                aria-current="step"
-              />
-            </li>
-          </ol>
-        </nav>
-
-        {/* SYS:NOM */}
-        <span className="shrink-0 lab-silk text-(--lab-success) lab-data-font">
-          SYS:NOM
         </span>
       </header>
 
       {/* ── ROW 2: PROMPT ───────────────────────────────────── */}
       <div
-        className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-3 md:px-6"
+        className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-2.5 md:px-6"
         role="status"
         aria-live="polite"
       >
-        <div className="mb-1 lab-silk lab-display-font text-[8px] tracking-[0.2em] font-bold text-(--lab-text-muted)">
+        <div className="mb-0.5 lab-silk lab-display-font text-[8px] tracking-[0.2em] font-bold text-(--lab-text-muted)">
           Predict
         </div>
         <p className="text-sm font-medium lab-display-font text-(--lab-text)">
@@ -69,7 +46,7 @@ export function InstrumentModule(_: ModuleProps) {
       </main>
 
       {/* ── ROW 4: CONTROL STRIP ────────────────────────────── */}
-      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-3 md:px-6 md:py-4">
+      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2.5 md:px-6 md:py-3">
         <ControlStrip />
       </footer>
     </div>

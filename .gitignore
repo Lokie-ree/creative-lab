@@ -41,6 +41,10 @@ screenshots/
 # Git worktrees
 .worktrees/
 
+# Local note-taking (never push)
+TEXT.md
+NOTES.md
+
 
 # Storybook
 .storybook*
