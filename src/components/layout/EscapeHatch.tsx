@@ -16,7 +16,7 @@ export function EscapeHatch({
   onSkipToEnd,
 }: EscapeHatchProps) {
   return (
-    <div className="fixed top-4 left-4 z-[var(--z-fixed)]">
+    <div className="fixed top-0 left-4 h-12 flex items-center z-[var(--z-fixed)]">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--lab-surface)]/80 text-[var(--lab-ghost)] hover:bg-[var(--lab-surface)] hover:text-[var(--lab-text)] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[rgba(124,200,124,0.5)] focus:ring-offset-2 focus:ring-offset-[var(--lab-bg)]">

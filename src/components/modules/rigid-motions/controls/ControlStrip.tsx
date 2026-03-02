@@ -10,7 +10,7 @@ export function ControlStrip() {
         type="button"
         disabled
         className={[
-          'min-h-[44px] min-w-[120px]',
+          'min-h-[44px] w-full md:w-auto md:min-w-[160px]',
           'border border-(--lab-border)',
           'bg-transparent',
           'lab-silk lab-display-font text-[10px] tracking-[0.1em]',
