@@ -1,6 +1,6 @@
 // src/components/modules/rigid-motions/InstrumentModule.tsx
 /**
- * Rigid Motions — Phase 1
+ * Rigid Motions — Phase 2
  *
  * Navigation handled by the app shell EscapeHatch (LAB dropdown).
  * No back button or ESC in the status strip — that would duplicate it.
@@ -9,11 +9,30 @@ import type { ModuleProps } from '@/config/modules'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
 import { RigidMotionsScene } from './scene/RigidMotionsScene'
 import { ControlStrip } from './controls/ControlStrip'
+import { PROMPT_TEXT } from './rigid-motions-copy'
 
-// Props accepted per ModuleProps contract; onComplete and onBack wired in Phase 2.
-// Navigation is handled by the app shell EscapeHatch (LAB dropdown).
 export function InstrumentModule(_: ModuleProps) {
-  const { ghostOffset, handleGhostMove } = useRigidMotionsState()
+  const {
+    ghostOffset,
+    handleGhostMove,
+    guideState,
+    feedbackState,
+    currentRound,
+    flipped,
+    rotationDegrees,
+    rotationDirection,
+    speedMultiplier,
+    coordinatesActive,
+    handleCheck,
+    handleNext,
+    handleReset,
+    handleFlip,
+    handleRotation,
+    handleSpeedChange,
+    handleAnimationComplete,
+  } = useRigidMotionsState()
+
+  const promptText = PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.'
 
   return (
     <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[3rem_auto_1fr_auto]">
@@ -36,18 +55,43 @@ export function InstrumentModule(_: ModuleProps) {
           Predict
         </div>
         <p className="text-sm font-medium lab-display-font text-(--lab-text)">
-          Where will the triangle land? Drag the green triangle to make your prediction.
+          {promptText}
         </p>
       </div>
 
       {/* ── ROW 3: VISUALIZATION ────────────────────────────── */}
       <main className="relative min-h-0">
-        <RigidMotionsScene ghostOffset={ghostOffset} onGhostMove={handleGhostMove} />
+        <RigidMotionsScene
+          ghostOffset={ghostOffset}
+          onGhostMove={handleGhostMove}
+          guideState={guideState}
+          feedbackState={feedbackState}
+          currentRound={currentRound}
+          flipped={flipped}
+          rotationDegrees={rotationDegrees}
+          rotationDirection={rotationDirection}
+          speedMultiplier={speedMultiplier}
+          coordinatesActive={coordinatesActive}
+          onAnimationComplete={handleAnimationComplete}
+        />
       </main>
 
       {/* ── ROW 4: CONTROL STRIP ────────────────────────────── */}
       <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2.5 md:px-6 md:py-3">
-        <ControlStrip />
+        <ControlStrip
+          guideState={guideState}
+          feedbackState={feedbackState}
+          flipped={flipped}
+          rotationDegrees={rotationDegrees}
+          rotationDirection={rotationDirection}
+          speedMultiplier={speedMultiplier}
+          onCheck={handleCheck}
+          onNext={handleNext}
+          onReset={handleReset}
+          onFlip={handleFlip}
+          onRotation={handleRotation}
+          onSpeedChange={handleSpeedChange}
+        />
       </footer>
     </div>
   )

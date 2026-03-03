@@ -9,108 +9,40 @@ import {
   GRID_RANGE,
   CONTENT_RANGE,
 } from '../constants'
-import { vertexLabelOffset, clampOffset } from './scene-math'
+import { centroidOf } from '../transform-math'
+import { vertexLabelOffset, clampOffset, computeGhostVertices } from './scene-math'
+import { SpriteLabel, makeTriangleShape } from './scene-primitives'
 import { useRigidMotionsLayout } from './scene-layout'
+import { TranslationVector } from './TranslationVector'
+import { ReflectionAxisTicks } from './ReflectionAxisTicks'
+import { RotationArcs } from './RotationArcs'
+import { ImageShape } from './ImageShape'
+import { GapLines } from './GapLines'
+import type { GuideState, FeedbackState, Round, ReflectionParams } from '../types'
 
-interface RigidMotionsSceneProps {
+export interface RigidMotionsSceneProps {
   ghostOffset: [number, number]
   onGhostMove: (rawOffset: [number, number]) => void
-}
-
-// ─── SpriteLabel ──────────────────────────────────────────────────────────────
-//
-// Renders text as a CanvasTexture on a PlaneGeometry mesh.
-// Avoids @react-three/drei Text (which uses troika-three-text and creates its
-// own offscreen WebGL context). Multiple troika contexts + StrictMode double-
-// mount exhaust the browser's WebGL context limit (~8 in Chromium), causing
-// the main scene context to be lost immediately on load.
-
-interface SpriteLabelProps {
-  text: string
-  position: [number, number, number]
-  color?: string
-  anchorX?: 'left' | 'center' | 'right'
-  anchorY?: 'top' | 'middle' | 'bottom'
-  /** World-unit width of the rendered plane */
-  planeWidth?: number
-}
-
-function SpriteLabel({
-  text,
-  position,
-  color = '#ffffff',
-  anchorX = 'center',
-  anchorY = 'middle',
-  planeWidth = 1.5,
-}: SpriteLabelProps) {
-  const texture = useMemo(() => {
-    const canvas = document.createElement('canvas')
-    const scale = 4 // supersampling for crisp text
-    const pxFontSize = 32 * scale
-    const font = `${pxFontSize}px ui-monospace, "Cascadia Code", "Fira Mono", monospace`
-
-    const ctx = canvas.getContext('2d')!
-    ctx.font = font
-    const textWidth = ctx.measureText(text).width
-    canvas.width = textWidth + 16 * scale
-    canvas.height = pxFontSize + 12 * scale
-
-    ctx.font = font
-    ctx.fillStyle = color
-    ctx.textBaseline = 'middle'
-    ctx.textAlign = 'center'
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2)
-
-    const tex = new THREE.CanvasTexture(canvas)
-    tex.needsUpdate = true
-    return tex
-  }, [text, color])
-
-  const aspect = texture.image
-    ? (texture.image as HTMLCanvasElement).width / (texture.image as HTMLCanvasElement).height
-    : 1
-  const planeHeight = planeWidth / aspect
-
-  // Offset the mesh so the anchor point aligns with `position`
-  const offsetX =
-    anchorX === 'left' ? planeWidth / 2
-    : anchorX === 'right' ? -planeWidth / 2
-    : 0
-  const offsetY =
-    anchorY === 'top' ? -planeHeight / 2
-    : anchorY === 'bottom' ? planeHeight / 2
-    : 0
-
-  return (
-    <mesh position={[position[0] + offsetX, position[1] + offsetY, position[2]]}>
-      <planeGeometry args={[planeWidth, planeHeight]} />
-      <meshBasicMaterial map={texture} transparent alphaTest={0.01} depthWrite={false} />
-    </mesh>
-  )
+  // Phase 2
+  guideState: GuideState
+  feedbackState: FeedbackState
+  currentRound: Round
+  flipped: boolean
+  rotationDegrees: 90 | 180 | 270
+  rotationDirection: 'cw' | 'ccw'
+  speedMultiplier: 0.5 | 1 | 2
+  coordinatesActive: boolean
+  onAnimationComplete: () => void
 }
 
 // ─── GL context recovery ──────────────────────────────────────────────────────
 
-/**
- * Handles WebGL context loss caused by GPU resource pressure or window resize.
- * Prevents the default browser behavior (which would permanently lose the context)
- * and lets Three.js restore it automatically via webglcontextrestored.
- */
 function ContextRecovery() {
   const { gl } = useThree()
   useEffect(() => {
     const canvas = gl.domElement
-
-    const onLost = (e: WebGLContextEvent) => {
-      e.preventDefault()
-      // Three.js will automatically re-initialize when the context is restored
-    }
-
-    const onRestored = () => {
-      // Force R3F to re-render after context restore
-      gl.setSize(canvas.clientWidth, canvas.clientHeight)
-    }
-
+    const onLost = (e: WebGLContextEvent) => { e.preventDefault() }
+    const onRestored = () => { gl.setSize(canvas.clientWidth, canvas.clientHeight) }
     canvas.addEventListener('webglcontextlost', onLost as EventListener)
     canvas.addEventListener('webglcontextrestored', onRestored)
     return () => {
@@ -121,7 +53,7 @@ function ContextRecovery() {
   return null
 }
 
-// ─── Camera setup ────────────────────────────────────────────────────────────
+// ─── Camera setup ─────────────────────────────────────────────────────────────
 
 function CameraSetup() {
   const { camera } = useThree()
@@ -136,24 +68,20 @@ function CameraSetup() {
   return null
 }
 
-// ─── Coordinate grid ─────────────────────────────────────────────────────────
+// ─── Coordinate grid ──────────────────────────────────────────────────────────
 
-function CoordinateGrid() {
+function CoordinateGrid({ coordinatesActive: _coordinatesActive }: { coordinatesActive: boolean }) {
   const { gridGeometry, axisGeometry } = useMemo(() => {
     const grid: THREE.Vector3[] = []
     const axes: THREE.Vector3[] = []
-
     for (let i = -GRID_RANGE; i <= GRID_RANGE; i++) {
       const isAxis = i === 0
       const target = isAxis ? axes : grid
-      // Vertical line
       target.push(new THREE.Vector3(i, -GRID_RANGE, 0))
       target.push(new THREE.Vector3(i, GRID_RANGE, 0))
-      // Horizontal line
       target.push(new THREE.Vector3(-GRID_RANGE, i, 0))
       target.push(new THREE.Vector3(GRID_RANGE, i, 0))
     }
-
     return {
       gridGeometry: new THREE.BufferGeometry().setFromPoints(grid),
       axisGeometry: new THREE.BufferGeometry().setFromPoints(axes),
@@ -170,26 +98,18 @@ function CoordinateGrid() {
 
   return (
     <group>
-      {/* Minor grid lines */}
       <lineSegments geometry={gridGeometry}>
         <lineBasicMaterial color="#28251f" transparent opacity={0.2} />
       </lineSegments>
-
-      {/* Axis lines */}
       <lineSegments geometry={axisGeometry}>
         <lineBasicMaterial color="#3e3a34" transparent opacity={0.4} />
       </lineSegments>
-
-      {/* Origin dot */}
       <mesh position={[0, 0, 0.01]}>
         <circleGeometry args={[0.12, 16]} />
         <meshBasicMaterial color="#7a746a" />
       </mesh>
-
-      {/* Axis number labels */}
       {labelIntegers.map((i) => (
         <group key={i}>
-          {/* X-axis label — below axis */}
           <SpriteLabel
             text={String(i)}
             position={[i, -0.7, 0.01]}
@@ -198,7 +118,6 @@ function CoordinateGrid() {
             anchorY="top"
             planeWidth={i < 0 ? 0.7 : 0.45}
           />
-          {/* Y-axis label — left of axis */}
           <SpriteLabel
             text={String(i)}
             position={[-0.65, i, 0.01]}
@@ -213,27 +132,9 @@ function CoordinateGrid() {
   )
 }
 
-// ─── PreImageTriangle helpers ─────────────────────────────────────────────────
-
-/** Build a THREE.Shape from an array of [x, y] vertices */
-function makeTriangleShape(verts: readonly [number, number][]): THREE.Shape {
-  const shape = new THREE.Shape()
-  shape.moveTo(verts[0][0], verts[0][1])
-  for (let i = 1; i < verts.length; i++) shape.lineTo(verts[i][0], verts[i][1])
-  shape.closePath()
-  return shape
-}
-
-/** Math centroid of an array of [x, y] vertices */
-function centroidOf(verts: readonly [number, number][]): [number, number] {
-  const cx = verts.reduce((s, [x]) => s + x, 0) / verts.length
-  const cy = verts.reduce((s, [, y]) => s + y, 0) / verts.length
-  return [cx, cy]
-}
-
 // ─── Pre-image triangle ───────────────────────────────────────────────────────
 
-function PreImageTriangle() {
+function PreImageTriangle({ coordinatesActive }: { coordinatesActive: boolean }) {
   const verts = PRE_IMAGE_VERTICES
   const centroid = centroidOf(verts)
   const { outlineGeometry, shape } = useMemo(() => {
@@ -246,29 +147,24 @@ function PreImageTriangle() {
 
   return (
     <group>
-      {/* Fill */}
       <mesh position={[0, 0, 0.01]}>
         <shapeGeometry args={[shape]} />
         <meshBasicMaterial color="#b8b0a4" transparent opacity={0.07} />
       </mesh>
-
-      {/* Outline — lineLoop closes back to first point */}
       <lineLoop geometry={outlineGeometry}>
         <lineBasicMaterial color="#b8b0a4" />
       </lineLoop>
-
-      {/* Vertex labels */}
       {verts.map((v, idx) => {
         const [lx, ly] = vertexLabelOffset(v, centroid, 0.5)
         return (
           <SpriteLabel
             key={VERTEX_LABELS[idx]}
-            text={VERTEX_LABELS[idx]}
+            text={coordinatesActive ? `${VERTEX_LABELS[idx]}(${v[0]},${v[1]})` : VERTEX_LABELS[idx]}
             position={[lx, ly, 0.03]}
             color="#b8b0a4"
             anchorX="center"
             anchorY="middle"
-            planeWidth={0.55}
+            planeWidth={coordinatesActive ? 1.6 : 0.55}
           />
         )
       })}
@@ -280,12 +176,26 @@ function PreImageTriangle() {
 
 interface GhostTriangleProps {
   ghostOffset: [number, number]
+  guideState: GuideState
+  flipped: boolean
+  rotationDegrees: 90 | 180 | 270
+  rotationDirection: 'cw' | 'ccw'
+  reflectionAxis?: 'x' | 'y'
+  coordinatesActive: boolean
 }
 
-function GhostTriangle({ ghostOffset }: GhostTriangleProps) {
+function GhostTriangle({
+  ghostOffset,
+  guideState,
+  flipped,
+  rotationDegrees,
+  rotationDirection,
+  reflectionAxis,
+  coordinatesActive,
+}: GhostTriangleProps) {
   const verts = useMemo<[number, number][]>(
-    () => PRE_IMAGE_VERTICES.map(([x, y]) => [x + ghostOffset[0], y + ghostOffset[1]]),
-    [ghostOffset]
+    () => computeGhostVertices(ghostOffset, guideState, flipped, rotationDegrees, rotationDirection, reflectionAxis),
+    [ghostOffset, guideState, flipped, rotationDegrees, rotationDirection, reflectionAxis]
   )
   const centroid = centroidOf(verts)
   const lineLoopRef = useRef<THREE.LineLoop>(null)
@@ -296,36 +206,30 @@ function GhostTriangle({ ghostOffset }: GhostTriangleProps) {
     return { outlineGeometry: geo, shape: makeTriangleShape(verts) }
   }, [verts])
 
-  // LineDashedMaterial requires line distances to be computed on the object
   useFrame(() => {
     if (lineLoopRef.current) lineLoopRef.current.computeLineDistances()
   })
 
   return (
     <group>
-      {/* Fill */}
       <mesh position={[0, 0, 0.01]}>
         <shapeGeometry args={[shape]} />
         <meshBasicMaterial color="#7cc87c" transparent opacity={0.12} />
       </mesh>
-
-      {/* Dashed outline */}
       <lineLoop ref={lineLoopRef} geometry={outlineGeometry}>
         <lineDashedMaterial color="#7cc87c" dashSize={0.3} gapSize={0.18} />
       </lineLoop>
-
-      {/* Vertex labels */}
       {verts.map((v, idx) => {
         const [lx, ly] = vertexLabelOffset(v, centroid, 0.5)
         return (
           <SpriteLabel
             key={GHOST_VERTEX_LABELS[idx]}
-            text={GHOST_VERTEX_LABELS[idx]}
+            text={coordinatesActive ? `${GHOST_VERTEX_LABELS[idx]}(${v[0]},${v[1]})` : GHOST_VERTEX_LABELS[idx]}
             position={[lx, ly, 0.03]}
             color="#7cc87c"
             anchorX="center"
             anchorY="middle"
-            planeWidth={0.7}
+            planeWidth={coordinatesActive ? 1.6 : 0.7}
           />
         )
       })}
@@ -407,22 +311,114 @@ interface VisualizationProps extends RigidMotionsSceneProps {
   onDragChange: (dragging: boolean) => void
 }
 
-function Visualization({ ghostOffset, onGhostMove, onDragChange }: VisualizationProps) {
+function Visualization({
+  ghostOffset,
+  onGhostMove,
+  onDragChange,
+  guideState,
+  feedbackState,
+  currentRound,
+  flipped,
+  rotationDegrees,
+  rotationDirection,
+  speedMultiplier,
+  coordinatesActive,
+  onAnimationComplete,
+}: VisualizationProps) {
+  const reflectionAxis =
+    currentRound.params.type === 'reflect'
+      ? (currentRound.params as ReflectionParams).axis
+      : undefined
+
+  const ghostVerts = computeGhostVertices(
+    ghostOffset, guideState, flipped, rotationDegrees, rotationDirection, reflectionAxis
+  )
+  const preImageCentroid = centroidOf(PRE_IMAGE_VERTICES)
+  const ghostCentroid = centroidOf(ghostVerts)
+
+  const showGhost = feedbackState !== 'match'
+  const showImage = feedbackState === 'match'
+  const showGapLines = feedbackState === 'miss'
+  const showTranslationVector = guideState === 'predict-translate'
+  const showAxisTicks = guideState === 'predict-reflect' && reflectionAxis != null
+  const showRotationArcs = guideState === 'predict-rotate'
+
   return (
     <>
       <ContextRecovery />
       <CameraSetup />
-      <CoordinateGrid />
-      <PreImageTriangle />
-      <GhostTriangle ghostOffset={ghostOffset} />
-      <DragPlane ghostOffset={ghostOffset} onGhostMove={onGhostMove} onDragChange={onDragChange} />
+      <CoordinateGrid coordinatesActive={coordinatesActive} />
+      <PreImageTriangle coordinatesActive={coordinatesActive} />
+
+      {showGhost && (
+        <GhostTriangle
+          ghostOffset={ghostOffset}
+          guideState={guideState}
+          flipped={flipped}
+          rotationDegrees={rotationDegrees}
+          rotationDirection={rotationDirection}
+          reflectionAxis={reflectionAxis}
+          coordinatesActive={coordinatesActive}
+        />
+      )}
+
+      {showImage && (
+        <ImageShape
+          vertices={currentRound.targetVertices}
+          coordinatesActive={coordinatesActive}
+          animateFrom={PRE_IMAGE_VERTICES as [number, number][]}
+          type={currentRound.params.type}
+          params={currentRound.params}
+          speedMultiplier={speedMultiplier}
+          onAnimationComplete={onAnimationComplete}
+        />
+      )}
+
+      {showGapLines && (
+        <GapLines
+          ghostVertices={ghostVerts}
+          targetVertices={currentRound.targetVertices}
+        />
+      )}
+
+      {showTranslationVector && (
+        <TranslationVector
+          preImageCentroid={preImageCentroid}
+          ghostCentroid={ghostCentroid}
+          visible
+        />
+      )}
+
+      {showAxisTicks && reflectionAxis && (
+        <ReflectionAxisTicks
+          axis={reflectionAxis}
+          preImageVertices={PRE_IMAGE_VERTICES as [number, number][]}
+          ghostVertices={ghostVerts}
+          visible
+        />
+      )}
+
+      {showRotationArcs && (
+        <RotationArcs
+          preImageVertices={PRE_IMAGE_VERTICES as [number, number][]}
+          degrees={rotationDegrees}
+          direction={rotationDirection}
+          visible
+        />
+      )}
+
+      <DragPlane
+        ghostOffset={ghostOffset}
+        onGhostMove={onGhostMove}
+        onDragChange={onDragChange}
+      />
     </>
   )
 }
 
-// ─── Scene shell ─────────────────────────────────────────────────────────────
+// ─── Scene shell ──────────────────────────────────────────────────────────────
 
-export function RigidMotionsScene({ ghostOffset, onGhostMove }: RigidMotionsSceneProps) {
+export function RigidMotionsScene(props: RigidMotionsSceneProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [ready, setReady] = useState(false)
 
@@ -438,18 +434,15 @@ export function RigidMotionsScene({ ghostOffset, onGhostMove }: RigidMotionsScen
         background: '#1e1d1c',
         touchAction: 'none',
         cursor: isDragging ? 'grabbing' : 'grab',
-        // Fade in after first render to eliminate flash-of-blank-canvas
         opacity: ready ? 1 : 0,
         transition: 'opacity 0.25s ease',
       }}
       onCreated={() => {
-        // Defer opacity reveal to next frame so the scene has painted once
         requestAnimationFrame(() => setReady(true))
       }}
     >
       <Visualization
-        ghostOffset={ghostOffset}
-        onGhostMove={onGhostMove}
+        {...props}
         onDragChange={setIsDragging}
       />
     </Canvas>

@@ -2,11 +2,24 @@
 
 ## Overview
 
-The rigid motions module teaches geometric transformations (translations, rotations, reflections) through interactive prediction. Phase 1 covers translation: the student drags a ghost triangle to predict where the pre-image will land after a transformation.
+The rigid motions module teaches geometric transformations (translations, rotations, reflections) through interactive prediction. The student drags a ghost triangle to predict where a pre-image will land after a transformation, then checks their answer to see the correct image animate into place.
 
-**Core Learning Goal**: Build intuition for rigid motions by predicting and verifying triangle placements on a coordinate grid.
+**Core Learning Goal**: Build intuition for rigid motions (8.G.A.1–3) by predicting and verifying triangle placements on a coordinate grid.
 
-**Doc scope**: Phase 1 implementation. Design spec: `docs/plans/2026-02-19-rigid-motions-design-spec.md`. R3F migration plan: `docs/plans/2026-03-01-rigid-motions-r3f-migration.md`.
+**ALD Target**: Level 3 entry → Level 4 primary → Level 5 capstone.
+
+**Design spec**: `docs/plans/2026-03-02-rigid-motions-design-spec-v3.1.md`
+
+---
+
+## Phase Status
+
+| Phase | Status | Scope |
+|---|---|---|
+| Phase 1 | Complete | Translation-only predict loop, no scoring. Draggable ghost, coordinate grid, R3F scene. |
+| Phase 2 | Complete | Full predict-and-reveal loop for translate, reflect, rotate. Match scoring, reveal animation, constraint elements, guide state machine. |
+| Phase 3 | Pending | Coordinate label layer (`coordinatesActive`), `FormulaReadout`, `coordinate-reveal` guide state |
+| Phase 4 | Pending | Capstone: `SequenceBuilder`, `PreviewGhost`, `capstone-utils.ts` |
 
 ---
 
@@ -14,19 +27,41 @@ The rigid motions module teaches geometric transformations (translations, rotati
 
 ```
 src/components/modules/rigid-motions/
-├── InstrumentModule.tsx          # Entry: layout, state wiring
+├── InstrumentModule.tsx          # Entry: 4-row layout, full Phase 2 state wiring
 ├── constants.ts                  # Grid range, content range, triangle vertices, labels
+├── types.ts                      # TransformationType, GuideState, FeedbackState, Round, params
+├── transform-math.ts             # Pure math: translate, reflectOverX/Y, rotateCW90/180/270, applyTransform
+├── match-scoring.ts              # scoreGuess — behavior varies by stage (translate/reflect/rotate)
+├── round-generator.ts            # ROUNDS (5 deterministic rounds), getRoundsForStage, getRoundById
+├── guide-state.ts                # GUIDE_STATE_SEQUENCE, nextGuideState, guideStateToStage
+├── animations.ts                 # interpolateReveal — GSAP-driven t=0→1 per transformation type
+├── rigid-motions-copy.ts         # All user-facing strings: PROMPT_TEXT, EARNED_REVEALS
 ├── hooks/
-│   └── useRigidMotionsState.ts   # Ghost offset state + clamped move handler
+│   └── useRigidMotionsState.ts   # All state + actions: ghost, guide, feedback, controls
 ├── scene/
 │   ├── RigidMotionsScene.tsx     # R3F Canvas shell + all 3D components
 │   ├── scene-layout.ts           # useRigidMotionsLayout — camera zoom from viewport
-│   ├── scene-math.ts             # ghostVertices, clampOffset, vertexLabelOffset
+│   ├── scene-math.ts             # ghostVertices, clampOffset, computeGhostVertices, vertexLabelOffset
+│   ├── scene-primitives.tsx      # SpriteLabel, makeTriangleShape (shared across scene files)
+│   ├── TranslationVector.tsx     # Dashed arrow from pre-image centroid to ghost centroid
+│   ├── ReflectionAxisTicks.tsx   # Perpendicular tick lines; color = green when equidistant
+│   ├── RotationArcs.tsx          # Origin-fixed arc sweeps per pre-image vertex
+│   ├── ImageShape.tsx            # Confirmed image; GSAP-animated reveal, BufferGeometry refs
+│   ├── GapLines.tsx              # Miss feedback: dashed lines ghost → target per vertex
 │   └── __tests__/
-│       └── scene-math.test.ts    # Unit tests for math utilities
+│       ├── transform-math.test.ts   # 45 tests — all round definitions, edge cases
+│       ├── match-scoring.test.ts    # 16 tests — all stages, close/miss/match boundaries
+│       ├── round-generator.test.ts  # 19 tests — round contents, stage grouping
+│       ├── guide-state.test.ts      # 12 tests — sequence, transitions, stage mapping
+│       ├── animations.test.ts       # 11 tests — interpolateReveal at t=0, t=0.5, t=1
+│       └── scene-math.test.ts       # 20 tests — clampOffset, computeGhostVertices composition
 └── controls/
-    └── ControlStrip.tsx          # CHECK button (disabled in Phase 1)
+    └── ControlStrip.tsx          # Context-sensitive FLIP, ROTATION, SPEED, RESET, CHECK/NEXT
 ```
+
+> **Orphaned file**: `scene/math.ts` exports `snapToGrid` which is no longer imported anywhere.
+> It was planned for `useRigidMotionsState` but removed when the design settled on free-drag (clamped,
+> not snapped). Safe to delete.
 
 ---
 
@@ -35,81 +70,191 @@ src/components/modules/rigid-motions/
 ```
 InstrumentModule
 └── grid: [status strip | prompt | scene | control strip]
-    ├── header — module title (all viewports); EscapeHatch (LAB dropdown) floats fixed top-0 left-4 h-12 outside this header
-    ├── div    — "Predict" label + prompt text
-    ├── main   — RigidMotionsScene
+    ├── header       — module title; EscapeHatch (LAB dropdown) floats fixed top-0 left-4 h-12
+    ├── div          — "Predict" label + PROMPT_TEXT[currentRound.id]
+    ├── main         — RigidMotionsScene
     │   └── Canvas (R3F, orthographic)
-    │       ├── ContextRecovery   — webglcontextlost / webglcontextrestored handlers
-    │       ├── CameraSetup       — syncs orthographic zoom to viewport via useFrame
-    │       ├── CoordinateGrid    — grid lines, axis lines, origin dot, SpriteLabel axis numbers
-    │       ├── PreImageTriangle  — static white triangle with SpriteLabel vertex labels
-    │       ├── GhostTriangle     — draggable green dashed triangle with SpriteLabel labels
-    │       └── DragPlane         — invisible full-screen mesh that captures pointer events
-    └── footer — ControlStrip (CHECK button)
+    │       ├── ContextRecovery       — webglcontextlost / webglcontextrestored
+    │       ├── CameraSetup           — orthographic zoom via useFrame
+    │       ├── CoordinateGrid        — grid lines, axes, origin dot, SpriteLabel numbers
+    │       ├── PreImageTriangle      — static white triangle, SpriteLabel vertex labels
+    │       ├── GhostTriangle         — green dashed triangle; uses computeGhostVertices
+    │       │                           (hidden when feedbackState === 'match')
+    │       ├── ImageShape            — confirmed image; GSAP reveal animation
+    │       │                           (shown when feedbackState === 'match')
+    │       ├── GapLines              — miss feedback: dashed vertex-to-target lines
+    │       │                           (shown when feedbackState === 'miss')
+    │       ├── TranslationVector     — dashed arrow, pre-image → ghost centroid
+    │       │                           (shown when guideState === 'predict-translate')
+    │       ├── ReflectionAxisTicks   — perpendicular tick pairs, green when equidistant
+    │       │                           (shown when guideState === 'predict-reflect')
+    │       ├── RotationArcs          — origin-fixed arcs per pre-image vertex
+    │       │                           (shown when guideState === 'predict-rotate')
+    │       └── DragPlane             — invisible full-screen mesh; captures pointer events
+    └── footer — ControlStrip (FLIP | ROTATION | CHECK/NEXT | RESET | SPEED)
 ```
+
+---
+
+## Round Definitions
+
+Five deterministic rounds — no random generation.
+
+| Round ID | Stage | Transform | Target Centroid | Notes |
+|---|---|---|---|---|
+| `translate-4-2` | translate | +4 right, +2 up | (6.33, 4.33) | Ghost opens below-left of target |
+| `translate-n3-n5` | translate | −3 left, −5 down | (−0.67, −2.67) | Large diagonal drag required |
+| `reflect-y` | reflect | over y-axis | (−2.33, 2.33) | FLIP required; centroid moves to −x |
+| `reflect-x` | reflect | over x-axis | (2.33, −2.33) | FLIP required; centroid moves to −y |
+| `rotate-90-cw` | rotate | 90° CW around origin | (2.33, −2.33) | Centroid matches `reflect-x` — vertices differ (B′ and C′ swapped) |
+
+Ghost initial offset is `[5, 0]` for all rounds.
+
+---
+
+## Guide State Machine
+
+```
+predict-translate → predict-reflect → predict-rotate → coordinate-reveal → predict-with-coordinates → capstone
+```
+
+- Each predict stage requires **2 successful CHECK results** before advancing.
+- Successes are cumulative per stage (not consecutive).
+- On each success, the round cycles to the next round in that stage's set.
+- After stage completion, ghost offset, flip, and rotation all reset to defaults.
+
+`coordinate-reveal` and later states are Phase 3+ scope. Phase 2 never reaches them.
 
 ---
 
 ## Key Technical Decisions
 
-### SpriteLabel instead of `@react-three/drei` `Text`
+### `computeGhostVertices` — composition order is load-bearing
 
-**Never use `<Text>` from `@react-three/drei` in this project's R3F scenes.**
+The most critical constraint in Phase 2. Apply in this order only:
 
-`Text` uses `troika-three-text`, which creates its own offscreen WebGL context for SDF font rendering. In development, React StrictMode double-mounts every component. The combination of the R3F `WebGLRenderer` context + troika's font context + StrictMode remounting exhausts the browser's WebGL context limit (~8 in Chromium). The browser then forcibly kills the oldest context — the main scene — causing an immediate blank canvas on load.
-
-**Verified by Playwright** (2026-03-02): `THREE.WebGLRenderer: Context Lost` fired immediately on every module mount when `Text` was present. Removing it eliminated the error entirely. Context remained healthy across multiple resize events.
-
-**The fix**: `SpriteLabel` — renders text onto a 2D `<canvas>`, uploads it as a `THREE.CanvasTexture`, and displays it on a `PlaneGeometry` mesh. Zero extra WebGL contexts.
-
-```tsx
-// ❌ Never — creates an offscreen WebGL context via troika
-import { Text } from '@react-three/drei'
-<Text position={[x, y, z]} fontSize={0.5} color="#fff">label</Text>
-
-// ✅ Use SpriteLabel instead
-<SpriteLabel text="label" position={[x, y, z]} color="#fff" planeWidth={0.6} />
+```
+1. Translate (apply baseOffset to pre-image vertices)
+2. Find centroid of the translated position
+3. Apply FLIP or ROTATION around that translated centroid
 ```
 
-`SpriteLabel` is defined locally in `RigidMotionsScene.tsx`. If a second module needs it, extract to `src/lib/r3f/SpriteLabel.tsx`.
+Applying step 3 before step 1 uses the pre-image centroid (2.33, 2.33) instead of the dragged centroid. This produces visually plausible but geometrically wrong ghosts at many offset positions. The order is enforced in `scene-math.ts` with a comment and tested in `scene-math.test.ts`.
 
-### Orthographic camera + zoom via useFrame
+### FLIP is a local transform — not a global reflection
 
-The camera uses `THREE.OrthographicCamera`. Zoom is computed in `useRigidMotionsLayout` from the R3F viewport size: `zoom = shorterSide / (GRID_RANGE * 2)`. `CameraSetup` applies it each frame (with a deadband to avoid unnecessary matrix updates). This keeps the full ±9 grid always visible regardless of aspect ratio.
+FLIP mirrors the ghost's vertices through its **own centroid**, not over the reflection axis. This is intentional: if FLIP performed a global reflection, pressing it once would jump the ghost directly to the correct answer, eliminating the prediction task.
 
-The camera is positioned at `[0, 2, 10]` (not `[0, 0, 10]`). The Y offset of 2 shifts the viewport upward so the active content zone — pre-image triangle at A(1,1)/B(4,2)/C(2,4) and ghost starting at (6–9, 1–4) — is vertically centered in the canvas rather than riding the top half with dead negative-quadrant space below.
+The student must first drag the ghost to the correct position, then toggle FLIP. `ReflectionAxisTicks` provides real-time visual feedback: the perpendicular tick lines from each pre-image/ghost vertex pair to the axis turn green when all three pairs are equidistant. This is the match signal for the reflect stage (no `close` state exists for reflect).
 
-### Drag via invisible DragPlane
+### ROTATION is a local transform — `RotationArcs` are origin-fixed
 
-Dragging the ghost triangle is handled by an invisible `PlaneGeometry` mesh (`DragPlane`) that covers the full canvas. On `pointerdown`, it captures window-level `pointermove`/`pointerup` events for smooth out-of-bounds dragging. The ghost offset is clamped in `clampOffset` so the ghost centroid stays within `±CONTENT_RANGE`.
+Ghost rotation applies around the **ghost's current centroid** (local), for the same reason as FLIP — global origin rotation would solve the task in one press.
 
-### Context recovery
+`RotationArcs` deliberately renders arc sweeps centered on the **origin (0, 0)**. These arcs only align with the ghost's actual vertices when the ghost is in the mathematically correct position. A student who understands *why* the arcs align at one specific ghost position understands what rotation around the origin means geometrically. This is the module's **Level 5 pedagogical moment**.
 
-`ContextRecovery` (inside the Canvas) listens for `webglcontextlost` and calls `e.preventDefault()` to keep the context alive for browser-side restoration. On `webglcontextrestored` it calls `gl.setSize()` to re-sync dimensions. This handles GPU pressure events (e.g. switching tabs) without remounting the Canvas.
+### Match scoring varies by stage
+
+Not uniform across transformation types:
+
+| Stage | `match` | `close` | `miss` |
+|---|---|---|---|
+| translate | all verts ≤0.5 from target | centroid ≤0.5, some verts outside | centroid >0.5 |
+| reflect | all verts ≤0.5 AND `flipped === true` | — (no close state) | anything else |
+| rotate | all verts ≤0.5 AND rotation settings match | centroid ≤0.5, wrong rotation | centroid >0.5 |
+
+Reflect has no `close` state because position-correct + orientation-wrong produces a visually obvious triangle (sitting on or in the wrong half-plane relative to the axis). Gap lines on miss are more informative than a "close" label — they cross the reflection axis, making equidistance visible.
+
+### `ImageShape` uses imperative BufferGeometry — not JSX geometry children
+
+The reveal animation drives vertex positions on every GSAP tick via `vertsRef`. If geometry were set via JSX children (`<shapeGeometry args={[shape]} />`), React's reconciler would own it and conflict with imperative updates in `useFrame`. The correct pattern:
+
+1. Create `THREE.BufferGeometry` in a `useRef` — **outside** React rendering
+2. Attach to the mesh once in `useEffect`
+3. Update `attr.setXYZ` + `attr.needsUpdate = true` in `useFrame`
+4. Never use JSX geometry children on the same mesh
+
+Both fill (triangle) and outline (polyline) geometries in `ImageShape` follow this pattern.
+
+### `interpolateReveal` paths by transformation type
+
+| Type | Interpolation |
+|---|---|
+| translate | Linear lerp of each vertex x and y |
+| reflect/y | x passes through 0 at t=0.5; y constant |
+| reflect/x | y passes through 0 at t=0.5; x constant |
+| rotate | Each vertex sweeps its arc at constant radius; angle = startAngle + sweep × t |
+
+### SpriteLabel instead of `@react-three/drei` `Text`
+
+**Never use `<Text>` from `@react-three/drei` in this module.**
+
+`Text` uses `troika-three-text` which creates a secondary offscreen WebGL context. React StrictMode double-mounts every component in dev. Together they exhaust the browser's WebGL context limit (~8 in Chromium), causing the main scene context to be killed on load.
+
+`SpriteLabel` renders text to a 2D `<canvas>`, uploads it as a `THREE.CanvasTexture`, and displays it on a `PlaneGeometry` mesh. Zero extra WebGL contexts. Defined in `scene-primitives.tsx`.
+
+### Orthographic camera zoom via `useFrame`, not `useEffect`
+
+`useEffect` on viewport `size` causes a one-frame lag on resize — the scene briefly shows the wrong zoom before correcting. `useFrame` eliminates the lag by applying the new zoom each frame. `CameraSetup` uses a deadband (`Math.abs(camera.zoom - zoom) > 0.001`) to avoid unnecessary `updateProjectionMatrix` calls.
+
+Camera is positioned at `[0, 2, 10]`. The Y=2 offset keeps the active content zone (pre-image at A(1,1)/B(4,2)/C(2,4), ghost starting at offset +5) vertically centered in the canvas.
 
 ---
 
-## State
+## State Architecture
 
-`useRigidMotionsState` owns `ghostOffset: [number, number]` — the translation vector from pre-image to ghost. `handleGhostMove` clamps via `clampOffset` before setting state. Phase 2 will add answer-checking state here.
+`useRigidMotionsState` owns all state. No prop drilling beyond two levels:
+`InstrumentModule → RigidMotionsScene + ControlStrip`.
+
+| State | Type | Default | Description |
+|---|---|---|---|
+| `ghostOffset` | `[number, number]` | `[5, 0]` | Translation vector from pre-image to ghost |
+| `guideState` | `GuideState` | `'predict-translate'` | Current stage in the learning sequence |
+| `feedbackState` | `FeedbackState` | `'idle'` | `idle` / `match` / `close` / `miss` |
+| `stageRoundIndex` | number | 0 | Cycles through rounds for current stage |
+| `stageSuccessCount` | number | 0 | Successes accumulated in current stage |
+| `flipped` | boolean | false | Ghost horizontal/vertical flip toggle |
+| `rotationDegrees` | `90\|180\|270` | 90 | Selected rotation amount |
+| `rotationDirection` | `'cw'\|'ccw'` | `'cw'` | Selected rotation direction |
+| `speedMultiplier` | `0.5\|1\|2` | 1 | Reveal animation speed |
+| `coordinatesActive` | boolean | false | Enables coordinate labels (Phase 3+) |
+
+Actions: `handleCheck`, `handleNext`, `handleReset`, `handleFlip`, `handleRotation`, `handleSpeedChange`, `handleAnimationComplete`, `handleGhostMove`.
 
 ---
 
-## Constants (`constants.ts`)
+## Z-Layering
 
-| Constant | Value | Purpose |
-|---|---|---|
-| `GRID_RANGE` | 9 | Grid extends ±9 on each axis |
-| `CONTENT_RANGE` | 6 | Labels and vertices constrained to ±6 |
-| `PRE_IMAGE_VERTICES` | `[1,1],[4,2],[2,4]` | Scalene triangle (no equal sides/angles) |
-| `GHOST_INITIAL_OFFSET` | `[5, 0]` | Ghost starts 5 units right of pre-image |
+| z | Layer |
+|---|---|
+| −0.5 | `DragPlane` |
+| 0 | Grid lines |
+| 0.01 | Shape fills, origin dot |
+| 0.02 | Shape outlines |
+| 0.03 | `SpriteLabel` vertex labels |
+| 0.04 | Constraint elements (TranslationVector, ReflectionAxisTicks, RotationArcs) |
+| 0.05 | Gap lines (miss feedback) |
+
+---
+
+## Spec Compliance Notes
+
+Phase 2 is fully implemented per `docs/plans/2026-03-02-rigid-motions-design-spec-v3.1.md` with one intentional simplification:
+
+**`onAnimationComplete` is a no-op.** The spec describes `feedbackState` transitioning to `'match'` *after* the animation completes (`onAnimationComplete → setFeedbackState('match')`), which would keep the ghost visible during the animation. The implementation instead sets `feedbackState('match')` immediately on CHECK, then `ImageShape` mounts and animates. The spec's Visualization pseudocode (`showGhost = feedbackState !== 'match'`) is implemented as written — the ghost hides when ImageShape animates in. `onAnimationComplete` remains wired in case Phase 3 needs it.
+
+**`coordinatesActive` is always `false` in Phase 2.** `PreImageTriangle`, `GhostTriangle`, and `CoordinateGrid` accept the prop and are Phase 3-ready. The `predict-with-coordinates` and `capstone` guide states are not reachable in Phase 2 (stageSuccessCount logic stops at `predict-rotate`).
+
+**`coordinate-reveal` guard in ControlStrip.** The ControlStrip renders a "Continue" button when `guideState === 'coordinate-reveal'`, but `handleNext` in Phase 2 never sets that state. The guard is defensive and forward-compatible.
 
 ---
 
 ## Lessons Learned
 
-1. **`Text` from drei is forbidden** — see "SpriteLabel" section above. This burned us on initial implementation and was diagnosed via Playwright browser testing.
-2. **StrictMode + WebGL**: React StrictMode's double-mount is the amplifier. Any R3F component that creates a secondary WebGL context (troika, offscreen canvas renderers) will hit the browser limit in dev.
-3. **Playwright is the right tool** for diagnosing WebGL context issues — `isContextLost()`, `getContext()` call counts, and console event monitoring all work reliably.
-4. **Axis label collision at ±1**: The `CoordinateGrid` loop renders both an x-axis label and a y-axis label for every integer `i`. At `i = ±1`, the two labels share the same grid square near the origin and overlap. Fix: x-axis labels sit at `y = -0.7` (not `-0.55`) and y-axis labels have their right edge at `x = -0.65` (not `-0.5`). Do not tighten these offsets without checking the ±1 collision zone.
-5. **Camera Y offset centers the active zone**: The pre-image and ghost triangles live in Q1 (y ≈ 1–4). A camera at `[0, 0, 10]` wastes the bottom half of the canvas on empty negative quadrant. Setting `position.y = 2` centers the action. `CameraSetup` only manages zoom, not position, so the offset is stable across viewport resizes.
+1. **`Text` from drei is forbidden** — see SpriteLabel section. Verified by Playwright: `THREE.WebGLRenderer: Context Lost` on every mount. Removing `Text` eliminated the error entirely.
+2. **StrictMode + WebGL**: React StrictMode's double-mount is the amplifier. Any R3F component creating a secondary WebGL context hits the browser limit in dev.
+3. **`-0` in transform tests**: `Object.is(-0, 0)` is `false` in Vitest's deep equality. Pure math functions return `-0` when negating `+0`. Use `toBeCloseTo(0)` for zero-coordinate edge cases in transform tests.
+4. **BufferGeometry / React reconciler conflict**: Imperative geometry updates in `useFrame` fight React's reconciler if JSX geometry children exist on the same mesh. For GSAP-animated geometry, initialize via `useRef`, attach in `useEffect`, update in `useFrame` — no JSX geometry children.
+5. **`computeGhostVertices` composition order**: Rotate/flip before translate uses the pre-image centroid instead of the dragged centroid. Wrong results at most non-zero offsets. Explicitly tested and commented.
+6. **Camera Y offset centers the active zone**: Pre-image and ghost triangles live in Q1 (y ≈ 1–4). Camera at `[0, 0, 10]` wastes the bottom half on empty negative quadrant. Y=2 centers the action.
+7. **Axis label collision at ±1**: x-axis labels sit at `y = -0.7` and y-axis labels have their right edge at `x = -0.65`. Do not tighten — the ±1 zone overlaps.
