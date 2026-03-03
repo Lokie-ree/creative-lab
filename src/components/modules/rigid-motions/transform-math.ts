@@ -6,7 +6,7 @@
 import type { TransformationParams } from './types'
 
 /** Compute the centroid of a set of vertices */
-export function centroidOf(vertices: [number, number][]): [number, number] {
+export function centroidOf(vertices: readonly [number, number][]): [number, number] {
   const n = vertices.length
   const cx = vertices.reduce((s, [x]) => s + x, 0) / n
   const cy = vertices.reduce((s, [, y]) => s + y, 0) / n

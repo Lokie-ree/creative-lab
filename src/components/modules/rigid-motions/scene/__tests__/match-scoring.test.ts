@@ -38,7 +38,6 @@ const R5_MATCH_GHOST: [number, number][] = [[1, -1], [2, -4], [4, -2]]
 // Close ghost for rotate: centroid matches target centroid but we'll use the
 // exact target vertices so centroid distance = 0, triggering close with wrong rotation
 const R5_CW_PARAMS = { type: 'rotate' as const, degrees: 90 as const, direction: 'cw' as const }
-const R5_CCW_PARAMS = { type: 'rotate' as const, degrees: 90 as const, direction: 'ccw' as const }
 
 // ---------------------------------------------------------------------------
 // translate stage
