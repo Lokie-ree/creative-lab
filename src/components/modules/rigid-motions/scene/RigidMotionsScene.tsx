@@ -348,12 +348,12 @@ function Visualization({
   const preImageCentroid = centroidOf(PRE_IMAGE_VERTICES)
   const ghostCentroid = centroidOf(ghostVerts)
 
-  const showGhost = feedbackState !== 'match'
+  const showGhost = feedbackState !== 'match' && guideState !== 'coordinate-reveal' && guideState !== 'capstone'
   const showImage = feedbackState === 'match'
   const showGapLines = feedbackState === 'miss'
   const showTranslationVector = guideState === 'predict-translate'
   const showAxisTicks = guideState === 'predict-reflect' && reflectionAxis != null
-  const showRotationArcs = guideState === 'predict-rotate'
+  const showRotationArcs = guideState === 'predict-rotate' || guideState === 'predict-with-coordinates-rotate'
 
   return (
     <>
@@ -419,11 +419,13 @@ function Visualization({
         />
       )}
 
-      <DragPlane
-        ghostOffset={ghostOffset}
-        onGhostMove={onGhostMove}
-        onDragChange={onDragChange}
-      />
+      {guideState !== 'capstone' && guideState !== 'coordinate-reveal' && (
+        <DragPlane
+          ghostOffset={ghostOffset}
+          onGhostMove={onGhostMove}
+          onDragChange={onDragChange}
+        />
+      )}
     </>
   )
 }

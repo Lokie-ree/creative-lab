@@ -45,7 +45,9 @@ const PREDICT_STATES: GuideState[] = [
   'predict-translate',
   'predict-reflect',
   'predict-rotate',
-  'predict-with-coordinates',
+  'predict-with-coordinates-translate',
+  'predict-with-coordinates-reflect',
+  'predict-with-coordinates-rotate',
 ]
 
 export function ControlStrip({
@@ -65,8 +67,8 @@ export function ControlStrip({
   const isPredict = PREDICT_STATES.includes(guideState)
   const showCheck = isPredict && feedbackState !== 'match'
   const showNext = isPredict && feedbackState === 'match'
-  const showFlip = guideState === 'predict-reflect' || guideState === 'predict-with-coordinates'
-  const showRotation = guideState === 'predict-rotate' || guideState === 'predict-with-coordinates'
+  const showFlip     = guideState === 'predict-reflect' || guideState === 'predict-with-coordinates-reflect'
+  const showRotation = guideState === 'predict-rotate'  || guideState === 'predict-with-coordinates-rotate'
 
   // coordinate-reveal: CONTINUE only
   if (guideState === 'coordinate-reveal') {
