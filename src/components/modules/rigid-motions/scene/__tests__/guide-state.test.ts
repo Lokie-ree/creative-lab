@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest'
 import { GUIDE_STATE_SEQUENCE, getGuideStateConfig, nextGuideState, guideStateToStage } from '../../guide-state'
 
 describe('GUIDE_STATE_SEQUENCE', () => {
-  it('has 6 states', () => {
-    expect(GUIDE_STATE_SEQUENCE).toHaveLength(6)
+  it('has 8 states', () => {
+    expect(GUIDE_STATE_SEQUENCE).toHaveLength(8)
   })
 
-  it('indices are 0-5 in order', () => {
+  it('indices are 0-7 in order', () => {
     GUIDE_STATE_SEQUENCE.forEach((c, i) => expect(c.index).toBe(i))
   })
 
@@ -59,8 +59,11 @@ describe('guideStateToStage', () => {
     expect(guideStateToStage('predict-rotate')).toBe('rotate')
   })
 
-  it('returns null for non-predict states', () => {
-    expect(guideStateToStage('coordinate-reveal')).toBeNull()
+  it('returns rotate for coordinate-reveal (preserves last round for FormulaReadout)', () => {
+    expect(guideStateToStage('coordinate-reveal')).toBe('rotate')
+  })
+
+  it('returns null for capstone', () => {
     expect(guideStateToStage('capstone')).toBeNull()
   })
 })
