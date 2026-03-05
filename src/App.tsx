@@ -10,6 +10,7 @@ import { EscapeHatch } from "./components/layout/EscapeHatch"
 import { Navigation } from "./components/layout/Navigation"
 import { CelebrationModal } from "./components/celebration/CelebrationModal"
 import { ProcessDialog } from "./components/dialogs/ProcessDialog"
+import type { TransformationParams } from '@/lib/types/transforms'
 
 type View = "hero" | "courses" | "constellation" | "module"
 type TabId = "discovery" | "behind" | "deeper"
@@ -20,7 +21,7 @@ type TabId = "discovery" | "behind" | "deeper"
  */
 interface DynamicModuleProps {
   moduleId: string
-  onComplete: (values: Record<string, number>) => void
+  onComplete: (values: Record<string, number>, meta?: { completedSequence?: TransformationParams[] }) => void
   isVisible: boolean
   onBack?: () => void
 }
@@ -78,6 +79,7 @@ function App() {
 
   // Completed values from module
   const [completedValues, setCompletedValues] = useState<Record<string, number> | null>(null)
+  const [completedSequence, setCompletedSequence] = useState<TransformationParams[] | null>(null)
 
   // Modal states
   const [showCelebration, setShowCelebration] = useState(false)
@@ -110,17 +112,22 @@ function App() {
   }, [])
 
   // Module completion → Celebration modal
-  const handleModuleComplete = useCallback((values: Record<string, number>) => {
-    setCompletedValues(values)
-    setSkippedToEnd(false)
-    setCelebrationTab("discovery")
-    setShowCelebration(true)
-  }, [])
+  const handleModuleComplete = useCallback(
+    (values: Record<string, number>, meta?: { completedSequence?: TransformationParams[] }) => {
+      setCompletedValues(values)
+      setCompletedSequence(meta?.completedSequence ?? null)
+      setSkippedToEnd(false)
+      setCelebrationTab("discovery")
+      setShowCelebration(true)
+    },
+    []
+  )
 
   // Back to constellation from module
   const handleBackToConstellation = useCallback(() => {
     setShowCelebration(false)
     setCompletedValues(null)
+    setCompletedSequence(null)
     setSkippedToEnd(false)
     setActiveModuleId(null)
     setView("constellation")
@@ -148,6 +155,7 @@ function App() {
   const handleNewChallenge = useCallback(() => {
     setShowCelebration(false)
     setCompletedValues(null)
+    setCompletedSequence(null)
     // Module will reset internally when re-rendered
   }, [])
 
@@ -275,6 +283,8 @@ function App() {
         values={completedValues}
         skipped={skippedToEnd}
         initialTab={celebrationTab}
+        moduleId={activeModuleId}
+        completedSequence={completedSequence}
         onDismiss={() => setShowCelebration(false)}
         onNewChallenge={handleNewChallenge}
         onNextModule={handleBackToConstellation}
@@ -282,7 +292,7 @@ function App() {
       />
 
       {/* Process Dialog */}
-      <ProcessDialog open={showProcess} onOpenChange={setShowProcess} />
+      <ProcessDialog open={showProcess} onOpenChange={setShowProcess} moduleId={activeModuleId} />
     </PortfolioProvider>
   )
 }

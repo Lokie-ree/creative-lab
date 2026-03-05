@@ -1,5 +1,7 @@
 // src/config/modules.ts
 
+import type { TransformationParams } from '@/lib/types/transforms'
+
 export interface ModuleConfig {
   id: string
   title: string
@@ -12,7 +14,7 @@ export interface ModuleConfig {
 }
 
 export interface ModuleProps {
-  onComplete: (values: Record<string, number>) => void
+  onComplete: (values: Record<string, number>, meta?: { completedSequence?: TransformationParams[] }) => void
   isVisible?: boolean
   onBack?: () => void
 }

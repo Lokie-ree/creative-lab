@@ -45,9 +45,9 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
 
   useEffect(() => {
     if (showCelebration) {
-      onComplete({})
+      onComplete({}, { completedSequence: capstoneSequence })
     }
-  }, [showCelebration, onComplete])
+  }, [showCelebration, onComplete, capstoneSequence])
 
   const promptText = PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.'
 
