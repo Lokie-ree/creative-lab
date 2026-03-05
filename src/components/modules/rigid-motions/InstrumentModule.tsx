@@ -1,10 +1,11 @@
 // src/components/modules/rigid-motions/InstrumentModule.tsx
 /**
- * Rigid Motions — Phase 2
+ * Rigid Motions — Phase 2 + Phase 4 capstone
  *
  * Navigation handled by the app shell EscapeHatch (LAB dropdown).
  * No back button or ESC in the status strip — that would duplicate it.
  */
+import { useEffect } from 'react'
 import type { ModuleProps } from '@/config/modules'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
 import { RigidMotionsScene } from './scene/RigidMotionsScene'
@@ -15,7 +16,7 @@ import { isCoordinateStage } from './guide-state'
 import { computeGhostVertices } from './scene/scene-math'
 import type { ReflectionParams } from './types'
 
-export function InstrumentModule(_: ModuleProps) {
+export function InstrumentModule({ onComplete }: ModuleProps) {
   const {
     ghostOffset,
     handleGhostMove,
@@ -34,7 +35,19 @@ export function InstrumentModule(_: ModuleProps) {
     handleRotation,
     handleSpeedChange,
     handleAnimationComplete,
+    capstoneRound,
+    capstoneSequence,
+    showCelebration,
+    handleSequenceChange,
+    handleCheckSequence,
+    handleCapstoneNext,
   } = useRigidMotionsState()
+
+  useEffect(() => {
+    if (showCelebration) {
+      onComplete({})
+    }
+  }, [showCelebration, onComplete])
 
   const promptText = PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.'
 
@@ -99,6 +112,8 @@ export function InstrumentModule(_: ModuleProps) {
           speedMultiplier={speedMultiplier}
           coordinatesActive={coordinatesActive}
           onAnimationComplete={handleAnimationComplete}
+          capstoneSequence={capstoneSequence}
+          capstoneTargetVertices={capstoneRound.targetVertices}
         />
       </main>
 
@@ -117,6 +132,10 @@ export function InstrumentModule(_: ModuleProps) {
           onFlip={handleFlip}
           onRotation={handleRotation}
           onSpeedChange={handleSpeedChange}
+          capstoneSequence={capstoneSequence}
+          onSequenceChange={handleSequenceChange}
+          onCheckSequence={handleCheckSequence}
+          onCapstoneNext={handleCapstoneNext}
         />
       </footer>
     </div>

@@ -42,6 +42,18 @@ export const EARNED_REVEALS: Record<GuideState, string> = {
   'capstone': '',
 }
 
+export const CAPSTONE_EARNED_REVEALS: Record<string, string> = {
+  'capstone-1': 'One transformation was enough. You described it completely with a type and a parameter.',
+  'capstone-2': 'Two transformations composed. The order mattered — try reversing them to see why.',
+  'capstone-3': "Rotation and translation don't commute. The order you chose was the one that works.",
+}
+
+export const CAPSTONE_COMPLETION_COPY: Record<string, string> = {
+  'capstone-1': 'One transformation. You named it completely.',
+  'capstone-2': 'Two steps composed. Order determined the outcome.',
+  'capstone-3': 'Composition is non-commutative. You found the sequence that works.',
+}
+
 // Celebration modal · "Behind This" tab (same shape as sinewaves behindThis)
 export const BEHIND_THIS = {
   approach: {

@@ -5,7 +5,9 @@ import { computeGhostVertices } from '../scene/scene-math'
 import { scoreGuess } from '../match-scoring'
 import { getRoundsForStage } from '../round-generator'
 import { nextGuideState, guideStateToStage, getGuideStateConfig, isCoordinateStage } from '../guide-state'
+import { CAPSTONE_ROUNDS, validateCapstoneSequence } from '../capstone-utils'
 import type { GuideState, FeedbackState, Round, ReflectionParams } from '../types'
+import type { TransformationParams } from '@/lib/types/transforms'
 
 export interface RigidMotionsState {
   // Phase 1 (unchanged)
@@ -31,6 +33,14 @@ export interface RigidMotionsState {
   handleRotation: (degrees: 90 | 180 | 270, direction: 'cw' | 'ccw') => void
   handleSpeedChange: (speed: 0.5 | 1 | 2) => void
   handleAnimationComplete: () => void
+
+  // Phase 4 capstone
+  capstoneRound: typeof CAPSTONE_ROUNDS[number]
+  capstoneSequence: TransformationParams[]
+  showCelebration: boolean
+  handleSequenceChange: (steps: TransformationParams[]) => void
+  handleCheckSequence: () => void
+  handleCapstoneNext: () => void
 }
 
 function getInitialRound(guideState: GuideState, roundIndex: number): Round {
@@ -57,6 +67,12 @@ export function useRigidMotionsState(): RigidMotionsState {
   const [speedMultiplier, setSpeedMultiplier] = useState<0.5 | 1 | 2>(1)
 
   const currentRound = getInitialRound(guideState, stageRoundIndex)
+
+  // Phase 4 capstone
+  const [capstoneRoundIndex, setCapstoneRoundIndex] = useState(0)
+  const [capstoneSequence, setCapstoneSequence] = useState<TransformationParams[]>([])
+  const [showCelebration, setShowCelebration] = useState(false)
+  const capstoneRound = CAPSTONE_ROUNDS[capstoneRoundIndex]
 
   // -------------------------------------------------------------------------
   // Phase 1 action
@@ -158,6 +174,25 @@ export function useRigidMotionsState(): RigidMotionsState {
     // No additional state change needed; the UI responds to feedbackState
   }, [])
 
+  const handleSequenceChange = useCallback((steps: TransformationParams[]) => {
+    setCapstoneSequence(steps)
+    setFeedbackState('idle')
+  }, [])
+
+  const handleCheckSequence = useCallback(() => {
+    const result = validateCapstoneSequence(capstoneSequence, capstoneRound.targetVertices)
+    setFeedbackState(result)
+    if (result === 'match' && capstoneRoundIndex === CAPSTONE_ROUNDS.length - 1) {
+      setShowCelebration(true)
+    }
+  }, [capstoneSequence, capstoneRound, capstoneRoundIndex])
+
+  const handleCapstoneNext = useCallback(() => {
+    setCapstoneRoundIndex(prev => Math.min(prev + 1, CAPSTONE_ROUNDS.length - 1))
+    setCapstoneSequence([])
+    setFeedbackState('idle')
+  }, [])
+
   return {
     ghostOffset,
     handleGhostMove,
@@ -177,5 +212,11 @@ export function useRigidMotionsState(): RigidMotionsState {
     handleRotation,
     handleSpeedChange,
     handleAnimationComplete,
+    capstoneRound,
+    capstoneSequence,
+    showCelebration,
+    handleSequenceChange,
+    handleCheckSequence,
+    handleCapstoneNext,
   }
 }

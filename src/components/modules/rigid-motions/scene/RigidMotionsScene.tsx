@@ -9,7 +9,7 @@ import {
   GRID_RANGE,
   CONTENT_RANGE,
 } from '../constants'
-import { centroidOf } from '../transform-math'
+import { centroidOf, applySequence } from '../transform-math'
 import { vertexLabelOffset, clampOffset, computeGhostVertices } from './scene-math'
 import { SpriteLabel, makeTriangleShape } from './scene-primitives'
 import { useRigidMotionsLayout } from './scene-layout'
@@ -18,7 +18,9 @@ import { ReflectionAxisTicks } from './ReflectionAxisTicks'
 import { RotationArcs } from './RotationArcs'
 import { ImageShape } from './ImageShape'
 import { GapLines } from './GapLines'
+import { PreviewGhost } from './PreviewGhost'
 import type { GuideState, FeedbackState, Round, ReflectionParams } from '../types'
+import type { TransformationParams } from '@/lib/types/transforms'
 
 export interface RigidMotionsSceneProps {
   ghostOffset: [number, number]
@@ -33,6 +35,8 @@ export interface RigidMotionsSceneProps {
   speedMultiplier: 0.5 | 1 | 2
   coordinatesActive: boolean
   onAnimationComplete: () => void
+  capstoneSequence?: TransformationParams[]
+  capstoneTargetVertices?: [number, number][]
 }
 
 // ─── GL context recovery ──────────────────────────────────────────────────────
@@ -317,6 +321,51 @@ function DragPlane({ ghostOffset, onGhostMove, onDragChange }: DragPlaneProps) {
   )
 }
 
+// ─── Capstone target triangle ─────────────────────────────────────────────────
+
+interface CapstoneTargetProps {
+  vertices: [number, number][]
+  coordinatesActive: boolean
+}
+
+function CapstoneTarget({ vertices, coordinatesActive }: CapstoneTargetProps) {
+  const centroid = centroidOf(vertices as [number, number][])
+  const { outlineGeometry, shape } = useMemo(() => {
+    const pts = [...vertices, vertices[0]].map(([x, y]) => new THREE.Vector3(x, y, 0.02))
+    return {
+      outlineGeometry: new THREE.BufferGeometry().setFromPoints(pts),
+      shape: makeTriangleShape(vertices as [number, number][]),
+    }
+  }, [vertices])
+
+  return (
+    <group>
+      <mesh position={[0, 0, 0.01]}>
+        <shapeGeometry args={[shape]} />
+        <meshBasicMaterial color="#7cc87c" transparent opacity={0.18} />
+      </mesh>
+      <lineLoop geometry={outlineGeometry}>
+        <lineBasicMaterial color="#7cc87c" />
+      </lineLoop>
+      {(vertices as [number, number][]).map((v, idx) => {
+        const [lx, ly] = vertexLabelOffset(v, centroid, 0.5)
+        const primeLabels = ['A\u2032', 'B\u2032', 'C\u2032'] as const
+        return (
+          <SpriteLabel
+            key={`capstone-target-${idx}`}
+            text={coordinatesActive ? `${primeLabels[idx]}(${v[0]},${v[1]})` : primeLabels[idx]}
+            position={[lx, ly, 0.03]}
+            color="#7cc87c"
+            anchorX="center"
+            anchorY="middle"
+            planeWidth={coordinatesActive ? 1.6 : 0.7}
+          />
+        )
+      })}
+    </group>
+  )
+}
+
 // ─── Visualization (inner component, runs inside Canvas) ──────────────────────
 
 interface VisualizationProps extends RigidMotionsSceneProps {
@@ -336,6 +385,8 @@ function Visualization({
   speedMultiplier,
   coordinatesActive,
   onAnimationComplete,
+  capstoneSequence,
+  capstoneTargetVertices,
 }: VisualizationProps) {
   const reflectionAxis =
     currentRound.params.type === 'reflect'
@@ -350,8 +401,10 @@ function Visualization({
 
   const showGhost = feedbackState !== 'match' && guideState !== 'coordinate-reveal' && guideState !== 'capstone'
   const showImage = feedbackState === 'match'
-  const showGapLines = feedbackState === 'miss'
+  const showGapLines = feedbackState === 'miss' && guideState !== 'capstone'
   const showTranslationVector = guideState === 'predict-translate'
+  const showPreviewGhost = guideState === 'capstone' && (capstoneSequence?.length ?? 0) > 0
+  const showCapstoneTarget = guideState === 'capstone' && capstoneTargetVertices != null
   const showAxisTicks = guideState === 'predict-reflect' && reflectionAxis != null
   const showRotationArcs = guideState === 'predict-rotate' || guideState === 'predict-with-coordinates-rotate'
 
@@ -386,10 +439,25 @@ function Visualization({
         />
       )}
 
+      {showCapstoneTarget && capstoneTargetVertices && (
+        <CapstoneTarget vertices={capstoneTargetVertices} coordinatesActive={coordinatesActive} />
+      )}
+
+      {showPreviewGhost && capstoneSequence && (
+        <PreviewGhost sequence={capstoneSequence} coordinatesActive={coordinatesActive} />
+      )}
+
       {showGapLines && (
         <GapLines
           ghostVertices={ghostVerts}
           targetVertices={currentRound.targetVertices}
+        />
+      )}
+
+      {guideState === 'capstone' && feedbackState === 'miss' && capstoneSequence && capstoneSequence.length > 0 && capstoneTargetVertices && (
+        <GapLines
+          ghostVertices={applySequence(PRE_IMAGE_VERTICES as [number, number][], capstoneSequence)}
+          targetVertices={capstoneTargetVertices}
         />
       )}
 
