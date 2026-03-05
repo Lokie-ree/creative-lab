@@ -1,6 +1,6 @@
-# AGENT.md
+# CLAUDE.md
 
-Instructions for AI agents working in this repository. Single source for architecture, commands, patterns, design system, current state, and guidelines.
+Instructions for AI agents working in this repository. Single source of truth for architecture, commands, patterns, design system, current state, and guidelines.
 
 ## Project
 
@@ -17,6 +17,14 @@ pnpm build            # Type check (tsc -b) + production build
 pnpm lint             # Run ESLint
 pnpm preview          # Preview production build
 pnpm analyze          # Build + open bundle stats
+pnpm storybook        # Storybook dev server at port 6006
+```
+
+**Tests** (Vitest with dual environments):
+```bash
+pnpm vitest run                                        # All tests
+pnpm vitest run src/components/modules/rigid-motions  # Single module
+pnpm vitest --browser                                  # Browser/Storybook tests
 ```
 
 ## Architecture
@@ -120,7 +128,7 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 ## Current State
 
-**Last updated:** February 23, 2026
+**Last updated:** March 5, 2026
 
 ### App framing
 The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IVLA STEM Club" with a `DotGrid` canvas background (interactive dot field with mouse proximity) and a `RotatingText` tagline ("Where we build / discover / explore / prove"). No personal name in the student-facing UI.
@@ -129,7 +137,7 @@ The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IV
 - **sinewaves** — **Complete.** Trigonometry; unit circle → sine/cosine. Instrument-style HUD with Eurorack design system. No panel screws. StatusStrip touch targets 44px minimum.
 - **vector-transformations** — Implemented. Linear algebra; matrix transformations on vectors.
 - **phase-portraits** — Placeholder/coming-soon.
-- **rigid-motions** — **Design complete, not yet started.** Listed in `courses.ts` (Geometry course), not yet in `modules.ts`. See design spec below.
+- **rigid-motions** — **Complete (all 4 phases).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). Conference-ready for ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
 
 ### Journey (hero → CourseHub → Constellation → module)
 - All screens use `--lab-bg` warm faceplate background.
@@ -139,21 +147,21 @@ The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IV
 - `Navigation.tsx` uses `from-[var(--lab-bg)]/70` gradient and lab text tokens.
 
 ### Module skeleton
-Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, useAccessibility, useErrorRecovery, useModuleAnalytics). Not yet consumed by any module. Rigid Motions is the first intended consumer.
+Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, useAccessibility, useErrorRecovery, useModuleAnalytics). Not yet consumed by any module — rigid-motions built its own `useRigidMotionsState` hook directly.
 
-### Next build: Rigid Motions & Congruence
+### Rigid Motions — architecture notes
 - **Standards:** 8.G.A.1, 8.G.A.2, 8.G.A.3 (Grade 8 Geometry)
-- **Design spec:** [`docs/plans/2026-02-19-rigid-motions-design-spec.md`](./docs/plans/2026-02-19-rigid-motions-design-spec.md) — implementation-ready
-- **Mockup:** `mockups/RigidMotions.jsx` — exemplar; validated against spec
-- **Roadmap:** First module in three-module Grade 8 Geometry progression: (1) Rigid Motions, (2) Dilations & Similarity, (3) Pythagorean Theorem
+- **Architecture doc:** [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md) — as-built reference
+- **Design spec (Phase 3 & 4, archived):** [`docs/archive/2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md`](./docs/archive/2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md)
+- **Shared types:** `TransformationParams` and related types live in `src/lib/types/transforms.ts` — imported by celebration components and rigid-motions module alike
+- **Roadmap:** First module in three-module Grade 8 Geometry progression: (1) Rigid Motions ✓, (2) Dilations & Similarity, (3) Pythagorean Theorem
 
 ## Outstanding Work
 
-### Rigid Motions — not yet started
-- Add entry to `src/config/modules.ts` as first step
-- Follow the sinewaves file structure as reference implementation
-- Consult [`docs/plans/2026-02-19-rigid-motions-design-spec.md`](./docs/plans/2026-02-19-rigid-motions-design-spec.md) for all design decisions
-- Use `module-planning-pipeline` skill to generate the implementation plan
+### Next module: Dilations & Similarity
+- Grade 8 Geometry progression — follows Rigid Motions
+- Use `module-planning-pipeline` skill to generate the design spec
+- Follow the rigid-motions file structure as reference implementation
 
 ### Sinewaves — lower-priority polish
 - **Resize distortion:** Scene layout may desync with Canvas on viewport resize.
@@ -168,8 +176,8 @@ See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRA
 
 ## Agent Guidelines
 
-- **Preserve pedagogy.** Don’t add quizzes, multiple choice, or "wrong answer" messaging. Keep discovery-first and earned reveals.
-- **Respect separation.** Don’t put HTML controls inside the Canvas or 3D inside control components.
+- **Preserve pedagogy.** Don't add quizzes, multiple choice, or "wrong answer" messaging. Keep discovery-first and earned reveals.
+- **Respect separation.** Don't put HTML controls inside the Canvas or 3D inside control components.
 - **Follow the design system.** Use `@/lib/colors` and existing UI/shadcn components; avoid one-off palettes or layout patterns that clash.
 - **Check docs before big changes.** New modules or flow changes should align with [docs/philosophy.md](./docs/philosophy.md), [docs/product.md](./docs/product.md), and [VISION.md](./VISION.md). Use the `module-planning-pipeline` skill for new module planning.
 
@@ -181,7 +189,9 @@ See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRA
 | Documentation index & module pipeline | [docs/README.md](./docs/README.md) |
 | Vision, audience, principles | [VISION.md](./VISION.md) |
 | Sinewaves architecture | [src/components/modules/sinewaves/ARCHITECTURE.md](./src/components/modules/sinewaves/ARCHITECTURE.md) |
+| Rigid Motions architecture | [src/components/modules/rigid-motions/ARCHITECTURE.md](./src/components/modules/rigid-motions/ARCHITECTURE.md) |
 | Module skeleton infrastructure | [src/lib/skeleton/README.md](./src/lib/skeleton/README.md) |
 | Design critiques, HUD direction | `docs/design/` |
-| Implementation plans | `docs/plans/` (active module specs); completed/infrastructure plans in `docs/archive/` (e.g. module skeleton) |
+| Active implementation plans | `docs/plans/` (empty — all rigid motions specs archived March 2026) |
+| Completed plans & resolved audits | `docs/archive/` |
 | Adding a module | Register in `src/config/modules.ts`; lazy-load component; implement `ModuleProps` |

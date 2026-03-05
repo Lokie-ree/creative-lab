@@ -22,4 +22,4 @@ pnpm dev
 | [docs/design/](./docs/design/) | Design specs, audits, and current direction |
 | [docs/plans/](./docs/plans/) | Active design specs for modules in development |
 | [mockups/](./mockups/) | React/JSX prototypes for design validation (exemplar: RigidMotions.jsx) |
-| [AGENT.md](./AGENT.md) | AI agent: architecture, commands, design system |
+| [CLAUDE.md](./CLAUDE.md) | AI agent: architecture, commands, design system |

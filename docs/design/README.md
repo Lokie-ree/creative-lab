@@ -89,11 +89,11 @@ For layout density, status strip, readout treatment, and controls: see sinewaves
 
 ## Outstanding work
 
-**Canonical list:** [AGENT.md § Outstanding Work](../../AGENT.md#outstanding-work). Summary below.
+**Canonical list:** [CLAUDE.md § Outstanding Work](../../CLAUDE.md#outstanding-work). Summary below.
 
-### Rigid Motions — not yet started ← **next priority**
+### Rigid Motions — Complete
 
-Design spec and mockup are complete and validated. Implementation has not begun. See **Modules** section above for status and spec location. Use the `module-planning-pipeline` skill to generate the implementation plan.
+All 4 phases shipped. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md) for as-built documentation. Design specs archived in `docs/archive/`.
 
 ### Sinewaves — lower-priority polish
 
@@ -109,7 +109,7 @@ The `Course` type has a `color` field; CS course has `color: '#a855f7'` (purple,
 
 ### Infrastructure — skeleton not consumed
 
-Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, etc.) implemented but not consumed. Rigid Motions is the intended first consumer. Implementation plan (spec): [archive/2026-01-27-module-skeleton-infrastructure.md](../archive/2026-01-27-module-skeleton-infrastructure.md).
+Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, etc.) implemented but not consumed. Rigid Motions built its own `useRigidMotionsState` hook directly. Implementation plan (spec): [archive/2026-01-27-module-skeleton-infrastructure.md](../archive/2026-01-27-module-skeleton-infrastructure.md).
 
 ### Performance — medium/low findings
 
