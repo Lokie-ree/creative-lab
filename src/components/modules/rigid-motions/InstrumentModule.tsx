@@ -10,6 +10,10 @@ import { useRigidMotionsState } from './hooks/useRigidMotionsState'
 import { RigidMotionsScene } from './scene/RigidMotionsScene'
 import { ControlStrip } from './controls/ControlStrip'
 import { PROMPT_TEXT } from './rigid-motions-copy'
+import { FormulaReadout } from './scene/FormulaReadout'
+import { isCoordinateStage } from './guide-state'
+import { computeGhostVertices } from './scene/scene-math'
+import type { ReflectionParams } from './types'
 
 export function InstrumentModule(_: ModuleProps) {
   const {
@@ -34,8 +38,20 @@ export function InstrumentModule(_: ModuleProps) {
 
   const promptText = PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.'
 
+  const reflectionAxis = currentRound.params.type === 'reflect'
+    ? (currentRound.params as ReflectionParams).axis
+    : undefined
+
+  // No live ghost in coordinate-reveal (pause state) or capstone
+  const liveGhostVertices =
+    (guideState === 'coordinate-reveal' || guideState === 'capstone')
+      ? undefined
+      : computeGhostVertices(ghostOffset, guideState, flipped, rotationDegrees, rotationDirection, reflectionAxis) as [number, number][]
+
+  const showFormulaReadout = guideState === 'coordinate-reveal' || isCoordinateStage(guideState)
+
   return (
-    <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[3rem_auto_1fr_auto]">
+    <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[3rem_auto_auto_1fr_auto]">
 
       {/* ── ROW 1: STATUS STRIP ─────────────────────────────── */}
       {/* Left pad clears the floating EscapeHatch LAB button (~72px wide at left-4) */}
@@ -59,7 +75,17 @@ export function InstrumentModule(_: ModuleProps) {
         </p>
       </div>
 
-      {/* ── ROW 3: VISUALIZATION ────────────────────────────── */}
+      {/* ── ROW 3: FORMULA READOUT (Phase 3+ only) ──────────── */}
+      {showFormulaReadout && (
+        <FormulaReadout
+          round={currentRound}
+          ghostVertices={liveGhostVertices}
+          feedbackState={feedbackState}
+        />
+      )}
+      {!showFormulaReadout && <div aria-hidden />}
+
+      {/* ── ROW 4: VISUALIZATION ────────────────────────────── */}
       <main className="relative min-h-0">
         <RigidMotionsScene
           ghostOffset={ghostOffset}
@@ -76,7 +102,7 @@ export function InstrumentModule(_: ModuleProps) {
         />
       </main>
 
-      {/* ── ROW 4: CONTROL STRIP ────────────────────────────── */}
+      {/* ── ROW 5: CONTROL STRIP ────────────────────────────── */}
       <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2.5 md:px-6 md:py-3">
         <ControlStrip
           guideState={guideState}
