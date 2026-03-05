@@ -7,7 +7,9 @@ export type GuideState =
   | 'predict-reflect'
   | 'predict-rotate'
   | 'coordinate-reveal'
-  | 'predict-with-coordinates'
+  | 'predict-with-coordinates-translate'
+  | 'predict-with-coordinates-reflect'
+  | 'predict-with-coordinates-rotate'
   | 'capstone'
 
 export type FeedbackState = 'idle' | 'match' | 'close' | 'miss'
