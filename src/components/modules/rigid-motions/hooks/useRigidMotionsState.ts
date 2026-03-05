@@ -4,7 +4,7 @@ import { GHOST_INITIAL_OFFSET } from '../constants'
 import { computeGhostVertices } from '../scene/scene-math'
 import { scoreGuess } from '../match-scoring'
 import { getRoundsForStage } from '../round-generator'
-import { nextGuideState, guideStateToStage } from '../guide-state'
+import { nextGuideState, guideStateToStage, getGuideStateConfig, isCoordinateStage } from '../guide-state'
 import type { GuideState, FeedbackState, Round, ReflectionParams } from '../types'
 
 export interface RigidMotionsState {
@@ -103,20 +103,22 @@ export function useRigidMotionsState(): RigidMotionsState {
     const newSuccessCount = stageSuccessCount + 1
     const stage = guideStateToStage(guideState) ?? 'translate'
     const roundsInStage = getRoundsForStage(stage).length
-    const config = { successesRequired: 2 } // all predict stages require 2
-
-    const stageComplete = newSuccessCount >= config.successesRequired
+    // Read successesRequired from the state machine config — never hardcode
+    const stageComplete = newSuccessCount >= getGuideStateConfig(guideState).successesRequired
 
     if (stageComplete) {
       const next = nextGuideState(guideState)
       if (next) {
         setGuideState(next)
-        if (next === 'coordinate-reveal' || next === 'predict-with-coordinates') {
+        // Flip coordinatesActive on entering coordinate-reveal or any Phase 3 predict state (never reverts)
+        if (next === 'coordinate-reveal' || isCoordinateStage(next)) {
           setCoordinatesActive(true)
         }
+        // Phase 3 predict states use round index 1 (harder round per type, seen Phase 2 at index 0)
+        // coordinate-reveal resets to 0 (shows rotate-90-cw via guideStateToStage returning 'rotate')
+        setStageRoundIndex(isCoordinateStage(next) ? 1 : 0)
       }
       setStageSuccessCount(0)
-      setStageRoundIndex(0)
     } else {
       setStageRoundIndex(prev => (prev + 1) % roundsInStage)
       setStageSuccessCount(newSuccessCount)
