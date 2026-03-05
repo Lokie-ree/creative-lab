@@ -84,10 +84,15 @@ export function computeGhostVertices(
   rotationDirection: 'cw' | 'ccw',
   reflectionAxis?: 'x' | 'y',
 ): [number, number][] {
-  if (guideState === 'predict-reflect' && flipped && reflectionAxis) {
+  // Reflect states (Phase 2 + Phase 3): local flip around ghost centroid
+  if (
+    (guideState === 'predict-reflect' || guideState === 'predict-with-coordinates-reflect') &&
+    flipped && reflectionAxis
+  ) {
     return ghostVerticesWithFlip(baseOffset, reflectionAxis, true)
   }
-  if (guideState === 'predict-rotate') {
+  // Rotate states (Phase 2 + Phase 3): local rotation around ghost centroid
+  if (guideState === 'predict-rotate' || guideState === 'predict-with-coordinates-rotate') {
     return ghostVerticesWithRotation(baseOffset, rotationDegrees, rotationDirection)
   }
   return ghostVertices(baseOffset)

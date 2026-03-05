@@ -171,6 +171,34 @@ describe('computeGhostVertices', () => {
   })
 })
 
+describe('computeGhostVertices — Phase 3 states', () => {
+  const OFFSET: [number, number] = [1, 2]
+
+  it('predict-with-coordinates-reflect behaves identically to predict-reflect (flipped=true, axis=y)', () => {
+    const phase2 = computeGhostVertices(OFFSET, 'predict-reflect', true, 90, 'cw', 'y')
+    const phase3 = computeGhostVertices(OFFSET, 'predict-with-coordinates-reflect', true, 90, 'cw', 'y')
+    expect(phase3).toEqual(phase2)
+  })
+
+  it('predict-with-coordinates-reflect with flipped=false gives plain translation', () => {
+    const plain = computeGhostVertices(OFFSET, 'predict-translate', false, 90, 'cw')
+    const phase3 = computeGhostVertices(OFFSET, 'predict-with-coordinates-reflect', false, 90, 'cw', 'y')
+    expect(phase3).toEqual(plain)
+  })
+
+  it('predict-with-coordinates-rotate behaves identically to predict-rotate', () => {
+    const phase2 = computeGhostVertices(OFFSET, 'predict-rotate', false, 90, 'cw')
+    const phase3 = computeGhostVertices(OFFSET, 'predict-with-coordinates-rotate', false, 90, 'cw')
+    expect(phase3).toEqual(phase2)
+  })
+
+  it('predict-with-coordinates-translate gives plain translation (same as predict-translate)', () => {
+    const plain = computeGhostVertices(OFFSET, 'predict-translate', false, 90, 'cw')
+    const phase3 = computeGhostVertices(OFFSET, 'predict-with-coordinates-translate', false, 90, 'cw')
+    expect(phase3).toEqual(plain)
+  })
+})
+
 describe('vertexLabelOffset', () => {
   it('returns a point offset outward from the centroid', () => {
     const vertex: [number, number] = [4, 2]
