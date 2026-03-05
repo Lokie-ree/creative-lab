@@ -44,7 +44,7 @@ The `module-planning-pipeline` skill guides this process.
 | Path | Purpose |
 |------|---------|
 | [**design/**](./design/) | Design specs, audits, and current direction. Start with [design/README.md](./design/README.md) for Eurorack design system and module status. |
-| [**plans/**](./plans/) | Active design specs for modules in development (e.g., rigid motions). Completed infrastructure plans (e.g. module skeleton) are in [archive/](./archive/). |
+| [**plans/**](./plans/) | Active design specs for modules in development. Currently empty — rigid motions specs moved to [archive/](./archive/) on completion (March 2026). |
 | [**archive/**](./archive/) | Completed implementation plans and resolved audits. Historical reference only. Feb 2026 cleanup log: [DOCUMENTATION-CLEANUP-2026-02-20.md](./archive/DOCUMENTATION-CLEANUP-2026-02-20.md). |
 | [**professional/**](./professional/) | Resume and career materials. |
 
@@ -53,7 +53,8 @@ The `module-planning-pipeline` skill guides this process.
 ## Root-level references
 
 - [**VISION.md**](../VISION.md) — Career positioning, audience, guiding principles.
-- [**AGENT.md**](../AGENT.md) — AI agent instructions: architecture, commands, design system.
+- [**CLAUDE.md**](../CLAUDE.md) — AI agent instructions: architecture, commands, design system.
 - [**Sinewaves ARCHITECTURE.md**](../src/components/modules/sinewaves/ARCHITECTURE.md) — Reference implementation for completed module.
+- [**Rigid Motions ARCHITECTURE.md**](../src/components/modules/rigid-motions/ARCHITECTURE.md) — As-built documentation for rigid motions (all 4 phases complete).
 - [**Module skeleton**](../src/lib/skeleton/README.md) — Reusable hooks for future modules.
 - [**Mockups**](../mockups/) — React/JSX prototypes for design validation; see [mockups/README.md](../mockups/README.md) and exemplar `RigidMotions.jsx`.

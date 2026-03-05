@@ -29,9 +29,32 @@ For the sinewaves module as built, see:
 
 ---
 
+---
+
+## Rigid Motions Module — Complete
+
+The rigid motions module (8.G.A.1–3) has been fully implemented across four phases. These documents capture the design and implementation process:
+
+### Design Specs (Completed)
+
+- **[2026-02-19-rigid-motions-design-spec.md](./2026-02-19-rigid-motions-design-spec.md)** — Original full-module spec (Phase 1 & 2 scope)
+- **[2026-03-01-rigid-motions-r3f-migration-design.md](./2026-03-01-rigid-motions-r3f-migration-design.md)** — R3F migration design (Canvas architecture, SpriteLabel constraint)
+- **[2026-03-01-rigid-motions-r3f-migration.md](./2026-03-01-rigid-motions-r3f-migration.md)** — R3F migration implementation plan
+- **[2026-03-02-rigid-motions-design-spec-v3.md](./2026-03-02-rigid-motions-design-spec-v3.md)** — Phase 2 design spec v3 (predict-and-reveal loop, match scoring)
+- **[2026-03-02-rigid-motions-design-spec-v3.1.md](./2026-03-02-rigid-motions-design-spec-v3.1.md)** — Phase 2 design spec v3.1 (constraint elements, guide state machine)
+- **[2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.md](./2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.md)** — Phase 3 & 4 spec v1.0 (coordinate layer, capstone — open questions)
+- **[2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md](./2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md)** — Phase 3 & 4 spec v1.2 (all decisions locked; final implementation spec)
+
+### Current Reference (Rigid Motions)
+
+For the rigid motions module as built, see:
+- **Implementation:** `src/components/modules/rigid-motions/ARCHITECTURE.md`
+
+---
+
 ## Infrastructure — Implemented
 
-- **[2026-01-27-module-skeleton-infrastructure.md](./2026-01-27-module-skeleton-infrastructure.md)** — Module skeleton (hooks, types, flow). Implemented in `src/lib/skeleton/`; this plan is the spec for verification and future changes. Not yet consumed by any module; Rigid Motions is the first intended consumer.
+- **[2026-01-27-module-skeleton-infrastructure.md](./2026-01-27-module-skeleton-infrastructure.md)** — Module skeleton (hooks, types, flow). Implemented in `src/lib/skeleton/`; this plan is the spec for verification and future changes. Not yet consumed by any module — rigid-motions built its own `useRigidMotionsState` hook directly.
 
 For current skeleton usage and API, see `src/lib/skeleton/README.md`.
 

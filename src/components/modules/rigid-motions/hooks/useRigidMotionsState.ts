@@ -4,8 +4,10 @@ import { GHOST_INITIAL_OFFSET } from '../constants'
 import { computeGhostVertices } from '../scene/scene-math'
 import { scoreGuess } from '../match-scoring'
 import { getRoundsForStage } from '../round-generator'
-import { nextGuideState, guideStateToStage } from '../guide-state'
+import { nextGuideState, guideStateToStage, getGuideStateConfig, isCoordinateStage } from '../guide-state'
+import { CAPSTONE_ROUNDS, validateCapstoneSequence } from '../capstone-utils'
 import type { GuideState, FeedbackState, Round, ReflectionParams } from '../types'
+import type { TransformationParams } from '@/lib/types/transforms'
 
 export interface RigidMotionsState {
   // Phase 1 (unchanged)
@@ -31,6 +33,14 @@ export interface RigidMotionsState {
   handleRotation: (degrees: 90 | 180 | 270, direction: 'cw' | 'ccw') => void
   handleSpeedChange: (speed: 0.5 | 1 | 2) => void
   handleAnimationComplete: () => void
+
+  // Phase 4 capstone
+  capstoneRound: typeof CAPSTONE_ROUNDS[number]
+  capstoneSequence: TransformationParams[]
+  showCelebration: boolean
+  handleSequenceChange: (steps: TransformationParams[]) => void
+  handleCheckSequence: () => void
+  handleCapstoneNext: () => void
 }
 
 function getInitialRound(guideState: GuideState, roundIndex: number): Round {
@@ -57,6 +67,12 @@ export function useRigidMotionsState(): RigidMotionsState {
   const [speedMultiplier, setSpeedMultiplier] = useState<0.5 | 1 | 2>(1)
 
   const currentRound = getInitialRound(guideState, stageRoundIndex)
+
+  // Phase 4 capstone
+  const [capstoneRoundIndex, setCapstoneRoundIndex] = useState(0)
+  const [capstoneSequence, setCapstoneSequence] = useState<TransformationParams[]>([])
+  const [showCelebration, setShowCelebration] = useState(false)
+  const capstoneRound = CAPSTONE_ROUNDS[capstoneRoundIndex]
 
   // -------------------------------------------------------------------------
   // Phase 1 action
@@ -103,20 +119,22 @@ export function useRigidMotionsState(): RigidMotionsState {
     const newSuccessCount = stageSuccessCount + 1
     const stage = guideStateToStage(guideState) ?? 'translate'
     const roundsInStage = getRoundsForStage(stage).length
-    const config = { successesRequired: 2 } // all predict stages require 2
-
-    const stageComplete = newSuccessCount >= config.successesRequired
+    // Read successesRequired from the state machine config — never hardcode
+    const stageComplete = newSuccessCount >= getGuideStateConfig(guideState).successesRequired
 
     if (stageComplete) {
       const next = nextGuideState(guideState)
       if (next) {
         setGuideState(next)
-        if (next === 'coordinate-reveal' || next === 'predict-with-coordinates') {
+        // Flip coordinatesActive on entering coordinate-reveal or any Phase 3 predict state (never reverts)
+        if (next === 'coordinate-reveal' || isCoordinateStage(next)) {
           setCoordinatesActive(true)
         }
+        // Phase 3 predict states use round index 1 (harder round per type, seen Phase 2 at index 0)
+        // coordinate-reveal resets to 0 (shows rotate-90-cw via guideStateToStage returning 'rotate')
+        setStageRoundIndex(isCoordinateStage(next) ? 1 : 0)
       }
       setStageSuccessCount(0)
-      setStageRoundIndex(0)
     } else {
       setStageRoundIndex(prev => (prev + 1) % roundsInStage)
       setStageSuccessCount(newSuccessCount)
@@ -156,6 +174,25 @@ export function useRigidMotionsState(): RigidMotionsState {
     // No additional state change needed; the UI responds to feedbackState
   }, [])
 
+  const handleSequenceChange = useCallback((steps: TransformationParams[]) => {
+    setCapstoneSequence(steps)
+    setFeedbackState('idle')
+  }, [])
+
+  const handleCheckSequence = useCallback(() => {
+    const result = validateCapstoneSequence(capstoneSequence, capstoneRound.targetVertices)
+    setFeedbackState(result)
+    if (result === 'match' && capstoneRoundIndex === CAPSTONE_ROUNDS.length - 1) {
+      setShowCelebration(true)
+    }
+  }, [capstoneSequence, capstoneRound, capstoneRoundIndex])
+
+  const handleCapstoneNext = useCallback(() => {
+    setCapstoneRoundIndex(prev => Math.min(prev + 1, CAPSTONE_ROUNDS.length - 1))
+    setCapstoneSequence([])
+    setFeedbackState('idle')
+  }, [])
+
   return {
     ghostOffset,
     handleGhostMove,
@@ -175,5 +212,11 @@ export function useRigidMotionsState(): RigidMotionsState {
     handleRotation,
     handleSpeedChange,
     handleAnimationComplete,
+    capstoneRound,
+    capstoneSequence,
+    showCelebration,
+    handleSequenceChange,
+    handleCheckSequence,
+    handleCapstoneNext,
   }
 }

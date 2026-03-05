@@ -1,21 +1,18 @@
 // src/components/modules/rigid-motions/types.ts
-
-export type TransformationType = 'translate' | 'reflect' | 'rotate'
+export type { TransformationType, TranslationParams, ReflectionParams, RotationParams, TransformationParams } from '@/lib/types/transforms'
+import type { TransformationParams } from '@/lib/types/transforms'
 
 export type GuideState =
   | 'predict-translate'
   | 'predict-reflect'
   | 'predict-rotate'
   | 'coordinate-reveal'
-  | 'predict-with-coordinates'
+  | 'predict-with-coordinates-translate'
+  | 'predict-with-coordinates-reflect'
+  | 'predict-with-coordinates-rotate'
   | 'capstone'
 
 export type FeedbackState = 'idle' | 'match' | 'close' | 'miss'
-
-export type TranslationParams = { type: 'translate'; dx: number; dy: number }
-export type ReflectionParams  = { type: 'reflect'; axis: 'x' | 'y' }
-export type RotationParams    = { type: 'rotate'; degrees: 90 | 180 | 270; direction: 'cw' | 'ccw' }
-export type TransformationParams = TranslationParams | ReflectionParams | RotationParams
 
 export interface Round {
   id: string

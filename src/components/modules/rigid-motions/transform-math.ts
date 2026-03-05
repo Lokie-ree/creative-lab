@@ -3,7 +3,7 @@
 // Pure math functions — no React, no Three.js.
 // All coordinates are in math space (y-up). World coordinates = math coordinates (WORLD_SCALE = 1).
 
-import type { TransformationParams } from './types'
+import type { TransformationParams } from '@/lib/types/transforms'
 
 /** Compute the centroid of a set of vertices */
 export function centroidOf(vertices: readonly [number, number][]): [number, number] {

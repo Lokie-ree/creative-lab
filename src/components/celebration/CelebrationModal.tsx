@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DiscoveryTab } from "./DiscoveryTab"
 import { BehindThisTab } from "./BehindThisTab"
 import { GoDeeperTab } from "./GoDeeperTab"
+import type { TransformationParams } from '@/lib/types/transforms'
 
 type TabId = "discovery" | "behind" | "deeper"
 
@@ -14,6 +15,9 @@ interface CelebrationModalProps {
   values: Record<string, number> | null
   skipped?: boolean
   initialTab?: TabId
+  /** Module that was just completed; used to show module-specific "Behind This" content */
+  moduleId?: string | null
+  completedSequence?: TransformationParams[] | null
   onDismiss: () => void
   onNewChallenge: () => void
   onNextModule: () => void
@@ -25,6 +29,8 @@ export function CelebrationModal({
   values,
   skipped = false,
   initialTab = "discovery",
+  moduleId = null,
+  completedSequence = null,
   onDismiss,
   onNewChallenge,
   onNextModule,
@@ -177,10 +183,10 @@ export function CelebrationModal({
           {/* Tab content */}
           <div className="p-4 sm:p-6 flex-1 overflow-y-auto min-h-0">
             <TabsContent value="discovery" className="mt-0">
-              <DiscoveryTab values={values} skipped={skipped} />
+              <DiscoveryTab values={values} skipped={skipped} moduleId={moduleId} completedSequence={completedSequence} />
             </TabsContent>
             <TabsContent value="behind" className="mt-0">
-              <BehindThisTab />
+              <BehindThisTab moduleId={moduleId} />
             </TabsContent>
             <TabsContent value="deeper" className="mt-0">
               <GoDeeperTab

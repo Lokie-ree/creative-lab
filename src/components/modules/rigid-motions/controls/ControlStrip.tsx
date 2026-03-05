@@ -12,6 +12,8 @@
 //   coordinate-reveal:                   CONTINUE (only)
 
 import type { GuideState, FeedbackState } from '../types'
+import { SequenceBuilder } from './SequenceBuilder'
+import type { TransformationParams } from '../types'
 
 export interface ControlStripProps {
   guideState: GuideState
@@ -26,6 +28,10 @@ export interface ControlStripProps {
   onFlip: (value: boolean) => void
   onRotation: (degrees: 90 | 180 | 270, direction: 'cw' | 'ccw') => void
   onSpeedChange: (speed: 0.5 | 1 | 2) => void
+  capstoneSequence?: TransformationParams[]
+  onSequenceChange?: (steps: TransformationParams[]) => void
+  onCheckSequence?: () => void
+  onCapstoneNext?: () => void
 }
 
 const BTN_BASE = [
@@ -45,7 +51,9 @@ const PREDICT_STATES: GuideState[] = [
   'predict-translate',
   'predict-reflect',
   'predict-rotate',
-  'predict-with-coordinates',
+  'predict-with-coordinates-translate',
+  'predict-with-coordinates-reflect',
+  'predict-with-coordinates-rotate',
 ]
 
 export function ControlStrip({
@@ -61,12 +69,29 @@ export function ControlStrip({
   onFlip,
   onRotation,
   onSpeedChange,
+  onSequenceChange,
+  onCheckSequence,
+  onCapstoneNext,
 }: ControlStripProps) {
   const isPredict = PREDICT_STATES.includes(guideState)
   const showCheck = isPredict && feedbackState !== 'match'
   const showNext = isPredict && feedbackState === 'match'
-  const showFlip = guideState === 'predict-reflect' || guideState === 'predict-with-coordinates'
-  const showRotation = guideState === 'predict-rotate' || guideState === 'predict-with-coordinates'
+  const showFlip     = guideState === 'predict-reflect' || guideState === 'predict-with-coordinates-reflect'
+  const showRotation = guideState === 'predict-rotate'  || guideState === 'predict-with-coordinates-rotate'
+
+  // capstone: SequenceBuilder only
+  if (guideState === 'capstone') {
+    return (
+      <div className="mx-auto w-full max-w-4xl">
+        <SequenceBuilder
+          onSequenceChange={onSequenceChange ?? (() => {})}
+          onCheckSequence={onCheckSequence ?? (() => {})}
+          feedbackState={feedbackState}
+          onNext={onCapstoneNext ?? (() => {})}
+        />
+      </div>
+    )
+  }
 
   // coordinate-reveal: CONTINUE only
   if (guideState === 'coordinate-reveal') {
