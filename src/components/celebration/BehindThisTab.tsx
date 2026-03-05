@@ -1,9 +1,16 @@
 import { Badge } from "@/components/ui/badge"
 import { Lightbulb, Code, Target, Palette } from "lucide-react"
 import { SINEWAVE_COPY } from "@/components/modules/sinewaves/sinewaves-copy"
+import { BEHIND_THIS as RIGID_MOTIONS_BEHIND_THIS } from "@/components/modules/rigid-motions/rigid-motions-copy"
 
-export function BehindThisTab() {
-  const copy = SINEWAVE_COPY.behindThis
+interface BehindThisTabProps {
+  /** Module that was just completed; selects which "Behind This" copy to show */
+  moduleId?: string | null
+}
+
+export function BehindThisTab({ moduleId }: BehindThisTabProps) {
+  const copy =
+    moduleId === "rigid-motions" ? RIGID_MOTIONS_BEHIND_THIS : SINEWAVE_COPY.behindThis
 
   return (
     <div className="space-y-6">
