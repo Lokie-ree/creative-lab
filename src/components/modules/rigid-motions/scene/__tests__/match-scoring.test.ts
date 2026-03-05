@@ -17,24 +17,24 @@ import { scoreGuess } from '../../match-scoring'
 // Shared fixtures derived from round definitions
 // ---------------------------------------------------------------------------
 
-// Round 1 target — translate +4,+2: A′(5,3) B′(8,4) C′(6,6)
-const T1_TARGET: [number, number][] = [[5, 3], [8, 4], [6, 6]]
+// Round 1 target — translate +5,+3: A′(2,1) B′(6,2) C′(3,4)
+const T1_TARGET: [number, number][] = [[2, 1], [6, 2], [3, 4]]
 // Perfect ghost: exactly at target
-const T1_MATCH_GHOST: [number, number][] = [[5, 3], [8, 4], [6, 6]]
-// Close ghost: centroid at target centroid but two verts shifted ±0.6 in x
-// centroid of [[5.6,3],[7.4,4],[6,6]] = (6.33,4.33) — same as target centroid
-const T1_CLOSE_GHOST: [number, number][] = [[5.6, 3], [7.4, 4], [6, 6]]
+const T1_MATCH_GHOST: [number, number][] = [[2, 1], [6, 2], [3, 4]]
+// Close ghost: centroid at target centroid (11/3, 7/3) but two verts shifted ±0.6 in x
+// centroid of [[2.6,1],[5.4,2],[3,4]] = (11/3, 7/3) — same as target centroid
+const T1_CLOSE_GHOST: [number, number][] = [[2.6, 1], [5.4, 2], [3, 4]]
 // Miss ghost: pre-image position — far from target
-const T1_MISS_GHOST: [number, number][] = [[1, 1], [4, 2], [2, 4]]
+const T1_MISS_GHOST: [number, number][] = [[-3, -2], [1, -1], [-2, 1]]
 
-// Round 3 target — reflect over y-axis: A′(-1,1) B′(-4,2) C′(-2,4)
-const R3_TARGET: [number, number][] = [[-1, 1], [-4, 2], [-2, 4]]
-const R3_MATCH_GHOST: [number, number][] = [[-1, 1], [-4, 2], [-2, 4]]
-const R3_WRONG_POS_GHOST: [number, number][] = [[1, 1], [4, 2], [2, 4]]
+// Round 3 target — reflect over y-axis: A′(3,−2) B′(−1,−1) C′(2,1)
+const R3_TARGET: [number, number][] = [[3, -2], [-1, -1], [2, 1]]
+const R3_MATCH_GHOST: [number, number][] = [[3, -2], [-1, -1], [2, 1]]
+const R3_WRONG_POS_GHOST: [number, number][] = [[-3, -2], [1, -1], [-2, 1]]
 
-// Round 5 target — rotate 90° CW: A′(1,-1) B′(2,-4) C′(4,-2)
-const R5_TARGET: [number, number][] = [[1, -1], [2, -4], [4, -2]]
-const R5_MATCH_GHOST: [number, number][] = [[1, -1], [2, -4], [4, -2]]
+// Round 5 target — rotate 90° CW: A′(−2,3) B′(−1,−1) C′(1,2)
+const R5_TARGET: [number, number][] = [[-2, 3], [-1, -1], [1, 2]]
+const R5_MATCH_GHOST: [number, number][] = [[-2, 3], [-1, -1], [1, 2]]
 // Close ghost for rotate: centroid matches target centroid but we'll use the
 // exact target vertices so centroid distance = 0, triggering close with wrong rotation
 const R5_CW_PARAMS = { type: 'rotate' as const, degrees: 90 as const, direction: 'cw' as const }
@@ -53,7 +53,7 @@ describe('scoreGuess — translate stage', () => {
 
   it('returns match when all ghost vertices are slightly inside 0.5 threshold', () => {
     // Shift each vertex by 0.4 in x — still within 0.5
-    const nearGhost: [number, number][] = [[5.4, 3], [8.4, 4], [6.4, 6]]
+    const nearGhost: [number, number][] = [[2.4, 1], [6.4, 2], [3.4, 4]]
     expect(scoreGuess(nearGhost, T1_TARGET, stage, false, 90, 'cw', anyParams)).toBe('match')
   })
 
@@ -67,7 +67,7 @@ describe('scoreGuess — translate stage', () => {
   })
 
   it('boundary: vertex exactly at 0.5 distance counts as match', () => {
-    const boundaryGhost: [number, number][] = [[5.5, 3], [8, 4], [6, 6]]
+    const boundaryGhost: [number, number][] = [[2.5, 1], [6, 2], [3, 4]]
     expect(scoreGuess(boundaryGhost, T1_TARGET, stage, false, 90, 'cw', anyParams)).toBe('match')
   })
 })
@@ -99,8 +99,9 @@ describe('scoreGuess — reflect stage', () => {
 
   it('has no close state — centroid-match with wrong orientation is still miss', () => {
     // Ghost centroid matches target centroid, flipped=false → miss (not close)
-    // R3 target centroid: (-7/3, 7/3). Construct ghost near that centroid but unflipped:
-    const centroidGhost: [number, number][] = [[-1.6, 1], [-3.4, 2], [-2, 4]]
+    // R3 target centroid: (4/3, -2/3). Construct ghost at that centroid but unflipped:
+    // [1,-2],[0,-1],[3,1] → centroid (4/3,-2/3) ✓, vertices differ from target.
+    const centroidGhost: [number, number][] = [[1, -2], [0, -1], [3, 1]]
     expect(scoreGuess(centroidGhost, R3_TARGET, stage, false, 90, 'cw', yAxisParams)).toBe('miss')
   })
 })
@@ -127,12 +128,12 @@ describe('scoreGuess — rotate stage', () => {
   })
 
   it('returns miss when ghost centroid is outside 0.5 regardless of rotation settings', () => {
-    const farGhost: [number, number][] = [[1, 1], [4, 2], [2, 4]]
+    const farGhost: [number, number][] = [[-3, -2], [1, -1], [-2, 1]]
     expect(scoreGuess(farGhost, R5_TARGET, stage, false, 90, 'cw', R5_CW_PARAMS)).toBe('miss')
   })
 
   it('returns miss when centroid outside 0.5 even with correct rotation', () => {
-    const farGhost: [number, number][] = [[1, 1], [4, 2], [2, 4]]
+    const farGhost: [number, number][] = [[-3, -2], [1, -1], [-2, 1]]
     expect(scoreGuess(farGhost, R5_TARGET, stage, false, 90, 'cw', R5_CW_PARAMS)).toBe('miss')
   })
 

@@ -41,9 +41,9 @@ describe('getRoundsForStage', () => {
 
 describe('getRoundById', () => {
   it('finds a round by id', () => {
-    const round = getRoundById('translate-4-2')
+    const round = getRoundById('translate-5-3')
     expect(round).toBeDefined()
-    expect(round!.id).toBe('translate-4-2')
+    expect(round!.id).toBe('translate-5-3')
   })
 
   it('returns undefined for unknown id', () => {
@@ -52,42 +52,42 @@ describe('getRoundById', () => {
 })
 
 // ---------------------------------------------------------------------------
-// Round 1 — translate +4 right, +2 up
+// Round 1 — translate +5 right, +3 up
 // ---------------------------------------------------------------------------
 
-describe('Round 1 — translate-4-2', () => {
-  const round = ROUNDS.find(r => r.id === 'translate-4-2')!
+describe('Round 1 — translate-5-3', () => {
+  const round = ROUNDS.find(r => r.id === 'translate-5-3')!
 
   it('has correct stage', () => {
     expect(round.stage).toBe('translate')
   })
 
   it('has correct params', () => {
-    expect(round.params).toEqual({ type: 'translate', dx: 4, dy: 2 })
+    expect(round.params).toEqual({ type: 'translate', dx: 5, dy: 3 })
   })
 
-  it('has correct target vertices: A′(5,3) B′(8,4) C′(6,6)', () => {
-    expect(round.targetVertices[0]).toEqual([5, 3])
-    expect(round.targetVertices[1]).toEqual([8, 4])
-    expect(round.targetVertices[2]).toEqual([6, 6])
+  it('has correct target vertices: A′(2,1) B′(6,2) C′(3,4)', () => {
+    expect(round.targetVertices[0]).toEqual([2, 1])
+    expect(round.targetVertices[1]).toEqual([6, 2])
+    expect(round.targetVertices[2]).toEqual([3, 4])
   })
 })
 
 // ---------------------------------------------------------------------------
-// Round 2 — translate −3 left, −5 down
+// Round 2 — translate −3 left, −4 down
 // ---------------------------------------------------------------------------
 
-describe('Round 2 — translate-n3-n5', () => {
-  const round = ROUNDS.find(r => r.id === 'translate-n3-n5')!
+describe('Round 2 — translate-n3-n4', () => {
+  const round = ROUNDS.find(r => r.id === 'translate-n3-n4')!
 
   it('has correct params', () => {
-    expect(round.params).toEqual({ type: 'translate', dx: -3, dy: -5 })
+    expect(round.params).toEqual({ type: 'translate', dx: -3, dy: -4 })
   })
 
-  it('has correct target vertices: A′(−2,−4) B′(1,−3) C′(−1,−1)', () => {
-    expect(round.targetVertices[0]).toEqual([-2, -4])
-    expect(round.targetVertices[1]).toEqual([1, -3])
-    expect(round.targetVertices[2]).toEqual([-1, -1])
+  it('has correct target vertices: A′(−6,−6) B′(−2,−5) C′(−5,−3)', () => {
+    expect(round.targetVertices[0]).toEqual([-6, -6])
+    expect(round.targetVertices[1]).toEqual([-2, -5])
+    expect(round.targetVertices[2]).toEqual([-5, -3])
   })
 })
 
@@ -103,10 +103,10 @@ describe('Round 3 — reflect-y', () => {
     expect(round.params).toEqual({ type: 'reflect', axis: 'y' })
   })
 
-  it('has correct target vertices: A′(−1,1) B′(−4,2) C′(−2,4)', () => {
-    expect(round.targetVertices[0]).toEqual([-1, 1])
-    expect(round.targetVertices[1]).toEqual([-4, 2])
-    expect(round.targetVertices[2]).toEqual([-2, 4])
+  it('has correct target vertices: A′(3,−2) B′(−1,−1) C′(2,1)', () => {
+    expect(round.targetVertices[0]).toEqual([3, -2])
+    expect(round.targetVertices[1]).toEqual([-1, -1])
+    expect(round.targetVertices[2]).toEqual([2, 1])
   })
 })
 
@@ -122,10 +122,10 @@ describe('Round 4 — reflect-x', () => {
     expect(round.params).toEqual({ type: 'reflect', axis: 'x' })
   })
 
-  it('has correct target vertices: A′(1,−1) B′(4,−2) C′(2,−4)', () => {
-    expect(round.targetVertices[0]).toEqual([1, -1])
-    expect(round.targetVertices[1]).toEqual([4, -2])
-    expect(round.targetVertices[2]).toEqual([2, -4])
+  it('has correct target vertices: A′(−3,2) B′(1,1) C′(−2,−1)', () => {
+    expect(round.targetVertices[0]).toEqual([-3, 2])
+    expect(round.targetVertices[1]).toEqual([1, 1])
+    expect(round.targetVertices[2]).toEqual([-2, -1])
   })
 })
 
@@ -141,24 +141,16 @@ describe('Round 5 — rotate-90-cw', () => {
     expect(round.params).toEqual({ type: 'rotate', degrees: 90, direction: 'cw' })
   })
 
-  it('has correct target vertices: A′(1,−1) B′(2,−4) C′(4,−2)', () => {
-    expect(round.targetVertices[0]).toEqual([1, -1])
-    expect(round.targetVertices[1]).toEqual([2, -4])
-    expect(round.targetVertices[2]).toEqual([4, -2])
+  it('has correct target vertices: A′(−2,3) B′(−1,−1) C′(1,2)', () => {
+    expect(round.targetVertices[0]).toEqual([-2, 3])
+    expect(round.targetVertices[1]).toEqual([-1, -1])
+    expect(round.targetVertices[2]).toEqual([1, 2])
   })
 
-  it('Round 4 and Round 5 share centroid ≈ (2.33, -2.33) but have different vertices', () => {
+  it('Round 4 and Round 5 have different vertices (vertex-level scoring distinguishes them)', () => {
     const r4 = ROUNDS.find(r => r.id === 'reflect-x')!
     const r5 = round
-    // Centroids match
-    const c4x = r4.targetVertices.reduce((s, [x]) => s + x, 0) / 3
-    const c4y = r4.targetVertices.reduce((s, [, y]) => s + y, 0) / 3
-    const c5x = r5.targetVertices.reduce((s, [x]) => s + x, 0) / 3
-    const c5y = r5.targetVertices.reduce((s, [, y]) => s + y, 0) / 3
-    expect(c4x).toBeCloseTo(c5x)
-    expect(c4y).toBeCloseTo(c5y)
-    // B′ and C′ are swapped
-    expect(r4.targetVertices[1]).not.toEqual(r5.targetVertices[1])
-    expect(r4.targetVertices[2]).not.toEqual(r5.targetVertices[2])
+    expect(r4.targetVertices[0]).not.toEqual(r5.targetVertices[0]) // A′ differs
+    expect(r4.targetVertices[2]).not.toEqual(r5.targetVertices[2]) // C′ differs
   })
 })

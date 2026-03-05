@@ -75,7 +75,7 @@ InstrumentModule
     ├── main         — RigidMotionsScene
     │   └── Canvas (R3F, orthographic)
     │       ├── ContextRecovery       — webglcontextlost / webglcontextrestored
-    │       ├── CameraSetup           — orthographic zoom via useFrame
+    │       ├── CameraSetup           — orthographic zoom + frustum plane sync via useFrame
     │       ├── CoordinateGrid        — grid lines, axes, origin dot, SpriteLabel numbers
     │       ├── PreImageTriangle      — static white triangle, SpriteLabel vertex labels
     │       ├── GhostTriangle         — green dashed triangle; uses computeGhostVertices
@@ -100,15 +100,17 @@ InstrumentModule
 
 Five deterministic rounds — no random generation.
 
-| Round ID | Stage | Transform | Target Centroid | Notes |
-|---|---|---|---|---|
-| `translate-4-2` | translate | +4 right, +2 up | (6.33, 4.33) | Ghost opens below-left of target |
-| `translate-n3-n5` | translate | −3 left, −5 down | (−0.67, −2.67) | Large diagonal drag required |
-| `reflect-y` | reflect | over y-axis | (−2.33, 2.33) | FLIP required; centroid moves to −x |
-| `reflect-x` | reflect | over x-axis | (2.33, −2.33) | FLIP required; centroid moves to −y |
-| `rotate-90-cw` | rotate | 90° CW around origin | (2.33, −2.33) | Centroid matches `reflect-x` — vertices differ (B′ and C′ swapped) |
+Pre-image: **A(−3,−2) B(1,−1) C(−2,1)**, centroid (−1.33, −0.67). Ghost initial offset **[3, −3]** (ghost opens at Q4: A′(0,−5) B′(4,−4) C′(1,−2)).
 
-Ghost initial offset is `[5, 0]` for all rounds.
+| Round ID | Stage | Transform | Target Vertices | Target Centroid | Notes |
+|---|---|---|---|---|---|
+| `translate-5-3` | translate | +5 right, +3 up | A′(2,1) B′(6,2) C′(3,4) | (3.67, 2.33) | Ghost starts Q4; drags diagonally to Q1 |
+| `translate-n3-n4` | translate | −3 left, −4 down | A′(−6,−6) B′(−2,−5) C′(−5,−3) | (−4.33, −4.67) | Ghost drags from Q4 across to Q3 |
+| `reflect-y` | reflect | over y-axis | A′(3,−2) B′(−1,−1) C′(2,1) | (1.33, −0.67) | FLIP required; centroid shifts to +x |
+| `reflect-x` | reflect | over x-axis | A′(−3,2) B′(1,1) C′(−2,−1) | (−1.33, 0.67) | FLIP required; centroid shifts to +y |
+| `rotate-90-cw` | rotate | 90° CW around origin | A′(−2,3) B′(−1,−1) C′(1,2) | (−0.67, 1.33) | Vertices differ from `reflect-x`; scoring differentiates at vertex level |
+
+Ghost initial offset is `[3, -3]` for all rounds.
 
 ---
 
@@ -139,7 +141,7 @@ The most critical constraint in Phase 2. Apply in this order only:
 3. Apply FLIP or ROTATION around that translated centroid
 ```
 
-Applying step 3 before step 1 uses the pre-image centroid (2.33, 2.33) instead of the dragged centroid. This produces visually plausible but geometrically wrong ghosts at many offset positions. The order is enforced in `scene-math.ts` with a comment and tested in `scene-math.test.ts`.
+Applying step 3 before step 1 uses the pre-image centroid (−1.33, −0.67) instead of the dragged centroid. This produces visually plausible but geometrically wrong ghosts at many offset positions. The order is enforced in `scene-math.ts` with a comment and tested in `scene-math.test.ts`.
 
 ### FLIP is a local transform — not a global reflection
 
@@ -193,11 +195,15 @@ Both fill (triangle) and outline (polyline) geometries in `ImageShape` follow th
 
 `SpriteLabel` renders text to a 2D `<canvas>`, uploads it as a `THREE.CanvasTexture`, and displays it on a `PlaneGeometry` mesh. Zero extra WebGL contexts. Defined in `scene-primitives.tsx`.
 
-### Orthographic camera zoom via `useFrame`, not `useEffect`
+### Orthographic camera zoom + frustum via `useFrame`, not `useEffect`
 
-`useEffect` on viewport `size` causes a one-frame lag on resize — the scene briefly shows the wrong zoom before correcting. `useFrame` eliminates the lag by applying the new zoom each frame. `CameraSetup` uses a deadband (`Math.abs(camera.zoom - zoom) > 0.001`) to avoid unnecessary `updateProjectionMatrix` calls.
+`useEffect` on viewport `size` causes a one-frame lag on resize — the scene briefly shows the wrong zoom before correcting. `useFrame` eliminates the lag.
 
-Camera is positioned at `[0, 2, 10]`. The Y=2 offset keeps the active content zone (pre-image at A(1,1)/B(4,2)/C(2,4), ghost starting at offset +5) vertically centered in the canvas.
+`CameraSetup` updates **both** `camera.zoom` and the frustum planes (`left`, `right`, `top`, `bottom`) each frame. Zoom alone is insufficient: an orthographic camera also needs its frustum planes recomputed when the aspect ratio changes. On Android Chrome 90° rotation the aspect ratio flips instantly, and stale pixel-unit frustum planes cause content to be clipped. Both updates use a deadband to avoid unnecessary `updateProjectionMatrix` calls — `> 0.001` for zoom, `> 0.5px` for each frustum plane.
+
+Frustum planes are kept in pixel units (`±size.width/2`, `±size.height/2`), matching R3F's default orthographic setup. Combined with `zoom = shorterSide / (GRID_RANGE × 2)`, this ensures the full ±9 grid is always visible along the shorter viewport axis, with extra space on the longer axis at any aspect ratio.
+
+Camera is positioned at `[0, 2, 10]` (no explicit lookAt — faces along −Z, viewport center at world Y=2). With the pre-image now spanning Q2/Q3 and targets ranging y ∈ [−6, 4], this Y offset is approximate; Phase 3 may benefit from recentering at Y=0 or Y=−1.
 
 ---
 
@@ -208,7 +214,7 @@ Camera is positioned at `[0, 2, 10]`. The Y=2 offset keeps the active content zo
 
 | State | Type | Default | Description |
 |---|---|---|---|
-| `ghostOffset` | `[number, number]` | `[5, 0]` | Translation vector from pre-image to ghost |
+| `ghostOffset` | `[number, number]` | `[3, -3]` | Translation vector from pre-image to ghost |
 | `guideState` | `GuideState` | `'predict-translate'` | Current stage in the learning sequence |
 | `feedbackState` | `FeedbackState` | `'idle'` | `idle` / `match` / `close` / `miss` |
 | `stageRoundIndex` | number | 0 | Cycles through rounds for current stage |
@@ -256,5 +262,5 @@ Phase 2 is fully implemented per `docs/plans/2026-03-02-rigid-motions-design-spe
 3. **`-0` in transform tests**: `Object.is(-0, 0)` is `false` in Vitest's deep equality. Pure math functions return `-0` when negating `+0`. Use `toBeCloseTo(0)` for zero-coordinate edge cases in transform tests.
 4. **BufferGeometry / React reconciler conflict**: Imperative geometry updates in `useFrame` fight React's reconciler if JSX geometry children exist on the same mesh. For GSAP-animated geometry, initialize via `useRef`, attach in `useEffect`, update in `useFrame` — no JSX geometry children.
 5. **`computeGhostVertices` composition order**: Rotate/flip before translate uses the pre-image centroid instead of the dragged centroid. Wrong results at most non-zero offsets. Explicitly tested and commented.
-6. **Camera Y offset centers the active zone**: Pre-image and ghost triangles live in Q1 (y ≈ 1–4). Camera at `[0, 0, 10]` wastes the bottom half on empty negative quadrant. Y=2 centers the action.
+6. **Camera Y offset**: Camera at `[0, 2, 10]` faces along −Z with no lookAt, so viewport center sits at world Y=2. Originally appropriate when the pre-image occupied Q1 (y ≈ 1–4). After repositioning the pre-image to A(−3,−2) B(1,−1) C(−2,1) with targets spanning y ∈ [−6, 4], the center of activity is closer to Y≈−1. The offset is tolerable but Phase 3 should evaluate adjusting camera Y or setting an explicit lookAt.
 7. **Axis label collision at ±1**: x-axis labels sit at `y = -0.7` and y-axis labels have their right edge at `x = -0.65`. Do not tighten — the ±1 zone overlaps.

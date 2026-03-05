@@ -21,11 +21,12 @@ export const WORLD_SCALE = 1
 /**
  * Pre-image triangle vertices in math coordinates [x, y].
  * Scalene: no equal sides, no equal angles — asymmetric in all orientations.
+ * Centroid ≈ (-1.33, -0.67), spanning Q2/Q3 so translations sweep the full grid.
  */
 export const PRE_IMAGE_VERTICES: readonly [number, number][] = [
-  [1, 1], // A
-  [4, 2], // B
-  [2, 4], // C
+  [-3, -2], // A
+  [ 1, -1], // B
+  [-2,  1], // C
 ]
 
 /** Vertex labels for pre-image */
@@ -36,9 +37,10 @@ export const GHOST_VERTEX_LABELS = ['A\u2032', 'B\u2032', 'C\u2032'] as const
 
 /**
  * Initial ghost offset (translation vector in math units).
- * Ghost starts at A′(6,1), B′(9,2), C′(7,4) = pre-image + (5, 0).
+ * Ghost starts at A′(0,-5), B′(4,-4), C′(1,-2) = pre-image + (3,-3).
+ * Placed in Q4 so translate rounds require a diagonal sweep across the grid.
  */
-export const GHOST_INITIAL_OFFSET: [number, number] = [5, 0]
+export const GHOST_INITIAL_OFFSET: [number, number] = [3, -3]
 
 /** Phase 1 guide state */
 export const GUIDE_STATE = 'predict-translate' as const

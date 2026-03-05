@@ -1,12 +1,8 @@
 /**
  * Tests for transform-math.ts
  *
- * All inputs/expected outputs are derived from the round definitions in the design spec v3.1.
- * Pre-image vertices: A(1,1), B(4,2), C(2,4), centroid ≈ (2.33, 2.33)
- *
- * Round 4 and Round 5 produce the same centroid (2.33, -2.33) — this is intentional.
- * The vertices differ: B′ and C′ are swapped between the two rounds.
- * Tests here demonstrate the vertex-level distinction.
+ * All inputs/expected outputs are derived from the round definitions.
+ * Pre-image vertices: A(-3,-2), B(1,-1), C(-2,1), centroid ≈ (-1.33, -0.67)
  */
 
 import { describe, it, expect } from 'vitest'
@@ -22,9 +18,9 @@ import {
 } from '../../transform-math'
 
 // Pre-image vertices used across all tests
-const A: [number, number] = [1, 1]
-const B: [number, number] = [4, 2]
-const C: [number, number] = [2, 4]
+const A: [number, number] = [-3, -2]
+const B: [number, number] = [ 1, -1]
+const C: [number, number] = [-2,  1]
 const PRE_IMAGE: [number, number][] = [A, B, C]
 
 // ---------------------------------------------------------------------------
@@ -34,8 +30,8 @@ const PRE_IMAGE: [number, number][] = [A, B, C]
 describe('centroidOf', () => {
   it('computes centroid of pre-image triangle', () => {
     const [cx, cy] = centroidOf(PRE_IMAGE)
-    expect(cx).toBeCloseTo(7 / 3)
-    expect(cy).toBeCloseTo(7 / 3)
+    expect(cx).toBeCloseTo(-4 / 3)
+    expect(cy).toBeCloseTo(-2 / 3)
   })
 
   it('computes centroid of a unit square', () => {
@@ -58,31 +54,31 @@ describe('centroidOf', () => {
 
 describe('translate', () => {
   it('translates a single vertex by (dx, dy)', () => {
-    expect(translate([1, 1], 4, 2)).toEqual([5, 3])
+    expect(translate([-3, -2], 5, 3)).toEqual([2, 1])
   })
 
-  it('Round 1 — +4 right, +2 up: A(1,1) → A′(5,3)', () => {
-    expect(translate(A, 4, 2)).toEqual([5, 3])
+  it('Round 1 — +5 right, +3 up: A(−3,−2) → A′(2,1)', () => {
+    expect(translate(A, 5, 3)).toEqual([2, 1])
   })
 
-  it('Round 1 — +4 right, +2 up: B(4,2) → B′(8,4)', () => {
-    expect(translate(B, 4, 2)).toEqual([8, 4])
+  it('Round 1 — +5 right, +3 up: B(1,−1) → B′(6,2)', () => {
+    expect(translate(B, 5, 3)).toEqual([6, 2])
   })
 
-  it('Round 1 — +4 right, +2 up: C(2,4) → C′(6,6)', () => {
-    expect(translate(C, 4, 2)).toEqual([6, 6])
+  it('Round 1 — +5 right, +3 up: C(−2,1) → C′(3,4)', () => {
+    expect(translate(C, 5, 3)).toEqual([3, 4])
   })
 
-  it('Round 2 — −3 left, −5 down: A(1,1) → A′(−2,−4)', () => {
-    expect(translate(A, -3, -5)).toEqual([-2, -4])
+  it('Round 2 — −3 left, −4 down: A(−3,−2) → A′(−6,−6)', () => {
+    expect(translate(A, -3, -4)).toEqual([-6, -6])
   })
 
-  it('Round 2 — −3 left, −5 down: B(4,2) → B′(1,−3)', () => {
-    expect(translate(B, -3, -5)).toEqual([1, -3])
+  it('Round 2 — −3 left, −4 down: B(1,−1) → B′(−2,−5)', () => {
+    expect(translate(B, -3, -4)).toEqual([-2, -5])
   })
 
-  it('Round 2 — −3 left, −5 down: C(2,4) → C′(−1,−1)', () => {
-    expect(translate(C, -3, -5)).toEqual([-1, -1])
+  it('Round 2 — −3 left, −4 down: C(−2,1) → C′(−5,−3)', () => {
+    expect(translate(C, -3, -4)).toEqual([-5, -3])
   })
 
   it('identity translation leaves vertex unchanged', () => {
@@ -99,16 +95,16 @@ describe('reflectOverX', () => {
     expect(reflectOverX([3, 4])).toEqual([3, -4])
   })
 
-  it('Round 4 — reflect over x-axis: A(1,1) → A′(1,−1)', () => {
-    expect(reflectOverX(A)).toEqual([1, -1])
+  it('Round 4 — reflect over x-axis: A(−3,−2) → A′(−3,2)', () => {
+    expect(reflectOverX(A)).toEqual([-3, 2])
   })
 
-  it('Round 4 — reflect over x-axis: B(4,2) → B′(4,−2)', () => {
-    expect(reflectOverX(B)).toEqual([4, -2])
+  it('Round 4 — reflect over x-axis: B(1,−1) → B′(1,1)', () => {
+    expect(reflectOverX(B)).toEqual([1, 1])
   })
 
-  it('Round 4 — reflect over x-axis: C(2,4) → C′(2,−4)', () => {
-    expect(reflectOverX(C)).toEqual([2, -4])
+  it('Round 4 — reflect over x-axis: C(−2,1) → C′(−2,−1)', () => {
+    expect(reflectOverX(C)).toEqual([-2, -1])
   })
 
   it('point on x-axis is its own reflection', () => {
@@ -132,16 +128,16 @@ describe('reflectOverY', () => {
     expect(reflectOverY([3, 4])).toEqual([-3, 4])
   })
 
-  it('Round 3 — reflect over y-axis: A(1,1) → A′(−1,1)', () => {
-    expect(reflectOverY(A)).toEqual([-1, 1])
+  it('Round 3 — reflect over y-axis: A(−3,−2) → A′(3,−2)', () => {
+    expect(reflectOverY(A)).toEqual([3, -2])
   })
 
-  it('Round 3 — reflect over y-axis: B(4,2) → B′(−4,2)', () => {
-    expect(reflectOverY(B)).toEqual([-4, 2])
+  it('Round 3 — reflect over y-axis: B(1,−1) → B′(−1,−1)', () => {
+    expect(reflectOverY(B)).toEqual([-1, -1])
   })
 
-  it('Round 3 — reflect over y-axis: C(2,4) → C′(−2,4)', () => {
-    expect(reflectOverY(C)).toEqual([-2, 4])
+  it('Round 3 — reflect over y-axis: C(−2,1) → C′(2,1)', () => {
+    expect(reflectOverY(C)).toEqual([2, 1])
   })
 
   it('point on y-axis is its own reflection', () => {
@@ -165,19 +161,19 @@ describe('rotateCW90', () => {
     expect(rotateCW90([1, 0])).toEqual([0, -1])
   })
 
-  it('Round 5 — rotate 90° CW around origin: A(1,1) → A′(1,−1)', () => {
-    // (1,1) → (1, -1)
-    expect(rotateCW90(A)).toEqual([1, -1])
+  it('Round 5 — rotate 90° CW around origin: A(−3,−2) → A′(−2,3)', () => {
+    // (x,y) → (y,-x): (-3,-2) → (-2,3)
+    expect(rotateCW90(A)).toEqual([-2, 3])
   })
 
-  it('Round 5 — rotate 90° CW around origin: B(4,2) → B′(2,−4)', () => {
-    // (4,2) → (2, -4)
-    expect(rotateCW90(B)).toEqual([2, -4])
+  it('Round 5 — rotate 90° CW around origin: B(1,−1) → B′(−1,−1)', () => {
+    // (1,-1) → (-1,-1)
+    expect(rotateCW90(B)).toEqual([-1, -1])
   })
 
-  it('Round 5 — rotate 90° CW around origin: C(2,4) → C′(4,−2)', () => {
-    // (2,4) → (4, -2)
-    expect(rotateCW90(C)).toEqual([4, -2])
+  it('Round 5 — rotate 90° CW around origin: C(−2,1) → C′(1,2)', () => {
+    // (-2,1) → (1,2)
+    expect(rotateCW90(C)).toEqual([1, 2])
   })
 
   it('4× CW90 is identity', () => {
@@ -247,66 +243,62 @@ describe('rotateCW270', () => {
 // ---------------------------------------------------------------------------
 
 describe('applyTransform', () => {
-  it('Round 1 — translate {dx:4, dy:2} maps pre-image to correct target vertices', () => {
-    const result = applyTransform(PRE_IMAGE, { type: 'translate', dx: 4, dy: 2 })
-    expect(result[0]).toEqual([5, 3])   // A′
-    expect(result[1]).toEqual([8, 4])   // B′
-    expect(result[2]).toEqual([6, 6])   // C′
+  it('Round 1 — translate {dx:5, dy:3} maps pre-image to correct target vertices', () => {
+    const result = applyTransform(PRE_IMAGE, { type: 'translate', dx: 5, dy: 3 })
+    expect(result[0]).toEqual([2, 1])   // A′
+    expect(result[1]).toEqual([6, 2])   // B′
+    expect(result[2]).toEqual([3, 4])   // C′
   })
 
-  it('Round 2 — translate {dx:-3, dy:-5} maps pre-image to correct target vertices', () => {
-    const result = applyTransform(PRE_IMAGE, { type: 'translate', dx: -3, dy: -5 })
-    expect(result[0]).toEqual([-2, -4]) // A′
-    expect(result[1]).toEqual([1, -3])  // B′
-    expect(result[2]).toEqual([-1, -1]) // C′
+  it('Round 2 — translate {dx:-3, dy:-4} maps pre-image to correct target vertices', () => {
+    const result = applyTransform(PRE_IMAGE, { type: 'translate', dx: -3, dy: -4 })
+    expect(result[0]).toEqual([-6, -6]) // A′
+    expect(result[1]).toEqual([-2, -5]) // B′
+    expect(result[2]).toEqual([-5, -3]) // C′
   })
 
   it('Round 3 — reflect {axis:"y"} maps pre-image to correct target vertices', () => {
     const result = applyTransform(PRE_IMAGE, { type: 'reflect', axis: 'y' })
-    expect(result[0]).toEqual([-1, 1])  // A′
-    expect(result[1]).toEqual([-4, 2])  // B′
-    expect(result[2]).toEqual([-2, 4])  // C′
+    expect(result[0]).toEqual([3, -2])  // A′
+    expect(result[1]).toEqual([-1, -1]) // B′
+    expect(result[2]).toEqual([2, 1])   // C′
   })
 
   it('Round 4 — reflect {axis:"x"} maps pre-image to correct target vertices', () => {
     const result = applyTransform(PRE_IMAGE, { type: 'reflect', axis: 'x' })
-    expect(result[0]).toEqual([1, -1])  // A′
-    expect(result[1]).toEqual([4, -2])  // B′
-    expect(result[2]).toEqual([2, -4])  // C′
+    expect(result[0]).toEqual([-3, 2])  // A′
+    expect(result[1]).toEqual([1, 1])   // B′
+    expect(result[2]).toEqual([-2, -1]) // C′
   })
 
   it('Round 5 — rotate {degrees:90, direction:"cw"} maps pre-image to correct target vertices', () => {
     const result = applyTransform(PRE_IMAGE, { type: 'rotate', degrees: 90, direction: 'cw' })
-    expect(result[0]).toEqual([1, -1])  // A′
-    expect(result[1]).toEqual([2, -4])  // B′
-    expect(result[2]).toEqual([4, -2])  // C′
+    expect(result[0]).toEqual([-2, 3])  // A′
+    expect(result[1]).toEqual([-1, -1]) // B′
+    expect(result[2]).toEqual([1, 2])   // C′
   })
 
-  it('Round 4 and Round 5 produce same centroid but different vertices', () => {
+  it('Round 4 and Round 5 produce different centroids and different vertices', () => {
     const r4 = applyTransform(PRE_IMAGE, { type: 'reflect', axis: 'x' })
     const r5 = applyTransform(PRE_IMAGE, { type: 'rotate', degrees: 90, direction: 'cw' })
-    const [c4x, c4y] = centroidOf(r4)
-    const [c5x, c5y] = centroidOf(r5)
-    // Centroids match
-    expect(c4x).toBeCloseTo(c5x)
-    expect(c4y).toBeCloseTo(c5y)
-    // But vertices differ — B′ and C′ are swapped
-    expect(r4[1]).not.toEqual(r5[1]) // B′ differs
+    // Vertices differ — scoring distinguishes them at vertex level
+    expect(r4[0]).not.toEqual(r5[0]) // A′ differs
     expect(r4[2]).not.toEqual(r5[2]) // C′ differs
   })
 
   it('rotate 180° CW maps pre-image correctly', () => {
     const result = applyTransform(PRE_IMAGE, { type: 'rotate', degrees: 180, direction: 'cw' })
-    expect(result[0]).toEqual([-1, -1]) // A → (-1,-1)
-    expect(result[1]).toEqual([-4, -2]) // B → (-4,-2)
-    expect(result[2]).toEqual([-2, -4]) // C → (-2,-4)
+    expect(result[0]).toEqual([3, 2])   // A(-3,-2) → (3,2)
+    expect(result[1]).toEqual([-1, 1])  // B(1,-1) → (-1,1)
+    expect(result[2]).toEqual([2, -1])  // C(-2,1) → (2,-1)
   })
 
   it('rotate 270° CW maps pre-image correctly', () => {
+    // CW270 = CCW90: (x,y) → (-y, x)
     const result = applyTransform(PRE_IMAGE, { type: 'rotate', degrees: 270, direction: 'cw' })
-    expect(result[0]).toEqual([-1, 1])  // A(1,1) → (-1,1)
-    expect(result[1]).toEqual([-2, 4])  // B(4,2) → (-2,4)
-    expect(result[2]).toEqual([-4, 2])  // C(2,4) → (-4,2)
+    expect(result[0]).toEqual([2, -3])  // A(-3,-2) → (2,-3)
+    expect(result[1]).toEqual([1, 1])   // B(1,-1) → (1,1)
+    expect(result[2]).toEqual([-1, -2]) // C(-2,1) → (-1,-2)
   })
 
   it('rotate CCW 90° equals CW 270°', () => {

@@ -56,12 +56,24 @@ function ContextRecovery() {
 // ─── Camera setup ─────────────────────────────────────────────────────────────
 
 function CameraSetup() {
-  const { camera } = useThree()
+  const { camera, size } = useThree()
   const { zoom } = useRigidMotionsLayout()
   useFrame(() => {
     if (!(camera instanceof THREE.OrthographicCamera)) return
-    if (Math.abs(camera.zoom - zoom) > 0.001) {
+    const halfW = size.width / 2
+    const halfH = size.height / 2
+    const zoomChanged = Math.abs(camera.zoom - zoom) > 0.001
+    const frustumChanged =
+      Math.abs(camera.left + halfW) > 0.5 ||
+      Math.abs(camera.right - halfW) > 0.5 ||
+      Math.abs(camera.top - halfH) > 0.5 ||
+      Math.abs(camera.bottom + halfH) > 0.5
+    if (zoomChanged || frustumChanged) {
       camera.zoom = zoom
+      camera.left = -halfW
+      camera.right = halfW
+      camera.top = halfH
+      camera.bottom = -halfH
       camera.updateProjectionMatrix()
     }
   })

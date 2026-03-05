@@ -5,27 +5,27 @@ import { PRE_IMAGE_VERTICES, CONTENT_RANGE } from '../../constants'
 describe('ghostVertices', () => {
   it('offsets each vertex by the given [dx, dy]', () => {
     const result = ghostVertices([2, 3])
-    // PRE_IMAGE_VERTICES: [1,1], [4,2], [2,4]
-    expect(result[0]).toEqual([3, 4])
-    expect(result[1]).toEqual([6, 5])
-    expect(result[2]).toEqual([4, 7])
+    // PRE_IMAGE_VERTICES: [-3,-2], [1,-1], [-2,1]
+    expect(result[0]).toEqual([-1, 1])
+    expect(result[1]).toEqual([3, 2])
+    expect(result[2]).toEqual([0, 4])
   })
 
   it('works with zero offset', () => {
     const result = ghostVertices([0, 0])
-    expect(result).toEqual([[1, 1], [4, 2], [2, 4]])
+    expect(result).toEqual([[-3, -2], [1, -1], [-2, 1]])
   })
 
   it('works with negative offset', () => {
     const result = ghostVertices([-1, -1])
-    expect(result[0]).toEqual([0, 0])
+    expect(result[0]).toEqual([-4, -3])
   })
 })
 
 describe('clampOffset', () => {
-  // Pre-image centroid is (2.333..., 2.333...)
-  // Max positive offset: CONTENT_RANGE - centroid ≈ 3.666
-  // Max negative offset: -CONTENT_RANGE - centroid ≈ -8.333
+  // Pre-image centroid is (-1.333..., -0.667...)
+  // Max positive offset: CONTENT_RANGE - centroid ≈ 7.333 (x), 6.667 (y)
+  // Max negative offset: -CONTENT_RANGE - centroid ≈ -4.667 (x), -5.333 (y)
 
   it('passes through an offset that keeps the ghost centroid in range', () => {
     const result = clampOffset([1, 1])
@@ -55,31 +55,31 @@ describe('clampOffset', () => {
 
 // ---------------------------------------------------------------------------
 // ghostVerticesWithFlip
-// Pre-image (offset [0,0]): A(1,1) B(4,2) C(2,4), centroid = (7/3, 7/3) ≈ (2.33, 2.33)
+// Pre-image (offset [0,0]): A(-3,-2) B(1,-1) C(-2,1), centroid = (-4/3, -2/3) ≈ (-1.33, -0.67)
 // ---------------------------------------------------------------------------
 
 describe('ghostVerticesWithFlip', () => {
   it('returns un-flipped vertices when flipped=false', () => {
     const result = ghostVerticesWithFlip([0, 0], 'y', false)
-    expect(result).toEqual([[1, 1], [4, 2], [2, 4]])
+    expect(result).toEqual([[-3, -2], [1, -1], [-2, 1]])
   })
 
   it('flips horizontally around ghost centroid when axis=y, flipped=true', () => {
-    // centroid = (7/3, 7/3). Mirror each x: new_x = 2*(7/3) - x
+    // centroid = (-4/3, -2/3). Mirror each x: new_x = 2*(-4/3) - x
     const result = ghostVerticesWithFlip([0, 0], 'y', true)
-    expect(result[0][0]).toBeCloseTo(2 * (7 / 3) - 1)  // A: 11/3 ≈ 3.67
-    expect(result[0][1]).toBeCloseTo(1)                  // y unchanged
-    expect(result[1][0]).toBeCloseTo(2 * (7 / 3) - 4)  // B: 2/3 ≈ 0.67
-    expect(result[2][0]).toBeCloseTo(2 * (7 / 3) - 2)  // C: 8/3 ≈ 2.67
+    expect(result[0][0]).toBeCloseTo(2 * (-4 / 3) - (-3)) // A: -8/3+3 = 1/3 ≈ 0.33
+    expect(result[0][1]).toBeCloseTo(-2)                    // y unchanged
+    expect(result[1][0]).toBeCloseTo(2 * (-4 / 3) - 1)   // B: -8/3-1 = -11/3 ≈ -3.67
+    expect(result[2][0]).toBeCloseTo(2 * (-4 / 3) - (-2)) // C: -8/3+2 = -2/3 ≈ -0.67
   })
 
   it('flips vertically around ghost centroid when axis=x, flipped=true', () => {
-    // centroid = (7/3, 7/3). Mirror each y: new_y = 2*(7/3) - y
+    // centroid = (-4/3, -2/3). Mirror each y: new_y = 2*(-2/3) - y
     const result = ghostVerticesWithFlip([0, 0], 'x', true)
-    expect(result[0][1]).toBeCloseTo(2 * (7 / 3) - 1)  // A: 11/3 ≈ 3.67
-    expect(result[0][0]).toBeCloseTo(1)                  // x unchanged
-    expect(result[1][1]).toBeCloseTo(2 * (7 / 3) - 2)  // B: 8/3 ≈ 2.67
-    expect(result[2][1]).toBeCloseTo(2 * (7 / 3) - 4)  // C: 2/3 ≈ 0.67
+    expect(result[0][1]).toBeCloseTo(2 * (-2 / 3) - (-2)) // A: -4/3+2 = 2/3 ≈ 0.67
+    expect(result[0][0]).toBeCloseTo(-3)                    // x unchanged
+    expect(result[1][1]).toBeCloseTo(2 * (-2 / 3) - (-1)) // B: -4/3+1 = -1/3 ≈ -0.33
+    expect(result[2][1]).toBeCloseTo(2 * (-2 / 3) - 1)   // C: -4/3-1 = -7/3 ≈ -2.33
   })
 
   it('applying flip twice returns to original', () => {
@@ -97,13 +97,13 @@ describe('ghostVerticesWithFlip', () => {
 
 // ---------------------------------------------------------------------------
 // ghostVerticesWithRotation
-// Pre-image (offset [0,0]): centroid = (7/3, 7/3)
+// Pre-image (offset [0,0]): centroid = (-4/3, -2/3)
 // ---------------------------------------------------------------------------
 
 describe('ghostVerticesWithRotation', () => {
   it('radius from ghost centroid is preserved under rotation', () => {
-    const cx = 7 / 3
-    const cy = 7 / 3
+    const cx = -4 / 3
+    const cy = -2 / 3
     const result = ghostVerticesWithRotation([0, 0], 90, 'cw')
     result.forEach(([x, y], i) => {
       const [ox, oy] = PRE_IMAGE_VERTICES[i] as [number, number]
@@ -118,7 +118,7 @@ describe('ghostVerticesWithRotation', () => {
     // Applying CW270 after CW90 should return to original vertices.
     const rotated90 = ghostVerticesWithRotation([0, 0], 90, 'cw')
     // Manually apply CW270 around the same centroid
-    const [cx, cy] = [7 / 3, 7 / 3]
+    const [cx, cy] = [-4 / 3, -2 / 3]
     const unrotated = rotated90.map(([x, y]): [number, number] => {
       // CW270 = (x,y) → (-y, x) in local coords
       const lx = x - cx, ly = y - cy
