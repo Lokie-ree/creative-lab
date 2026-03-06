@@ -524,7 +524,7 @@ export function RigidMotionsScene(props: RigidMotionsSceneProps) {
   return (
     <Canvas
       orthographic
-      camera={{ position: [0, 2, 10] }}
+      camera={{ position: [0, 0, 10] }}
       dpr={[1, 1.5]}
       gl={{ powerPreference: 'high-performance', antialias: true }}
       style={{

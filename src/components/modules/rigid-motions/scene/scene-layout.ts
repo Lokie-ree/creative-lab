@@ -1,9 +1,9 @@
 // src/components/modules/rigid-motions/scene/scene-layout.ts
 import { useThree } from '@react-three/fiber'
-import { GRID_RANGE } from '../constants'
+import { CONTENT_RANGE } from '../constants'
 
 export interface RigidMotionsLayout {
-  /** Camera zoom to fit GRID_RANGE world units across the shorter viewport axis */
+  /** Camera zoom to fit CONTENT_RANGE+1 world units across the shorter viewport axis */
   zoom: number
   isPortrait: boolean
 }
@@ -17,9 +17,9 @@ export interface RigidMotionsLayout {
 export function useRigidMotionsLayout(): RigidMotionsLayout {
   const { viewport, size } = useThree()
   const isPortrait = viewport.width <= viewport.height
-  // Orthographic zoom: pixels per world unit, fitted to the shorter side
-  // so the full grid is always visible regardless of aspect ratio.
+  // Orthographic zoom: pixels per world unit, fitted to CONTENT_RANGE+1
+  // so all shapes and labels are visible with breathing room at the grid edge.
   const shorterSide = Math.min(size.width, size.height)
-  const zoom = shorterSide / (GRID_RANGE * 2)
+  const zoom = shorterSide / ((CONTENT_RANGE + 1) * 2)
   return { zoom, isPortrait }
 }
