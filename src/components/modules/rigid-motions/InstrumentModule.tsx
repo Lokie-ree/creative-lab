@@ -112,6 +112,9 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
 
   const showFormulaReadout = guideState === 'coordinate-reveal' || isCoordinateStage(guideState)
 
+  const currentGuideIndex = guideState !== 'capstone' ? getGuideStateConfig(guideState).index : -1
+  const GUIDE_STATE_TOTAL = 8 // one per guide state in GUIDE_STATE_SEQUENCE
+
   return (
     <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[2.5rem_auto_auto_1fr_auto]">
 
@@ -121,30 +124,26 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
         <span className="shrink-0 lab-silk lab-display-font font-bold text-(--lab-text)">
           Rigid Motions
         </span>
-        {guideState !== 'capstone' ? (() => {
-          const currentIndex = getGuideStateConfig(guideState).index
-          const TOTAL = 8 // one per guide state in GUIDE_STATE_SEQUENCE
-          return (
-            <div
-              className="ml-auto flex items-center gap-1"
-              aria-label={`Step ${currentIndex + 1} of ${TOTAL}`}
-            >
-              {Array.from({ length: TOTAL }, (_, i) => (
-                <span
-                  key={i}
-                  className={[
-                    'h-[7px] w-[7px] rounded-full border transition-colors duration-150',
-                    i < currentIndex
-                      ? 'bg-(--lab-success) border-(--lab-led-completed-border)'
-                      : i === currentIndex
-                        ? 'bg-(--lab-accent) border-(--lab-accent-muted)'
-                        : 'bg-(--lab-border) border-(--lab-led-upcoming-border)',
-                  ].join(' ')}
-                />
-              ))}
-            </div>
-          )
-        })() : (
+        {guideState !== 'capstone' ? (
+          <div
+            className="ml-auto flex items-center gap-1"
+            aria-label={`Step ${currentGuideIndex + 1} of ${GUIDE_STATE_TOTAL}`}
+          >
+            {Array.from({ length: GUIDE_STATE_TOTAL }, (_, i) => (
+              <span
+                key={i}
+                className={[
+                  'h-[7px] w-[7px] rounded-full border transition-colors duration-150',
+                  i < currentGuideIndex
+                    ? 'bg-(--lab-success) border-(--lab-led-completed-border)'
+                    : i === currentGuideIndex
+                      ? 'bg-(--lab-accent) border-(--lab-accent-muted)'
+                      : 'bg-(--lab-border) border-(--lab-led-upcoming-border)',
+                ].join(' ')}
+              />
+            ))}
+          </div>
+        ) : (
           <div className="ml-auto" aria-hidden={true} />
         )}
       </header>
