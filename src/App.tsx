@@ -1,4 +1,4 @@
-import { useState, useCallback, Suspense, useEffect, type ComponentType } from "react"
+import { useState, useCallback, Suspense, useEffect, useTransition, type ComponentType } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import { Hero } from "./components/hero/Hero"
 import { ModuleLoader } from "./components/modules/ModuleLoader"
@@ -29,6 +29,7 @@ interface DynamicModuleProps {
 function DynamicModule({ moduleId, onComplete, isVisible, onBack }: DynamicModuleProps) {
   const [LoadedModule, setLoadedModule] = useState<ComponentType<ModuleProps> | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [, startTransition] = useTransition()
 
   useEffect(() => {
     const moduleConfig = getModuleById(moduleId)
@@ -41,8 +42,10 @@ function DynamicModule({ moduleId, onComplete, isVisible, onBack }: DynamicModul
     // Load the module component
     moduleConfig.component()
       .then(module => {
-        setLoadedModule(() => module.default)
-        setError(null)
+        startTransition(() => {
+          setLoadedModule(() => module.default)
+          setError(null)
+        })
       })
       .catch(err => {
         console.error(`Failed to load module "${moduleId}":`, err)
