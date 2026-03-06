@@ -49,11 +49,20 @@ function ContextRecovery() {
     const canvas = gl.domElement
     const onLost = (e: WebGLContextEvent) => { e.preventDefault() }
     const onRestored = () => { gl.setSize(canvas.clientWidth, canvas.clientHeight) }
+    // Orientation change: browser delays the resize event, so force a re-measure
+    // one rAF later to catch the settled dimensions after the layout reflow.
+    const onOrientationChange = () => {
+      requestAnimationFrame(() => {
+        gl.setSize(canvas.clientWidth, canvas.clientHeight, false)
+      })
+    }
     canvas.addEventListener('webglcontextlost', onLost as EventListener)
     canvas.addEventListener('webglcontextrestored', onRestored)
+    window.addEventListener('orientationchange', onOrientationChange)
     return () => {
       canvas.removeEventListener('webglcontextlost', onLost as EventListener)
       canvas.removeEventListener('webglcontextrestored', onRestored)
+      window.removeEventListener('orientationchange', onOrientationChange)
     }
   }, [gl])
   return null

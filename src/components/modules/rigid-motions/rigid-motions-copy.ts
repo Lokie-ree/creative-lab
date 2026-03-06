@@ -9,6 +9,8 @@ export const PROMPT_TEXT: Record<string, string> = {
   'reflect-y':       'REFLECT · OVER Y-AXIS',
   'reflect-x':       'REFLECT · OVER X-AXIS',
   'rotate-90-cw':    'ROTATE · 90° CLOCKWISE',
+  'rotate-180':      'ROTATE · 180°',
+  'rotate-90-ccw':   'ROTATE · 90° COUNTER-CLOCKWISE',
 }
 
 export const CLOSE_COPY: Partial<Record<GuideState, string>> = {

@@ -9,13 +9,13 @@ import { describe, it, expect } from 'vitest'
 import { ROUNDS, getRoundsForStage, getRoundById } from '../../round-generator'
 
 describe('ROUNDS', () => {
-  it('contains exactly 5 rounds', () => {
-    expect(ROUNDS).toHaveLength(5)
+  it('contains exactly 7 rounds', () => {
+    expect(ROUNDS).toHaveLength(7)
   })
 
   it('has unique IDs', () => {
     const ids = ROUNDS.map(r => r.id)
-    expect(new Set(ids).size).toBe(5)
+    expect(new Set(ids).size).toBe(7)
   })
 })
 
@@ -32,10 +32,10 @@ describe('getRoundsForStage', () => {
     rounds.forEach(r => expect(r.stage).toBe('reflect'))
   })
 
-  it('returns 1 rotate round', () => {
+  it('returns 3 rotate rounds', () => {
     const rounds = getRoundsForStage('rotate')
-    expect(rounds).toHaveLength(1)
-    expect(rounds[0].stage).toBe('rotate')
+    expect(rounds).toHaveLength(3)
+    rounds.forEach(r => expect(r.stage).toBe('rotate'))
   })
 })
 
@@ -152,5 +152,45 @@ describe('Round 5 — rotate-90-cw', () => {
     const r5 = round
     expect(r4.targetVertices[0]).not.toEqual(r5.targetVertices[0]) // A′ differs
     expect(r4.targetVertices[2]).not.toEqual(r5.targetVertices[2]) // C′ differs
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Round 6 — rotate 180° around origin
+// ---------------------------------------------------------------------------
+
+describe('Round 6 — rotate-180', () => {
+  const round = ROUNDS.find(r => r.id === 'rotate-180')!
+
+  it('has correct stage and params', () => {
+    expect(round.stage).toBe('rotate')
+    expect(round.params).toEqual({ type: 'rotate', degrees: 180, direction: 'cw' })
+  })
+
+  it('has correct target vertices: A′(3,2) B′(−1,1) C′(2,−1)', () => {
+    // (x,y) → (−x,−y): A(−3,−2)→(3,2), B(1,−1)→(−1,1), C(−2,1)→(2,−1)
+    expect(round.targetVertices[0]).toEqual([3, 2])
+    expect(round.targetVertices[1]).toEqual([-1, 1])
+    expect(round.targetVertices[2]).toEqual([2, -1])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Round 7 — rotate 90° CCW around origin
+// ---------------------------------------------------------------------------
+
+describe('Round 7 — rotate-90-ccw', () => {
+  const round = ROUNDS.find(r => r.id === 'rotate-90-ccw')!
+
+  it('has correct stage and params', () => {
+    expect(round.stage).toBe('rotate')
+    expect(round.params).toEqual({ type: 'rotate', degrees: 90, direction: 'ccw' })
+  })
+
+  it('has correct target vertices: A′(2,−3) B′(1,1) C′(−1,−2)', () => {
+    // (x,y) → (−y,x): A(−3,−2)→(2,−3), B(1,−1)→(1,1), C(−2,1)→(−1,−2)
+    expect(round.targetVertices[0]).toEqual([2, -3])
+    expect(round.targetVertices[1]).toEqual([1, 1])
+    expect(round.targetVertices[2]).toEqual([-1, -2])
   })
 })

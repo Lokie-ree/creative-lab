@@ -40,6 +40,20 @@ export const ROUNDS: Round[] = [
     params: { type: 'rotate', degrees: 90, direction: 'cw' },
     targetVertices: [[-2, 3], [-1, -1], [1, 2]],
   },
+  {
+    // 180°: (x,y) → (−x,−y). Direction is irrelevant; 'cw' is the canonical choice.
+    id: 'rotate-180',
+    stage: 'rotate',
+    params: { type: 'rotate', degrees: 180, direction: 'cw' },
+    targetVertices: [[3, 2], [-1, 1], [2, -1]],
+  },
+  {
+    // 90° CCW: (x,y) → (−y, x)
+    id: 'rotate-90-ccw',
+    stage: 'rotate',
+    params: { type: 'rotate', degrees: 90, direction: 'ccw' },
+    targetVertices: [[2, -3], [1, 1], [-1, -2]],
+  },
 ]
 
 export function getRoundsForStage(stage: 'translate' | 'reflect' | 'rotate'): Round[] {
