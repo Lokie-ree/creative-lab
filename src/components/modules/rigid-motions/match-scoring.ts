@@ -53,8 +53,10 @@ export function scoreGuess(
 
   // stage === 'rotate'
   const rp = expectedParams as RotationParams
+  // 180° is direction-independent (CW and CCW produce the same transformation)
   const rotationCorrect =
-    rotationDegrees === rp.degrees && rotationDirection === rp.direction
+    rotationDegrees === rp.degrees &&
+    (rotationDirection === rp.direction || rp.degrees === 180)
   if (allVertsMatch && rotationCorrect) return 'match'
   if (centroidMatch) return 'close'
   return 'miss'

@@ -22,9 +22,9 @@ function signedInt(n: number): string {
   return n >= 0 ? `+${n}` : `${n}`
 }
 
-/** Format a coordinate value for display (no leading +) */
+/** Format a coordinate value for display — rounded to nearest integer */
 function coord(n: number): string {
-  return `${n}`
+  return `${Math.round(n)}`
 }
 
 /** Build the abstract rule string for the given transformation params */
@@ -102,7 +102,7 @@ export function FormulaReadout({ round, ghostVertices, feedbackState }: FormulaR
               className="lab-data-font text-xs text-(--lab-text-muted) whitespace-nowrap"
             >
               {label}({coord(px)}, {coord(py)})
-              <span className="text-(--lab-ghost) mx-1">\u2192</span>
+              <span className="text-(--lab-ghost) mx-1">{'\u2192'}</span>
               <span className="text-(--lab-accent)">{primeLabel}({coord(ix)}, {coord(iy)})</span>
             </span>
           )
