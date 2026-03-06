@@ -81,7 +81,7 @@ export function FormulaReadout({ round, ghostVertices, feedbackState }: FormulaR
 
   return (
     <div
-      className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-2.5 md:px-6"
+      className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-1.5 md:px-6"
       aria-label="Coordinate rule"
     >
       {/* Abstract rule */}

@@ -113,16 +113,13 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
   const showFormulaReadout = guideState === 'coordinate-reveal' || isCoordinateStage(guideState)
 
   return (
-    <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[3rem_auto_auto_1fr_auto]">
+    <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[2.5rem_auto_auto_1fr_auto]">
 
       {/* ── ROW 1: STATUS STRIP ─────────────────────────────── */}
       {/* Left pad clears the floating EscapeHatch LAB button (~72px wide at left-4) */}
-      <header className="flex items-center gap-4 border-b border-(--lab-border) pl-24 pr-5 md:pr-6">
+      <header className="flex items-center gap-4 border-b border-(--lab-border) pl-20 pr-5 md:pr-6">
         <span className="shrink-0 lab-silk lab-display-font font-bold text-(--lab-text)">
           Rigid Motions
-        </span>
-        <span className="ml-auto shrink-0 lab-silk text-(--lab-success) lab-data-font">
-          SYS:NOM
         </span>
       </header>
 
@@ -130,7 +127,7 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
       {guideState !== 'capstone' ? (
         <div
           ref={promptRef}
-          className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-2.5 md:px-6"
+          className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-1.5 md:px-6"
           role="status"
           aria-live="polite"
         >
@@ -154,7 +151,7 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
       {!showFormulaReadout && <div aria-hidden />}
 
       {/* ── ROW 4: VISUALIZATION ────────────────────────────── */}
-      <main className="relative min-h-0">
+      <main className="relative min-h-0 min-w-0 overflow-hidden">
         <RigidMotionsScene
           ghostOffset={ghostOffset}
           onGhostMove={handleGhostMove}
@@ -189,7 +186,7 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
       </main>
 
       {/* ── ROW 5: CONTROL STRIP ────────────────────────────── */}
-      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2.5 md:px-6 md:py-3">
+      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2 md:px-6 md:py-2.5">
         <ControlStrip
           guideState={guideState}
           feedbackState={feedbackState}
