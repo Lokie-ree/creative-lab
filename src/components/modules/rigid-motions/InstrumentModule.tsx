@@ -5,7 +5,7 @@
  * Navigation handled by the app shell EscapeHatch (LAB dropdown).
  * No back button or ESC in the status strip — that would duplicate it.
  */
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import type { ModuleProps } from '@/config/modules'
 import { fadeInReadout } from '@/lib/animation/presets'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
@@ -15,6 +15,8 @@ import { PROMPT_TEXT } from './rigid-motions-copy'
 import { FormulaReadout } from './scene/FormulaReadout'
 import { isCoordinateStage } from './guide-state'
 import { computeGhostVertices, clampOffset } from './scene/scene-math'
+import { useAccessibility } from '@/lib/skeleton/useAccessibility'
+import { useErrorRecovery } from '@/lib/skeleton/useErrorRecovery'
 import type { ReflectionParams } from './types'
 
 export function InstrumentModule({ onComplete }: ModuleProps) {
@@ -43,6 +45,23 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
     handleCheckSequence,
     handleCapstoneNext,
   } = useRigidMotionsState()
+
+  // ── Accessibility + Error recovery ─────────────────────────────────────
+  const { announce } = useAccessibility()
+  const { startMonitoring, stopMonitoring } = useErrorRecovery()
+  const [contextLost, setContextLost] = useState(false)
+
+  useEffect(() => {
+    startMonitoring()
+    return () => stopMonitoring()
+  }, [startMonitoring, stopMonitoring])
+
+  // Announce feedback state changes for screen readers
+  useEffect(() => {
+    if (feedbackState === 'match') announce('Match! Press Next to continue.', 'assertive')
+    else if (feedbackState === 'close') announce('Getting closer.')
+    else if (feedbackState === 'miss') announce('Not quite. Try adjusting the position.')
+  }, [feedbackState, announce])
 
   useEffect(() => {
     if (showCelebration) {
@@ -146,7 +165,24 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
           onAnimationComplete={handleAnimationComplete}
           capstoneSequence={capstoneSequence}
           capstoneTargetVertices={capstoneRound.targetVertices}
+          onContextLost={() => setContextLost(true)}
+          onContextRestored={() => setContextLost(false)}
         />
+        {/* WebGL context loss recovery overlay */}
+        {contextLost && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-(--lab-bg)/90 z-10">
+            <span className="lab-silk lab-display-font text-(--lab-text-muted)">
+              SYS:REC — Visualization paused
+            </span>
+            <button
+              type="button"
+              onClick={() => setContextLost(false)}
+              className="min-h-[44px] border border-(--lab-border) px-4 lab-silk lab-display-font tracking-[0.1em] text-(--lab-text) transition-colors duration-150 hover:border-(--lab-accent) hover:text-(--lab-accent) focus:outline-none focus:ring-2 focus:ring-(--lab-accent)"
+            >
+              Tap to Resume
+            </button>
+          </div>
+        )}
       </main>
 
       {/* ── ROW 5: CONTROL STRIP ────────────────────────────── */}
