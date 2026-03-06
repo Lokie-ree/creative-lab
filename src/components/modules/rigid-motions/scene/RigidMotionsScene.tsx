@@ -32,11 +32,13 @@ export interface RigidMotionsSceneProps {
   flipped: boolean
   rotationDegrees: 90 | 180 | 270
   rotationDirection: 'cw' | 'ccw'
-  speedMultiplier: 0.5 | 1 | 2
   coordinatesActive: boolean
   onAnimationComplete: () => void
   capstoneSequence?: TransformationParams[]
   capstoneTargetVertices?: [number, number][]
+  // Error recovery callbacks (for HTML overlay in parent)
+  onContextLost?: () => void
+  onContextRestored?: () => void
 }
 
 // ─── GL context recovery ──────────────────────────────────────────────────────
@@ -382,7 +384,6 @@ function Visualization({
   flipped,
   rotationDegrees,
   rotationDirection,
-  speedMultiplier,
   coordinatesActive,
   onAnimationComplete,
   capstoneSequence,
@@ -434,7 +435,6 @@ function Visualization({
           animateFrom={PRE_IMAGE_VERTICES as [number, number][]}
           type={currentRound.params.type}
           params={currentRound.params}
-          speedMultiplier={speedMultiplier}
           onAnimationComplete={onAnimationComplete}
         />
       )}
@@ -504,6 +504,14 @@ export function RigidMotionsScene(props: RigidMotionsSceneProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [ready, setReady] = useState(false)
 
+  // Use refs so callbacks don't need to be in onCreated's dependency closure
+  const onContextLostRef = useRef(props.onContextLost)
+  const onContextRestoredRef = useRef(props.onContextRestored)
+  useEffect(() => {
+    onContextLostRef.current = props.onContextLost
+    onContextRestoredRef.current = props.onContextRestored
+  }, [props.onContextLost, props.onContextRestored])
+
   return (
     <Canvas
       orthographic
@@ -519,8 +527,17 @@ export function RigidMotionsScene(props: RigidMotionsSceneProps) {
         opacity: ready ? 1 : 0,
         transition: 'opacity 0.25s ease',
       }}
-      onCreated={() => {
+      onCreated={({ gl }) => {
         requestAnimationFrame(() => setReady(true))
+        // Notify parent HTML layer on context events so it can show a recovery overlay.
+        // ContextRecovery (inside Visualization) handles the GL-level restore;
+        // these callbacks update React state for the overlay UI.
+        gl.domElement.addEventListener('webglcontextlost', () => {
+          onContextLostRef.current?.()
+        })
+        gl.domElement.addEventListener('webglcontextrestored', () => {
+          onContextRestoredRef.current?.()
+        })
       }}
     >
       <Visualization

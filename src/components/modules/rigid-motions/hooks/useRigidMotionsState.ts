@@ -22,7 +22,6 @@ export interface RigidMotionsState {
   flipped: boolean
   rotationDegrees: 90 | 180 | 270
   rotationDirection: 'cw' | 'ccw'
-  speedMultiplier: 0.5 | 1 | 2
   coordinatesActive: boolean
 
   // Actions
@@ -31,7 +30,6 @@ export interface RigidMotionsState {
   handleReset: () => void
   handleFlip: (flipped: boolean) => void
   handleRotation: (degrees: 90 | 180 | 270, direction: 'cw' | 'ccw') => void
-  handleSpeedChange: (speed: 0.5 | 1 | 2) => void
   handleAnimationComplete: () => void
 
   // Phase 4 capstone
@@ -64,8 +62,6 @@ export function useRigidMotionsState(): RigidMotionsState {
   const [flipped, setFlipped] = useState(false)
   const [rotationDegrees, setRotationDegrees] = useState<90 | 180 | 270>(90)
   const [rotationDirection, setRotationDirection] = useState<'cw' | 'ccw'>('cw')
-  const [speedMultiplier, setSpeedMultiplier] = useState<0.5 | 1 | 2>(1)
-
   const currentRound = getInitialRound(guideState, stageRoundIndex)
 
   // Phase 4 capstone
@@ -165,10 +161,6 @@ export function useRigidMotionsState(): RigidMotionsState {
     setRotationDirection(direction)
   }, [])
 
-  const handleSpeedChange = useCallback((speed: 0.5 | 1 | 2) => {
-    setSpeedMultiplier(speed)
-  }, [])
-
   const handleAnimationComplete = useCallback(() => {
     // Called by ImageShape when reveal animation ends — feedbackState is already 'match'
     // No additional state change needed; the UI responds to feedbackState
@@ -203,14 +195,12 @@ export function useRigidMotionsState(): RigidMotionsState {
     flipped,
     rotationDegrees,
     rotationDirection,
-    speedMultiplier,
     coordinatesActive,
     handleCheck,
     handleNext,
     handleReset,
     handleFlip,
     handleRotation,
-    handleSpeedChange,
     handleAnimationComplete,
     capstoneRound,
     capstoneSequence,
