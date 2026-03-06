@@ -80,7 +80,7 @@ Warm matte faceplate, phosphor green accent, silk-screened labels, scored divide
 - **background.primary**: `#1e1d1c` (warm faceplate) — CSS: `--lab-bg`
 - **background.secondary**: `#252422` — CSS: `--lab-surface`
 - **text.primary**: `#b8b0a4` (silk cream) — CSS: `--lab-text`
-- **text.secondary**: `#7a746a` (silk dim) — CSS: `--lab-text-muted`
+- **text.secondary**: `#8a847a` (silk dim) — CSS: `--lab-text-muted`
 - **ghost**: `#7a746a` — Target/locked elements — CSS: `--lab-ghost`
 - **success**: `#5a7a5a` (earthy green) — CSS: `--lab-success`
 - **danger**: `#8a4a4a` (muted red) — CSS: `--lab-danger`

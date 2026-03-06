@@ -43,7 +43,7 @@ export const colors = {
   // Text colors (silk cream)
   text: {
     primary: '#b8b0a4',
-    secondary: '#7a746a',
+    secondary: '#8a847a',
     muted: '#4a463e',
     dim: '#4a463e',
   },
