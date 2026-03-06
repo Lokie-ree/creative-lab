@@ -13,7 +13,7 @@ import { RigidMotionsScene } from './scene/RigidMotionsScene'
 import { ControlStrip } from './controls/ControlStrip'
 import { PROMPT_TEXT } from './rigid-motions-copy'
 import { FormulaReadout } from './scene/FormulaReadout'
-import { isCoordinateStage } from './guide-state'
+import { isCoordinateStage, getGuideStateConfig } from './guide-state'
 import { computeGhostVertices, clampOffset } from './scene/scene-math'
 import { useAccessibility } from '@/lib/skeleton/useAccessibility'
 import { useErrorRecovery } from '@/lib/skeleton/useErrorRecovery'
@@ -121,6 +121,32 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
         <span className="shrink-0 lab-silk lab-display-font font-bold text-(--lab-text)">
           Rigid Motions
         </span>
+        {guideState !== 'capstone' ? (() => {
+          const currentIndex = getGuideStateConfig(guideState).index
+          const TOTAL = 8 // one per guide state in GUIDE_STATE_SEQUENCE
+          return (
+            <div
+              className="ml-auto flex items-center gap-1"
+              aria-label={`Step ${currentIndex + 1} of ${TOTAL}`}
+            >
+              {Array.from({ length: TOTAL }, (_, i) => (
+                <span
+                  key={i}
+                  className={[
+                    'h-[7px] w-[7px] rounded-full border transition-colors duration-150',
+                    i < currentIndex
+                      ? 'bg-(--lab-success) border-(--lab-led-completed-border)'
+                      : i === currentIndex
+                        ? 'bg-(--lab-accent) border-(--lab-accent-muted)'
+                        : 'bg-(--lab-border) border-(--lab-led-upcoming-border)',
+                  ].join(' ')}
+                />
+              ))}
+            </div>
+          )
+        })() : (
+          <div className="ml-auto" aria-hidden={true} />
+        )}
       </header>
 
       {/* ── ROW 2: PROMPT ───────────────────────────────────── */}
