@@ -32,7 +32,6 @@ export interface RigidMotionsSceneProps {
   flipped: boolean
   rotationDegrees: 90 | 180 | 270
   rotationDirection: 'cw' | 'ccw'
-  speedMultiplier: 0.5 | 1 | 2
   coordinatesActive: boolean
   onAnimationComplete: () => void
   capstoneSequence?: TransformationParams[]
@@ -385,7 +384,6 @@ function Visualization({
   flipped,
   rotationDegrees,
   rotationDirection,
-  speedMultiplier,
   coordinatesActive,
   onAnimationComplete,
   capstoneSequence,
@@ -437,7 +435,6 @@ function Visualization({
           animateFrom={PRE_IMAGE_VERTICES as [number, number][]}
           type={currentRound.params.type}
           params={currentRound.params}
-          speedMultiplier={speedMultiplier}
           onAnimationComplete={onAnimationComplete}
         />
       )}

@@ -3,12 +3,12 @@
 // Phase 2 control strip. Context-sensitive visibility driven by guideState and feedbackState.
 //
 // Visibility table:
-//   predict-translate (idle/close/miss): CHECK · RESET · SPEED
-//   predict-translate (match):           NEXT  · RESET · SPEED
-//   predict-reflect   (idle/miss):       FLIP  · CHECK · RESET · SPEED
-//   predict-reflect   (match):           FLIP  · NEXT  · RESET · SPEED
-//   predict-rotate    (idle/close/miss): ROTATION · CHECK · RESET · SPEED
-//   predict-rotate    (match):           ROTATION · NEXT  · RESET · SPEED
+//   predict-translate (idle/close/miss): CHECK · RESET
+//   predict-translate (match):           NEXT  · RESET
+//   predict-reflect   (idle/miss):       FLIP  · CHECK · RESET
+//   predict-reflect   (match):           FLIP  · NEXT  · RESET
+//   predict-rotate    (idle/close/miss): ROTATION · CHECK · RESET
+//   predict-rotate    (match):           ROTATION · NEXT  · RESET
 //   coordinate-reveal:                   CONTINUE (only)
 
 import type { GuideState, FeedbackState } from '../types'
@@ -21,13 +21,11 @@ export interface ControlStripProps {
   flipped: boolean
   rotationDegrees: 90 | 180 | 270
   rotationDirection: 'cw' | 'ccw'
-  speedMultiplier: 0.5 | 1 | 2
   onCheck: () => void
   onNext: () => void
   onReset: () => void
   onFlip: (value: boolean) => void
   onRotation: (degrees: 90 | 180 | 270, direction: 'cw' | 'ccw') => void
-  onSpeedChange: (speed: 0.5 | 1 | 2) => void
   capstoneSequence?: TransformationParams[]
   onSequenceChange?: (steps: TransformationParams[]) => void
   onCheckSequence?: () => void
@@ -62,13 +60,11 @@ export function ControlStrip({
   flipped,
   rotationDegrees,
   rotationDirection,
-  speedMultiplier,
   onCheck,
   onNext,
   onReset,
   onFlip,
   onRotation,
-  onSpeedChange,
   onSequenceChange,
   onCheckSequence,
   onCapstoneNext,
@@ -167,23 +163,6 @@ export function ControlStrip({
         <button type="button" className={BTN_DIM} onClick={onReset}>
           Reset
         </button>
-      )}
-
-      {/* SPEED — 0.5× / 1× / 2× */}
-      {isPredict && (
-        <div className="flex items-center gap-1">
-          {([0.5, 1, 2] as const).map((speed) => (
-            <button
-              key={speed}
-              type="button"
-              className={speedMultiplier === speed ? BTN_ACTIVE : BTN_DEFAULT}
-              onClick={() => onSpeedChange(speed)}
-              aria-pressed={speedMultiplier === speed}
-            >
-              {speed}×
-            </button>
-          ))}
-        </div>
       )}
     </div>
   )

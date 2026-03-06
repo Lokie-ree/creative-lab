@@ -23,7 +23,6 @@ export interface ImageShapeProps {
   animateFrom: [number, number][]
   type: TransformationType
   params: TransformationParams
-  speedMultiplier: 0.5 | 1 | 2
   onAnimationComplete: () => void
 }
 
@@ -71,7 +70,6 @@ export function ImageShape({
   animateFrom,
   type,
   params,
-  speedMultiplier,
   onAnimationComplete,
 }: ImageShapeProps) {
   const meshRef = useRef<THREE.Mesh>(null)
@@ -100,7 +98,7 @@ export function ImageShape({
     const tl = gsap.timeline({ onComplete: onAnimationComplete })
     tl.to(tRef.current, {
       t: 1,
-      duration: 0.6 / speedMultiplier,
+      duration: 0.6,
       ease: 'power2.inOut',
       onUpdate() {
         vertsRef.current = interpolateReveal(animateFrom, vertices, tRef.current.t, type, params)

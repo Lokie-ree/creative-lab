@@ -4,8 +4,8 @@
 import type { FeedbackState, GuideState } from './types'
 
 export const PROMPT_TEXT: Record<string, string> = {
-  'translate-4-2':   'TRANSLATE · 4 RIGHT, 2 UP',
-  'translate-n3-n5': 'TRANSLATE · 3 LEFT, 5 DOWN',
+  'translate-5-3':   'TRANSLATE · 5 RIGHT, 3 UP',
+  'translate-n3-n4': 'TRANSLATE · 3 LEFT, 4 DOWN',
   'reflect-y':       'REFLECT · OVER Y-AXIS',
   'reflect-x':       'REFLECT · OVER X-AXIS',
   'rotate-90-cw':    'ROTATE · 90° CLOCKWISE',

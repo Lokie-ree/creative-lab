@@ -29,14 +29,12 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
     flipped,
     rotationDegrees,
     rotationDirection,
-    speedMultiplier,
     coordinatesActive,
     handleCheck,
     handleNext,
     handleReset,
     handleFlip,
     handleRotation,
-    handleSpeedChange,
     handleAnimationComplete,
     capstoneRound,
     capstoneSequence,
@@ -70,6 +68,10 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
   }, [showCelebration, onComplete, capstoneSequence])
 
   const promptText = PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.'
+  const promptLabel =
+    guideState === 'coordinate-reveal' ? 'Reveal' :
+    isCoordinateStage(guideState)      ? 'Coordinate Rule' :
+    'Predict'
 
   const promptRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -125,19 +127,21 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
       </header>
 
       {/* ── ROW 2: PROMPT ───────────────────────────────────── */}
-      <div
-        ref={promptRef}
-        className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-2.5 md:px-6"
-        role="status"
-        aria-live="polite"
-      >
-        <div className="mb-0.5 lab-silk lab-display-font text-[8px] tracking-[0.2em] font-bold text-(--lab-text-muted)">
-          Predict
+      {guideState !== 'capstone' ? (
+        <div
+          ref={promptRef}
+          className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-2.5 md:px-6"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="mb-0.5 lab-silk lab-display-font text-[8px] tracking-[0.2em] font-bold text-(--lab-text-muted)">
+            {promptLabel}
+          </div>
+          <p className="text-sm font-medium lab-display-font text-(--lab-text)">
+            {promptText}
+          </p>
         </div>
-        <p className="text-sm font-medium lab-display-font text-(--lab-text)">
-          {promptText}
-        </p>
-      </div>
+      ) : <div aria-hidden />}
 
       {/* ── ROW 3: FORMULA READOUT (Phase 3+ only) ──────────── */}
       {showFormulaReadout && (
@@ -160,7 +164,6 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
           flipped={flipped}
           rotationDegrees={rotationDegrees}
           rotationDirection={rotationDirection}
-          speedMultiplier={speedMultiplier}
           coordinatesActive={coordinatesActive}
           onAnimationComplete={handleAnimationComplete}
           capstoneSequence={capstoneSequence}
@@ -193,13 +196,11 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
           flipped={flipped}
           rotationDegrees={rotationDegrees}
           rotationDirection={rotationDirection}
-          speedMultiplier={speedMultiplier}
           onCheck={handleCheck}
           onNext={handleNext}
           onReset={handleReset}
           onFlip={handleFlip}
           onRotation={handleRotation}
-          onSpeedChange={handleSpeedChange}
           capstoneSequence={capstoneSequence}
           onSequenceChange={handleSequenceChange}
           onCheckSequence={handleCheckSequence}
