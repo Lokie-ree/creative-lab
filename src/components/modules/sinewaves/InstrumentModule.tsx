@@ -87,6 +87,8 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
   // Refs for inline match feedback animation
   const matchFeedbackRef = useRef<HTMLDivElement>(null)
   const matchContinueRef = useRef<HTMLButtonElement>(null)
+  const vizWrapperRef = useRef<HTMLDivElement>(null)
+  const formulaReadoutRef = useRef<HTMLDivElement>(null)
 
   // Get config for current guide state
   const config = getGuideStateConfig(guideState, challengeParam)
@@ -163,7 +165,8 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
     if (matchMessage && matchFeedbackRef.current) {
       matchSuccessSequence(
         {
-          visualization: null,
+          visualization: vizWrapperRef.current,
+          valueHighlight: formulaReadoutRef.current,
           feedback: matchFeedbackRef.current,
           continueButton: matchContinueRef.current,
         },
@@ -302,14 +305,17 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
         />
       }
       formulaReadout={
-        <FormulaReadout
-          amplitude={amplitude}
-          frequency={frequency}
-          highlightAmplitude={config.highlightAmplitude}
-          highlightFrequency={config.highlightFrequency}
-        />
+        <div ref={formulaReadoutRef}>
+          <FormulaReadout
+            amplitude={amplitude}
+            frequency={frequency}
+            highlightAmplitude={config.highlightAmplitude}
+            highlightFrequency={config.highlightFrequency}
+          />
+        </div>
       }
       visualization={
+        <div ref={vizWrapperRef} className="w-full h-full">
         <Scene
           key={sceneKey} // Reset animation on reset
           amplitude={amplitude}
@@ -332,6 +338,7 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
           speedMultiplier={speed}
           challengeParam={guideState === 'challenge' ? challengeParam : undefined}
         />
+        </div>
       }
       controlStrip={
         <ControlStrip

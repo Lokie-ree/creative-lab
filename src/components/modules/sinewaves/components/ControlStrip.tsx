@@ -26,12 +26,12 @@ export const ControlStrip = forwardRef<HTMLDivElement, ControlStripProps>(
       <div
         ref={ref}
         className={cn(
-          'mx-auto flex w-full max-w-4xl flex-col items-center gap-2 md:gap-4',
+          'mx-auto flex w-full max-w-4xl flex-col items-center gap-3 md:gap-4',
           className
         )}
       >
         {/* Main controls row: sliders + instrument buttons */}
-        <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-end sm:gap-4 md:gap-6">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:gap-4 md:gap-6">
           <div className="flex-1">{amplitudeSlider}</div>
           <div className="flex-1">{frequencySlider}</div>
           <div className="shrink-0 self-center sm:self-end sm:pb-3 sm:ml-auto">

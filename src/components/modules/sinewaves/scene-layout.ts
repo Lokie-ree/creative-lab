@@ -1,4 +1,5 @@
 // src/components/modules/sinewaves/scene-layout.ts
+import { useState, useEffect } from 'react'
 import { useThree } from '@react-three/fiber'
 
 /**
@@ -84,10 +85,24 @@ export function useSceneLayout(stage: string): SceneLayoutResult {
  * Uses R3F viewport aspect AND actual screen width to reliably
  * hide unit circle on phones (landscape phones slipped through
  * the old R3F-only check because camera FOV inflates viewport units).
+ *
+ * window.innerWidth is tracked with a resize listener so breakpoint
+ * detection stays in sync when the user resizes the browser window
+ * (previously it was only read at R3F render time, causing a one-frame
+ * desync between the CSS breakpoint flip and the 3D layout update).
  */
 export function useIsMobileViewport(): boolean {
   const { viewport } = useThree()
+  const [isNarrowScreen, setIsNarrowScreen] = useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  )
+
+  useEffect(() => {
+    const handler = () => setIsNarrowScreen(window.innerWidth < 768)
+    window.addEventListener('resize', handler, { passive: true })
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+
   const isPortrait = viewport.width <= viewport.height
-  const isNarrowScreen = typeof window !== 'undefined' && window.innerWidth < 768
   return isPortrait || isNarrowScreen
 }

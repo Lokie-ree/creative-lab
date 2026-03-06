@@ -73,7 +73,7 @@ export function InstrumentLayout({
       </main>
 
       {/* ROW 5-6: CONTROL STRIP (sliders + buttons) */}
-      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2 md:px-6 md:py-4">
+      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-3 md:px-6 md:py-4">
         {controlStrip}
       </footer>
 
