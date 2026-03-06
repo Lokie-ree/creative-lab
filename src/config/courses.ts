@@ -4,7 +4,6 @@ export interface Course {
   id: string
   name: string
   icon: string
-  color: string
   order: number
   moduleIds: string[]
 }
@@ -14,7 +13,6 @@ export const COURSES: Course[] = [
     id: 'advanced-math',
     name: 'Advanced Math',
     icon: '∞',
-    color: '#7cc87c',
     order: 1,
     moduleIds: ['sinewaves', 'vector-transformations', 'phase-portraits'],
   },
@@ -22,7 +20,6 @@ export const COURSES: Course[] = [
     id: 'geometry',
     name: 'Geometry',
     icon: '△',
-    color: '#7cc87c',
     order: 2,
     moduleIds: ['rigid-motions'],
   },
@@ -30,7 +27,6 @@ export const COURSES: Course[] = [
     id: 'cs',
     name: 'CS',
     icon: '</>',
-    color: '#a855f7',
     order: 3,
     moduleIds: [],
   },
