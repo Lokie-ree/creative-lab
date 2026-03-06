@@ -5,7 +5,7 @@
  * Navigation handled by the app shell EscapeHatch (LAB dropdown).
  * No back button or ESC in the status strip — that would duplicate it.
  */
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import type { ModuleProps } from '@/config/modules'
 import { fadeInReadout } from '@/lib/animation/presets'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
@@ -14,7 +14,7 @@ import { ControlStrip } from './controls/ControlStrip'
 import { PROMPT_TEXT } from './rigid-motions-copy'
 import { FormulaReadout } from './scene/FormulaReadout'
 import { isCoordinateStage } from './guide-state'
-import { computeGhostVertices } from './scene/scene-math'
+import { computeGhostVertices, clampOffset } from './scene/scene-math'
 import type { ReflectionParams } from './types'
 
 export function InstrumentModule({ onComplete }: ModuleProps) {
@@ -56,6 +56,28 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
   useEffect(() => {
     if (promptRef.current) fadeInReadout(promptRef.current)
   }, [promptText])
+
+  // ── Keyboard nudging for ghost ──────────────────────────────────────────
+  // Arrow keys move the ghost 1 unit; Shift+Arrow moves 0.1 units (fine).
+  // Only active during predict states where the ghost is draggable.
+  const isNudgeActive = guideState.startsWith('predict-')
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!isNudgeActive) return
+    const step = e.shiftKey ? 0.1 : 1
+    let dx = 0, dy = 0
+    if (e.key === 'ArrowLeft')  { dx = -step }
+    else if (e.key === 'ArrowRight') { dx = step }
+    else if (e.key === 'ArrowUp')    { dy = step }
+    else if (e.key === 'ArrowDown')  { dy = -step }
+    else return
+    e.preventDefault()
+    handleGhostMove(clampOffset([ghostOffset[0] + dx, ghostOffset[1] + dy]))
+  }, [isNudgeActive, ghostOffset, handleGhostMove])
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown])
 
   const reflectionAxis = currentRound.params.type === 'reflect'
     ? (currentRound.params as ReflectionParams).axis
