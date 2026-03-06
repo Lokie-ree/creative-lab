@@ -5,8 +5,9 @@
  * Navigation handled by the app shell EscapeHatch (LAB dropdown).
  * No back button or ESC in the status strip — that would duplicate it.
  */
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import type { ModuleProps } from '@/config/modules'
+import { fadeInReadout } from '@/lib/animation/presets'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
 import { RigidMotionsScene } from './scene/RigidMotionsScene'
 import { ControlStrip } from './controls/ControlStrip'
@@ -51,6 +52,11 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
 
   const promptText = PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.'
 
+  const promptRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (promptRef.current) fadeInReadout(promptRef.current)
+  }, [promptText])
+
   const reflectionAxis = currentRound.params.type === 'reflect'
     ? (currentRound.params as ReflectionParams).axis
     : undefined
@@ -68,14 +74,18 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
 
       {/* ── ROW 1: STATUS STRIP ─────────────────────────────── */}
       {/* Left pad clears the floating EscapeHatch LAB button (~72px wide at left-4) */}
-      <header className="flex items-center border-b border-(--lab-border) pl-24 pr-5 md:pr-6">
+      <header className="flex items-center gap-4 border-b border-(--lab-border) pl-24 pr-5 md:pr-6">
         <span className="shrink-0 lab-silk lab-display-font font-bold text-(--lab-text)">
           Rigid Motions
+        </span>
+        <span className="ml-auto shrink-0 lab-silk text-(--lab-success) lab-data-font">
+          SYS:NOM
         </span>
       </header>
 
       {/* ── ROW 2: PROMPT ───────────────────────────────────── */}
       <div
+        ref={promptRef}
         className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-2.5 md:px-6"
         role="status"
         aria-live="polite"
