@@ -11,7 +11,7 @@ import { fadeInReadout } from '@/lib/animation/presets'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
 import { RigidMotionsScene } from './scene/RigidMotionsScene'
 import { ControlStrip } from './controls/ControlStrip'
-import { PROMPT_TEXT, CLOSE_COPY } from './rigid-motions-copy'
+import { PROMPT_TEXT, CLOSE_COPY, EARNED_REVEALS, CAPSTONE_EARNED_REVEALS } from './rigid-motions-copy'
 import { FormulaReadout } from './scene/FormulaReadout'
 import { isCoordinateStage, getGuideStateConfig } from './guide-state'
 import { computeGhostVertices, clampOffset } from './scene/scene-math'
@@ -42,6 +42,7 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
     handleSequenceChange,
     handleCheckSequence,
     handleCapstoneNext,
+    shownReveals,
   } = useRigidMotionsState()
 
   // ── Accessibility + Error recovery ─────────────────────────────────────
@@ -67,19 +68,35 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
     }
   }, [showCelebration, onComplete, capstoneSequence])
 
-  const isMiss = feedbackState === 'miss'
-  const isClose = feedbackState === 'close'
+  const isMiss   = feedbackState === 'miss'
+  const isClose  = feedbackState === 'close'
+  const isMatch  = feedbackState === 'match'
+
+  // Earned reveal key: capstone uses round ID, all others use guide state
+  const revealKey = guideState === 'capstone' ? capstoneRound.id : guideState
+  const firstMatch = isMatch && !shownReveals.has(revealKey)
+  const repeatMatch = isMatch && shownReveals.has(revealKey)
+
+  const earnedRevealText =
+    guideState === 'capstone'
+      ? CAPSTONE_EARNED_REVEALS[capstoneRound.id]
+      : EARNED_REVEALS[guideState]
 
   const promptText =
-    isMiss
-      ? 'Not quite — adjust your position.'
-      : isClose
-        ? (CLOSE_COPY[guideState] ?? 'Getting closer.')
-        : (PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.')
+    firstMatch && earnedRevealText
+      ? earnedRevealText
+      : repeatMatch
+        ? 'Match.'
+        : isMiss
+          ? 'Not quite — adjust your position.'
+          : isClose
+            ? (CLOSE_COPY[guideState] ?? 'Getting closer.')
+            : (PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.')
 
   const promptLabel =
     guideState === 'coordinate-reveal' ? 'Reveal' :
     isCoordinateStage(guideState)      ? 'Coordinate Rule' :
+    firstMatch                         ? 'Discovered' :
     isMiss || isClose                  ? 'Hint' :
     'Predict'
 
@@ -169,7 +186,10 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
           <div className="mb-0.5 lab-silk lab-display-font text-[8px] tracking-[0.2em] font-bold text-(--lab-text-muted)">
             {promptLabel}
           </div>
-          <p className="text-sm font-medium lab-display-font text-(--lab-text)">
+          <p className={[
+            'text-sm font-medium lab-display-font',
+            firstMatch ? 'text-(--lab-earned)' : 'text-(--lab-text)',
+          ].join(' ')}>
             {promptText}
           </p>
         </div>

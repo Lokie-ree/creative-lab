@@ -39,6 +39,8 @@ export interface RigidMotionsState {
   handleSequenceChange: (steps: TransformationParams[]) => void
   handleCheckSequence: () => void
   handleCapstoneNext: () => void
+
+  shownReveals: Set<string>  // guideState keys + capstone round IDs
 }
 
 function getInitialRound(guideState: GuideState, roundIndex: number): Round {
@@ -63,6 +65,8 @@ export function useRigidMotionsState(): RigidMotionsState {
   const [rotationDegrees, setRotationDegrees] = useState<90 | 180 | 270>(90)
   const [rotationDirection, setRotationDirection] = useState<'cw' | 'ccw'>('cw')
   const currentRound = getInitialRound(guideState, stageRoundIndex)
+
+  const [shownReveals, setShownReveals] = useState<Set<string>>(new Set())
 
   // Phase 4 capstone
   const [capstoneRoundIndex, setCapstoneRoundIndex] = useState(0)
@@ -131,6 +135,14 @@ export function useRigidMotionsState(): RigidMotionsState {
     )
 
     setFeedbackState(result)
+    if (result === 'match') {
+      setShownReveals(prev => {
+        if (prev.has(guideState)) return prev
+        const next = new Set(prev)
+        next.add(guideState)
+        return next
+      })
+    }
   }, [guideState, ghostOffset, flipped, rotationDegrees, rotationDirection, currentRound])
 
   const handleNext = useCallback(() => {
@@ -196,6 +208,15 @@ export function useRigidMotionsState(): RigidMotionsState {
   const handleCheckSequence = useCallback(() => {
     const result = validateCapstoneSequence(capstoneSequence, capstoneRound.targetVertices)
     setFeedbackState(result)
+    if (result === 'match') {
+      setShownReveals(prev => {
+        const key = capstoneRound.id
+        if (prev.has(key)) return prev
+        const next = new Set(prev)
+        next.add(key)
+        return next
+      })
+    }
     if (result === 'match' && capstoneRoundIndex === CAPSTONE_ROUNDS.length - 1) {
       setShowCelebration(true)
     }
@@ -230,5 +251,6 @@ export function useRigidMotionsState(): RigidMotionsState {
     handleSequenceChange,
     handleCheckSequence,
     handleCapstoneNext,
+    shownReveals,
   }
 }
