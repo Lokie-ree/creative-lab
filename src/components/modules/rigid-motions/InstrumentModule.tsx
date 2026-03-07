@@ -11,7 +11,7 @@ import { fadeInReadout } from '@/lib/animation/presets'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
 import { RigidMotionsScene } from './scene/RigidMotionsScene'
 import { ControlStrip } from './controls/ControlStrip'
-import { PROMPT_TEXT } from './rigid-motions-copy'
+import { PROMPT_TEXT, CLOSE_COPY } from './rigid-motions-copy'
 import { FormulaReadout } from './scene/FormulaReadout'
 import { isCoordinateStage, getGuideStateConfig } from './guide-state'
 import { computeGhostVertices, clampOffset } from './scene/scene-math'
@@ -67,10 +67,20 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
     }
   }, [showCelebration, onComplete, capstoneSequence])
 
-  const promptText = PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.'
+  const isMiss = feedbackState === 'miss'
+  const isClose = feedbackState === 'close'
+
+  const promptText =
+    isMiss
+      ? 'Not quite — adjust your position.'
+      : isClose
+        ? (CLOSE_COPY[guideState] ?? 'Getting closer.')
+        : (PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.')
+
   const promptLabel =
     guideState === 'coordinate-reveal' ? 'Reveal' :
     isCoordinateStage(guideState)      ? 'Coordinate Rule' :
+    isMiss || isClose                  ? 'Hint' :
     'Predict'
 
   const promptRef = useRef<HTMLDivElement>(null)
