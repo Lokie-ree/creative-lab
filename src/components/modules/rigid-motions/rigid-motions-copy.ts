@@ -44,7 +44,8 @@ export const EARNED_REVEALS: Record<GuideState, string> = {
   'capstone': '',
 }
 
-export const CAPSTONE_EARNED_REVEALS: Record<string, string> = {
+export type CapstoneRoundId = 'capstone-1' | 'capstone-2' | 'capstone-3'
+export const CAPSTONE_EARNED_REVEALS: Record<CapstoneRoundId, string> = {
   'capstone-1': 'One transformation was enough. You described it completely with a type and a parameter.',
   'capstone-2': 'Two transformations composed. The order mattered — try reversing them to see why.',
   'capstone-3': "Rotation and translation don't commute. The order you chose was the one that works.",

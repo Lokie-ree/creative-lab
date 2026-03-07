@@ -11,7 +11,7 @@ import { fadeInReadout } from '@/lib/animation/presets'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
 import { RigidMotionsScene } from './scene/RigidMotionsScene'
 import { ControlStrip } from './controls/ControlStrip'
-import { PROMPT_TEXT, CLOSE_COPY, EARNED_REVEALS, CAPSTONE_EARNED_REVEALS } from './rigid-motions-copy'
+import { PROMPT_TEXT, CLOSE_COPY, EARNED_REVEALS, CAPSTONE_EARNED_REVEALS, type CapstoneRoundId } from './rigid-motions-copy'
 import { FormulaReadout } from './scene/FormulaReadout'
 import { isCoordinateStage, getGuideStateConfig } from './guide-state'
 import { computeGhostVertices, clampOffset } from './scene/scene-math'
@@ -79,19 +79,16 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
 
   const earnedRevealText =
     guideState === 'capstone'
-      ? CAPSTONE_EARNED_REVEALS[capstoneRound.id]
+      ? CAPSTONE_EARNED_REVEALS[capstoneRound.id as CapstoneRoundId]
       : EARNED_REVEALS[guideState]
 
-  const promptText =
-    firstMatch && earnedRevealText
-      ? earnedRevealText
-      : repeatMatch
-        ? 'Match.'
-        : isMiss
-          ? 'Not quite — adjust your position.'
-          : isClose
-            ? (CLOSE_COPY[guideState] ?? 'Getting closer.')
-            : (PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.')
+  const promptText = (() => {
+    if (firstMatch && earnedRevealText) return earnedRevealText
+    if (repeatMatch)  return 'Match.'
+    if (isMiss)       return 'Not quite — adjust your position.'
+    if (isClose)      return CLOSE_COPY[guideState] ?? 'Getting closer.'
+    return PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.'
+  })()
 
   const promptLabel =
     guideState === 'coordinate-reveal' ? 'Reveal' :
