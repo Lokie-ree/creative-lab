@@ -94,6 +94,16 @@
   animation: ring-pulse 2s ease-in-out infinite;
 }
 
+/* Hide number input spinners — Eurorack aesthetic */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 :root {
   /* Spacing scale - consistent spacing tokens */
   --spacing-xs: 0.25rem;   /* 4px */

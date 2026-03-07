@@ -75,7 +75,7 @@ interface SlotEditorProps {
 
 function SlotEditor({ label, slot, onChange, disabled = false }: SlotEditorProps) {
   const wrapperClass = [
-    'border border-(--lab-border) rounded p-2 flex flex-col gap-2',
+    'border border-(--lab-border) p-2 flex flex-col gap-2',
     disabled ? 'opacity-40 pointer-events-none' : '',
   ].join(' ')
 
@@ -146,7 +146,7 @@ function SlotEditor({ label, slot, onChange, disabled = false }: SlotEditorProps
               type="number"
               value={slot.dx}
               onChange={e => onChange({ ...slot, dx: e.target.value })}
-              className="w-14 lab-data-font text-sm text-center bg-(--lab-surface) border border-(--lab-border) text-(--lab-text) rounded py-1 min-h-[44px]"
+              className="w-14 lab-data-font text-sm text-center bg-(--lab-surface) border border-(--lab-border) text-(--lab-text) py-1 min-h-[44px]"
               aria-label="dx (horizontal shift)"
             />
           </label>
@@ -156,7 +156,7 @@ function SlotEditor({ label, slot, onChange, disabled = false }: SlotEditorProps
               type="number"
               value={slot.dy}
               onChange={e => onChange({ ...slot, dy: e.target.value })}
-              className="w-14 lab-data-font text-sm text-center bg-(--lab-surface) border border-(--lab-border) text-(--lab-text) rounded py-1 min-h-[44px]"
+              className="w-14 lab-data-font text-sm text-center bg-(--lab-surface) border border-(--lab-border) text-(--lab-text) py-1 min-h-[44px]"
               aria-label="dy (vertical shift)"
             />
           </label>
