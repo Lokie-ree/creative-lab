@@ -98,8 +98,10 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
     'Predict'
 
   const promptRef = useRef<HTMLDivElement>(null)
+  const promptRefDesktop = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (promptRef.current) fadeInReadout(promptRef.current)
+    if (promptRefDesktop.current) fadeInReadout(promptRefDesktop.current)
   }, [promptText])
 
   // ── Keyboard nudging for ghost ──────────────────────────────────────────
@@ -140,11 +142,11 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
   const GUIDE_STATE_TOTAL = 8 // one per guide state in GUIDE_STATE_SEQUENCE
 
   return (
-    <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[2.5rem_auto_auto_1fr_auto]">
+    <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[2.5rem_auto_auto_1fr_auto] md:grid-rows-[2.5rem_1fr] md:grid-cols-[1fr_280px]">
 
       {/* ── ROW 1: STATUS STRIP ─────────────────────────────── */}
       {/* pl-20 clears the floating EscapeHatch LAB button (~72px) on mobile */}
-      <header className="flex items-center border-b border-(--lab-border) pl-20 pr-5 md:pl-6 md:pr-6">
+      <header className="flex items-center border-b border-(--lab-border) pl-20 pr-5 md:col-span-2 md:pl-6 md:pr-6">
         {/* Left: title (desktop only) */}
         <span className="hidden shrink-0 lab-silk lab-display-font font-bold text-(--lab-text) md:block">
           Rigid Motions
@@ -187,7 +189,7 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
       {guideState !== 'capstone' ? (
         <div
           ref={promptRef}
-          className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-1.5 md:px-6"
+          className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-1.5 md:hidden"
           role="status"
           aria-live="polite"
         >
@@ -201,17 +203,19 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
             {promptText}
           </p>
         </div>
-      ) : <div aria-hidden />}
+      ) : <div aria-hidden className="md:hidden" />}
 
       {/* ── ROW 3: FORMULA READOUT (Phase 3+ only) ──────────── */}
       {showFormulaReadout && (
-        <FormulaReadout
-          round={currentRound}
-          ghostVertices={liveGhostVertices}
-          feedbackState={feedbackState}
-        />
+        <div className="md:hidden">
+          <FormulaReadout
+            round={currentRound}
+            ghostVertices={liveGhostVertices}
+            feedbackState={feedbackState}
+          />
+        </div>
       )}
-      {!showFormulaReadout && <div aria-hidden />}
+      {!showFormulaReadout && <div aria-hidden className="md:hidden" />}
 
       {/* ── ROW 4: VISUALIZATION ────────────────────────────── */}
       <main className="relative min-h-0 min-w-0 overflow-hidden">
@@ -249,7 +253,7 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
       </main>
 
       {/* ── ROW 5: CONTROL STRIP ────────────────────────────── */}
-      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2 md:px-6 md:py-2.5">
+      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2 md:hidden">
         <ControlStrip
           guideState={guideState}
           feedbackState={feedbackState}
@@ -267,6 +271,61 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
           onCapstoneNext={handleCapstoneNext}
         />
       </footer>
+
+      {/* ── DESKTOP SIDEBAR ─────────────────────────────────── */}
+      <aside className="hidden md:flex md:flex-col md:row-start-2 md:col-start-2 border-l border-(--lab-border) overflow-y-auto">
+        {/* TODO: verify SequenceBuilder fits on short viewports (13" laptop ~768px tall).
+            overflow-y-auto ensures the sidebar scrolls rather than silently clips. */}
+
+        {/* Prompt */}
+        {guideState !== 'capstone' ? (
+          <div
+            ref={promptRefDesktop}
+            className="border-b border-(--lab-border) bg-(--lab-surface) px-4 py-3"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="mb-0.5 lab-silk lab-display-font text-[8px] tracking-[0.2em] font-bold text-(--lab-text-muted)">
+              {promptLabel}
+            </div>
+            <p className={[
+              'text-sm font-medium lab-display-font',
+              firstMatch ? 'text-(--lab-earned)' : 'text-(--lab-text)',
+            ].join(' ')}>
+              {promptText}
+            </p>
+          </div>
+        ) : null}
+
+        {/* Formula readout (phases 3+ only) */}
+        {showFormulaReadout && (
+          <FormulaReadout
+            round={currentRound}
+            ghostVertices={liveGhostVertices}
+            feedbackState={feedbackState}
+          />
+        )}
+
+        {/* Controls — fills remaining sidebar height */}
+        <div className="flex flex-1 flex-col items-center justify-center border-t border-(--lab-border) px-4 py-3">
+          <ControlStrip
+            guideState={guideState}
+            feedbackState={feedbackState}
+            flipped={flipped}
+            rotationDegrees={rotationDegrees}
+            rotationDirection={rotationDirection}
+            onCheck={handleCheck}
+            onNext={handleNext}
+            onReset={handleReset}
+            onFlip={handleFlip}
+            onRotation={handleRotation}
+            capstoneSequence={capstoneSequence}
+            onSequenceChange={handleSequenceChange}
+            onCheckSequence={handleCheckSequence}
+            onCapstoneNext={handleCapstoneNext}
+          />
+        </div>
+      </aside>
     </div>
   )
 }
