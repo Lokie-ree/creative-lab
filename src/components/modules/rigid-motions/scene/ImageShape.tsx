@@ -6,20 +6,15 @@
 //
 // Rendered in #7cc87c (lab-accent) at full opacity, solid outline. z: 0.02
 
-import { useRef, useEffect, useMemo } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
-import { SpriteLabel } from './scene-primitives'
-import { vertexLabelOffset } from './scene-math'
-import { centroidOf } from '../transform-math'
 import { interpolateReveal } from '../animations'
-import { GHOST_VERTEX_LABELS } from '../constants'
 import type { TransformationType, TransformationParams } from '../types'
 
 export interface ImageShapeProps {
   vertices: [number, number][]
-  coordinatesActive: boolean
   animateFrom: [number, number][]
   type: TransformationType
   params: TransformationParams
@@ -66,7 +61,6 @@ function updatePolylineGeo(geo: THREE.BufferGeometry, verts: [number, number][],
 
 export function ImageShape({
   vertices,
-  coordinatesActive,
   animateFrom,
   type,
   params,
@@ -113,8 +107,6 @@ export function ImageShape({
     updatePolylineGeo(outlineGeo.current, vertsRef.current, 0.02)
   })
 
-  const centroid = useMemo(() => centroidOf(vertices), [vertices])
-
   return (
     <group>
       {/* Fill — geometry managed imperatively via fillGeo ref */}
@@ -126,22 +118,6 @@ export function ImageShape({
       <lineLoop ref={outlineRef}>
         <lineBasicMaterial color="#7cc87c" />
       </lineLoop>
-
-      {/* Vertex labels at final target positions */}
-      {vertices.map((v, idx) => {
-        const [lx, ly] = vertexLabelOffset(v, centroid, 0.5)
-        return (
-          <SpriteLabel
-            key={GHOST_VERTEX_LABELS[idx]}
-            text={coordinatesActive ? `${GHOST_VERTEX_LABELS[idx]}(${v[0]},${v[1]})` : GHOST_VERTEX_LABELS[idx]}
-            position={[lx, ly, 0.03]}
-            color="#7cc87c"
-            anchorX="center"
-            anchorY="middle"
-            planeWidth={coordinatesActive ? 1.6 : 0.7}
-          />
-        )
-      })}
     </group>
   )
 }
