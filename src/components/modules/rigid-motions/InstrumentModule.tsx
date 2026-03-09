@@ -143,14 +143,17 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
     <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[2.5rem_auto_auto_1fr_auto]">
 
       {/* ── ROW 1: STATUS STRIP ─────────────────────────────── */}
-      {/* Left pad clears the floating EscapeHatch LAB button (~72px wide at left-4) */}
-      <header className="flex items-center gap-4 border-b border-(--lab-border) pl-20 pr-5 md:pr-6">
-        <span className="shrink-0 lab-silk lab-display-font font-bold text-(--lab-text)">
+      {/* pl-20 clears the floating EscapeHatch LAB button (~72px) on mobile */}
+      <header className="flex items-center border-b border-(--lab-border) pl-20 pr-5 md:pl-6 md:pr-6">
+        {/* Left: title (desktop only) */}
+        <span className="hidden shrink-0 lab-silk lab-display-font font-bold text-(--lab-text) md:block">
           Rigid Motions
         </span>
+
+        {/* Center: progress LEDs */}
         {guideState !== 'capstone' ? (
           <div
-            className="ml-auto flex items-center gap-1"
+            className="flex flex-1 items-center justify-center gap-1"
             aria-label={`Step ${currentGuideIndex + 1} of ${GUIDE_STATE_TOTAL}`}
           >
             {Array.from({ length: GUIDE_STATE_TOTAL }, (_, i) => (
@@ -168,8 +171,16 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
             ))}
           </div>
         ) : (
-          <div className="ml-auto" aria-hidden={true} />
+          <div className="flex-1" aria-hidden />
         )}
+
+        {/* Right: invisible spacer matching title width (desktop only) */}
+        <span
+          className="hidden shrink-0 lab-silk lab-display-font font-bold md:block invisible"
+          aria-hidden
+        >
+          Rigid Motions
+        </span>
       </header>
 
       {/* ── ROW 2: PROMPT ───────────────────────────────────── */}
