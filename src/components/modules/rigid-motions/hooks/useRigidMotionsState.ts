@@ -1,5 +1,5 @@
 // src/components/modules/rigid-motions/hooks/useRigidMotionsState.ts
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { GHOST_INITIAL_OFFSET } from '../constants'
 import { computeGhostVertices } from '../scene/scene-math'
 import { scoreGuess } from '../match-scoring'
@@ -73,28 +73,6 @@ export function useRigidMotionsState(): RigidMotionsState {
   const [capstoneSequence, setCapstoneSequence] = useState<TransformationParams[]>([])
   const [showCelebration, setShowCelebration] = useState(false)
   const capstoneRound = CAPSTONE_ROUNDS[capstoneRoundIndex]
-
-  // Live auto-scoring: re-score whenever ghost position or controls change,
-  // but only after the student has pressed Check at least once (feedbackState !== 'idle').
-  // Uses a ref so the effect only needs to re-subscribe to the inputs that drive
-  // the ghost shape (ghostOffset, flipped, rotationDegrees, rotationDirection).
-  // feedbackState/guideState/currentRound are read from the ref to always use
-  // the latest values without causing spurious re-runs.
-  const liveScoreParams = useRef({ feedbackState, guideState, currentRound, flipped, rotationDegrees, rotationDirection })
-  liveScoreParams.current = { feedbackState, guideState, currentRound, flipped, rotationDegrees, rotationDirection }
-
-  useEffect(() => {
-    const p = liveScoreParams.current
-    if (p.feedbackState === 'idle') return
-    const stage = guideStateToStage(p.guideState)
-    if (!stage) return
-    const axis = stage === 'reflect' ? (p.currentRound.params as ReflectionParams).axis : 'x'
-    const verts = computeGhostVertices(ghostOffset, p.guideState, p.flipped, p.rotationDegrees, p.rotationDirection, axis)
-    setFeedbackState(scoreGuess(verts, p.currentRound.targetVertices, stage, p.flipped, p.rotationDegrees, p.rotationDirection, p.currentRound.params))
-  // ghostOffset, flipped, rotationDegrees, rotationDirection drive the ghost shape;
-  // the ref handles the rest to avoid stale closure on round transitions.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ghostOffset, flipped, rotationDegrees, rotationDirection])
 
   // -------------------------------------------------------------------------
   // Phase 1 action
