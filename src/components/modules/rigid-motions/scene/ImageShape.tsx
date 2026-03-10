@@ -6,12 +6,15 @@
 //
 // Rendered in #7cc87c (lab-accent) at full opacity, solid outline. z: 0.02
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
 import { interpolateReveal } from '../animations'
 import type { TransformationType, TransformationParams } from '../types'
+import { SpriteLabel } from './scene-primitives'
+import { vertexLabelOffset } from './scene-math'
+import { centroidOf } from '../transform-math'
 
 export interface ImageShapeProps {
   vertices: [number, number][]
@@ -70,6 +73,7 @@ export function ImageShape({
   const outlineRef = useRef<THREE.LineLoop>(null)
   const vertsRef = useRef<[number, number][]>([...animateFrom])
   const tRef = useRef({ t: 0 })
+  const [labelsDone, setLabelsDone] = useState(false)
 
   // Geometry objects live outside React rendering — updated imperatively in useFrame
   const fillGeo = useRef(makeTriGeo(animateFrom, 0.01))
@@ -89,7 +93,12 @@ export function ImageShape({
   useEffect(() => {
     vertsRef.current = [...animateFrom]
     tRef.current.t = 0
-    const tl = gsap.timeline({ onComplete: onAnimationComplete })
+    const tl = gsap.timeline({
+      onComplete: () => {
+        onAnimationComplete()
+        setLabelsDone(true)
+      },
+    })
     tl.to(tRef.current, {
       t: 1,
       duration: 0.6,
@@ -107,6 +116,8 @@ export function ImageShape({
     updatePolylineGeo(outlineGeo.current, vertsRef.current, 0.02)
   })
 
+  const IMAGE_VERTEX_LABELS = ['A′', 'B′', 'C′'] as const
+
   return (
     <group>
       {/* Fill — geometry managed imperatively via fillGeo ref */}
@@ -118,6 +129,24 @@ export function ImageShape({
       <lineLoop ref={outlineRef}>
         <lineBasicMaterial color="#7cc87c" />
       </lineLoop>
+
+      {labelsDone && (() => {
+        const centroid = centroidOf(vertices)
+        return vertices.map((v, idx) => {
+          const [lx, ly] = vertexLabelOffset(v, centroid, 0.5)
+          return (
+            <SpriteLabel
+              key={IMAGE_VERTEX_LABELS[idx]}
+              text={IMAGE_VERTEX_LABELS[idx]}
+              position={[lx, ly, 0.03]}
+              color="#7cc87c"
+              anchorX="center"
+              anchorY="middle"
+              planeWidth={0.55}
+            />
+          )
+        })
+      })()}
     </group>
   )
 }
