@@ -212,7 +212,7 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
             {promptText}
           </p>
         </div>
-      ) : <div aria-hidden className="md:hidden" />}
+      ) : null}
 
       {/* ── ROW 3: FORMULA READOUT (Phase 3+ only) ──────────── */}
       {showFormulaReadout && (
@@ -224,8 +224,6 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
           />
         </div>
       )}
-      {!showFormulaReadout && <div aria-hidden className="md:hidden" />}
-
       {/* ── ROW 4: VISUALIZATION ────────────────────────────── */}
       <main className="relative min-h-0 min-w-0 overflow-hidden">
         <RigidMotionsScene
@@ -262,7 +260,7 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
       </main>
 
       {/* ── ROW 5: CONTROL STRIP ────────────────────────────── */}
-      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2 md:hidden">
+      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-3 md:hidden">
         <ControlStrip
           guideState={guideState}
           feedbackState={feedbackState}
