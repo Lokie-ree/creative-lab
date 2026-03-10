@@ -16,7 +16,6 @@ import { FormulaReadout } from './scene/FormulaReadout'
 import { isCoordinateStage, getGuideStateConfig } from './guide-state'
 import { computeGhostVertices, clampOffset } from './scene/scene-math'
 import { useAccessibility } from '@/lib/skeleton/useAccessibility'
-import { useErrorRecovery } from '@/lib/skeleton/useErrorRecovery'
 import type { ReflectionParams } from './types'
 
 export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
@@ -47,13 +46,7 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
 
   // ── Accessibility + Error recovery ─────────────────────────────────────
   const { announce } = useAccessibility()
-  const { startMonitoring, stopMonitoring } = useErrorRecovery()
   const [contextLost, setContextLost] = useState(false)
-
-  useEffect(() => {
-    startMonitoring()
-    return () => stopMonitoring()
-  }, [startMonitoring, stopMonitoring])
 
   // Announce feedback state changes for screen readers
   useEffect(() => {

@@ -108,7 +108,8 @@ export function ImageShape({
       },
     })
     return () => { tl.kill() }
-  }, []) // intentionally fires once — animateFrom and vertices are stable
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- animateFrom and vertices are stable on mount; animation fires once per ImageShape instance
+  }, [])
 
   // Sync buffer attributes every frame during animation
   useFrame(() => {
