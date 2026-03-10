@@ -2,10 +2,10 @@
 /**
  * Rigid Motions — Phase 2 + Phase 4 capstone
  *
- * Navigation handled by the app shell EscapeHatch (LAB dropdown).
- * No back button or ESC in the status strip — that would duplicate it.
+ * Back navigation lives in the status strip (ChevronLeft button).
  */
 import { useEffect, useRef, useCallback, useState } from 'react'
+import { ChevronLeft } from 'lucide-react'
 import type { ModuleProps } from '@/config/modules'
 import { fadeInReadout } from '@/lib/animation/presets'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
@@ -19,7 +19,7 @@ import { useAccessibility } from '@/lib/skeleton/useAccessibility'
 import { useErrorRecovery } from '@/lib/skeleton/useErrorRecovery'
 import type { ReflectionParams } from './types'
 
-export function InstrumentModule({ onComplete }: ModuleProps) {
+export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
   const {
     ghostOffset,
     handleGhostMove,
@@ -145,9 +145,18 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
     <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[2.5rem_auto_auto_1fr_auto] md:grid-rows-[2.5rem_1fr] md:grid-cols-[1fr_280px]">
 
       {/* ── ROW 1: STATUS STRIP ─────────────────────────────── */}
-      {/* pl-20 clears the floating EscapeHatch LAB button (~72px) on mobile */}
-      <header className="flex items-center border-b border-(--lab-border) pl-20 pr-5 md:col-span-2 md:pl-6 md:pr-6">
-        {/* Left: title (desktop only) */}
+      <header className="flex items-center border-b border-(--lab-border) pl-2 pr-5 md:col-span-2 md:pl-4 md:pr-6">
+        {/* Left: back chevron (all sizes) */}
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Back to module list"
+          className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center text-(--lab-text-muted) transition-colors duration-150 hover:text-(--lab-text) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--lab-accent)"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+
+        {/* Title (desktop only) — sits right of chevron */}
         <span className="hidden shrink-0 lab-silk lab-display-font font-bold text-(--lab-text) md:block">
           Rigid Motions
         </span>
@@ -176,7 +185,7 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
           <div className="flex-1" aria-hidden />
         )}
 
-        {/* Right: invisible spacer matching title width (desktop only) */}
+        {/* Right: invisible spacer (desktop only) — balances title+chevron on the left */}
         <span
           className="hidden shrink-0 lab-silk lab-display-font font-bold md:block invisible"
           aria-hidden
