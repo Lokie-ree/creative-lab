@@ -27,7 +27,7 @@ The rigid motions module teaches geometric transformations (translations, rotati
 
 ```
 src/components/modules/rigid-motions/
-├── InstrumentModule.tsx          # Entry: 5-row layout, full Phase 2–4 state wiring
+├── InstrumentModule.tsx          # Entry: back-chevron status strip, 5-row mobile / 2-col desktop layout, full Phase 2–4 state wiring
 ├── constants.ts                  # Grid range, content range, triangle vertices, labels
 ├── types.ts                      # GuideState, FeedbackState, Round; re-exports TransformationParams from @/lib/types/transforms
 ├── transform-math.ts             # Pure math: translate, reflectOverX/Y, rotateCW90/180/270, applyTransform, applySequence
@@ -49,7 +49,7 @@ src/components/modules/rigid-motions/
 │   ├── TranslationVector.tsx     # Dashed arrow from pre-image centroid to ghost centroid
 │   ├── ReflectionAxisTicks.tsx   # Perpendicular tick lines; color = green when equidistant
 │   ├── RotationArcs.tsx          # Origin-fixed arc sweeps per pre-image vertex
-│   ├── ImageShape.tsx            # Confirmed image; GSAP-animated reveal, BufferGeometry refs
+│   ├── ImageShape.tsx            # Confirmed image; GSAP-animated reveal, BufferGeometry refs; A′B′C′ SpriteLabels appear after animation
 │   ├── GapLines.tsx              # Miss feedback: dashed lines ghost → target per vertex
 │   └── __tests__/
 │       ├── transform-math.test.ts   # 45 tests — all round definitions, edge cases
@@ -79,9 +79,9 @@ src/components/modules/rigid-motions/
 ```
 InstrumentModule
 └── grid: [status strip | prompt | formula readout | scene | control strip]
-    ├── header       — module title; EscapeHatch (LAB dropdown) floats fixed top-0 left-4 h-12
-    ├── div          — "Predict" label + PROMPT_TEXT[currentRound.id]
-    ├── div          — FormulaReadout (Phase 3+; empty <div aria-hidden /> in Phase 2)
+    ├── header       — back chevron (ChevronLeft, all viewports) + module title (desktop-only) + LED progress dots
+    ├── div          — "Predict" label + PROMPT_TEXT[currentRound.id] (mobile only; null in capstone)
+    ├── div          — FormulaReadout (Phase 3+; null in Phase 2 — no placeholder div)
     ├── main         — RigidMotionsScene
     │   └── Canvas (R3F, orthographic)
     │       ├── ContextRecovery       — webglcontextlost / webglcontextrestored
@@ -91,7 +91,7 @@ InstrumentModule
     │       ├── GhostTriangle         — green dashed triangle; uses computeGhostVertices
     │       │                           (hidden in coordinate-reveal, capstone, and when feedbackState === 'match')
     │       ├── PreviewGhost          — non-draggable ghost driven by SequenceBuilder (capstone only)
-    │       ├── ImageShape            — confirmed image; GSAP reveal animation
+    │       ├── ImageShape            — confirmed image; GSAP reveal animation + A′B′C′ SpriteLabels after animation
     │       │                           (shown when feedbackState === 'match')
     │       ├── GapLines              — miss feedback: dashed vertex-to-target lines
     │       │                           (shown when feedbackState === 'miss')
@@ -103,8 +103,8 @@ InstrumentModule
     │       │                           (predict-rotate AND predict-with-coordinates-rotate)
     │       └── DragPlane             — invisible full-screen mesh; captures pointer events
     │                                   (gated off in capstone — PreviewGhost is non-draggable)
-    └── footer — ControlStrip
-                 Phase 2: FLIP | ROTATION | CHECK/NEXT | RESET | SPEED
+    └── footer — ControlStrip (mobile only; desktop uses sidebar)
+                 Phase 2: FLIP | ROTATION | CHECK/NEXT | RESET
                  Phase 3: same controls (coordinate-reveal shows CONTINUE only)
                  Phase 4: SequenceBuilder replaces all other controls
 ```
