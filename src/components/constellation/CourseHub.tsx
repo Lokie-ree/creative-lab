@@ -36,7 +36,7 @@ export function CourseHub({ onSelectCourse, onBack }: CourseHubProps) {
       {/* Content area — centered in remaining height */}
       <div className="flex flex-1 flex-col items-center justify-center px-4">
         <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-light text-[var(--lab-text)]">
+          <h1 className="lab-display-font text-3xl md:text-4xl font-semibold text-(--lab-text)">
             IVLA STEM Club
           </h1>
         </div>

@@ -11,16 +11,16 @@ export function GoDeeperTab({ onOpenProcess }: GoDeeperTabProps) {
       <div className="space-y-2">
         <button
           onClick={onOpenProcess}
-          className="w-full flex items-center gap-3 p-3 min-h-[44px] rounded-lg bg-[var(--lab-bg-elevated)]/50 hover:bg-[var(--lab-bg-elevated)] border border-[var(--lab-border)] hover:border-[var(--lab-text-dim)] transition-colors text-left group"
+          className="w-full flex items-center gap-3 p-3 min-h-[44px] border border-(--lab-border) bg-(--lab-bg) hover:border-(--lab-text-muted) transition-colors duration-150 text-left group"
         >
-          <div className="w-10 h-10 rounded-lg bg-[var(--lab-surface-elevated)] flex items-center justify-center">
-            <Compass className="w-5 h-5 text-[var(--lab-accent)]" />
+          <div className="w-10 h-10 border border-(--lab-border) bg-(--lab-surface) flex items-center justify-center shrink-0">
+            <Compass className="w-5 h-5 text-(--lab-accent)" />
           </div>
           <div className="flex-1">
-            <div className="text-white font-medium group-hover:text-[var(--lab-accent)] transition-colors">
+            <div className="lab-display-font text-sm font-medium text-(--lab-text) group-hover:text-(--lab-accent) transition-colors duration-150">
               Design Process
             </div>
-            <div className="text-sm text-[var(--lab-text-dim)]">
+            <div className="lab-silk lab-display-font text-(--lab-text-muted) mt-0.5">
               How I approached this module
             </div>
           </div>
@@ -30,20 +30,20 @@ export function GoDeeperTab({ onOpenProcess }: GoDeeperTabProps) {
           href="https://github.com/Lokie-ree/creative-lab"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full flex items-center gap-3 p-3 min-h-[44px] rounded-lg bg-[var(--lab-bg-elevated)]/50 hover:bg-[var(--lab-bg-elevated)] border border-[var(--lab-border)] hover:border-[var(--lab-text-dim)] transition-colors text-left group"
+          className="w-full flex items-center gap-3 p-3 min-h-[44px] border border-(--lab-border) bg-(--lab-bg) hover:border-(--lab-text-muted) transition-colors duration-150 text-left group"
         >
-          <div className="w-10 h-10 rounded-lg bg-[var(--lab-surface-elevated)] flex items-center justify-center">
-            <Github className="w-5 h-5 text-[var(--lab-accent)]" />
+          <div className="w-10 h-10 border border-(--lab-border) bg-(--lab-surface) flex items-center justify-center shrink-0">
+            <Github className="w-5 h-5 text-(--lab-accent)" />
           </div>
           <div className="flex-1">
-            <div className="text-white font-medium group-hover:text-[var(--lab-accent)] transition-colors">
+            <div className="lab-display-font text-sm font-medium text-(--lab-text) group-hover:text-(--lab-accent) transition-colors duration-150">
               Source Code
             </div>
-            <div className="text-sm text-[var(--lab-text-dim)]">
+            <div className="lab-silk lab-display-font text-(--lab-text-muted) mt-0.5">
               GitHub repository
             </div>
           </div>
-          <ExternalLink className="w-4 h-4 text-[var(--lab-text-dim)] group-hover:text-[var(--lab-text-muted)]" />
+          <ExternalLink className="w-4 h-4 text-(--lab-ghost) group-hover:text-(--lab-text-muted)" />
         </a>
 
       </div>

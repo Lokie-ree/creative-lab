@@ -21,6 +21,7 @@ interface Dot {
   cy: number;
   xOffset: number;
   yOffset: number;
+  alpha: number;
   _inertiaApplied: boolean;
 }
 
@@ -68,6 +69,7 @@ const DotGrid: React.FC<DotGridProps> = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dotsRef = useRef<Dot[]>([]);
+  const entrancePlayedRef = useRef(false);
   const pointerRef = useRef({
     x: 0,
     y: 0,
@@ -123,10 +125,27 @@ const DotGrid: React.FC<DotGridProps> = ({
       for (let x = 0; x < cols; x++) {
         const cx = startX + x * cell;
         const cy = startY + y * cell;
-        dots.push({ cx, cy, xOffset: 0, yOffset: 0, _inertiaApplied: false });
+        dots.push({ cx, cy, xOffset: 0, yOffset: 0, alpha: 0, _inertiaApplied: false });
       }
     }
     dotsRef.current = dots;
+
+    // Staggered entrance — only on first build
+    if (!entrancePlayedRef.current) {
+      entrancePlayedRef.current = true;
+      const shuffled = [...dots].sort(() => Math.random() - 0.5);
+      shuffled.forEach((dot, i) => {
+        gsap.to(dot, {
+          alpha: 1,
+          duration: 0.4,
+          delay: 0.3 + i * 0.0015,
+          ease: 'power2.out',
+        });
+      });
+    } else {
+      // On resize, snap alpha to 1 for new dots
+      dots.forEach(d => { d.alpha = 1; });
+    }
   }, [dotSize, gap]);
 
   useEffect(() => {
@@ -162,6 +181,7 @@ const DotGrid: React.FC<DotGridProps> = ({
         }
 
         ctx.save();
+        ctx.globalAlpha = dot.alpha;
         ctx.translate(ox, oy);
         ctx.fillStyle = style;
         ctx.fill(circlePath);

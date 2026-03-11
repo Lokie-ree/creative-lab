@@ -17,8 +17,8 @@ export function BehindThisTab({ moduleId }: BehindThisTabProps) {
       {/* The Approach */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <Lightbulb className="w-4 h-4 text-[var(--lab-accent)]" />
-          <h4 className="text-sm font-semibold text-white uppercase tracking-wide">
+          <Lightbulb className="w-4 h-4 text-(--lab-accent)" />
+          <h4 className="lab-silk lab-display-font font-bold text-(--lab-text)">
             {copy.approach.title}
           </h4>
         </div>
@@ -32,23 +32,23 @@ export function BehindThisTab({ moduleId }: BehindThisTabProps) {
       {/* The Build */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <Code className="w-4 h-4 text-[var(--lab-accent)]" />
-          <h4 className="text-sm font-semibold text-white uppercase tracking-wide">
+          <Code className="w-4 h-4 text-(--lab-accent)" />
+          <h4 className="lab-silk lab-display-font font-bold text-(--lab-text)">
             {copy.build.title}
           </h4>
         </div>
         <div className="flex flex-wrap gap-2 mb-3">
           {copy.build.badges.map((badge, idx) => (
-            <Badge 
+            <Badge
               key={idx}
-              variant="secondary" 
-              className="bg-[var(--lab-bg-elevated)] text-[var(--lab-text)] hover:bg-[var(--lab-surface-elevated)]"
+              variant="secondary"
+              className="border border-(--lab-border) bg-(--lab-bg) text-(--lab-text) hover:border-(--lab-text-muted) rounded-none"
             >
               {badge}
             </Badge>
           ))}
         </div>
-        <p className="text-sm text-[var(--lab-text-dim)] italic">
+        <p className="text-sm text-(--lab-text-muted) italic">
           {copy.build.note}
         </p>
         <ul className="mt-2 space-y-1 text-sm text-[var(--lab-text-muted)]">
@@ -61,8 +61,8 @@ export function BehindThisTab({ moduleId }: BehindThisTabProps) {
       {/* Design Decisions */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <Palette className="w-4 h-4 text-[var(--lab-accent)]" />
-          <h4 className="text-sm font-semibold text-white uppercase tracking-wide">
+          <Palette className="w-4 h-4 text-(--lab-accent)" />
+          <h4 className="lab-silk lab-display-font font-bold text-(--lab-text)">
             {copy.designDecisions.title}
           </h4>
         </div>
@@ -76,13 +76,13 @@ export function BehindThisTab({ moduleId }: BehindThisTabProps) {
       {/* Where This Fits */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <Target className="w-4 h-4 text-[var(--lab-accent)]" />
-          <h4 className="text-sm font-semibold text-white uppercase tracking-wide">
+          <Target className="w-4 h-4 text-(--lab-accent)" />
+          <h4 className="lab-silk lab-display-font font-bold text-(--lab-text)">
             {copy.whereThisFits.title}
           </h4>
         </div>
-        <div className="bg-[var(--lab-bg-elevated)]/50 rounded-lg p-3 border border-[var(--lab-border)]">
-          <p className="text-sm text-[var(--lab-text-muted)] whitespace-pre-line">
+        <div className="border border-(--lab-border) bg-(--lab-bg) p-3">
+          <p className="text-sm text-(--lab-text-muted) whitespace-pre-line">
             {copy.whereThisFits.content}
           </p>
         </div>

@@ -1,11 +1,13 @@
 // src/components/modules/sinewaves/components/StatusStrip.tsx
 import { forwardRef } from 'react'
+import { ChevronLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface StatusStripProps {
   currentStage: number
   totalStages: number
   onStageSelect?: (index: number) => void
+  onBack?: () => void
   className?: string
 }
 
@@ -18,7 +20,7 @@ const STAGE_LABELS = ['Watch', 'Amplitude', 'Frequency', 'Challenge', 'Free']
  * Mobile:             ●●●○○
  */
 export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
-  function StatusStrip({ currentStage, totalStages, onStageSelect, className = '' }, ref) {
+  function StatusStrip({ currentStage, totalStages, onStageSelect, onBack, className = '' }, ref) {
     const canNavigateToStage = (index: number) => {
       if (!onStageSelect) return false
       return index + 1 <= currentStage
@@ -26,7 +28,15 @@ export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
 
     return (
       <div ref={ref} className={cn('flex w-full items-center', className)}>
-        {/* Left: title (desktop only) */}
+        {/* Left: back chevron + title (desktop only) */}
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Back to module list"
+          className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center text-(--lab-text-muted) transition-colors duration-150 hover:text-(--lab-text) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--lab-accent)"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
         <span className="hidden shrink-0 lab-silk lab-display-font font-bold text-(--lab-text) md:block">
           Sinewaves
         </span>
@@ -73,13 +83,15 @@ export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
           </ol>
         </nav>
 
-        {/* Right: invisible spacer matching title width (desktop only) */}
-        <span
-          className="hidden shrink-0 lab-silk lab-display-font font-bold md:block invisible"
-          aria-hidden
-        >
-          Sinewaves
-        </span>
+        {/* Right: invisible spacer matching chevron + title width (desktop only) */}
+        <div className="flex shrink-0 items-center" aria-hidden>
+          <span className="min-w-[44px]" />
+          <span
+            className="hidden lab-silk lab-display-font font-bold md:block invisible"
+          >
+            Sinewaves
+          </span>
+        </div>
       </div>
     )
   }

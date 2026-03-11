@@ -25,11 +25,11 @@ export function ModuleNode({
       onClick={onClick}
       disabled={isComingSoon}
       className={cn(
-        'group flex flex-col items-center gap-3 p-4 rounded transition-all duration-150',
+        'group flex flex-col items-center gap-3 p-4 transition-colors duration-150',
         isComingSoon
           ? 'cursor-not-allowed opacity-40'
-          : 'hover:scale-108 active:scale-98',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(124,200,124,0.5)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lab-bg)]'
+          : '',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-(--lab-accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--lab-bg)'
       )}
     >
       {/* Rings */}

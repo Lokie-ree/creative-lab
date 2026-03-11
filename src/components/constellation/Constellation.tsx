@@ -87,7 +87,7 @@ export function Constellation({
       {/* Content area — centered in remaining height */}
       <div className="flex flex-1 flex-col items-center justify-center px-4">
         <div className="text-center mb-12">
-          <h1 className="text-2xl md:text-3xl font-light text-[var(--lab-text)] mb-2">
+          <h1 className="lab-display-font text-2xl md:text-3xl font-semibold text-(--lab-text) mb-2">
             {course.name}
           </h1>
           <p className="text-[var(--lab-ghost)] text-sm lab-silk lab-display-font">Select a module</p>

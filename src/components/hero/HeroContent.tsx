@@ -33,7 +33,7 @@ export function HeroContent({ onEnter }: HeroContentProps) {
       {/* Name */}
       <h1
         ref={nameRef}
-        className="text-5xl md:text-6xl font-semibold text-[var(--lab-text)] tracking-tight"
+        className="lab-display-font text-5xl md:text-6xl font-semibold text-(--lab-text) tracking-tight"
       >
         IVLA STEM Club
       </h1>
@@ -41,20 +41,20 @@ export function HeroContent({ onEnter }: HeroContentProps) {
       {/* Tagline: Where we [build / discover / explore / prove] */}
       <p
         ref={taglineRef}
-        className="inline-flex flex-wrap items-baseline justify-center gap-x-2"
+        className="inline-flex flex-wrap items-center justify-center gap-x-3"
       >
-        <span className="text-lg sm:text-xl md:text-2xl text-[var(--lab-text-muted)]">
+        <span className="lab-silk lab-display-font text-[11px] tracking-[0.2em] text-(--lab-text-muted)">
           Where we
         </span>
-        <span className="inline-flex min-w-[8ch] justify-start rounded-full bg-[var(--lab-surface)]/95 px-4 py-2 shadow-sm ring-1 ring-[var(--lab-border)] backdrop-blur-sm">
+        <span className="inline-flex min-w-[9ch] items-center justify-start border border-(--lab-border) bg-(--lab-surface) px-3 py-1.5">
           <RotatingText
             texts={['build', 'discover', 'explore', 'prove']}
-            mainClassName="text-base sm:text-lg md:text-xl font-medium text-[var(--lab-text)]"
+            mainClassName="lab-silk lab-display-font text-[11px] tracking-[0.15em] text-(--lab-accent)"
             splitBy="words"
-            initial={{ opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
             staggerDuration={0}
             rotationInterval={2200}
           />
@@ -65,10 +65,10 @@ export function HeroContent({ onEnter }: HeroContentProps) {
       <button
         ref={ctaRef}
         onClick={onEnter}
-        className="group px-8 py-4 min-h-[48px] bg-[var(--lab-accent)] text-[var(--lab-bg)] font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:bg-[var(--lab-accent-hover)] hover:shadow-[0_0_30px_rgba(124,200,124,0.4)]"
+        className="group px-8 py-3.5 min-h-[48px] border border-(--lab-accent) bg-(--lab-accent) text-(--lab-bg) lab-silk lab-display-font tracking-[0.1em] transition-colors duration-150 hover:bg-(--lab-accent-hover) hover:border-(--lab-accent-hover)"
       >
         Enter the Lab
-        <span className="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>
+        <span className="inline-block ml-3 transition-transform duration-150 group-hover:translate-x-1">→</span>
       </button>
     </div>
   )
