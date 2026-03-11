@@ -1,12 +1,10 @@
 // src/components/modules/sinewaves/components/StatusStrip.tsx
 import { forwardRef } from 'react'
-import { ChevronLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface StatusStripProps {
   currentStage: number
   totalStages: number
-  onBack?: () => void
   onStageSelect?: (index: number) => void
   className?: string
 }
@@ -14,56 +12,26 @@ interface StatusStripProps {
 const STAGE_LABELS = ['Watch', 'Amplitude', 'Frequency', 'Challenge', 'Free']
 
 /**
- * Eurorack status strip with navigation and chrome
+ * Eurorack status strip — progress LEDs centered, title desktop-only.
  *
- * Desktop: [←] SINEWAVES  ●●●○○  SYS:NOM  [ESC]
- * Mobile:  [←] ●●●○○ SYS:NOM
+ * Desktop: SINEWAVES  ●●●○○  [spacer]
+ * Mobile:             ●●●○○
  */
 export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
-  function StatusStrip(
-    {
-      currentStage,
-      totalStages,
-      onBack,
-      onStageSelect,
-      className = '',
-    },
-    ref
-  ) {
+  function StatusStrip({ currentStage, totalStages, onStageSelect, className = '' }, ref) {
     const canNavigateToStage = (index: number) => {
       if (!onStageSelect) return false
-      const oneBased = index + 1
-      return oneBased <= currentStage
+      return index + 1 <= currentStage
     }
 
     return (
-      <div
-        ref={ref}
-        className={cn(
-          'flex w-full items-center gap-2 md:gap-4',
-          className
-        )}
-      >
-        {/* Back chevron */}
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex shrink-0 min-h-[44px] min-w-[44px] items-center justify-center transition-colors duration-150 hover:bg-(--lab-surface) focus:outline-none focus:ring-2 focus:ring-(--lab-accent)"
-            aria-label="Back to course"
-          >
-            <ChevronLeft className="h-5 w-5 text-(--lab-text-muted) md:h-6 md:w-6" />
-          </button>
-        )}
-
-        {/* SINEWAVES title — desktop only */}
-        <span
-          className="hidden shrink-0 lab-silk lab-display-font font-bold text-(--lab-text) md:block"
-        >
+      <div ref={ref} className={cn('flex w-full items-center', className)}>
+        {/* Left: title (desktop only) */}
+        <span className="hidden shrink-0 lab-silk lab-display-font font-bold text-(--lab-text) md:block">
           Sinewaves
         </span>
 
-        {/* Progress LEDs */}
+        {/* Center: progress LEDs */}
         <nav
           className="flex flex-1 items-center justify-center"
           aria-label={`Module progress: stage ${currentStage} of ${totalStages}`}
@@ -75,11 +43,7 @@ export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
               const isCurrent = oneBased === currentStage
               const clickable = canNavigateToStage(i)
               const stageLabel = STAGE_LABELS[i] ?? 'Stage'
-              const stageStatus = isCompleted
-                ? 'completed'
-                : isCurrent
-                  ? 'current'
-                  : 'upcoming'
+              const stageStatus = isCompleted ? 'completed' : isCurrent ? 'current' : 'upcoming'
               return (
                 <li key={i}>
                   <button
@@ -109,24 +73,13 @@ export const StatusStrip = forwardRef<HTMLDivElement, StatusStripProps>(
           </ol>
         </nav>
 
-        {/* SYS:NOM status */}
+        {/* Right: invisible spacer matching title width (desktop only) */}
         <span
-          className="shrink-0 lab-silk text-(--lab-success) lab-data-font"
+          className="hidden shrink-0 lab-silk lab-display-font font-bold md:block invisible"
+          aria-hidden
         >
-          SYS:NOM
+          Sinewaves
         </span>
-
-        {/* ESC button — desktop only */}
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="hidden shrink-0 min-h-[44px] border border-(--lab-border) px-3 py-3 lab-silk lab-display-font tracking-[0.1em] text-(--lab-text-muted) transition-colors duration-150 hover:border-(--lab-accent) hover:text-(--lab-accent) focus:outline-none focus:ring-2 focus:ring-(--lab-accent) md:flex md:items-center"
-            aria-label="Exit module"
-          >
-            ESC
-          </button>
-        )}
       </div>
     )
   }

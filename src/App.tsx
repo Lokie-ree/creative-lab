@@ -6,7 +6,6 @@ import { PortfolioProvider } from "@/context/PortfolioContext"
 import { Constellation } from "@/components/constellation/Constellation"
 import { CourseHub } from "@/components/constellation/CourseHub"
 import { getModuleById, type ModuleProps } from "@/config/modules"
-import { EscapeHatch } from "./components/layout/EscapeHatch"
 import { Navigation } from "./components/layout/Navigation"
 import { CelebrationModal } from "./components/celebration/CelebrationModal"
 import { ProcessDialog } from "./components/dialogs/ProcessDialog"
@@ -87,7 +86,6 @@ function App() {
   // Modal states
   const [showCelebration, setShowCelebration] = useState(false)
   const [celebrationTab, setCelebrationTab] = useState<TabId>("discovery")
-  const [skippedToEnd, setSkippedToEnd] = useState(false)
   const [showProcess, setShowProcess] = useState(false)
 
   // Hero → Courses transition
@@ -119,7 +117,6 @@ function App() {
     (values: Record<string, number>, meta?: { completedSequence?: TransformationParams[] }) => {
       setCompletedValues(values)
       setCompletedSequence(meta?.completedSequence ?? null)
-      setSkippedToEnd(false)
       setCelebrationTab("discovery")
       setShowCelebration(true)
     },
@@ -131,7 +128,6 @@ function App() {
     setShowCelebration(false)
     setCompletedValues(null)
     setCompletedSequence(null)
-    setSkippedToEnd(false)
     setActiveModuleId(null)
     setView("constellation")
   }, [])
@@ -145,13 +141,6 @@ function App() {
   // Back to hero from courses
   const handleBackToHero = useCallback(() => {
     setView("hero")
-  }, [])
-
-  // Skip to end (from escape hatch)
-  const handleSkipToEnd = useCallback(() => {
-    setSkippedToEnd(true)
-    setCelebrationTab("deeper")
-    setShowCelebration(true)
   }, [])
 
   // New challenge from celebration modal
@@ -253,7 +242,7 @@ function App() {
             animate="animate"
             exit="exit"
           >
-            {/* Navigation back button hidden - EscapeHatch handles navigation */}
+            {/* Navigation back button hidden - module status strip handles back navigation */}
             <Navigation
               showBackButton={false}
               onBack={handleBackToConstellation}
@@ -271,20 +260,10 @@ function App() {
       </AnimatePresence>
       </div>
 
-      {/* Escape hatch - only visible in module view, not during celebration */}
-      {/* Hidden for sinewaves - Observatory HUD has its own status strip */}
-      {view === "module" && !showCelebration && activeModuleId !== "sinewaves" && (
-        <EscapeHatch
-          onBackToStart={handleBackToConstellation}
-          onSkipToEnd={handleSkipToEnd}
-        />
-      )}
-
       {/* Celebration Modal */}
       <CelebrationModal
         show={showCelebration}
         values={completedValues}
-        skipped={skippedToEnd}
         initialTab={celebrationTab}
         moduleId={activeModuleId}
         completedSequence={completedSequence}

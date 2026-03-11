@@ -2,10 +2,10 @@
 /**
  * Rigid Motions — Phase 2 + Phase 4 capstone
  *
- * Navigation handled by the app shell EscapeHatch (LAB dropdown).
- * No back button or ESC in the status strip — that would duplicate it.
+ * Back navigation lives in the status strip (ChevronLeft button).
  */
 import { useEffect, useRef, useCallback, useState } from 'react'
+import { ChevronLeft } from 'lucide-react'
 import type { ModuleProps } from '@/config/modules'
 import { fadeInReadout } from '@/lib/animation/presets'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
@@ -16,10 +16,9 @@ import { FormulaReadout } from './scene/FormulaReadout'
 import { isCoordinateStage, getGuideStateConfig } from './guide-state'
 import { computeGhostVertices, clampOffset } from './scene/scene-math'
 import { useAccessibility } from '@/lib/skeleton/useAccessibility'
-import { useErrorRecovery } from '@/lib/skeleton/useErrorRecovery'
 import type { ReflectionParams } from './types'
 
-export function InstrumentModule({ onComplete }: ModuleProps) {
+export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
   const {
     ghostOffset,
     handleGhostMove,
@@ -47,13 +46,7 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
 
   // ── Accessibility + Error recovery ─────────────────────────────────────
   const { announce } = useAccessibility()
-  const { startMonitoring, stopMonitoring } = useErrorRecovery()
   const [contextLost, setContextLost] = useState(false)
-
-  useEffect(() => {
-    startMonitoring()
-    return () => stopMonitoring()
-  }, [startMonitoring, stopMonitoring])
 
   // Announce feedback state changes for screen readers
   useEffect(() => {
@@ -98,8 +91,10 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
     'Predict'
 
   const promptRef = useRef<HTMLDivElement>(null)
+  const promptRefDesktop = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (promptRef.current) fadeInReadout(promptRef.current)
+    if (promptRefDesktop.current) fadeInReadout(promptRefDesktop.current)
   }, [promptText])
 
   // ── Keyboard nudging for ghost ──────────────────────────────────────────
@@ -140,17 +135,29 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
   const GUIDE_STATE_TOTAL = 8 // one per guide state in GUIDE_STATE_SEQUENCE
 
   return (
-    <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[2.5rem_auto_auto_1fr_auto]">
+    <div className="grid h-dvh w-screen overflow-hidden bg-(--lab-bg) grid-rows-[2.5rem_auto_auto_1fr_auto] md:grid-rows-[2.5rem_1fr] md:grid-cols-[1fr_280px]">
 
       {/* ── ROW 1: STATUS STRIP ─────────────────────────────── */}
-      {/* Left pad clears the floating EscapeHatch LAB button (~72px wide at left-4) */}
-      <header className="flex items-center gap-4 border-b border-(--lab-border) pl-20 pr-5 md:pr-6">
-        <span className="shrink-0 lab-silk lab-display-font font-bold text-(--lab-text)">
+      <header className="flex items-center border-b border-(--lab-border) pl-2 pr-5 md:col-span-2 md:pl-4 md:pr-6">
+        {/* Left: back chevron (all sizes) */}
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Back to module list"
+          className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center text-(--lab-text-muted) transition-colors duration-150 hover:text-(--lab-text) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--lab-accent)"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+
+        {/* Title (desktop only) — sits right of chevron */}
+        <span className="hidden shrink-0 lab-silk lab-display-font font-bold text-(--lab-text) md:block">
           Rigid Motions
         </span>
+
+        {/* Center: progress LEDs */}
         {guideState !== 'capstone' ? (
           <div
-            className="ml-auto flex items-center gap-1"
+            className="flex flex-1 items-center justify-center gap-1"
             aria-label={`Step ${currentGuideIndex + 1} of ${GUIDE_STATE_TOTAL}`}
           >
             {Array.from({ length: GUIDE_STATE_TOTAL }, (_, i) => (
@@ -168,15 +175,23 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
             ))}
           </div>
         ) : (
-          <div className="ml-auto" aria-hidden={true} />
+          <div className="flex-1" aria-hidden />
         )}
+
+        {/* Right: invisible spacer (desktop only) — balances title+chevron on the left */}
+        <span
+          className="hidden shrink-0 lab-silk lab-display-font font-bold md:block invisible"
+          aria-hidden
+        >
+          Rigid Motions
+        </span>
       </header>
 
       {/* ── ROW 2: PROMPT ───────────────────────────────────── */}
       {guideState !== 'capstone' ? (
         <div
           ref={promptRef}
-          className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-1.5 md:px-6"
+          className="border-b border-(--lab-border) bg-(--lab-surface) px-5 py-1.5 md:hidden"
           role="status"
           aria-live="polite"
         >
@@ -190,18 +205,18 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
             {promptText}
           </p>
         </div>
-      ) : <div aria-hidden />}
+      ) : null}
 
       {/* ── ROW 3: FORMULA READOUT (Phase 3+ only) ──────────── */}
       {showFormulaReadout && (
-        <FormulaReadout
-          round={currentRound}
-          ghostVertices={liveGhostVertices}
-          feedbackState={feedbackState}
-        />
+        <div className="md:hidden">
+          <FormulaReadout
+            round={currentRound}
+            ghostVertices={liveGhostVertices}
+            feedbackState={feedbackState}
+          />
+        </div>
       )}
-      {!showFormulaReadout && <div aria-hidden />}
-
       {/* ── ROW 4: VISUALIZATION ────────────────────────────── */}
       <main className="relative min-h-0 min-w-0 overflow-hidden">
         <RigidMotionsScene
@@ -238,7 +253,7 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
       </main>
 
       {/* ── ROW 5: CONTROL STRIP ────────────────────────────── */}
-      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-2 md:px-6 md:py-2.5">
+      <footer className="flex flex-col items-center border-t border-(--lab-border) px-5 py-3 md:hidden">
         <ControlStrip
           guideState={guideState}
           feedbackState={feedbackState}
@@ -256,6 +271,61 @@ export function InstrumentModule({ onComplete }: ModuleProps) {
           onCapstoneNext={handleCapstoneNext}
         />
       </footer>
+
+      {/* ── DESKTOP SIDEBAR ─────────────────────────────────── */}
+      <aside className="hidden md:flex md:flex-col md:row-start-2 md:col-start-2 border-l border-(--lab-border) overflow-y-auto">
+        {/* TODO: verify SequenceBuilder fits on short viewports (13" laptop ~768px tall).
+            overflow-y-auto ensures the sidebar scrolls rather than silently clips. */}
+
+        {/* Prompt */}
+        {guideState !== 'capstone' ? (
+          <div
+            ref={promptRefDesktop}
+            className="border-b border-(--lab-border) bg-(--lab-surface) px-4 py-3"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="mb-0.5 lab-silk lab-display-font text-[8px] tracking-[0.2em] font-bold text-(--lab-text-muted)">
+              {promptLabel}
+            </div>
+            <p className={[
+              'text-sm font-medium lab-display-font',
+              firstMatch ? 'text-(--lab-earned)' : 'text-(--lab-text)',
+            ].join(' ')}>
+              {promptText}
+            </p>
+          </div>
+        ) : null}
+
+        {/* Formula readout (phases 3+ only) */}
+        {showFormulaReadout && (
+          <FormulaReadout
+            round={currentRound}
+            ghostVertices={liveGhostVertices}
+            feedbackState={feedbackState}
+          />
+        )}
+
+        {/* Controls — fills remaining sidebar height */}
+        <div className="flex flex-1 flex-col items-center justify-center border-t border-(--lab-border) px-4 py-3">
+          <ControlStrip
+            guideState={guideState}
+            feedbackState={feedbackState}
+            flipped={flipped}
+            rotationDegrees={rotationDegrees}
+            rotationDirection={rotationDirection}
+            onCheck={handleCheck}
+            onNext={handleNext}
+            onReset={handleReset}
+            onFlip={handleFlip}
+            onRotation={handleRotation}
+            capstoneSequence={capstoneSequence}
+            onSequenceChange={handleSequenceChange}
+            onCheckSequence={handleCheckSequence}
+            onCapstoneNext={handleCapstoneNext}
+          />
+        </div>
+      </aside>
     </div>
   )
 }

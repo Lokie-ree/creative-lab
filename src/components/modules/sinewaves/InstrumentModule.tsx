@@ -32,10 +32,9 @@ import { useProximity } from './use-proximity'
 
 interface InstrumentModuleProps {
   onComplete: (values: Record<string, number>) => void
-  onBack?: () => void
 }
 
-export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) {
+export function InstrumentModule({ onComplete }: InstrumentModuleProps) {
   // ─────────────────────────────────────────────────────────────
   // Boot sequence
   // ─────────────────────────────────────────────────────────────
@@ -291,7 +290,6 @@ export function InstrumentModule({ onComplete, onBack }: InstrumentModuleProps) 
           ref={statusStripRef}
           currentStage={GUIDE_STATE_TO_INDEX[guideState] + 1}
           totalStages={TOTAL_GUIDE_STATES}
-          onBack={onBack}
           onStageSelect={handleStageSelect}
           className={booted ? '' : 'opacity-0'}
         />
