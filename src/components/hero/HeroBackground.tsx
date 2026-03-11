@@ -6,7 +6,7 @@ export function HeroBackground() {
       <DotGrid
         dotSize={4}
         gap={20}
-        baseColor="#2e2c28"
+        baseColor="#3d3b36"
         activeColor="#7cc87c"
         proximity={120}
         shockRadius={250}

@@ -6,7 +6,6 @@ import { PortfolioProvider } from "@/context/PortfolioContext"
 import { Constellation } from "@/components/constellation/Constellation"
 import { CourseHub } from "@/components/constellation/CourseHub"
 import { getModuleById, type ModuleProps } from "@/config/modules"
-import { Navigation } from "./components/layout/Navigation"
 import { CelebrationModal } from "./components/celebration/CelebrationModal"
 import { ProcessDialog } from "./components/dialogs/ProcessDialog"
 import type { TransformationParams } from '@/lib/types/transforms'
@@ -143,6 +142,18 @@ function App() {
     setView("hero")
   }, [])
 
+  // Escape key — exit module back to constellation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      if (view !== 'module') return
+      if (showCelebration || showProcess) return
+      handleBackToConstellation()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [view, showCelebration, showProcess, handleBackToConstellation])
+
   // New challenge from celebration modal
   const handleNewChallenge = useCallback(() => {
     setShowCelebration(false)
@@ -242,11 +253,6 @@ function App() {
             animate="animate"
             exit="exit"
           >
-            {/* Navigation back button hidden - module status strip handles back navigation */}
-            <Navigation
-              showBackButton={false}
-              onBack={handleBackToConstellation}
-            />
             <Suspense fallback={<ModuleLoader />}>
               <DynamicModule
                 moduleId={activeModuleId}

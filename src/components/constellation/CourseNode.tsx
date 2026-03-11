@@ -54,7 +54,7 @@ export function CourseNode({ course, onClick }: CourseNodeProps) {
       </div>
 
       {/* Course name */}
-      <span className="text-sm text-[var(--lab-text-muted)] group-hover:text-[var(--lab-text)] transition-colors duration-150">
+      <span className="lab-display-font text-sm text-(--lab-text-muted) group-hover:text-(--lab-text) transition-colors duration-150">
         {course.name}
       </span>
 

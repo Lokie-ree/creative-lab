@@ -85,9 +85,9 @@ export function ProcessDialog({ open, onOpenChange, moduleId }: ProcessDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-[var(--lab-surface)] border-[var(--lab-border)] text-[var(--lab-text)]">
-        <DialogHeader className="pb-4 border-b border-[var(--lab-border)]">
-          <DialogTitle className="text-2xl font-semibold text-white">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-(--lab-surface) border-(--lab-border) text-(--lab-text) rounded-none">
+        <DialogHeader className="pb-4 border-b border-(--lab-border)">
+          <DialogTitle className="lab-display-font text-2xl font-semibold text-(--lab-text)">
             Design Process
           </DialogTitle>
           <p className="text-[var(--lab-text-muted)] mt-1">
@@ -99,14 +99,14 @@ export function ProcessDialog({ open, onOpenChange, moduleId }: ProcessDialogPro
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Target className="w-4 h-4 text-[var(--lab-accent)]" />
-              <h3 className="text-sm font-semibold text-white uppercase tracking-wide">
+              <h3 className="lab-silk lab-display-font font-bold text-(--lab-text)">
                 The Challenge
               </h3>
             </div>
-            <div className="text-[var(--lab-text-muted)] space-y-2">
+            <div className="text-(--lab-text-muted) space-y-2">
               <p>{content.challenge.main}</p>
-              <p className="text-[var(--lab-text-dim)]">
-                <span className="text-[var(--lab-accent)] font-medium">Constraint:</span>{" "}
+              <p>
+                <span className="text-(--lab-accent) font-medium">Constraint:</span>{" "}
                 {content.challenge.constraint}
               </p>
             </div>
@@ -115,19 +115,19 @@ export function ProcessDialog({ open, onOpenChange, moduleId }: ProcessDialogPro
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Rocket className="w-4 h-4 text-[var(--lab-accent)]" />
-              <h3 className="text-sm font-semibold text-white uppercase tracking-wide">
+              <h3 className="lab-silk lab-display-font font-bold text-(--lab-text)">
                 The Opportunity
               </h3>
             </div>
-            <div className="bg-[var(--lab-accent)]/10 border border-[var(--lab-accent)]/20 rounded-lg p-4">
-              <p className="text-[var(--lab-text)] mb-2">
-                <span className="text-[var(--lab-accent)] font-medium">The Vision:</span>{" "}
+            <div className="border border-(--lab-accent-muted) bg-(--lab-accent)/10 p-4">
+              <p className="text-(--lab-text) mb-2">
+                <span className="text-(--lab-accent) font-medium">The Vision:</span>{" "}
                 {content.opportunity.vision}
               </p>
-              <p className="text-[var(--lab-text-muted)] text-sm mb-2">
+              <p className="text-(--lab-text-muted) text-sm mb-2">
                 {content.opportunity.body}
               </p>
-              <p className="text-[var(--lab-text-dim)] text-sm italic">
+              <p className="text-(--lab-text-muted) text-sm italic">
                 {content.opportunity.tagline}
               </p>
             </div>
@@ -136,20 +136,20 @@ export function ProcessDialog({ open, onOpenChange, moduleId }: ProcessDialogPro
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4 text-[var(--lab-accent)]" />
-              <h3 className="text-sm font-semibold text-white uppercase tracking-wide">
+              <h3 className="lab-silk lab-display-font font-bold text-(--lab-text)">
                 The Timeline
               </h3>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               {content.timeline.map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-4 p-3 bg-[var(--lab-bg-elevated)]/50 rounded-lg"
+                  className="flex items-center gap-4 p-3 border border-(--lab-border) bg-(--lab-bg)"
                 >
-                  <span className="text-[var(--lab-accent)] font-mono font-medium w-14 shrink-0">
+                  <span className="lab-data-font text-(--lab-accent) font-medium w-14 shrink-0">
                     {item.label}
                   </span>
-                  <span className="text-[var(--lab-text)]">{item.focus}</span>
+                  <span className="text-(--lab-text)">{item.focus}</span>
                 </div>
               ))}
             </div>
@@ -158,17 +158,17 @@ export function ProcessDialog({ open, onOpenChange, moduleId }: ProcessDialogPro
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Lightbulb className="w-4 h-4 text-[var(--lab-accent)]" />
-              <h3 className="text-sm font-semibold text-white uppercase tracking-wide">
+              <h3 className="lab-silk lab-display-font font-bold text-(--lab-text)">
                 Pedagogical Decisions
               </h3>
             </div>
             <div className="space-y-3">
               {content.pedagogy.map((item) => (
                 <div key={item.title} className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--lab-accent)] mt-2 shrink-0" />
+                  <div className="w-1.5 h-1.5 bg-(--lab-accent) mt-2 shrink-0" />
                   <div>
-                    <span className="text-white font-medium">{item.title}:</span>{" "}
-                    <span className="text-[var(--lab-text-muted)]">{item.description}</span>
+                    <span className="lab-display-font font-medium text-(--lab-text)">{item.title}:</span>{" "}
+                    <span className="text-(--lab-text-muted)">{item.description}</span>
                   </div>
                 </div>
               ))}
@@ -181,8 +181,8 @@ export function ProcessDialog({ open, onOpenChange, moduleId }: ProcessDialogPro
             </h3>
             <ul className="space-y-2">
               {content.nextSteps.map((step, i) => (
-                <li key={i} className="text-[var(--lab-text-muted)] pl-4 relative">
-                  <span className="absolute left-0 text-[var(--lab-text-dim)]">•</span>
+                <li key={i} className="text-(--lab-text-muted) pl-4 relative">
+                  <span className="absolute left-0 text-(--lab-ghost)">•</span>
                   {step}
                 </li>
               ))}
