@@ -27,6 +27,8 @@ export function HeroContent({ onEnter }: HeroContentProps) {
 
   return (
     <div
+      id="hero-content"
+      tabIndex={-1}
       ref={containerRef}
       className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 gap-6 md:gap-8"
     >
