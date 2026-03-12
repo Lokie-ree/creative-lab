@@ -174,6 +174,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
 
     useEffect(() => {
       if (!auto) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const intervalId = setInterval(next, rotationInterval);
       return () => clearInterval(intervalId);
     }, [next, rotationInterval, auto]);
@@ -185,7 +186,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
         layout
         transition={transition}
       >
-        <span className="sr-only">{texts[currentTextIndex]}</span>
+        <span role="status" className="sr-only">{texts[currentTextIndex]}</span>
         <AnimatePresence mode={animatePresenceMode} initial={animatePresenceInitial}>
           <motion.span
             key={currentTextIndex}
