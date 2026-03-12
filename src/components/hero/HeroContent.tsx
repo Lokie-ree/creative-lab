@@ -16,10 +16,14 @@ export function HeroContent({ onEnter }: HeroContentProps) {
   useGSAP(() => {
     if (!containerRef.current) return
 
-    const tl = gsap.timeline({ defaults: { ease: "power2.out" } })
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) {
+      gsap.set([nameRef.current, taglineRef.current, ctaRef.current], { opacity: 1, y: 0 })
+      return
+    }
 
     gsap.set([nameRef.current, taglineRef.current, ctaRef.current], { opacity: 0, y: 16 })
-
+    const tl = gsap.timeline({ defaults: { ease: "power2.out" } })
     tl.to(nameRef.current, { opacity: 1, y: 0, duration: 0.6 }, 0.2)
       .to(taglineRef.current, { opacity: 1, y: 0, duration: 0.5 }, 0.5)
       .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.5 }, 0.9)
@@ -27,8 +31,10 @@ export function HeroContent({ onEnter }: HeroContentProps) {
 
   return (
     <div
+      id="hero-content"
+      tabIndex={-1}
       ref={containerRef}
-      className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 gap-6 md:gap-8"
+      className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 gap-6 md:gap-8 focus:outline-none"
     >
       {/* Name */}
       <h1
@@ -64,11 +70,12 @@ export function HeroContent({ onEnter }: HeroContentProps) {
       {/* CTA Button */}
       <button
         ref={ctaRef}
+        type="button"
         onClick={onEnter}
-        className="group px-8 py-3.5 min-h-[48px] border border-(--lab-accent) bg-(--lab-accent) text-(--lab-bg) lab-silk lab-display-font tracking-[0.1em] transition-colors duration-150 hover:bg-(--lab-accent-hover) hover:border-(--lab-accent-hover)"
+        className="group px-8 py-3.5 min-h-[48px] cursor-pointer border border-(--lab-accent) bg-(--lab-accent) text-(--lab-bg) lab-silk lab-display-font tracking-[0.1em] transition-colors duration-150 hover:bg-(--lab-accent-hover) hover:border-(--lab-accent-hover) focus-visible:outline-2 focus-visible:outline-(--lab-accent) focus-visible:outline-offset-4"
       >
         Enter the Lab
-        <span className="inline-block ml-3 transition-transform duration-150 group-hover:translate-x-1">→</span>
+        <span aria-hidden="true" className="inline-block ml-3 transition-transform duration-150 group-hover:translate-x-1">→</span>
       </button>
     </div>
   )

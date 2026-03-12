@@ -133,15 +133,19 @@ const DotGrid: React.FC<DotGridProps> = ({
     // Staggered entrance — only on first build
     if (!entrancePlayedRef.current) {
       entrancePlayedRef.current = true;
-      const shuffled = [...dots].sort(() => Math.random() - 0.5);
-      shuffled.forEach((dot, i) => {
-        gsap.to(dot, {
-          alpha: 1,
-          duration: 0.4,
-          delay: 0.3 + i * 0.0015,
-          ease: 'power2.out',
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        dots.forEach(d => { d.alpha = 1; });
+      } else {
+        const shuffled = [...dots].sort(() => Math.random() - 0.5);
+        shuffled.forEach((dot, i) => {
+          gsap.to(dot, {
+            alpha: 1,
+            duration: 0.4,
+            delay: 0.3 + i * 0.0015,
+            ease: 'power2.out',
+          });
         });
-      });
+      }
     } else {
       // On resize, snap alpha to 1 for new dots
       dots.forEach(d => { d.alpha = 1; });
@@ -299,7 +303,7 @@ const DotGrid: React.FC<DotGridProps> = ({
   }, [maxSpeed, speedTrigger, proximity, resistance, returnDuration, shockRadius, shockStrength]);
 
   return (
-    <section className={`p-4 flex items-center justify-center h-full w-full relative ${className}`} style={style}>
+    <section aria-hidden="true" className={`p-4 flex items-center justify-center h-full w-full relative ${className}`} style={style}>
       <div ref={wrapperRef} className="w-full h-full relative">
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
       </div>
