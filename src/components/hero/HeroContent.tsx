@@ -16,10 +16,14 @@ export function HeroContent({ onEnter }: HeroContentProps) {
   useGSAP(() => {
     if (!containerRef.current) return
 
-    const tl = gsap.timeline({ defaults: { ease: "power2.out" } })
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) {
+      gsap.set([nameRef.current, taglineRef.current, ctaRef.current], { opacity: 1, y: 0 })
+      return
+    }
 
     gsap.set([nameRef.current, taglineRef.current, ctaRef.current], { opacity: 0, y: 16 })
-
+    const tl = gsap.timeline({ defaults: { ease: "power2.out" } })
     tl.to(nameRef.current, { opacity: 1, y: 0, duration: 0.6 }, 0.2)
       .to(taglineRef.current, { opacity: 1, y: 0, duration: 0.5 }, 0.5)
       .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.5 }, 0.9)
