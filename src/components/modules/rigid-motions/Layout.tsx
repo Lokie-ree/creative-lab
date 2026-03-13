@@ -35,7 +35,7 @@ export function ModuleLayout({
   children,
 }: ModuleLayoutProps) {
   return (
-    <div className="h-dvh flex flex-col overflow-hidden bg-(--lab-bg)">
+    <div className="h-dvh w-full flex flex-col overflow-hidden bg-(--lab-bg)">
 
       {/* ── STATUS STRIP ───────────────────────────── */}
       <header className="shrink-0 h-10 flex items-center border-b border-(--lab-border)">
