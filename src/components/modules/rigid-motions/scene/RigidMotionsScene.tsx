@@ -20,6 +20,8 @@ import { GapLines } from './GapLines'
 import { PreviewGhost } from './PreviewGhost'
 import type { GuideState, FeedbackState, Round, ReflectionParams } from '../types'
 import type { TransformationParams } from '@/lib/types/transforms'
+import { colors } from '@/lib/colors'
+import gsap from 'gsap'
 
 export interface RigidMotionsSceneProps {
   ghostOffset: [number, number]
@@ -318,9 +320,15 @@ function DragPlane({ ghostOffset, onGhostMove, onDragChange }: DragPlaneProps) {
 
 interface CapstoneTargetProps {
   vertices: [number, number][]
+  feedbackState: FeedbackState
 }
 
-function CapstoneTarget({ vertices }: CapstoneTargetProps) {
+function CapstoneTarget({
+  vertices,
+  feedbackState,
+}: CapstoneTargetProps) {
+  const targetOutlineRef = useRef<THREE.LineBasicMaterial>(null)
+
   const { outlineGeometry, shape } = useMemo(() => {
     const pts = [...vertices, vertices[0]].map(([x, y]) => new THREE.Vector3(x, y, 0.02))
     return {
@@ -329,14 +337,35 @@ function CapstoneTarget({ vertices }: CapstoneTargetProps) {
     }
   }, [vertices])
 
+  useEffect(() => {
+    if (feedbackState !== 'match' || !targetOutlineRef.current) return
+    const mat = targetOutlineRef.current
+    const accent = new THREE.Color(colors.accent.primary)
+    const ghost  = new THREE.Color(colors.ghost)
+
+    gsap.to(mat.color, {
+      r: accent.r, g: accent.g, b: accent.b,
+      duration: 0.15,
+      ease: 'power2.out',
+      onComplete: () => {
+        gsap.to(mat.color, {
+          r: ghost.r, g: ghost.g, b: ghost.b,
+          duration: 0.25,
+          delay: 0.1,
+          ease: 'power2.in',
+        })
+      },
+    })
+  }, [feedbackState])
+
   return (
     <group>
-      <mesh position={[0, 0, 0.01]}>
+      <mesh position={[0, 0, 0.01]} visible={false}>
         <shapeGeometry args={[shape]} />
         <meshBasicMaterial color="#7cc87c" transparent opacity={0.18} />
       </mesh>
       <lineLoop geometry={outlineGeometry}>
-        <lineBasicMaterial color="#7cc87c" />
+        <lineBasicMaterial ref={targetOutlineRef} color={colors.ghost} />
       </lineLoop>
     </group>
   )
@@ -412,7 +441,7 @@ function Visualization({
       )}
 
       {showCapstoneTarget && capstoneTargetVertices && (
-        <CapstoneTarget vertices={capstoneTargetVertices} />
+        <CapstoneTarget vertices={capstoneTargetVertices} feedbackState={feedbackState} />
       )}
 
       {showPreviewGhost && capstoneSequence && (
