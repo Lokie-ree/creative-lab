@@ -343,19 +343,12 @@ function CapstoneTarget({
     const accent = new THREE.Color(colors.accent.primary)
     const ghost  = new THREE.Color(colors.ghost)
 
-    gsap.to(mat.color, {
-      r: accent.r, g: accent.g, b: accent.b,
-      duration: 0.15,
-      ease: 'power2.out',
-      onComplete: () => {
-        gsap.to(mat.color, {
-          r: ghost.r, g: ghost.g, b: ghost.b,
-          duration: 0.25,
-          delay: 0.1,
-          ease: 'power2.in',
-        })
-      },
-    })
+    // No needsUpdate required — R3F reads mat.color each frame
+    gsap.killTweensOf(mat.color)
+    const tl = gsap.timeline()
+    tl.to(mat.color, { r: accent.r, g: accent.g, b: accent.b, duration: 0.15, ease: 'power2.out' })
+    tl.to(mat.color, { r: ghost.r, g: ghost.g, b: ghost.b, duration: 0.25, delay: 0.1, ease: 'power2.in' })
+    return () => { tl.kill() }
   }, [feedbackState])
 
   return (
