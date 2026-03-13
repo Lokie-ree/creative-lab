@@ -51,6 +51,17 @@ export const CAPSTONE_EARNED_REVEALS: Record<CapstoneRoundId, string> = {
   'capstone-3': "Rotation and translation don't commute. The order you chose was the one that works.",
 }
 
+/**
+ * Prompt shown when the student first arrives at each capstone round (idle state).
+ * Frames the task without giving away the answer.
+ * capstone-3 hints at non-commutativity — the module's Level 5 pedagogical moment.
+ */
+export const CAPSTONE_PROMPT_TEXT: Record<CapstoneRoundId, string> = {
+  'capstone-1': 'Build a sequence that maps the white triangle onto the target. One transformation is enough.',
+  'capstone-2': 'This one takes two steps. Build your sequence — the order you choose determines the result.',
+  'capstone-3': 'Two steps again. If your first attempt misses, try reversing the order.',
+}
+
 export const CAPSTONE_COMPLETION_COPY: Record<string, string> = {
   'capstone-1': 'One transformation. You named it completely.',
   'capstone-2': 'Two steps composed. Order determined the outcome.',
