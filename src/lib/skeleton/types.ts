@@ -2,7 +2,7 @@
  * Module Skeleton Types
  *
  * Defines the shared interfaces for module configuration and state management.
- * Plan and implementation: docs/plans/2026-01-27-module-skeleton-infrastructure.md
+ * Plan and implementation: archived — see git history for `2026-01-27-module-skeleton-infrastructure.md`
  */
 
 // =============================================================================

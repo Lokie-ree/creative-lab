@@ -6,7 +6,7 @@ The sinewaves module teaches the relationship between the unit circle and sine w
 
 **Core Learning Goal**: Discover that amplitude controls wave height and frequency controls oscillation speed through hands-on exploration.
 
-**Doc scope**: This file describes the implementation as built. Keep it updated when changing Layout, InstrumentModule, animations, or module-local components. Design spec: `docs/design/SINEWAVES-REFACTOR-SPEC.md`. Implementation plan: `docs/plans/2026-02-05-sinewaves-instrument-refactor.md`. Current wiring: `InstrumentModule.tsx`, `guide-state.ts`.
+**Doc scope**: This file describes the implementation as built. Keep it updated when changing Layout, InstrumentModule, animations, or module-local components. Design spec: `docs/design/SINEWAVES-REFACTOR-SPEC.md`. Current wiring: `InstrumentModule.tsx`, `guide-state.ts`.
 
 ---
 
@@ -117,7 +117,7 @@ watch ──> match-amplitude ──> match-frequency ──> challenge ──> 
 
 **UI state**: `booted` (after consoleBootSequence), `matchGlow` (briefly true on match, then auto-advance). No statusText, diagnosisAnswer, or showContinue derived from multiple phases—Continue appears only in watch and free (action buttons).
 
-**Challenge state**: `challengeParam`, `challengeTargetValue`; ghost mirrors user's non-challenge parameter (see docs/design/SINEWAVES-MATCH-PROXIMITY-AUDIT.md for sync details).
+**Challenge state**: `challengeParam`, `challengeTargetValue`; ghost mirrors user's non-challenge parameter (on match, snap matched parameter to exact target value so ghost and user wave stay in sync).
 
 ### Transitions
 
@@ -476,7 +476,7 @@ Guide state index 1–5; TOTAL_GUIDE_STATES = 5. See guide-state.ts GUIDE_STATE_
 ### 🔄 Patterns to Refine for Future Modules
 
 1. **Match detection**: Centralized in sinewaves-constants.ts; snap-to-target on match (see SINEWAVES-MATCH-PROXIMITY-AUDIT) for ghost/user sync
-2. **Celebration**: matchSuccessSequence in animations.ts not wired; overlay is static (see SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT)
+2. **Celebration**: matchSuccessSequence in animations.ts not wired; overlay is static (see docs/design/SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md)
 3. **Copy**: Guide prompts in guide-state.ts; sinewaves-copy.ts for celebrations and behindThis
 
 ### ⚠️ Do not use `@react-three/drei` `Text`

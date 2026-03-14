@@ -20,6 +20,5 @@ pnpm dev
 | [docs/philosophy.md](./docs/philosophy.md) | Discovery-first pedagogy: earned reveal, visual confirmation |
 | [docs/product.md](./docs/product.md) | LSSM standards alignment and ALD progression |
 | [docs/design/](./docs/design/) | Design specs, audits, and current direction |
-| [docs/plans/](./docs/plans/) | Active design specs for modules in development |
-| [mockups/](./mockups/) | React/JSX prototypes for design validation (exemplar: RigidMotions.jsx) |
+| [docs/professional/](./docs/professional/) | ISTE storyboards, module planning artifacts, resume |
 | [CLAUDE.md](./CLAUDE.md) | AI agent: architecture, commands, design system |

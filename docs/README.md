@@ -29,11 +29,10 @@ New modules follow this design process:
 Design Spec → Mockups → Validation → Implementation → Architecture Doc
 ```
 
-1. **Design Spec** — Standards-grounded design (pedagogy, ALD progression, interactions)
-2. **Mockups** — Single-file React/JSX prototypes (all states, all viewports); exemplar: `mockups/RigidMotions.jsx`
-3. **Validation** — Verify mockups satisfy spec requirements
-4. **Implementation** — Build components matching validated mockups
-5. **Architecture Doc** — Document as-built implementation for future reference
+1. **Design Spec** — Standards-grounded design (pedagogy, ALD progression, interactions); see `docs/professional/ModulePlanning.jsx` for the M2/M3 planning artifact
+2. **Validation** — Verify spec satisfies ALD requirements and reuse matrix before building
+3. **Implementation** — Build components following the rigid-motions file structure as reference
+4. **Architecture Doc** — Document as-built implementation for future reference
 
 The `module-planning-pipeline` skill guides this process.
 
@@ -43,10 +42,8 @@ The `module-planning-pipeline` skill guides this process.
 
 | Path | Purpose |
 |------|---------|
-| [**design/**](./design/) | Design specs, audits, and current direction. Start with [design/README.md](./design/README.md) for Eurorack design system and module status. |
-| [**plans/**](./plans/) | Active design specs for modules in development. Currently empty — rigid motions specs moved to [archive/](./archive/) on completion (March 2026). |
-| [**archive/**](./archive/) | Completed implementation plans and resolved audits. Historical reference only. Feb 2026 cleanup log: [DOCUMENTATION-CLEANUP-2026-02-20.md](./archive/DOCUMENTATION-CLEANUP-2026-02-20.md). |
-| [**professional/**](./professional/) | Resume and career materials. |
+| [**design/**](./design/) | Design specs and audits for active work. Sinewaves polish and performance audit live here. |
+| [**professional/**](./professional/) | Resume, ISTE storyboards, and module planning artifacts. |
 
 ---
 
@@ -57,4 +54,4 @@ The `module-planning-pipeline` skill guides this process.
 - [**Sinewaves ARCHITECTURE.md**](../src/components/modules/sinewaves/ARCHITECTURE.md) — Reference implementation for completed module.
 - [**Rigid Motions ARCHITECTURE.md**](../src/components/modules/rigid-motions/ARCHITECTURE.md) — As-built documentation for rigid motions (all 4 phases complete).
 - [**Module skeleton**](../src/lib/skeleton/README.md) — Reusable hooks for future modules.
-- [**Mockups**](../mockups/) — React/JSX prototypes for design validation; see [mockups/README.md](../mockups/README.md) and exemplar `RigidMotions.jsx`.
+- [**Rigid Motions ARCHITECTURE.md**](../src/components/modules/rigid-motions/ARCHITECTURE.md) — Reference implementation for the completed module; use as the pattern for M2.

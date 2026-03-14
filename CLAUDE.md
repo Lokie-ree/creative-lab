@@ -70,7 +70,7 @@ Back navigation and Escape Hatch from modules; Celebration modal on completion.
 ## Design System
 
 ### Aesthetic: Eurorack / Synth Module
-Warm matte faceplate, phosphor green accent, silk-screened labels, scored dividers, no glow, no border-radius on module UI. No decorative corner screws — omitted by design. Module mockup exemplar: `mockups/RigidMotions.jsx`. See `mockups/README.md`.
+Warm matte faceplate, phosphor green accent, silk-screened labels, scored dividers, no glow, no border-radius on module UI. No decorative corner screws — omitted by design.
 
 ### Colors (from `src/lib/colors.ts` → `src/index.css`)
 - **accent.primary**: `#7cc87c` (phosphor green) — Active elements — CSS: `--lab-accent`
@@ -152,11 +152,33 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 ### Rigid Motions — architecture notes
 - **Standards:** 8.G.A.1, 8.G.A.2, 8.G.A.3 (Grade 8 Geometry)
 - **Architecture doc:** [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md) — as-built reference
-- **Design spec (Phase 3 & 4, archived):** [`docs/archive/2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md`](./docs/archive/2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md)
+- **Design spec (Phase 3 & 4):** Archived — see git history for `2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md`
 - **Shared types:** `TransformationParams` and related types live in `src/lib/types/transforms.ts` — imported by celebration components and rigid-motions module alike
 - **Roadmap:** First module in three-module Grade 8 Geometry progression: (1) Rigid Motions ✓, (2) Dilations & Similarity, (3) Pythagorean Theorem
 
 ## Outstanding Work
+
+### P0 — Fix immediately
+- **Celebration modal cross-module state leak:** `DiscoveryTab.tsx` falls through to the sinewaves formula path (`y = sin(t)`) when `moduleId === 'rigid-motions'` but `completedSequence` is empty. Root cause: `onComplete({}, { completedSequence: capstoneSequence })` fires via `useEffect` — if the effect runs before the sequence is committed, the modal shows sinewaves copy. Fix: guard the default render path against `moduleId === 'rigid-motions'` explicitly, or ensure `completedSequence` is always non-empty before `showCelebration` is set.
+
+### P1 — Rigid Motions mobile layout
+- **Landscape: capstone scene tiny, vast empty space** between prompt and SequenceBuilder — layout does not redistribute space in landscape orientation.
+- **Landscape: SequenceBuilder layout** — needs column layout; currently cramped in the available width.
+- **Portrait: SequenceBuilder dominates viewport** — canvas is too small relative to controls; dead zone between canvas and control strip.
+
+### P1 — Sinewaves mobile layout
+- **Landscape: wave hidden off-screen right** — only unit circle renders; wave is clipped or positioned off-canvas.
+
+### P2 — Rigid Motions polish
+- **Missing coordinate labels on mobile capstone** — A′, B′, C′ vertex labels render without coordinate numbers on mobile.
+- **Status strip dots missing on capstone** — dots not visible in landscape views (confirmed in desktop screenshot too).
+
+### Pedagogy — Rigid Motions
+- **Capstone entry copy reveals too early** — "try reversing the order" hint gives away non-commutativity before the student has a chance to discover it. Should trigger only after a miss, not as the entry prompt.
+
+### Design decision — Sinewaves
+- **Unit circle on mobile portrait** — deliberate choice needed: hide the unit circle to give the wave more canvas, or keep it and accept the smaller wave area. Document the decision once made.
+- **Commitment before feedback (post-M2/M3 revisit)** — Sinewaves can be completed by slider-sweeping without understanding. Rigid Motions requires spatial commitment before feedback. The pattern to apply to Sinewaves is *commitment before feedback* — likely a prediction step before slider access. Do not retrofit until Dilations and Pythagorean Theorem are built; the generalized pattern will be clearer after three modules.
 
 ### Next module: Dilations & Similarity
 - Grade 8 Geometry progression — follows Rigid Motions
@@ -192,6 +214,5 @@ See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRA
 | Rigid Motions architecture | [src/components/modules/rigid-motions/ARCHITECTURE.md](./src/components/modules/rigid-motions/ARCHITECTURE.md) |
 | Module skeleton infrastructure | [src/lib/skeleton/README.md](./src/lib/skeleton/README.md) |
 | Design critiques, HUD direction | `docs/design/` |
-| Active implementation plans | `docs/plans/` (empty — all rigid motions specs archived March 2026) |
-| Completed plans & resolved audits | `docs/archive/` |
+| Professional artifacts (resume, ISTE storyboards, module planning) | `docs/professional/` |
 | Adding a module | Register in `src/config/modules.ts`; lazy-load component; implement `ModuleProps` |

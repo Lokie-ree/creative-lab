@@ -45,11 +45,11 @@ The current build target is a confirmed three-module Grade 8 geometry progressio
 
 ```
 Grade 8 Geometry Progression
-  ├── Rigid Motions & Congruence     ← IN PROGRESS
+  ├── Rigid Motions & Congruence     ← COMPLETE
   │     8.G.A.1, 8.G.A.2, 8.G.A.3
   │     translations · reflections · rotations · congruence
   │
-  ├── Dilations, Similarity & Right Triangles
+  ├── Dilations, Similarity & Right Triangles     ← IN PROGRESS
   │     8.G.A.3, 8.G.A.4, 8.G.B (bridge to G-SRT)
   │     scale factor · similarity transformations · trig ratios
   │
@@ -73,11 +73,11 @@ Canonical definitions in [philosophy.md](./docs/philosophy.md) and [product.md](
 
 ### What Already Exists
 
+- Rigid Motions & Congruence module (complete — all 4 phases, deployed, STEM Club-validated, conference-ready)
 - Sinewaves module (complete — instrument refactor + Eurorack design system)
 - Vector Transformations module (implemented)
 - Module skeleton infrastructure (reusable hooks for future modules)
 - Eurorack design system: global tokens, utility classes, design principles
-- Documentation framework: philosophy, product alignment, design audits, implementation plans
 - Technical foundation (React Three Fiber, GSAP, Tailwind CSS 4, shadcn/ui)
 
 ---
