@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react'
 import { useThree } from '@react-three/fiber'
 
+export type SceneMode = 'phone' | 'portrait' | 'landscape'
+
 /**
  * Scene layout configuration for viewport-proportional positioning.
  * Ratios are multiplied by viewport width/height to get world-space positions.
@@ -14,49 +16,99 @@ const WAVE_WIDTH = 4
 
 export const SCENE_LAYOUT = {
   landscape: {
+    // Unchanged
     circle: { xRatio: -0.32, yRatio: 0 },
-    wave: { xRatio: 0.1, yRatio: 0 },
+    wave:   { xRatio: 0.1,   yRatio: 0 },
     scaleFactor: 0.20,
   },
   portrait: {
-    circle: { xRatio: 0, yRatio: 0.22 },
-    wave: { xRatio: -0.15, yRatio: -0.18 },
+    // NEW — tablet portrait: stacked, circle above wave. Tune visually at 768px and 820px portrait.
+    circle: { xRatio: 0, yRatio: 0.25 },
+    wave:   { xRatio: 0, yRatio: -0.22 },
+    scaleFactor: 0.22,
+  },
+  phone: {
+    // Wave only — no circle. xRatio 0 = centered. y stays 0 since wave fills the canvas.
+    wave: { xRatio: 0, yRatio: 0 },
     scaleFactor: 0.24,
   },
   scale: { min: 0.5, max: 1.1 },
   ghostOpacity: 0.5,
 } as const
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max)
+}
+
+/**
+ * Derives the scene layout mode from device width and canvas shape.
+ *
+ * - 'phone'     — narrow device (<600px); wave only, no unit circle
+ * - 'portrait'  — tablet/desktop canvas that is taller than wide; stacked layout
+ * - 'landscape' — canvas wider than tall (all phones in landscape, tablets + desktops in landscape)
+ *
+ * Uses window.innerWidth for device class (stable, not affected by camera FOV).
+ * Uses R3F size (CSS pixels) for portrait/landscape — avoids the world-unit aspect
+ * ratio bug where perspective camera FOV inflates world-unit viewport dimensions.
+ */
+export function useSceneMode(): SceneMode {
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1024
+  )
+
+  useEffect(() => {
+    const handler = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handler, { passive: true })
+    window.addEventListener('orientationchange', handler, { passive: true })
+    return () => {
+      window.removeEventListener('resize', handler)
+      window.removeEventListener('orientationchange', handler)
+    }
+  }, [])
+
+  const { size } = useThree()
+  const isPortrait = size.width <= size.height
+  const isPhone = windowWidth < 600
+
+  if (isPhone && isPortrait)  return 'phone'      // phone portrait: wave only
+  if (!isPhone && isPortrait) return 'portrait'   // tablet portrait: stacked
+  return 'landscape'                              // everything landscape (any width)
+}
+
 export interface SceneLayoutResult {
-  isPortrait: boolean
   circle: { x: number; y: number }
   wave: { x: number; y: number }
   scale: number
   connector: { startX: number; endX: number } | null
 }
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max)
-}
-
 /**
- * Hook for viewport-proportional scene positioning.
- * Replaces hardcoded magic numbers with calculations derived from R3F viewport.
+ * Derives world-space positions for circle and wave from the current scene mode.
  *
  * @param stage - Current stage to determine connector visibility
- * @returns Layout values for circle, wave, scale, and optional connector
+ * @param mode  - Scene mode from useSceneMode()
  */
-export function useSceneLayout(stage: string): SceneLayoutResult {
-  const { viewport } = useThree()
+export function useSceneLayout(stage: string, mode: SceneMode): SceneLayoutResult {
+  const { viewport, size } = useThree()
   const { width, height } = viewport
 
-  const isPortrait = width <= height
-  const isMobile = isPortrait || (typeof window !== 'undefined' && window.innerWidth < 768)
-  const config = isPortrait ? SCENE_LAYOUT.portrait : SCENE_LAYOUT.landscape
+  // Position config: phone mode uses landscape positions (circle won't render for phone)
+  const config = (mode === 'portrait')
+    ? SCENE_LAYOUT.portrait
+    : SCENE_LAYOUT.landscape
 
-  const baseDimension = Math.min(width, height)
+  // Scale factor: phone uses its own scaleFactor, others use config's
+  const scaleFactor = (mode === 'phone')
+    ? SCENE_LAYOUT.phone.scaleFactor
+    : config.scaleFactor
+
+  // Scale base: portrait uses half height (each element gets ~50% of canvas height)
+  const baseDimension = (mode === 'portrait')
+    ? Math.min(size.width, size.height / 2)
+    : Math.min(size.width, size.height)
+
   const scale = clamp(
-    baseDimension * config.scaleFactor,
+    baseDimension * scaleFactor,
     SCENE_LAYOUT.scale.min,
     SCENE_LAYOUT.scale.max
   )
@@ -66,43 +118,24 @@ export function useSceneLayout(stage: string): SceneLayoutResult {
     y: height * config.circle.yRatio,
   }
 
-  // On mobile the unit circle is hidden, so center the wave in the viewport.
-  // The wave draws from x=0 to x=WAVE_WIDTH, so offset by -WAVE_WIDTH/2.
-  const wave = isMobile
+  // Phone: center wave. Portrait/Landscape: use config ratio.
+  const wave = (mode === 'phone')
     ? { x: -WAVE_WIDTH / 2, y: 0 }
     : { x: width * config.wave.xRatio, y: height * config.wave.yRatio }
 
-  // Connector only shows in landscape during observe stage
-  const connector = (!isPortrait && stage === 'observe')
+  // Connector only in landscape during observe stage
+  const connector = (mode === 'landscape' && stage === 'observe')
     ? { startX: circle.x, endX: wave.x }
     : null
 
-  return { isPortrait, circle, wave, scale, connector }
+  return { circle, wave, scale, connector }
 }
 
 /**
- * Hook to detect if we're in mobile viewport.
- * Uses R3F viewport aspect AND actual screen width to reliably
- * hide unit circle on phones (landscape phones slipped through
- * the old R3F-only check because camera FOV inflates viewport units).
- *
- * window.innerWidth is tracked with a resize listener so breakpoint
- * detection stays in sync when the user resizes the browser window
- * (previously it was only read at R3F render time, causing a one-frame
- * desync between the CSS breakpoint flip and the 3D layout update).
+ * @deprecated Use useSceneMode() instead.
+ * Kept temporarily to avoid breaking any consumers not updated in this plan.
  */
 export function useIsMobileViewport(): boolean {
-  const { viewport } = useThree()
-  const [isNarrowScreen, setIsNarrowScreen] = useState(
-    typeof window !== 'undefined' && window.innerWidth < 768
-  )
-
-  useEffect(() => {
-    const handler = () => setIsNarrowScreen(window.innerWidth < 768)
-    window.addEventListener('resize', handler, { passive: true })
-    return () => window.removeEventListener('resize', handler)
-  }, [])
-
-  const isPortrait = viewport.width <= viewport.height
-  return isPortrait || isNarrowScreen
+  const mode = useSceneMode()
+  return mode === 'phone'
 }

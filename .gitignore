@@ -46,6 +46,9 @@ TEXT.md
 NOTES.md
 
 
+# Brainstorm sessions (visual companion)
+.superpowers/
+
 # Storybook
 .storybook*
 *storybook.log

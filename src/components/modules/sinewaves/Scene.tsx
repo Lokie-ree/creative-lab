@@ -5,7 +5,7 @@ import { SineWave } from "./SineWave"
 import { Connector } from "./Connector"
 import { GridLines } from "./GridLines"
 import { colors } from "@/lib/colors"
-import { useSceneLayout, useIsMobileViewport, SCENE_LAYOUT } from "./scene-layout"
+import { useSceneLayout, useSceneMode, SCENE_LAYOUT } from "./scene-layout"
 
 type Stage = 'observe' | 'amplitude' | 'frequency' | 'phase' | 'challenge' | 'reveal'
 
@@ -34,8 +34,9 @@ function Visualization({
   speedMultiplier = 1,
   challengeParam,
 }: SceneProps) {
-  const { isPortrait, circle, wave, scale, connector } = useSceneLayout(stage)
-  const isMobile = useIsMobileViewport()
+  const mode = useSceneMode()
+  const { circle, wave, scale, connector } = useSceneLayout(stage, mode)
+  const isPortrait = mode === 'portrait'
 
   // Shared animation time — accumulates delta only when unpaused, with speedMultiplier
   const animTimeRef = useRef(0)
@@ -76,8 +77,8 @@ function Visualization({
 
   return (
     <>
-      {/* Unit circle — hidden on mobile */}
-      {!isMobile && (
+      {/* Unit circle — hidden on phones, visible on tablets and desktops */}
+      {mode !== 'phone' && (
         <group position={[circle.x, circle.y, 0]} scale={scale}>
           <UnitCircle
             amplitude={amplitude}
@@ -103,7 +104,7 @@ function Visualization({
       )}
 
       {/* Connector line — only in landscape, desktop, and when showConnector is true */}
-      {!isMobile && showConnector && connector && (
+      {mode !== 'phone' && showConnector && connector && (
         <Connector
           circleX={circle.x}
           waveX={wave.x}
@@ -118,7 +119,7 @@ function Visualization({
       )}
 
       {/* Sine waves + grid (same scaled group so grid matches wave area) */}
-      <group position={[wave.x, wave.y, 0]} scale={isPortrait ? scale : 1}>
+      <group position={[wave.x, wave.y, 0]} scale={(isPortrait || mode === 'phone') ? scale : 1}>
         <GridLines width={4.5} height={5} />
         {/* Target wave (ghost) — always rendered, opacity-faded */}
         <SineWave
