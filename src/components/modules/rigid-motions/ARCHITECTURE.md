@@ -8,7 +8,7 @@ The rigid motions module teaches geometric transformations (translations, rotati
 
 **ALD Target**: Level 3 entry → Level 4 primary → Level 5 capstone.
 
-**Design spec**: `docs/plans/2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md`
+**Design spec**: archived — see git history for `2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md`
 
 ---
 
@@ -291,13 +291,12 @@ Camera is positioned at `[0, 2, 10]` (no explicit lookAt — faces along −Z, v
 | `flipped` | boolean | false | Ghost horizontal/vertical flip toggle |
 | `rotationDegrees` | `90\|180\|270` | 90 | Selected rotation amount |
 | `rotationDirection` | `'cw'\|'ccw'` | `'cw'` | Selected rotation direction |
-| `speedMultiplier` | `0.5\|1\|2` | 1 | Reveal animation speed |
 | `coordinatesActive` | boolean | false | Enables coordinate labels; flips to `true` on `coordinate-reveal` entry, never reverts |
 | `capstoneRoundIndex` | number | 0 | Cycles through `CAPSTONE_ROUNDS` (0–2) |
 | `capstoneSequence` | `TransformationParams[]` | `[]` | Current SequenceBuilder state (0–2 steps) |
 | `showCelebration` | boolean | false | Fires `onComplete` → `CelebrationModal` on final capstone match |
 
-Actions: `handleCheck`, `handleNext`, `handleReset`, `handleFlip`, `handleRotation`, `handleSpeedChange`, `handleAnimationComplete`, `handleGhostMove`, `handleSequenceChange`, `handleCheckSequence`, `handleCapstoneNext`.
+Actions: `handleCheck`, `handleNext`, `handleReset`, `handleFlip`, `handleRotation`, `handleAnimationComplete`, `handleGhostMove`, `handleSequenceChange`, `handleCheckSequence`, `handleCapstoneNext`.
 
 ---
 

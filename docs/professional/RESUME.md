@@ -93,8 +93,18 @@ Vandebilt Catholic High School, 2010–2019
 
 - **Sinewaves (complete):** Students explore amplitude and frequency by matching a target wave; the unit circle and graph stay in sync so they see the connection. Flow: watch → match amplitude → match frequency → challenge → free exploration. No front-loaded explanation—the interface teaches by inviting tinker. Instrument-style UI (warm faceplate, clear labels) so it feels like using a tool, not taking a quiz.
 - **Vector Transformations (implemented):** Students explore matrix transformations on 2D vectors with progressive unlock and challenge mode.
-- **Grade 8 Geometry (in progress):** Three-module sequence for teachers to plug into scope and sequence: Rigid Motions & Congruence (translations, reflections, rotations, congruence) → Dilations & Similarity → Pythagorean Theorem. Aligned to 8.G.A.1–3 and LSSM Achievement Level Descriptors; Rigid Motions design and mockup validated, implementation next. One shape family (scalene triangle) carries through so students deepen familiarity instead of constantly meeting new objects.
+- **Grade 8 Geometry — three-module arc:** One shape family (scalene triangle) carries through the entire 8.G cluster so students deepen familiarity instead of constantly meeting new objects.
+  - *Rigid Motions & Congruence* **(complete, deployed):** Four phases — spatial prediction, predict-and-reveal loop, coordinate layer with earned formula reveals, two-step sequence builder capstone. Aligned to 8.G.A.1–3 and LSSM Achievement Level Descriptors. Validated with STEM Club students across multiple iterations; conference-ready.
+  - *Dilations & Similarity* **(designed, next build):** Same triangle now scales. Coordinate dilation, similarity as rigid motion + dilation, AA criterion discovery.
+  - *Pythagorean Theorem* **(planned):** Area-of-squares discovery leads to the theorem. Coordinate distance as earned reveal. 3D extension capstone.
 - **Why STEM Club validation matters for adopters:** Every module is tested with real students in the room. When something doesn’t work pedagogically, it shows up in how they interact—so teachers who adopt later get tools that have already been stress-tested with learners.
+
+---
+
+## Presentations & Outreach
+
+**ISTE Live 2026** — Exhibit Hall
+Brought Creative Lab's Rigid Motions module to math educators and curriculum coordinators at one of the largest EdTech conferences in the country. No booth, no stage — demonstrated live on iPad, then invited educators to scan a QR code and try it on their own device. Cold-start interactions with real teachers on their own phones revealed behavioral data on onboarding, interaction patterns, and how far educators progress without instruction. Those findings directly inform a formal ISTE Live 2027 submission on discovery-based learning in mathematics.
 
 ---
 

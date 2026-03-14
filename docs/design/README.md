@@ -93,7 +93,7 @@ For layout density, status strip, readout treatment, and controls: see sinewaves
 
 ### Rigid Motions — Complete
 
-All 4 phases shipped. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md) for as-built documentation. Design specs archived in `docs/archive/`.
+All 4 phases shipped. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md) for as-built documentation.
 
 ### Sinewaves — lower-priority polish
 
@@ -109,7 +109,7 @@ The `Course` type has a `color` field; CS course has `color: '#a855f7'` (purple,
 
 ### Infrastructure — skeleton not consumed
 
-Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, etc.) implemented but not consumed. Rigid Motions built its own `useRigidMotionsState` hook directly. Implementation plan (spec): [archive/2026-01-27-module-skeleton-infrastructure.md](../archive/2026-01-27-module-skeleton-infrastructure.md).
+Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, etc.) implemented but not consumed. Rigid Motions built its own `useRigidMotionsState` hook directly.
 
 ### Performance — medium/low findings
 
@@ -136,7 +136,7 @@ The following items from earlier audits are now complete:
 | Vertical centering on CourseHub / Constellation | `397136e` |
 | Navigation.tsx cold palette | `907de66` |
 
-Full audit history: [HERO-TO-MODULE-JOURNEY-AUDIT.md](../archive/HERO-TO-MODULE-JOURNEY-AUDIT.md). Implementation plans and earlier audits: [docs/archive/](../archive/).
+Full audit history: see git log.
 
 ---
 
@@ -148,7 +148,3 @@ Full audit history: [HERO-TO-MODULE-JOURNEY-AUDIT.md](../archive/HERO-TO-MODULE-
 | [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md) | Instrument layout, guide states, responsive grid | Complete — reference |
 | [SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md](./SINEWAVES-RESIZE-ANIMATIONS-CONTROLS-AUDIT.md) | Resize distortion, match animation wiring, control spacing | Open (low priority) |
 | [VERCEL-REACT-BEST-PRACTICES-AUDIT.md](./VERCEL-REACT-BEST-PRACTICES-AUDIT.md) | React performance audit (localStorage versioning, etc.) | Open (low priority) |
-
-**Archived documents:** Completed implementation plans and resolved audits — [docs/archive/](../archive/).
-
-**Active design specs:** Module design specs — [docs/plans/](../plans/).
