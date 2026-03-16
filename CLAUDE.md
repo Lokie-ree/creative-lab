@@ -128,7 +128,7 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 ## Current State
 
-**Last updated:** March 5, 2026
+**Last updated:** March 16, 2026
 
 ### App framing
 The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IVLA STEM Club" with a `DotGrid` canvas background (interactive dot field with mouse proximity) and a `RotatingText` tagline ("Where we build / discover / explore / prove"). No personal name in the student-facing UI.
@@ -137,7 +137,7 @@ The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IV
 - **sinewaves** — **Complete.** Trigonometry; unit circle → sine/cosine. Instrument-style HUD with Eurorack design system. No panel screws. StatusStrip touch targets 44px minimum.
 - **vector-transformations** — Implemented. Linear algebra; matrix transformations on vectors.
 - **phase-portraits** — Placeholder/coming-soon.
-- **rigid-motions** — **Complete (all 4 phases).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). Conference-ready for ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
+- **rigid-motions** — **Complete (all 4 phases).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). Target: ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
 
 ### Journey (hero → CourseHub → Constellation → module)
 - All screens use `--lab-bg` warm faceplate background.
@@ -158,27 +158,57 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 
 ## Outstanding Work
 
+See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and file references. Summary below.
+
 ### P0 — Fix immediately
-- **Celebration modal cross-module state leak:** `DiscoveryTab.tsx` falls through to the sinewaves formula path (`y = sin(t)`) when `moduleId === 'rigid-motions'` but `completedSequence` is empty. Root cause: `onComplete({}, { completedSequence: capstoneSequence })` fires via `useEffect` — if the effect runs before the sequence is committed, the modal shows sinewaves copy. Fix: guard the default render path against `moduleId === 'rigid-motions'` explicitly, or ensure `completedSequence` is always non-empty before `showCelebration` is set.
 
-### P1 — Rigid Motions mobile layout
-- **Landscape: capstone scene tiny, vast empty space** between prompt and SequenceBuilder — layout does not redistribute space in landscape orientation.
-- **Landscape: SequenceBuilder layout** — needs column layout; currently cramped in the available width.
-- **Portrait: SequenceBuilder dominates viewport** — canvas is too small relative to controls; dead zone between canvas and control strip.
+- **STATE-01: Celebration modal state leak** — `DiscoveryTab.tsx` falls through to the sinewaves formula path (`y = sin(t)`) when `moduleId === 'rigid-motions'` but `completedSequence` is empty. Two-part fix: (1) defensive guard in `DiscoveryTab.tsx` when `completedSequence` is null/empty; (2) atomic state update in `App.tsx` so `completedSequence` and `showCelebration` are set together. Files: `src/components/celebration/DiscoveryTab.tsx`, `src/App.tsx`.
 
-### P1 — Sinewaves mobile layout
-- **Landscape: wave hidden off-screen right** — only unit circle renders; wave is clipped or positioned off-canvas.
+### P1 — Fix before demo
 
-### P2 — Rigid Motions polish
-- **Missing coordinate labels on mobile capstone** — A′, B′, C′ vertex labels render without coordinate numbers on mobile.
-- **Status strip dots missing on capstone** — dots not visible in landscape views (confirmed in desktop screenshot too).
+**Rigid Motions layout (mobile):**
+- **RM-01: Landscape capstone scene too small** — Fixed-row grid doesn't redistribute space in landscape. Switch to 2-column layout (canvas 60–70% left, controls right) or increase canvas flex-grow. File: `InstrumentModule.tsx`.
+- **RM-02: SequenceBuilder cramped in landscape** — Switch to column layout (step 1 above step 2) in landscape. File: `ControlStrip.tsx`.
+- **RM-03: Portrait SequenceBuilder dominates viewport** — Cap builder height; minimum canvas 40% of viewport. Consider bottom-sheet pattern. File: `InstrumentModule.tsx`.
 
-### Pedagogy — Rigid Motions
-- **Capstone entry copy reveals too early** — "try reversing the order" hint gives away non-commutativity before the student has a chance to discover it. Should trigger only after a miss, not as the entry prompt.
+**Rigid Motions UX (iPad-tested):**
+- **Match reward too subtle** — Add scale burst on image, screen-edge flash in `--lab-accent`, and/or `navigator.vibrate` haptic.
+- **Offline: no service worker** — App fails without WiFi. Add service worker or in-app offline message.
+- **Translation inputs trigger native keyboard** — Replace `type="number"` in `SequenceBuilder.tsx` with stepper +/−1 buttons capped at ±CONTENT_RANGE.
+- **Unicode arrows render inconsistently on iOS** — `↔` / `↕` / `→` fall back to emoji on iPad. Replace with plain text or SVG.
 
-### Design decision — Sinewaves
-- **Unit circle on mobile portrait** — deliberate choice needed: hide the unit circle to give the wave more canvas, or keep it and accept the smaller wave area. Document the decision once made.
-- **Commitment before feedback (post-M2/M3 revisit)** — Sinewaves can be completed by slider-sweeping without understanding. Rigid Motions requires spatial commitment before feedback. The pattern to apply to Sinewaves is *commitment before feedback* — likely a prediction step before slider access. Do not retrofit until Dilations and Pythagorean Theorem are built; the generalized pattern will be clearer after three modules.
+**Sinewaves:**
+- **SW-01: Wave hidden off-screen in landscape** — Verify `useIsMobileViewport` returns true for landscape phones (`window.innerWidth < 768`). Check `SCENE_LAYOUT.landscape.wave.xRatio`. Files: `scene-layout.ts`, `Scene.tsx`.
+
+**State & navigation:**
+- **STATE-02: Escape during GSAP reveal** — Animation may continue after unmount. Verify GSAP timelines are killed in cleanup (`useGSAP` context scope).
+- **STATE-03: Back-navigation mid-capstone** — Partial sequence + back + re-enter should reset to `predict-translate`, not resume partial capstone state.
+- **NAV-01: Full navigation path on each device class** — Verify Hero → CourseHub → Constellation → Module → Back on all breakpoints. Check DotGrid touch, RotatingText readability, SegmentArc tap targets ≥44px.
+
+### P2 — Polish
+
+- **RM-04: Missing coordinate labels on mobile capstone** — A′, B′, C′ render without coordinate numbers on mobile. Check `coordinatesActive` threading to capstone scene. Files: `SpriteLabel.tsx`, `RigidMotionsScene.tsx`.
+- **RM-05: Status strip dots missing on capstone** — Dots absent in landscape and desktop. Check z-index and color token in `InstrumentModule.tsx`.
+- **STATE-04: Viewport resize during module interaction** — Canvas and CSS layout may desync on device rotation. Verify both modules handle resize cleanly.
+- **STATE-05: Double-tap / rapid CHECK presses** — Rapid CHECK could fire `handleCheck` multiple times. Verify only one match is counted and guide state advances exactly once.
+- **STATE-06: stageRoundIndex boundary on Phase 3 entry** — Verify no out-of-bounds access when a stage has only one round definition.
+- **Grid lines too faint** — `CoordinateGrid` `opacity={0.2}` nearly invisible on iPad. Increase to ≈`0.35`.
+- **Vertex label sizing** — Prime labels (A′/B′/C′) may clip at `planeWidth={0.55}`. Apply dynamic sizing.
+- **Capstone target has no vertex labels** — `CapstoneTarget` renders no A′/B′/C′ labels. Student can't identify vertices while building the sequence.
+- **Control panel dividers inconsistent** — Standardize with `border-(--lab-border)` scored lines.
+
+### Pedagogy
+
+- **PED-01: Capstone entry copy reveals non-commutativity too early** — "try reversing the order" should only trigger after a miss, not as the entry prompt. Split `PROMPT_TEXT` into neutral entry + post-miss hint. Files: `rigid-motions-copy.ts`, `useRigidMotionsState.ts`.
+- **PED-02: Capstone completion copy alignment** — Verify `CAPSTONE_COMPLETION_COPY` keys (`capstone-1/2/3`) match round IDs from `capstone-utils.ts`.
+- **PED-03: Earned reveal pacing** — Read all reveal strings in sequence. Each should reward the specific thing the student just demonstrated. Flag generic or disconnected copy.
+- **`coordinate-reveal` stage is a passive reveal** — Student presses CONTINUE without earning the formula. Revisit: bridge copy connecting Phase 2 actions to the notation, or require one prediction before confirmation.
+- **ALD alignment audit needed** — Audit each stage transition against ALDs (Level 3 entry → Level 4 primary → Level 5 capstone).
+- **SW-02: Unit circle mobile portrait decision** — Deliberate choice needed: hide to give wave more canvas, or keep and accept smaller wave area. Observe student sessions, then document the decision.
+- **PED-04: Commitment before feedback (deferred)** — Sinewaves can be completed by slider-sweeping. Do not retrofit until Dilations and Pythagorean Theorem are built; the generalized pattern will be clearer after three modules.
+
+### Feature ideas — Rigid Motions (not yet scheduled)
+- **Per-vertex color-coded rotation arcs** — All three `RotationArcs` arcs are `#7a746a`. Color each arc to match its vertex and pulse on alignment. Requires 3 vertex color constants, per-arc alignment detection, GSAP pulse.
 
 ### Next module: Dilations & Similarity
 - Grade 8 Geometry progression — follows Rigid Motions
@@ -187,11 +217,11 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 
 ### Sinewaves — lower-priority polish
 - **Resize distortion:** Scene layout may desync with Canvas on viewport resize.
-- **Match-success animation:** `matchSuccessSequence` in `animations.ts` exists but is not wired — celebration uses a static overlay instead of the staged timeline.
+- **Match-success animation:** `matchSuccessSequence` in `animations.ts` exists but is not wired.
 - **Mobile control spacing:** Control strip uses `gap-2` on mobile which feels cramped.
 
 ### Vestigial `color` field in `courses.ts`
-CS course still has `color: '#a855f7'` (purple, off-palette). The field is no longer used in rendering (glow removed), but it's in the `Course` type. Either remove the field from the type or replace with a design-system color when the CS course is built out.
+CS course still has `color: '#a855f7'` (purple, off-palette). Field is no longer used in rendering. Remove from the `Course` type or replace when the CS course is built out.
 
 ### Performance audit (medium/low priority)
 See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRACTICES-AUDIT.md): localStorage versioning, conditional rendering patterns, `useTransition` for module loading.
@@ -207,6 +237,7 @@ See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRA
 
 | Topic | Location |
 |-------|----------|
+| **Audit checklist (P0–PED, ISTE 2026 hardening)** | [docs/MARCH_AUDIT.md](./docs/MARCH_AUDIT.md) |
 | **Pedagogy & LSSM alignment (foundational)** | [docs/philosophy.md](./docs/philosophy.md), [docs/product.md](./docs/product.md) |
 | Documentation index & module pipeline | [docs/README.md](./docs/README.md) |
 | Vision, audience, principles | [VISION.md](./VISION.md) |

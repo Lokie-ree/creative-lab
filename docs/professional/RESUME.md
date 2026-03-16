@@ -7,7 +7,7 @@ Math Educator • Full-Stack Developer • Interactive Learning Designer
 
 ## Summary
 
-I build tools so more students can reach understanding through doing—and so teachers have resources that work without a long intro first. Mathematician first (15+ years in the classroom), then returned to development to scale what I learned about how students actually learn. Every experience I design puts discovery before formulas: students manipulate, observe, then get the formal language as confirmation, not as a gate.
+I build interactive experiences that help people understand things they thought were hard. Mathematician first (17 years in the classroom), then returned to development to scale what I learned about how students actually learn. Every experience I design puts discovery before formulas: students manipulate, observe, then get the formal language as confirmation, not as a gate.
 
 **For students:** Challenges that feel intuitive; feedback from the task itself (no “wrong answer” messaging); formulas that show up as rewards for what they already figured out.  
 **For teachers:** Standards-aligned (LSSM, Louisiana Student Standards) so modules plug into scope and sequence; tools validated with real students so effectiveness isn’t just claimed—it’s observable.
