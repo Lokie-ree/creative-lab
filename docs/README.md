@@ -43,7 +43,7 @@ The `module-planning-pipeline` skill guides this process.
 | Path | Purpose |
 |------|---------|
 | [**design/**](./design/) | Design specs and audits for active work. Sinewaves polish and performance audit live here. |
-| [**professional/**](./professional/) | Resume, ISTE storyboards, and module planning artifacts. |
+| [**professional/**](./professional/) | Resume, ISTE storyboards, module planning artifact, and printable lab guides for all three Grade 8 modules. |
 
 ---
 
@@ -51,7 +51,6 @@ The `module-planning-pipeline` skill guides this process.
 
 - [**VISION.md**](../VISION.md) — Career positioning, audience, guiding principles.
 - [**CLAUDE.md**](../CLAUDE.md) — AI agent instructions: architecture, commands, design system.
-- [**Sinewaves ARCHITECTURE.md**](../src/components/modules/sinewaves/ARCHITECTURE.md) — Reference implementation for completed module.
-- [**Rigid Motions ARCHITECTURE.md**](../src/components/modules/rigid-motions/ARCHITECTURE.md) — As-built documentation for rigid motions (all 4 phases complete).
+- [**Sinewaves ARCHITECTURE.md**](../src/components/modules/sinewaves/ARCHITECTURE.md) — As-built documentation for the sinewaves module.
+- [**Rigid Motions ARCHITECTURE.md**](../src/components/modules/rigid-motions/ARCHITECTURE.md) — As-built documentation for rigid motions (all 4 phases complete); use as the pattern for M2.
 - [**Module skeleton**](../src/lib/skeleton/README.md) — Reusable hooks for future modules.
-- [**Rigid Motions ARCHITECTURE.md**](../src/components/modules/rigid-motions/ARCHITECTURE.md) — Reference implementation for the completed module; use as the pattern for M2.
