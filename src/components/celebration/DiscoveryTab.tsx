@@ -1,4 +1,4 @@
-import { CheckCircle } from "lucide-react"
+import { ArrowRight, CheckCircle } from "lucide-react"
 import type { TransformationParams } from '@/lib/types/transforms'
 import { CAPSTONE_COMPLETION_COPY } from '@/components/modules/rigid-motions/rigid-motions-copy'
 
@@ -51,7 +51,7 @@ function RigidMotionsDiscovery({ completedSequence }: { completedSequence: Trans
       <div className="flex items-center justify-center gap-2 flex-wrap">
         {completedSequence.map((params, i) => (
           <span key={i} className="contents">
-            {i > 0 && <span className="lab-data-font text-[var(--lab-text-muted)]">→</span>}
+            {i > 0 && <ArrowRight size={12} aria-hidden="true" className="text-(--lab-text-muted) shrink-0" />}
             <TransformChip params={params} />
           </span>
         ))}
@@ -64,12 +64,21 @@ function RigidMotionsDiscovery({ completedSequence }: { completedSequence: Trans
 }
 
 export function DiscoveryTab({ values, skipped, moduleId, completedSequence }: DiscoveryTabProps) {
-  // Rigid motions branch — shown when capstone is complete
-  if (moduleId === 'rigid-motions' && completedSequence && completedSequence.length > 0) {
-    return <RigidMotionsDiscovery completedSequence={completedSequence} />
+  // Rigid motions branch — fully isolated; never falls through to sinewaves path
+  if (moduleId === 'rigid-motions') {
+    if (completedSequence && completedSequence.length > 0) {
+      return <RigidMotionsDiscovery completedSequence={completedSequence} />
+    }
+    return (
+      <div className="text-center py-8">
+        <p className="text-[var(--lab-text-muted)] text-lg">
+          Complete the challenge to see your results
+        </p>
+      </div>
+    )
   }
 
-  if (skipped || (!values && !(moduleId === 'rigid-motions' && completedSequence?.length))) {
+  if (skipped || !values) {
     return (
       <div className="text-center py-8">
         <p className="text-[var(--lab-text-muted)] text-lg">

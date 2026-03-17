@@ -1,4 +1,5 @@
 import { useRef } from "react"
+import { ArrowRight } from 'lucide-react'
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import RotatingText from "./RotatingText"
@@ -75,7 +76,7 @@ export function HeroContent({ onEnter }: HeroContentProps) {
         className="group px-8 py-3.5 min-h-[48px] cursor-pointer border border-(--lab-accent) bg-(--lab-accent) text-(--lab-bg) lab-silk lab-display-font tracking-[0.1em] transition-colors duration-150 hover:bg-(--lab-accent-hover) hover:border-(--lab-accent-hover) focus-visible:outline-2 focus-visible:outline-(--lab-accent) focus-visible:outline-offset-4"
       >
         Enter the Lab
-        <span aria-hidden="true" className="inline-block ml-3 transition-transform duration-150 group-hover:translate-x-1">→</span>
+        <ArrowRight size={14} aria-hidden="true" className="inline-block ml-3 transition-transform duration-150 group-hover:translate-x-1" />
       </button>
     </div>
   )

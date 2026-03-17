@@ -52,12 +52,12 @@ function clamp(value: number, min: number, max: number): number {
  * ratio bug where perspective camera FOV inflates world-unit viewport dimensions.
  */
 export function useSceneMode(): SceneMode {
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== 'undefined' ? window.innerWidth : 1024
+  const [windowMin, setWindowMin] = useState(
+    typeof window !== 'undefined' ? Math.min(window.innerWidth, window.innerHeight) : 1024
   )
 
   useEffect(() => {
-    const handler = () => setWindowWidth(window.innerWidth)
+    const handler = () => setWindowMin(Math.min(window.innerWidth, window.innerHeight))
     window.addEventListener('resize', handler, { passive: true })
     window.addEventListener('orientationchange', handler, { passive: true })
     return () => {
@@ -68,11 +68,13 @@ export function useSceneMode(): SceneMode {
 
   const { size } = useThree()
   const isPortrait = size.width <= size.height
-  const isPhone = windowWidth < 600
+  // Detect phones by minimum screen dimension (< 500px catches all phones in any orientation;
+  // tablets have narrow side ≥ 744px). This ensures landscape phones get wave-only mode.
+  const isPhone = windowMin < 500
 
-  if (isPhone && isPortrait)  return 'phone'      // phone portrait: wave only
-  if (!isPhone && isPortrait) return 'portrait'   // tablet portrait: stacked
-  return 'landscape'                              // everything landscape (any width)
+  if (isPhone) return 'phone'             // phone (any orientation): wave only
+  if (isPortrait) return 'portrait'       // tablet portrait: stacked
+  return 'landscape'                      // tablet+desktop landscape
 }
 
 export interface SceneLayoutResult {

@@ -5,6 +5,7 @@
  * Back navigation lives in the status strip (ChevronLeft button).
  */
 import { useEffect, useCallback, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { ChevronLeft } from 'lucide-react'
 import type { ModuleProps } from '@/config/modules'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
@@ -49,9 +50,12 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
   const { announce } = useAccessibility()
   const [contextLost, setContextLost] = useState(false)
 
-  // Announce feedback state changes for screen readers
+  // Announce feedback state changes for screen readers + haptic on match
   useEffect(() => {
-    if (feedbackState === 'match') announce('Match! Press Next to continue.', 'assertive')
+    if (feedbackState === 'match') {
+      announce('Match! Press Next to continue.', 'assertive')
+      navigator.vibrate?.(80)
+    }
     else if (feedbackState === 'close') announce('Getting closer.')
     else if (feedbackState === 'miss') announce('Not quite. Try adjusting the position.')
   }, [feedbackState, announce])
@@ -166,7 +170,7 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
                       ? 'bg-(--lab-success) border-(--lab-led-completed-border)'
                       : i === currentGuideIndex
                         ? 'bg-(--lab-accent) border-(--lab-accent-muted)'
-                        : 'bg-(--lab-border) border-(--lab-led-upcoming-border)',
+                        : 'bg-transparent border-(--lab-ghost)/40',
                   ].join(' ')}
                 />
               ))}
@@ -200,6 +204,18 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
       ) : null}
       visualization={
         <>
+          {/* Match flash — screen-edge accent burst on first match per round */}
+          <AnimatePresence>
+            {firstMatch && (
+              <motion.div
+                key={revealKey}
+                className="pointer-events-none absolute inset-0 z-10 border-2 border-(--lab-accent)"
+                initial={{ opacity: 0.7 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              />
+            )}
+          </AnimatePresence>
           <RigidMotionsScene
             ghostOffset={ghostOffset}
             onGhostMove={handleGhostMove}

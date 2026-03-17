@@ -128,16 +128,19 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 ## Current State
 
-**Last updated:** March 16, 2026
+**Last updated:** March 17, 2026
 
 ### App framing
 The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IVLA STEM Club" with a `DotGrid` canvas background (interactive dot field with mouse proximity) and a `RotatingText` tagline ("Where we build / discover / explore / prove"). No personal name in the student-facing UI.
 
 ### Modules (see `src/config/modules.ts`)
-- **sinewaves** — **Complete.** Trigonometry; unit circle → sine/cosine. Instrument-style HUD with Eurorack design system. No panel screws. StatusStrip touch targets 44px minimum.
+- **sinewaves** — **Complete.** Trigonometry; unit circle → sine/cosine. Instrument-style HUD with Eurorack design system. No panel screws. StatusStrip touch targets 44px minimum. Landscape phones use wave-only mode (phone detection via `Math.min(innerWidth, innerHeight) < 500`).
 - **vector-transformations** — Implemented. Linear algebra; matrix transformations on vectors.
 - **phase-portraits** — Placeholder/coming-soon.
 - **rigid-motions** — **Complete (all 4 phases).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). Target: ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
+
+### PWA / Offline
+`vite-plugin-pwa` added with Workbox `generateSW` mode. Pre-caches all JS/CSS/HTML/woff2 assets (17 entries, ~3MB including Three.js chunk). Google Fonts cached via `CacheFirst`. App fully functional offline after first load. Config in `vite.config.ts`.
 
 ### Journey (hero → CourseHub → Constellation → module)
 - All screens use `--lab-bg` warm faceplate background.
@@ -158,44 +161,14 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 
 ## Outstanding Work
 
-See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and file references. Summary below.
+See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and file references. All P0 and P1 issues resolved as of March 17, 2026. Summary of remaining work below.
 
-### P0 — Fix immediately
+### Polish (formerly P2)
 
-- **STATE-01: Celebration modal state leak** — `DiscoveryTab.tsx` falls through to the sinewaves formula path (`y = sin(t)`) when `moduleId === 'rigid-motions'` but `completedSequence` is empty. Two-part fix: (1) defensive guard in `DiscoveryTab.tsx` when `completedSequence` is null/empty; (2) atomic state update in `App.tsx` so `completedSequence` and `showCelebration` are set together. Files: `src/components/celebration/DiscoveryTab.tsx`, `src/App.tsx`.
-
-### P1 — Fix before demo
-
-**Rigid Motions layout (mobile):**
-- **RM-01: Landscape capstone scene too small** — Fixed-row grid doesn't redistribute space in landscape. Switch to 2-column layout (canvas 60–70% left, controls right) or increase canvas flex-grow. File: `InstrumentModule.tsx`.
-- **RM-02: SequenceBuilder cramped in landscape** — Switch to column layout (step 1 above step 2) in landscape. File: `ControlStrip.tsx`.
-- **RM-03: Portrait SequenceBuilder dominates viewport** — Cap builder height; minimum canvas 40% of viewport. Consider bottom-sheet pattern. File: `InstrumentModule.tsx`.
-
-**Rigid Motions UX (iPad-tested):**
-- **Match reward too subtle** — Add scale burst on image, screen-edge flash in `--lab-accent`, and/or `navigator.vibrate` haptic.
-- **Offline: no service worker** — App fails without WiFi. Add service worker or in-app offline message.
-- **Translation inputs trigger native keyboard** — Replace `type="number"` in `SequenceBuilder.tsx` with stepper +/−1 buttons capped at ±CONTENT_RANGE.
-- **Unicode arrows render inconsistently on iOS** — `↔` / `↕` / `→` fall back to emoji on iPad. Replace with plain text or SVG.
-
-**Sinewaves:**
-- **SW-01: Wave hidden off-screen in landscape** — Verify `useIsMobileViewport` returns true for landscape phones (`window.innerWidth < 768`). Check `SCENE_LAYOUT.landscape.wave.xRatio`. Files: `scene-layout.ts`, `Scene.tsx`.
-
-**State & navigation:**
-- **STATE-02: Escape during GSAP reveal** — Animation may continue after unmount. Verify GSAP timelines are killed in cleanup (`useGSAP` context scope).
-- **STATE-03: Back-navigation mid-capstone** — Partial sequence + back + re-enter should reset to `predict-translate`, not resume partial capstone state.
-- **NAV-01: Full navigation path on each device class** — Verify Hero → CourseHub → Constellation → Module → Back on all breakpoints. Check DotGrid touch, RotatingText readability, SegmentArc tap targets ≥44px.
-
-### P2 — Polish
-
-- **RM-04: Missing coordinate labels on mobile capstone** — A′, B′, C′ render without coordinate numbers on mobile. Check `coordinatesActive` threading to capstone scene. Files: `SpriteLabel.tsx`, `RigidMotionsScene.tsx`.
-- **RM-05: Status strip dots missing on capstone** — Dots absent in landscape and desktop. Check z-index and color token in `InstrumentModule.tsx`.
+- **RM-04: Coordinate values missing next to vertices on mobile capstone** — `coordinatesActive` is plumbed to `CoordinateGrid` but the `_coordinatesActive` parameter is unused. In-scene coordinate annotations (e.g. "(2, 1)" next to each vertex) are not yet implemented. Requires adding `SpriteLabel` calls when `coordinatesActive` is true.
 - **STATE-04: Viewport resize during module interaction** — Canvas and CSS layout may desync on device rotation. Verify both modules handle resize cleanly.
-- **STATE-05: Double-tap / rapid CHECK presses** — Rapid CHECK could fire `handleCheck` multiple times. Verify only one match is counted and guide state advances exactly once.
-- **STATE-06: stageRoundIndex boundary on Phase 3 entry** — Verify no out-of-bounds access when a stage has only one round definition.
-- **Grid lines too faint** — `CoordinateGrid` `opacity={0.2}` nearly invisible on iPad. Increase to ≈`0.35`.
-- **Vertex label sizing** — Prime labels (A′/B′/C′) may clip at `planeWidth={0.55}`. Apply dynamic sizing.
-- **Capstone target has no vertex labels** — `CapstoneTarget` renders no A′/B′/C′ labels. Student can't identify vertices while building the sequence.
-- **Control panel dividers inconsistent** — Standardize with `border-(--lab-border)` scored lines.
+- **Vertex label sizing** — Prime labels (A′/B′/C′) may clip at `planeWidth={0.55}` on small viewports. Consider zoom-aware dynamic sizing.
+- **Control panel dividers inconsistent** — Standardize with `border-(--lab-border)` scored lines across all button groups in `ControlStrip.tsx`.
 
 ### Pedagogy
 
