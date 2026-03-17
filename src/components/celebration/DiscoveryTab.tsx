@@ -64,12 +64,21 @@ function RigidMotionsDiscovery({ completedSequence }: { completedSequence: Trans
 }
 
 export function DiscoveryTab({ values, skipped, moduleId, completedSequence }: DiscoveryTabProps) {
-  // Rigid motions branch — shown when capstone is complete
-  if (moduleId === 'rigid-motions' && completedSequence && completedSequence.length > 0) {
-    return <RigidMotionsDiscovery completedSequence={completedSequence} />
+  // Rigid motions branch — fully isolated; never falls through to sinewaves path
+  if (moduleId === 'rigid-motions') {
+    if (completedSequence && completedSequence.length > 0) {
+      return <RigidMotionsDiscovery completedSequence={completedSequence} />
+    }
+    return (
+      <div className="text-center py-8">
+        <p className="text-[var(--lab-text-muted)] text-lg">
+          Complete the challenge to see your results
+        </p>
+      </div>
+    )
   }
 
-  if (skipped || (!values && !(moduleId === 'rigid-motions' && completedSequence?.length))) {
+  if (skipped || !values) {
     return (
       <div className="text-center py-8">
         <p className="text-[var(--lab-text-muted)] text-lg">
