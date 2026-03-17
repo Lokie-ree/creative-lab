@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface NavigationProps {
@@ -19,7 +20,7 @@ export function Navigation({ showBackButton, onBack, className }: NavigationProp
             onClick={onBack}
             className="flex items-center gap-2 text-sm text-[var(--lab-ghost)] hover:text-[var(--lab-text)] transition-colors duration-150"
           >
-            <span>←</span>
+            <ArrowLeft size={14} aria-hidden="true" />
             <span>Back to modules</span>
           </button>
         ) : (

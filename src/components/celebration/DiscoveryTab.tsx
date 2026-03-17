@@ -1,4 +1,4 @@
-import { CheckCircle } from "lucide-react"
+import { ArrowRight, CheckCircle } from "lucide-react"
 import type { TransformationParams } from '@/lib/types/transforms'
 import { CAPSTONE_COMPLETION_COPY } from '@/components/modules/rigid-motions/rigid-motions-copy'
 
@@ -51,7 +51,7 @@ function RigidMotionsDiscovery({ completedSequence }: { completedSequence: Trans
       <div className="flex items-center justify-center gap-2 flex-wrap">
         {completedSequence.map((params, i) => (
           <span key={i} className="contents">
-            {i > 0 && <span className="lab-data-font text-[var(--lab-text-muted)]">→</span>}
+            {i > 0 && <ArrowRight size={12} aria-hidden="true" className="text-(--lab-text-muted) shrink-0" />}
             <TransformChip params={params} />
           </span>
         ))}

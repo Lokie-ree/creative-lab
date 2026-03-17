@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import { X } from "lucide-react"
+import { ArrowRight, X } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DiscoveryTab } from "./DiscoveryTab"
 import { BehindThisTab } from "./BehindThisTab"
@@ -205,7 +205,7 @@ export function CelebrationModal({
             onClick={handleNextModule}
             className="flex-1 min-h-[44px] border border-(--lab-accent) bg-(--lab-accent) hover:bg-(--lab-accent-hover) hover:border-(--lab-accent-hover) lab-silk lab-display-font tracking-[0.1em] text-(--lab-bg) transition-colors duration-150"
           >
-            Next Module →
+            Next Module <ArrowRight size={14} aria-hidden="true" className="inline-block ml-1" />
           </button>
         </div>
       </div>

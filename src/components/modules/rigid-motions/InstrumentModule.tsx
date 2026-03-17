@@ -170,7 +170,7 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
                       ? 'bg-(--lab-success) border-(--lab-led-completed-border)'
                       : i === currentGuideIndex
                         ? 'bg-(--lab-accent) border-(--lab-accent-muted)'
-                        : 'bg-(--lab-border) border-(--lab-led-upcoming-border)',
+                        : 'bg-transparent border-(--lab-ghost)/40',
                   ].join(' ')}
                 />
               ))}

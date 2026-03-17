@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import {
   PRE_IMAGE_VERTICES,
   VERTEX_LABELS,
+  GHOST_VERTEX_LABELS,
   GRID_RANGE,
   CONTENT_RANGE,
 } from '../constants'
@@ -127,10 +128,10 @@ function CoordinateGrid({ coordinatesActive: _coordinatesActive }: { coordinates
   return (
     <group>
       <lineSegments geometry={gridGeometry}>
-        <lineBasicMaterial color="#28251f" transparent opacity={0.2} />
+        <lineBasicMaterial color="#28251f" transparent opacity={0.35} />
       </lineSegments>
       <lineSegments geometry={axisGeometry}>
-        <lineBasicMaterial color="#3e3a34" transparent opacity={0.4} />
+        <lineBasicMaterial color="#3e3a34" transparent opacity={0.55} />
       </lineSegments>
       <mesh position={[0, 0, 0.01]}>
         <circleGeometry args={[0.12, 16]} />
@@ -328,6 +329,7 @@ function CapstoneTarget({
   feedbackState,
 }: CapstoneTargetProps) {
   const targetOutlineRef = useRef<THREE.LineBasicMaterial>(null)
+  const centroid = useMemo(() => centroidOf(vertices as [number, number][]), [vertices])
 
   const { outlineGeometry, shape } = useMemo(() => {
     const pts = [...vertices, vertices[0]].map(([x, y]) => new THREE.Vector3(x, y, 0.02))
@@ -360,6 +362,20 @@ function CapstoneTarget({
       <lineLoop geometry={outlineGeometry}>
         <lineBasicMaterial ref={targetOutlineRef} color={colors.ghost} />
       </lineLoop>
+      {(vertices as [number, number][]).map((v, idx) => {
+        const [lx, ly] = vertexLabelOffset(v, centroid, 0.5)
+        return (
+          <SpriteLabel
+            key={GHOST_VERTEX_LABELS[idx]}
+            text={GHOST_VERTEX_LABELS[idx]}
+            position={[lx, ly, 0.03]}
+            color={colors.ghost}
+            anchorX="center"
+            anchorY="middle"
+            planeWidth={0.65}
+          />
+        )
+      })}
     </group>
   )
 }

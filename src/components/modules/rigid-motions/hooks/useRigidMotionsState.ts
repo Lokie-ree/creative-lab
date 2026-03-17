@@ -89,6 +89,7 @@ export function useRigidMotionsState(): RigidMotionsState {
   const handleCheck = useCallback(() => {
     const stage = guideStateToStage(guideState)
     if (!stage) return
+    if (feedbackState === 'match') return
 
     const reflectionAxis =
       stage === 'reflect' ? (currentRound.params as ReflectionParams).axis : 'x'
@@ -184,6 +185,7 @@ export function useRigidMotionsState(): RigidMotionsState {
   }, [])
 
   const handleCheckSequence = useCallback(() => {
+    if (feedbackState === 'match') return
     const result = validateCapstoneSequence(capstoneSequence, capstoneRound.targetVertices)
     setFeedbackState(result)
     if (result === 'match') {
