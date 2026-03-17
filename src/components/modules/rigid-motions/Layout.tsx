@@ -16,15 +16,14 @@ interface ModuleLayoutProps {
 /**
  * Eurorack faceplate layout for rigid-motions (and future geometry modules).
  *
- * Mobile (<md): flex column — status | prompt? | scene | [formula strip | controls]
- * Desktop (≥md): flex column — status | scene | [formula strip | prompt + controls]
+ * Portrait:  flex column — status | prompt? | scene | [formula strip | controls]
+ *            Controls panel capped at max-h-[60dvh] so canvas keeps ≥40% of viewport.
  *
- * The bottom panel always reserves two rows so the scene height never shifts
- * when the formula readout appears at Phase 3 entry.
+ * Landscape: flex row — status (full width) | [scene (flex-3) | controls panel (flex-2)]
+ *            Prompt moves to top of controls panel; panel scrolls internally.
  *
- * The prompt slot renders in two DOM positions (mobile row above scene, desktop
- * controls-row left side) via responsive visibility. Both instances receive the
- * same React node — PromptReadout handles its own animation internally.
+ * Note: "landscape" uses CSS @media(orientation:landscape), independent of
+ * the md: width breakpoint. Both can be active simultaneously on iPad landscape.
  */
 export function ModuleLayout({
   statusStrip,
@@ -42,42 +41,55 @@ export function ModuleLayout({
         {statusStrip}
       </header>
 
-      {/* ── PROMPT (mobile only — above scene) ─────── */}
-      {/* bg-(--lab-surface) matches the existing mobile prompt row background */}
-      {prompt && (
-        <div className="shrink-0 bg-(--lab-surface) border-b border-(--lab-border) md:hidden">
-          {prompt}
-        </div>
-      )}
+      {/* ── BODY — portrait: column, landscape: row ─ */}
+      <div className="flex-1 min-h-0 flex flex-col [@media(orientation:landscape)]:flex-row overflow-hidden">
 
-      {/* ── VISUALIZATION ──────────────────────────── */}
-      <main className="flex-1 min-h-0 relative overflow-hidden">
-        {visualization}
-      </main>
+        {/* ── PROMPT (portrait-only row, hidden in landscape) ── */}
+        {prompt && (
+          <div className="shrink-0 bg-(--lab-surface) border-b border-(--lab-border) md:hidden [@media(orientation:landscape)]:hidden">
+            {prompt}
+          </div>
+        )}
 
-      {/* ── BOTTOM PANEL ───────────────────────────── */}
-      <footer className="shrink-0 border-t border-(--lab-border)">
+        {/* ── VISUALIZATION ──────────────────────────── */}
+        <main className="flex-1 min-h-0 relative overflow-hidden [@media(orientation:landscape)]:flex-[3] [@media(orientation:landscape)]:min-w-0">
+          {visualization}
+        </main>
 
-        {/* Formula strip — always two rows; this one is always reserved */}
-        <div className="border-b border-(--lab-border) min-h-8">
-          {formulaReadout}
-        </div>
+        {/* ── CONTROLS PANEL ─────────────────────────
+            Portrait:  bottom strip; capped at 60dvh so canvas keeps ≥40%
+            Landscape: right column (flex-[2]); full height; scrolls internally
+        ── */}
+        <div className="shrink-0 border-t border-(--lab-border) max-h-[60dvh] overflow-y-auto [@media(orientation:landscape)]:flex-[2] [@media(orientation:landscape)]:min-w-0 [@media(orientation:landscape)]:max-h-none [@media(orientation:landscape)]:border-t-0 [@media(orientation:landscape)]:border-l">
 
-        {/* Controls row */}
-        <div className="flex items-center gap-4 px-5 py-3 md:px-6">
-          {/* Desktop: prompt on left side of controls row */}
+          {/* Landscape prompt — top of panel, visible only in landscape */}
           {prompt && (
-            <div className="hidden md:flex flex-1 min-w-0">
+            <div className="hidden [@media(orientation:landscape)]:block shrink-0 bg-(--lab-surface) border-b border-(--lab-border)">
               {prompt}
             </div>
           )}
-          {/* Controls — full width on mobile, shrink on desktop */}
-          <div className="w-full md:w-auto md:shrink-0">
-            {controls}
+
+          {/* Formula strip — always reserved */}
+          <div className="border-b border-(--lab-border) min-h-8">
+            {formulaReadout}
           </div>
+
+          {/* Controls row */}
+          <div className="flex items-center gap-4 px-5 py-3 md:px-6 [@media(orientation:landscape)]:px-4">
+            {/* Desktop portrait prompt on left (hidden in landscape — prompt is above formula) */}
+            {prompt && (
+              <div className="hidden md:flex [@media(orientation:landscape)]:hidden flex-1 min-w-0">
+                {prompt}
+              </div>
+            )}
+            <div className="w-full md:w-auto md:shrink-0 [@media(orientation:landscape)]:w-full">
+              {controls}
+            </div>
+          </div>
+
         </div>
 
-      </footer>
+      </div>
 
       {/* ── OVERLAYS ───────────────────────────────── */}
       {children}

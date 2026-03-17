@@ -6,6 +6,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import type { TransformationParams } from '../types'
 import type { FeedbackState } from '../types'
+import { CONTENT_RANGE } from '../constants'
 
 // ─── Button style constants (exact match to ControlStrip.tsx) ─────────────────
 
@@ -29,8 +30,8 @@ type SlotType = 'translate' | 'reflect' | 'rotate' | null
 
 interface SlotState {
   type: SlotType
-  dx: string
-  dy: string
+  dx: number
+  dy: number
   axis: 'x' | 'y'
   degrees: 90 | 180 | 270
   direction: 'cw' | 'ccw'
@@ -38,8 +39,8 @@ interface SlotState {
 
 const DEFAULT_SLOT: SlotState = {
   type: null,
-  dx: '0',
-  dy: '0',
+  dx: 0,
+  dy: 0,
   axis: 'y',
   degrees: 90,
   direction: 'cw',
@@ -50,10 +51,7 @@ const DEFAULT_SLOT: SlotState = {
 function slotToParams(slot: SlotState): TransformationParams | null {
   if (slot.type === null) return null
   if (slot.type === 'translate') {
-    const dx = parseInt(slot.dx, 10)
-    const dy = parseInt(slot.dy, 10)
-    if (!Number.isInteger(dx) || !Number.isInteger(dy) || isNaN(dx) || isNaN(dy)) return null
-    return { type: 'translate', dx, dy }
+    return { type: 'translate', dx: slot.dx, dy: slot.dy }
   }
   if (slot.type === 'reflect') {
     return { type: 'reflect', axis: slot.axis }
@@ -62,6 +60,49 @@ function slotToParams(slot: SlotState): TransformationParams | null {
     return { type: 'rotate', degrees: slot.degrees, direction: slot.direction }
   }
   return null
+}
+
+// ─── StepperField ─────────────────────────────────────────────────────────────
+
+interface StepperFieldProps {
+  label: string
+  value: number
+  onChange: (value: number) => void
+}
+
+function StepperField({ label, value, onChange }: StepperFieldProps) {
+  const display = value >= 0 ? `+${value}` : `${value}`
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span className="lab-silk lab-display-font text-[8px] tracking-[0.2em] text-(--lab-text-muted)">
+        {label}
+      </span>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          className={BTN_DIM}
+          onClick={() => onChange(Math.max(-CONTENT_RANGE, value - 1))}
+          aria-label={`Decrease ${label}`}
+        >
+          &minus;
+        </button>
+        <span
+          className="lab-data-font text-sm text-(--lab-text) w-8 text-center select-none"
+          aria-label={`${label}: ${display}`}
+        >
+          {display}
+        </span>
+        <button
+          type="button"
+          className={BTN_DIM}
+          onClick={() => onChange(Math.min(CONTENT_RANGE, value + 1))}
+          aria-label={`Increase ${label}`}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  )
 }
 
 // ─── SlotEditor ───────────────────────────────────────────────────────────────
@@ -81,7 +122,6 @@ function SlotEditor({ label, slot, onChange, disabled = false }: SlotEditorProps
 
   const handleType = (type: SlotType) => {
     if (type === slot.type) {
-      // Clear the slot
       onChange({ ...DEFAULT_SLOT })
     } else {
       onChange({ ...slot, type })
@@ -104,7 +144,7 @@ function SlotEditor({ label, slot, onChange, disabled = false }: SlotEditorProps
             onClick={handleClear}
             aria-label={`Clear ${label}`}
           >
-            ×
+            &times;
           </button>
         )}
       </div>
@@ -139,27 +179,17 @@ function SlotEditor({ label, slot, onChange, disabled = false }: SlotEditorProps
 
       {/* Type-specific parameters */}
       {slot.type === 'translate' && (
-        <div className="flex items-center gap-2">
-          <label className="flex flex-col items-center gap-1">
-            <span className="lab-silk lab-display-font text-[8px] tracking-[0.2em] text-(--lab-text-muted)">↔ dx</span>
-            <input
-              type="number"
-              value={slot.dx}
-              onChange={e => onChange({ ...slot, dx: e.target.value })}
-              className="w-14 lab-data-font text-sm text-center bg-(--lab-surface) border border-(--lab-border) text-(--lab-text) py-1 min-h-[44px]"
-              aria-label="dx (horizontal shift)"
-            />
-          </label>
-          <label className="flex flex-col items-center gap-1">
-            <span className="lab-silk lab-display-font text-[8px] tracking-[0.2em] text-(--lab-text-muted)">↕ dy</span>
-            <input
-              type="number"
-              value={slot.dy}
-              onChange={e => onChange({ ...slot, dy: e.target.value })}
-              className="w-14 lab-data-font text-sm text-center bg-(--lab-surface) border border-(--lab-border) text-(--lab-text) py-1 min-h-[44px]"
-              aria-label="dy (vertical shift)"
-            />
-          </label>
+        <div className="flex items-center gap-3">
+          <StepperField
+            label="dx"
+            value={slot.dx}
+            onChange={dx => onChange({ ...slot, dx })}
+          />
+          <StepperField
+            label="dy"
+            value={slot.dy}
+            onChange={dy => onChange({ ...slot, dy })}
+          />
         </div>
       )}
 
@@ -195,7 +225,7 @@ function SlotEditor({ label, slot, onChange, disabled = false }: SlotEditorProps
                 onClick={() => onChange({ ...slot, degrees: deg })}
                 aria-pressed={slot.degrees === deg}
               >
-                {deg}°
+                {deg}&deg;
               </button>
             ))}
           </div>
@@ -268,8 +298,8 @@ export function SequenceBuilder({
 
   return (
     <div className="w-full flex flex-col gap-2">
-      {/* Slots row */}
-      <div className="flex flex-wrap items-start gap-2">
+      {/* Slots — portrait: wrap row; landscape: column */}
+      <div className="flex flex-wrap items-start gap-2 [@media(orientation:landscape)]:flex-col">
         <SlotEditor
           label="STEP 1"
           slot={slot1}
@@ -278,7 +308,9 @@ export function SequenceBuilder({
 
         {slot1.type !== null && (
           <>
-            <span className="lab-data-font text-(--lab-text-muted) self-center">→</span>
+            <span className="lab-silk lab-display-font text-[8px] tracking-[0.2em] text-(--lab-text-muted) self-center">
+              then
+            </span>
             <SlotEditor
               label="STEP 2"
               slot={slot2}
@@ -293,7 +325,7 @@ export function SequenceBuilder({
       <div className="flex gap-2 justify-end">
         {feedbackState === 'match' ? (
           <button type="button" className={BTN_PRIMARY} onClick={onNext}>
-            Next →
+            Next
           </button>
         ) : (
           <button
