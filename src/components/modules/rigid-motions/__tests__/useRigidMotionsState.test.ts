@@ -55,3 +55,16 @@ describe('useRigidMotionsState — match gating', () => {
     expect(result.current.feedbackState).toBe(stateAfterCheck)
   })
 })
+
+describe('useRigidMotionsState — beat-keyed shownReveals', () => {
+  it('shownReveals is initially empty', () => {
+    const { result } = renderHook(() => useRigidMotionsState())
+    expect(result.current.shownReveals.size).toBe(0)
+  })
+
+  it('does not add a beat key before CHECK is called', () => {
+    const { result } = renderHook(() => useRigidMotionsState())
+    // Beat key would be 'predict-translate-0' on first match
+    expect(result.current.shownReveals.has('predict-translate-0')).toBe(false)
+  })
+})

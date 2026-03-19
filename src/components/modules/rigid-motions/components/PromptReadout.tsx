@@ -6,14 +6,27 @@ interface PromptReadoutProps {
   label: string
   text: string
   amber?: boolean
+  /** Notation line — renders in lab-data-font below text */
+  notation?: string
+  /** Color for notation: 'rule' = accent green, 'congruence' = earned amber */
+  notationStyle?: 'rule' | 'congruence'
+  /** Prose line rendered below notation in lab-display-font */
+  trailingText?: string
 }
 
 /**
- * Prompt label + text with fade-in animation on text change.
+ * Prompt label + text with optional notation and trailing text.
  * Used in both mobile (above-scene) and desktop (bottom-panel left) positions.
  * Each instance manages its own ref and animation.
  */
-export function PromptReadout({ label, text, amber = false }: PromptReadoutProps) {
+export function PromptReadout({
+  label,
+  text,
+  amber = false,
+  notation,
+  notationStyle,
+  trailingText,
+}: PromptReadoutProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -36,6 +49,19 @@ export function PromptReadout({ label, text, amber = false }: PromptReadoutProps
       ].join(' ')}>
         {text}
       </p>
+      {notation && (
+        <p className={[
+          'text-sm font-medium lab-data-font mt-1',
+          notationStyle === 'congruence' ? 'text-(--lab-earned)' : 'text-(--lab-accent)',
+        ].join(' ')}>
+          {notation}
+        </p>
+      )}
+      {trailingText && (
+        <p className="text-sm font-medium lab-display-font text-(--lab-text) mt-0.5">
+          {trailingText}
+        </p>
+      )}
     </div>
   )
 }

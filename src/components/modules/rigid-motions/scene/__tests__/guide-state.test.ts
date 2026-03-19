@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest'
 import { GUIDE_STATE_SEQUENCE, getGuideStateConfig, nextGuideState, guideStateToStage } from '../../guide-state'
 
 describe('GUIDE_STATE_SEQUENCE', () => {
-  it('has 8 states', () => {
-    expect(GUIDE_STATE_SEQUENCE).toHaveLength(8)
+  it('has 9 states', () => {
+    expect(GUIDE_STATE_SEQUENCE).toHaveLength(9)
   })
 
-  it('indices are 0-7 in order', () => {
+  it('indices are 0-8 in order', () => {
     GUIDE_STATE_SEQUENCE.forEach((c, i) => expect(c.index).toBe(i))
   })
 

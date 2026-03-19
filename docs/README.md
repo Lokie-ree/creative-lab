@@ -44,6 +44,7 @@ The `module-planning-pipeline` skill guides this process.
 |------|---------|
 | [**design/**](./design/) | Design specs and audits for active work. Sinewaves polish and performance audit live here. |
 | [**professional/**](./professional/) | Resume, ISTE storyboards, module planning artifact, and printable lab guides for all three Grade 8 modules. |
+| [**superpowers/**](./superpowers/) | AI-generated specs (`specs/`) and implementation plans (`plans/`) produced during subagent-driven development. |
 
 ---
 

@@ -21,4 +21,5 @@ pnpm dev
 | [docs/product.md](./docs/product.md) | LSSM standards alignment and ALD progression |
 | [docs/design/](./docs/design/) | Design specs, audits, and current direction |
 | [docs/professional/](./docs/professional/) | ISTE storyboards, module planning artifacts, resume |
+| [docs/superpowers/](./docs/superpowers/) | AI-generated specs and implementation plans |
 | [CLAUDE.md](./CLAUDE.md) | AI agent: architecture, commands, design system |

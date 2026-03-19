@@ -57,6 +57,11 @@ function RigidMotionsDiscovery({ completedSequence }: { completedSequence: Trans
         ))}
       </div>
 
+      {/* Congruence statement — rendered unconditionally (modal only shows on full completion) */}
+      <p className="text-center text-sm lab-display-font text-(--lab-earned)">
+        You proved △ABC ≅ △A″B″C″ by describing a sequence of rigid motions.
+      </p>
+
       {/* Completion summary */}
       <p className="text-center text-[var(--lab-text-muted)] text-sm">{completionCopy}</p>
     </div>

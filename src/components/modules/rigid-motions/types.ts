@@ -10,6 +10,7 @@ export type GuideState =
   | 'predict-with-coordinates-translate'
   | 'predict-with-coordinates-reflect'
   | 'predict-with-coordinates-rotate'
+  | 'synthesis-reveal'
   | 'capstone'
 
 export type FeedbackState = 'idle' | 'match' | 'close' | 'miss'

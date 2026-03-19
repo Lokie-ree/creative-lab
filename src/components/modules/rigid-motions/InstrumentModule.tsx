@@ -11,9 +11,20 @@ import type { ModuleProps } from '@/config/modules'
 import { useRigidMotionsState } from './hooks/useRigidMotionsState'
 import { RigidMotionsScene } from './scene/RigidMotionsScene'
 import { ControlStrip } from './controls/ControlStrip'
-import { PROMPT_TEXT, CLOSE_COPY, EARNED_REVEALS, CAPSTONE_EARNED_REVEALS, CAPSTONE_PROMPT_TEXT, type CapstoneRoundId } from './rigid-motions-copy'
+import {
+  PROMPT_TEXT,
+  CLOSE_COPY,
+  EARNED_REVEALS,
+  type RevealBeat,
+  SYNTHESIS_REVEAL,
+  PHASE_LABELS,
+  formatCoordinateRule,
+  CAPSTONE_EARNED_REVEALS,
+  CAPSTONE_PROMPT_TEXT,
+  type CapstoneRoundId,
+} from './rigid-motions-copy'
 import { FormulaReadout } from './scene/FormulaReadout'
-import { isCoordinateStage, getGuideStateConfig } from './guide-state'
+import { isCoordinateStage, getGuideStateConfig, derivePhase, GUIDE_STATE_SEQUENCE } from './guide-state'
 import { computeGhostVertices, clampOffset } from './scene/scene-math'
 import { useAccessibility } from '@/lib/skeleton/useAccessibility'
 import type { ReflectionParams } from './types'
@@ -43,6 +54,7 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
     handleSequenceChange,
     handleCheckSequence,
     handleCapstoneNext,
+    successCount,
     shownReveals,
   } = useRigidMotionsState()
 
@@ -70,28 +82,60 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
   const isClose  = feedbackState === 'close'
   const isMatch  = feedbackState === 'match'
 
-  // Earned reveal key: capstone uses round ID, all others use guide state
-  const revealKey = guideState === 'capstone' ? capstoneRound.id : guideState
-  const firstMatch = isMatch && !shownReveals.has(revealKey)
-  const repeatMatch = isMatch && shownReveals.has(revealKey)
+  // Earn reveal key — beat-indexed for non-capstone, round-id for capstone
+  const beatKey = `${guideState}-${successCount}`
+  const revealKey = guideState === 'capstone' ? capstoneRound.id : beatKey
+  const firstMatch  = isMatch && !shownReveals.has(revealKey)
+  const repeatMatch = isMatch &&  shownReveals.has(revealKey)
 
-  const earnedRevealText =
-    guideState === 'capstone'
-      ? CAPSTONE_EARNED_REVEALS[capstoneRound.id as CapstoneRoundId]
-      : EARNED_REVEALS[guideState]
+  // Capstone reveal is still a plain string (no beat structure)
+  const capstoneRevealText = guideState === 'capstone'
+    ? CAPSTONE_EARNED_REVEALS[capstoneRound.id as CapstoneRoundId]
+    : undefined
+
+  // Non-capstone beat reveal (RevealBeat object)
+  const earnedRevealBeat: RevealBeat | undefined =
+    guideState !== 'capstone' && guideState !== 'synthesis-reveal'
+      ? EARNED_REVEALS[beatKey]
+      : undefined
+
+  // Beat-1 spatial stages: notation computed from round (not stored in copy deck)
+  // Beat-1 coordinate stages: notation is △ABC ≅ from earnedRevealBeat.notation
+  // Safety: coordinate-reveal never reaches isBeat1 because successesRequired: 0
+  const isBeat1 = successCount === 1
+    && !isCoordinateStage(guideState)
+    && guideState !== 'capstone'
+    && guideState !== 'synthesis-reveal'
+
+  // Notation and trailing text passed to PromptReadout (only on firstMatch)
+  const revealNotation = firstMatch
+    ? isBeat1
+      ? formatCoordinateRule(currentRound.params)
+      : earnedRevealBeat?.notation
+    : undefined
+  const revealNotationStyle: 'rule' | 'congruence' | undefined = firstMatch
+    ? isBeat1 ? 'rule' : earnedRevealBeat?.notationStyle
+    : undefined
+  const revealTrailingText = firstMatch ? earnedRevealBeat?.trailingText : undefined
 
   const promptText = (() => {
+    if (guideState === 'synthesis-reveal')
+      return SYNTHESIS_REVEAL.text
     if (guideState === 'capstone' && feedbackState === 'idle')
       return CAPSTONE_PROMPT_TEXT[capstoneRound.id as CapstoneRoundId]
-    if (firstMatch && earnedRevealText) return earnedRevealText
+    if (firstMatch) {
+      const text = earnedRevealBeat?.text ?? capstoneRevealText
+      if (text) return text
+    }
     if (repeatMatch)  return 'Match.'
     if (isMiss)       return 'Not quite — adjust your position.'
-    if (isClose)      return CLOSE_COPY[guideState] ?? 'Getting closer.'
+    if (isClose)      return CLOSE_COPY[guideState as keyof typeof CLOSE_COPY] ?? 'Getting closer.'
     return PROMPT_TEXT[currentRound.id] ?? 'Make your prediction.'
   })()
 
   const promptLabel =
     guideState === 'capstone'          ? 'Build' :
+    guideState === 'synthesis-reveal'  ? 'Synthesis' :
     guideState === 'coordinate-reveal' ? 'Reveal' :
     isCoordinateStage(guideState)      ? 'Coordinate Rule' :
     firstMatch                         ? 'Discovered' :
@@ -124,16 +168,24 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
     ? (currentRound.params as ReflectionParams).axis
     : undefined
 
-  // No live ghost in coordinate-reveal (pause state) or capstone
+  // No live ghost in coordinate-reveal, synthesis-reveal, or capstone
   const liveGhostVertices =
-    (guideState === 'coordinate-reveal' || guideState === 'capstone')
+    (guideState === 'coordinate-reveal' || guideState === 'synthesis-reveal' || guideState === 'capstone')
       ? undefined
       : computeGhostVertices(ghostOffset, guideState, flipped, rotationDegrees, rotationDirection, reflectionAxis) as [number, number][]
 
   const showFormulaReadout = guideState === 'coordinate-reveal' || isCoordinateStage(guideState)
 
-  const currentGuideIndex = guideState !== 'capstone' ? getGuideStateConfig(guideState).index : -1
-  const GUIDE_STATE_TOTAL = 8 // one per guide state in GUIDE_STATE_SEQUENCE
+  // Only capstone has no LED position; synthesis-reveal uses its real index (7)
+  const currentGuideIndex = guideState !== 'capstone'
+    ? getGuideStateConfig(guideState).index
+    : -1
+  const GUIDE_STATE_TOTAL = GUIDE_STATE_SEQUENCE.length
+
+  // Notation for synthesis-reveal is always shown; for normal reveals only on firstMatch
+  const displayNotation      = guideState === 'synthesis-reveal' ? SYNTHESIS_REVEAL.notation      : revealNotation
+  const displayNotationStyle = guideState === 'synthesis-reveal' ? SYNTHESIS_REVEAL.notationStyle : revealNotationStyle
+  const displayTrailingText  = guideState === 'synthesis-reveal' ? SYNTHESIS_REVEAL.trailingText  : revealTrailingText
 
   return (
     <ModuleLayout
@@ -156,7 +208,7 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
           </span>
 
           {/* Center: progress LEDs */}
-          {guideState !== 'capstone' ? (
+          {guideState !== 'capstone' && guideState !== 'synthesis-reveal' ? (
             <div
               className="flex flex-1 items-center justify-center gap-1"
               aria-label={`Step ${currentGuideIndex + 1} of ${GUIDE_STATE_TOTAL}`}
@@ -179,12 +231,9 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
             <div className="flex-1" aria-hidden />
           )}
 
-          {/* Right: invisible spacer to balance title on left */}
-          <span
-            className="hidden shrink-0 lab-silk lab-display-font font-bold md:block invisible"
-            aria-hidden
-          >
-            Rigid Motions
+          {/* Right: phase label */}
+          <span className="shrink-0 lab-silk lab-display-font text-[9px] tracking-[0.15em] text-(--lab-text-muted)">
+            {PHASE_LABELS[derivePhase(guideState)]}
           </span>
         </div>
       }
@@ -192,7 +241,10 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
         <PromptReadout
           label={promptLabel}
           text={promptText}
-          amber={firstMatch}
+          amber={firstMatch || guideState === 'synthesis-reveal'}
+          notation={displayNotation}
+          notationStyle={displayNotationStyle}
+          trailingText={displayTrailingText}
         />
       }
       formulaReadout={showFormulaReadout ? (
