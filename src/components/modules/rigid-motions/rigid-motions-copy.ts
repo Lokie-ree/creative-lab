@@ -2,6 +2,7 @@
 // All user-facing strings for the rigid motions module. No inline strings in component files.
 
 import type { FeedbackState, GuideState } from './types'
+import type { TransformationParams } from '@/lib/types/transforms'
 
 export const PROMPT_TEXT: Record<string, string> = {
   'translate-5-3':   'TRANSLATE · 5 RIGHT, 3 UP',
@@ -26,23 +27,96 @@ export const FEEDBACK_COPY: Record<FeedbackState, string | null> = {
   miss:  null,  // Gap lines are the feedback
 }
 
-// Fired on the first match per stage — the earned conceptual reveal
-export const EARNED_REVEALS: Record<GuideState, string> = {
-  'predict-translate':
-    "Every point moved the same direction and distance. The shape didn't change — only its position.",
-  'predict-reflect':
-    'Every point is the same distance from the axis as its mirror image. Distances and angles are preserved.',
-  'predict-rotate':
-    'Every point swept the same arc around the origin. The distance from the origin never changed.',
-  'coordinate-reveal': '',
-  'predict-with-coordinates-translate':
-    'The rule (x, y) → (x+dx, y+dy) describes exactly the drag you performed.',
-  'predict-with-coordinates-reflect':
-    'Negating one coordinate is the algebraic description of reflecting across that axis.',
-  'predict-with-coordinates-rotate':
-    'The swap (x, y) → (y, −x) is what 90° clockwise rotation does to every point.',
-  'synthesis-reveal': '',
-  'capstone': '',
+export type RevealBeat = {
+  text: string
+  notation?: string          // static string — congruence beats only
+  notationStyle?: 'congruence'  // 'rule' is set at call site, never stored
+  trailingText?: string
+}
+
+// Keyed by `${guideState}-${beatIndex}` where beatIndex = stageSuccessCount at render time.
+// Beat-1 (spatial stages) notation is computed at render time via formatCoordinateRule —
+// those entries have no notation field here.
+export const EARNED_REVEALS: Record<string, RevealBeat> = {
+  'predict-translate-0': {
+    text: "Same distances. Same angles. Sliding the shape preserves everything.",
+  },
+  'predict-translate-1': {
+    text: "Here's the rule for what you just did.",
+  },
+  'predict-with-coordinates-translate-0': {
+    text: "Every vertex shifted by the same amount. Check the x-coordinates — then the y-coordinates.",
+  },
+  'predict-with-coordinates-translate-1': {
+    text: "Translate every vertex the same way — distances and angles stay intact.",
+    notation: "△ABC ≅ △A′B′C′",
+    notationStyle: 'congruence',
+    trailingText: "Same shape, same size — that's congruence.",
+  },
+  'predict-reflect-0': {
+    text: "Flipped, but same distances. Same angles. The mirror changed orientation, not the triangle.",
+  },
+  'predict-reflect-1': {
+    text: "The axis you crossed? That coordinate flips. The other stays.",
+  },
+  'predict-with-coordinates-reflect-0': {
+    text: "Look at each vertex. One coordinate changed sign. Which one — and why?",
+  },
+  'predict-with-coordinates-reflect-1': {
+    text: "Flip one coordinate — the triangle mirrors, but distances and angles don't change.",
+    notation: "△ABC ≅ △A′B′C′",
+    notationStyle: 'congruence',
+    trailingText: "Still congruent.",
+  },
+  'predict-rotate-0': {
+    text: "Turned, but same distances. Same angles. Rotation preserves everything.",
+  },
+  'predict-rotate-1': {
+    text: "Here's the pattern in the coordinates.",
+  },
+  'predict-with-coordinates-rotate-0': {
+    text: "Follow each vertex. How did (x, y) become the new coordinates? Look for the pattern.",
+  },
+  'predict-with-coordinates-rotate-1': {
+    text: "Every vertex rotated the same angle around the origin. Distances and angles — preserved.",
+    notation: "△ABC ≅ △A′B′C′",
+    notationStyle: 'congruence',
+    trailingText: "Congruent. Every time.",
+  },
+}
+
+export const SYNTHESIS_REVEAL: RevealBeat = {
+  text: "Translations, reflections, rotations. Three different moves — one result.",
+  notation: "△ABC ≅ △A′B′C′",
+  notationStyle: 'congruence',
+  trailingText: "Every rigid motion preserves distances and angles. Every one produces congruence.",
+}
+
+export const PHASE_LABELS: Record<2 | 3 | 4, string> = {
+  2: 'PHASE 02 · PREDICT & REVEAL',
+  3: 'PHASE 03 · COORDINATE LAYER',
+  4: 'PHASE 04 · CAPSTONE',
+}
+
+/**
+ * Returns the coordinate transformation rule as a display string.
+ * Called at render time for beat-1 spatial reveals — not stored in EARNED_REVEALS.
+ * Uses typographic minus sign (−) not hyphen (-) for readability.
+ */
+export function formatCoordinateRule(params: TransformationParams): string {
+  if (params.type === 'translate') {
+    const dx = params.dx >= 0 ? `x + ${params.dx}` : `x − ${Math.abs(params.dx)}`
+    const dy = params.dy >= 0 ? `y + ${params.dy}` : `y − ${Math.abs(params.dy)}`
+    return `(x, y) → (${dx}, ${dy})`
+  }
+  if (params.type === 'reflect') {
+    return params.axis === 'y' ? '(x, y) → (−x, y)' : '(x, y) → (x, −y)'
+  }
+  // rotate
+  if (params.degrees === 90 && params.direction === 'cw')  return '(x, y) → (y, −x)'
+  if (params.degrees === 180)                               return '(x, y) → (−x, −y)'
+  if (params.degrees === 90 && params.direction === 'ccw') return '(x, y) → (−y, x)'
+  return '(x, y) → (?)'
 }
 
 export type CapstoneRoundId = 'capstone-1' | 'capstone-2' | 'capstone-3'
@@ -58,15 +132,15 @@ export const CAPSTONE_EARNED_REVEALS: Record<CapstoneRoundId, string> = {
  * capstone-3 hints at non-commutativity — the module's Level 5 pedagogical moment.
  */
 export const CAPSTONE_PROMPT_TEXT: Record<CapstoneRoundId, string> = {
-  'capstone-1': 'Build a sequence that maps the white triangle onto the target. One transformation is enough.',
+  'capstone-1': "You've proved what each move does. Now build a sequence.",
   'capstone-2': 'This one takes two steps. Build your sequence — the order you choose determines the result.',
   'capstone-3': 'Two steps again. If your first attempt misses, try reversing the order.',
 }
 
 export const CAPSTONE_COMPLETION_COPY: Record<string, string> = {
-  'capstone-1': 'One transformation. You named it completely.',
-  'capstone-2': 'Two steps composed. Order determined the outcome.',
-  'capstone-3': 'Composition is non-commutative. You found the sequence that works.',
+  'capstone-1': 'One rigid motion mapped △ABC onto △A″B″C″. Congruence — proved by construction.',
+  'capstone-2': 'Two steps, one proof. You built the sequence that shows △ABC ≅ △A″B″C″.',
+  'capstone-3': 'You found the order that works. △ABC ≅ △A″B″C″ — rigid motions compose.',
 }
 
 // Celebration modal · "Behind This" tab (same shape as sinewaves behindThis)

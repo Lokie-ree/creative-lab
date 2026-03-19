@@ -75,10 +75,13 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
   const firstMatch = isMatch && !shownReveals.has(revealKey)
   const repeatMatch = isMatch && shownReveals.has(revealKey)
 
-  const earnedRevealText =
+  const _earnedRevealRaw =
     guideState === 'capstone'
       ? CAPSTONE_EARNED_REVEALS[capstoneRound.id as CapstoneRoundId]
-      : EARNED_REVEALS[guideState]
+      : EARNED_REVEALS[`${guideState}-0`]
+  // TODO(Task 5): replace with full RevealBeat wiring (beat-keyed reveals)
+  const earnedRevealText: string | undefined =
+    typeof _earnedRevealRaw === 'string' ? _earnedRevealRaw : _earnedRevealRaw?.text
 
   const promptText = (() => {
     if (guideState === 'capstone' && feedbackState === 'idle')
