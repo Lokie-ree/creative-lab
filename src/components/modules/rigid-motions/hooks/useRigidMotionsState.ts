@@ -116,13 +116,14 @@ export function useRigidMotionsState(): RigidMotionsState {
     setFeedbackState(result)
     if (result === 'match') {
       setShownReveals(prev => {
-        if (prev.has(guideState)) return prev
+        const beatKey = `${guideState}-${stageSuccessCount}`
+        if (prev.has(beatKey)) return prev
         const next = new Set(prev)
-        next.add(guideState)
+        next.add(beatKey)
         return next
       })
     }
-  }, [guideState, ghostOffset, flipped, rotationDegrees, rotationDirection, currentRound])
+  }, [guideState, ghostOffset, flipped, rotationDegrees, rotationDirection, currentRound, stageSuccessCount])
 
   const handleNext = useCallback(() => {
     const newSuccessCount = stageSuccessCount + 1
