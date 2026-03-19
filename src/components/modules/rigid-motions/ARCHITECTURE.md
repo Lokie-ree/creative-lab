@@ -139,6 +139,7 @@ predict-translate
   → predict-with-coordinates-translate       ← Phase 3
   → predict-with-coordinates-reflect         ← Phase 3
   → predict-with-coordinates-rotate          ← Phase 3
+  → synthesis-reveal                         ← Phase 3 (passive reveal, no ghost)
   → capstone                                 ← Phase 4
 ```
 
@@ -150,16 +151,18 @@ const GUIDE_STATE_SEQUENCE: GuideStateConfig[] = [
   { state: 'predict-reflect',                    index: 1, transformationType: 'reflect',   successesRequired: 2 },
   { state: 'predict-rotate',                     index: 2, transformationType: 'rotate',    successesRequired: 2 },
   { state: 'coordinate-reveal',                  index: 3, transformationType: 'translate', successesRequired: 0 },
-  { state: 'predict-with-coordinates-translate', index: 4, transformationType: 'translate', successesRequired: 1 },
-  { state: 'predict-with-coordinates-reflect',   index: 5, transformationType: 'reflect',   successesRequired: 1 },
-  { state: 'predict-with-coordinates-rotate',    index: 6, transformationType: 'rotate',    successesRequired: 1 },
-  { state: 'capstone',                           index: 7, transformationType: 'translate', successesRequired: 3 },
+  { state: 'predict-with-coordinates-translate', index: 4, transformationType: 'translate', successesRequired: 2 },
+  { state: 'predict-with-coordinates-reflect',   index: 5, transformationType: 'reflect',   successesRequired: 2 },
+  { state: 'predict-with-coordinates-rotate',    index: 6, transformationType: 'rotate',    successesRequired: 2 },
+  { state: 'synthesis-reveal',                   index: 7, transformationType: 'translate', successesRequired: 0 },
+  { state: 'capstone',                           index: 8, transformationType: 'translate', successesRequired: 3 },
 ]
 ```
 
 - Phase 2 predict stages require **2 successful CHECK results** before advancing.
-- Phase 3 predict stages require **1 successful CHECK result** each (harder rounds; students have seen the pattern).
+- Phase 3 predict stages require **2 successful CHECK results** each.
 - `coordinate-reveal` requires 0 successes — it's a pause state, CONTINUE advances immediately.
+- `synthesis-reveal` requires 0 successes — it's a passive reveal shown after all coordinate predict rounds, before capstone. CONTINUE advances immediately.
 - `capstone` requires **3** — one per capstone round.
 - `handleNext` reads `getGuideStateConfig(guideState).successesRequired` — no hardcoded values.
 
