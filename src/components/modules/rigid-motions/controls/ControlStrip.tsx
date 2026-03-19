@@ -9,7 +9,7 @@
 //   predict-reflect   (match):           FLIP  · NEXT  · RESET
 //   predict-rotate    (idle/close/miss): ROTATION · CHECK · RESET
 //   predict-rotate    (match):           ROTATION · NEXT  · RESET
-//   coordinate-reveal:                   CONTINUE (only)
+//   coordinate-reveal / synthesis-reveal: CONTINUE (only)
 
 import type { GuideState, FeedbackState } from '../types'
 import { SequenceBuilder } from './SequenceBuilder'
@@ -89,8 +89,8 @@ export function ControlStrip({
     )
   }
 
-  // coordinate-reveal: CONTINUE only
-  if (guideState === 'coordinate-reveal') {
+  // coordinate-reveal / synthesis-reveal: CONTINUE only
+  if (guideState === 'coordinate-reveal' || guideState === 'synthesis-reveal') {
     return (
       <div className="mx-auto flex w-full max-w-4xl items-center justify-center">
         <button type="button" className={BTN_PRIMARY} onClick={onNext}>
