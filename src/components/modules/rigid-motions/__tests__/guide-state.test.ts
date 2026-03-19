@@ -6,11 +6,12 @@ import {
   guideStateToStage,
   COORDINATE_STAGES,
   isCoordinateStage,
+  derivePhase,
 } from '../guide-state'
 
 describe('GUIDE_STATE_SEQUENCE', () => {
-  it('has 8 states', () => {
-    expect(GUIDE_STATE_SEQUENCE).toHaveLength(8)
+  it('has 9 states', () => {
+    expect(GUIDE_STATE_SEQUENCE).toHaveLength(9)
   })
 
   it('has correct indices', () => {
@@ -30,14 +31,14 @@ describe('GUIDE_STATE_SEQUENCE', () => {
     expect(getGuideStateConfig('coordinate-reveal').successesRequired).toBe(0)
   })
 
-  it('Phase 3 predict states require 1 success each', () => {
-    const phase3 = [
+  it('coordinate predict states require 2 successes each', () => {
+    const coordPredict = [
       'predict-with-coordinates-translate',
       'predict-with-coordinates-reflect',
       'predict-with-coordinates-rotate',
     ] as const
-    phase3.forEach(state => {
-      expect(getGuideStateConfig(state).successesRequired).toBe(1)
+    coordPredict.forEach(state => {
+      expect(getGuideStateConfig(state).successesRequired).toBe(2)
     })
   })
 
@@ -54,7 +55,8 @@ describe('nextGuideState', () => {
     expect(nextGuideState('coordinate-reveal')).toBe('predict-with-coordinates-translate')
     expect(nextGuideState('predict-with-coordinates-translate')).toBe('predict-with-coordinates-reflect')
     expect(nextGuideState('predict-with-coordinates-reflect')).toBe('predict-with-coordinates-rotate')
-    expect(nextGuideState('predict-with-coordinates-rotate')).toBe('capstone')
+    expect(nextGuideState('predict-with-coordinates-rotate')).toBe('synthesis-reveal')
+    expect(nextGuideState('synthesis-reveal')).toBe('capstone')
     expect(nextGuideState('capstone')).toBeNull()
   })
 })
@@ -98,5 +100,47 @@ describe('COORDINATE_STAGES + isCoordinateStage', () => {
     expect(isCoordinateStage('predict-rotate')).toBe(false)
     expect(isCoordinateStage('coordinate-reveal')).toBe(false)
     expect(isCoordinateStage('capstone')).toBe(false)
+  })
+})
+
+describe('synthesis-reveal guide state', () => {
+  it('exists at index 7', () => {
+    expect(getGuideStateConfig('synthesis-reveal').index).toBe(7)
+  })
+
+  it('has successesRequired: 0', () => {
+    expect(getGuideStateConfig('synthesis-reveal').successesRequired).toBe(0)
+  })
+
+  it('capstone shifts to index 8', () => {
+    expect(getGuideStateConfig('capstone').index).toBe(8)
+  })
+
+  it('guideStateToStage returns null', () => {
+    expect(guideStateToStage('synthesis-reveal')).toBeNull()
+  })
+
+  it('isCoordinateStage returns false', () => {
+    expect(isCoordinateStage('synthesis-reveal')).toBe(false)
+  })
+})
+
+describe('derivePhase', () => {
+  it('returns 2 for spatial predict states', () => {
+    expect(derivePhase('predict-translate')).toBe(2)
+    expect(derivePhase('predict-reflect')).toBe(2)
+    expect(derivePhase('predict-rotate')).toBe(2)
+  })
+
+  it('returns 3 for coordinate-reveal and coordinate predict states', () => {
+    expect(derivePhase('coordinate-reveal')).toBe(3)
+    expect(derivePhase('predict-with-coordinates-translate')).toBe(3)
+    expect(derivePhase('predict-with-coordinates-reflect')).toBe(3)
+    expect(derivePhase('predict-with-coordinates-rotate')).toBe(3)
+  })
+
+  it('returns 4 for synthesis-reveal and capstone', () => {
+    expect(derivePhase('synthesis-reveal')).toBe(4)
+    expect(derivePhase('capstone')).toBe(4)
   })
 })

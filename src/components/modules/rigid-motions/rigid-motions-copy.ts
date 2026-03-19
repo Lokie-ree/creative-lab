@@ -41,6 +41,7 @@ export const EARNED_REVEALS: Record<GuideState, string> = {
     'Negating one coordinate is the algebraic description of reflecting across that axis.',
   'predict-with-coordinates-rotate':
     'The swap (x, y) → (y, −x) is what 90° clockwise rotation does to every point.',
+  'synthesis-reveal': '',
   'capstone': '',
 }
 
