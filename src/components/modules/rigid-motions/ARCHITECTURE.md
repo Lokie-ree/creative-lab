@@ -35,7 +35,7 @@ src/components/modules/rigid-motions/
 ├── round-generator.ts            # ROUNDS (5 deterministic rounds), getRoundsForStage, getRoundById
 ├── guide-state.ts                # GUIDE_STATE_SEQUENCE, nextGuideState, guideStateToStage, COORDINATE_STAGES, isCoordinateStage
 ├── animations.ts                 # interpolateReveal — GSAP-driven t=0→1 per transformation type
-├── rigid-motions-copy.ts         # All user-facing strings: PROMPT_TEXT, EARNED_REVEALS, CAPSTONE_EARNED_REVEALS, CAPSTONE_COMPLETION_COPY, BEHIND_THIS
+├── rigid-motions-copy.ts         # All user-facing strings: PROMPT_TEXT, EARNED_REVEALS (RevealBeat type, 12 beat-indexed entries), CAPSTONE_EARNED_REVEALS, CAPSTONE_COMPLETION_COPY, BEHIND_THIS, SYNTHESIS_REVEAL, PHASE_LABELS (2|3|4 → string), formatCoordinateRule (TransformationParams → display string)
 ├── capstone-utils.ts             # CAPSTONE_ROUNDS definitions + validateCapstoneSequence
 ├── hooks/
 │   └── useRigidMotionsState.ts   # All state + actions: ghost, guide, feedback, controls, capstone sequence
@@ -58,8 +58,10 @@ src/components/modules/rigid-motions/
 │       ├── guide-state.test.ts      # guide state sequence, transitions, stage mapping, isCoordinateStage
 │       ├── animations.test.ts       # 11 tests — interpolateReveal at t=0, t=0.5, t=1
 │       └── scene-math.test.ts       # 20 tests — clampOffset, computeGhostVertices composition
+├── components/
+│   └── PromptReadout.tsx         # Prompt label + text block; accepts optional notation (lab-data-font), notationStyle ('rule'|'congruence'), trailingText
 ├── controls/
-│   ├── ControlStrip.tsx          # Context-sensitive FLIP, ROTATION, SPEED, RESET, CHECK/NEXT; renders SequenceBuilder in capstone
+│   ├── ControlStrip.tsx          # Context-sensitive FLIP, ROTATION, CHECK/NEXT, RESET; CONTINUE for coordinate-reveal and synthesis-reveal; renders SequenceBuilder in capstone
 │   └── SequenceBuilder.tsx       # Two-slot sequence builder UI (Phase 4)
 └── __tests__/
     ├── guide-state.test.ts       # Top-level guide state tests
@@ -298,8 +300,11 @@ Camera is positioned at `[0, 2, 10]` (no explicit lookAt — faces along −Z, v
 | `capstoneRoundIndex` | number | 0 | Cycles through `CAPSTONE_ROUNDS` (0–2) |
 | `capstoneSequence` | `TransformationParams[]` | `[]` | Current SequenceBuilder state (0–2 steps) |
 | `showCelebration` | boolean | false | Fires `onComplete` → `CelebrationModal` on final capstone match |
+| `shownReveals` | `Set<string>` | empty | Beat keys (`${guideState}-${stageSuccessCount}`) and capstone round IDs already revealed; distinguishes `firstMatch` (show reveal copy) from `repeatMatch` (show "Match.") |
 
 Actions: `handleCheck`, `handleNext`, `handleReset`, `handleFlip`, `handleRotation`, `handleAnimationComplete`, `handleGhostMove`, `handleSequenceChange`, `handleCheckSequence`, `handleCapstoneNext`.
+
+> **React batching note**: `shownReveals` is updated in `handleNext` / `handleCapstoneNext` — not in `handleCheck`. React 18 batches all `setState` calls in a single event handler into one render. If `setShownReveals` ran in `handleCheck` alongside `setFeedbackState('match')`, the component would render with both `isMatch=true` and `shownReveals.has(key)=true` simultaneously, making `firstMatch` always false. Recording in `handleNext` means the key is added after the reveal has been displayed for at least one render cycle.
 
 ---
 
@@ -342,3 +347,5 @@ onComplete({}, { completedSequence: capstoneSequence })
 7. **Axis label collision at ±1**: x-axis labels sit at `y = -0.7` and y-axis labels have their right edge at `x = -0.65`. Do not tighten — the ±1 zone overlaps.
 8. **`applySequence` vs `computeGhostVertices`**: Two separate composition models. `computeGhostVertices` is centroid-relative (for draggable ghost); `applySequence` is origin-based (for capstone scoring and `PreviewGhost`). They are not interchangeable.
 9. **`DragPlane` must be gated off in capstone**: If `DragPlane` mounts in capstone, pointer events on the canvas will attempt to move a ghost that doesn't exist in that state. Gate on `guideState !== 'capstone'`.
+10. **React 18 automatic batching and reveal state**: `setFeedbackState` and `setShownReveals` batched in the same event handler render together. The component sees `isMatch=true` and `shownReveals.has(key)=true` at the same time, so `firstMatch` is always false and no reveal copy ever displays. Solution: record `shownReveals` in `handleNext`, not `handleCheck`. The student earns the reveal on CHECK; the key is acknowledged on NEXT (after they've seen it).
+11. **New guide states must be audited against ControlStrip**: `ControlStrip` has explicit cases for each guide state category. Adding `synthesis-reveal` without updating `ControlStrip` left the user stuck on a page with no buttons. Any new state must be mapped to a button set (or CONTINUE) before shipping.

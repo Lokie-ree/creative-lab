@@ -128,7 +128,7 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 ## Current State
 
-**Last updated:** March 17, 2026
+**Last updated:** March 19, 2026
 
 ### App framing
 The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IVLA STEM Club" with a `DotGrid` canvas background (interactive dot field with mouse proximity) and a `RotatingText` tagline ("Where we build / discover / explore / prove"). No personal name in the student-facing UI.
@@ -137,7 +137,7 @@ The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IV
 - **sinewaves** — **Complete.** Trigonometry; unit circle → sine/cosine. Instrument-style HUD with Eurorack design system. No panel screws. StatusStrip touch targets 44px minimum. Landscape phones use wave-only mode (phone detection via `Math.min(innerWidth, innerHeight) < 500`).
 - **vector-transformations** — Implemented. Linear algebra; matrix transformations on vectors.
 - **phase-portraits** — Placeholder/coming-soon.
-- **rigid-motions** — **Complete (all 4 phases).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). Target: ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
+- **rigid-motions** — **Complete (all 4 phases + ISTE visibility sprint).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). ISTE visibility sprint (March 2026) added: phase labels (`PHASE_LABELS`), `synthesis-reveal` guide state (9th state, passive reveal between Phase 3 and capstone), 12 beat-indexed earned reveals (`EARNED_REVEALS` / `RevealBeat`), coordinate rule notation in `PromptReadout`, congruence language in celebration. Target: ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
 
 ### PWA / Offline
 `vite-plugin-pwa` added with Workbox `generateSW` mode. Pre-caches all JS/CSS/HTML/woff2 assets (17 entries, ~3MB including Three.js chunk). Google Fonts cached via `CacheFirst`. App fully functional offline after first load. Config in `vite.config.ts`.
@@ -156,12 +156,13 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 - **Standards:** 8.G.A.1, 8.G.A.2, 8.G.A.3 (Grade 8 Geometry)
 - **Architecture doc:** [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md) — as-built reference
 - **Design spec (Phase 3 & 4):** Archived — see git history for `2026-03-05-rigid-motions-design-spec-phase3-phase4-v1.1.md`
+- **ISTE visibility sprint spec:** `docs/superpowers/specs/` — beat-indexed reveals, synthesis-reveal, phase labels
 - **Shared types:** `TransformationParams` and related types live in `src/lib/types/transforms.ts` — imported by celebration components and rigid-motions module alike
 - **Roadmap:** First module in three-module Grade 8 Geometry progression: (1) Rigid Motions ✓, (2) Dilations & Similarity, (3) Pythagorean Theorem
 
 ## Outstanding Work
 
-See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and file references. All P0 and P1 issues resolved as of March 17, 2026. Summary of remaining work below.
+See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and file references. All P0 and P1 issues resolved as of March 17, 2026; ISTE visibility sprint items resolved March 19, 2026. Summary of remaining work below.
 
 ### Polish (formerly P2)
 
@@ -173,10 +174,10 @@ See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and fi
 ### Pedagogy
 
 - **PED-01: Capstone entry copy reveals non-commutativity too early** — "try reversing the order" should only trigger after a miss, not as the entry prompt. Split `PROMPT_TEXT` into neutral entry + post-miss hint. Files: `rigid-motions-copy.ts`, `useRigidMotionsState.ts`.
-- **PED-02: Capstone completion copy alignment** — Verify `CAPSTONE_COMPLETION_COPY` keys (`capstone-1/2/3`) match round IDs from `capstone-utils.ts`.
-- **PED-03: Earned reveal pacing** — Read all reveal strings in sequence. Each should reward the specific thing the student just demonstrated. Flag generic or disconnected copy.
-- **`coordinate-reveal` stage is a passive reveal** — Student presses CONTINUE without earning the formula. Revisit: bridge copy connecting Phase 2 actions to the notation, or require one prediction before confirmation.
-- **ALD alignment audit needed** — Audit each stage transition against ALDs (Level 3 entry → Level 4 primary → Level 5 capstone).
+- ~~**PED-02: Capstone completion copy alignment**~~ — **Resolved (March 2026).** `CAPSTONE_COMPLETION_COPY` updated with ≅ language; keys verified against `capstone-utils.ts`.
+- ~~**PED-03: Earned reveal pacing**~~ — **Substantially addressed by ISTE visibility sprint.** All 12 reveal beats are now specific to what the student just demonstrated; beat-indexed by `${guideState}-${stageSuccessCount}`. Congruence language added to celebration.
+- **`coordinate-reveal` stage is a passive reveal** — Student presses CONTINUE without earning the formula. `synthesis-reveal` (added in sprint) is a similar pause state but after coordinate predict rounds. The original concern about `coordinate-reveal` bridge copy remains open.
+- **ALD alignment audit** — Phase labels (`PHASE_02`, `PHASE_03`, `PHASE_04`) and `synthesis-reveal` pause state added in sprint help clarify progression, but a formal audit of each transition against ALDs has not been done.
 - **SW-02: Unit circle mobile portrait decision** — Deliberate choice needed: hide to give wave more canvas, or keep and accept smaller wave area. Observe student sessions, then document the decision.
 - **PED-04: Commitment before feedback (deferred)** — Sinewaves can be completed by slider-sweeping. Do not retrofit until Dilations and Pythagorean Theorem are built; the generalized pattern will be clearer after three modules.
 
@@ -219,4 +220,5 @@ See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRA
 | Module skeleton infrastructure | [src/lib/skeleton/README.md](./src/lib/skeleton/README.md) |
 | Design critiques, HUD direction | `docs/design/` |
 | Professional artifacts (resume, ISTE storyboards, module planning) | `docs/professional/` |
+| AI-generated specs and implementation plans | `docs/superpowers/specs/`, `docs/superpowers/plans/` |
 | Adding a module | Register in `src/config/modules.ts`; lazy-load component; implement `ModuleProps` |
