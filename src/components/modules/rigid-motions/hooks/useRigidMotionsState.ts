@@ -201,7 +201,7 @@ export function useRigidMotionsState(): RigidMotionsState {
     if (result === 'match' && capstoneRoundIndex === CAPSTONE_ROUNDS.length - 1) {
       setShowCelebration(true)
     }
-  }, [capstoneSequence, capstoneRound, capstoneRoundIndex])
+  }, [capstoneSequence, capstoneRound, capstoneRoundIndex, feedbackState])
 
   const handleCapstoneNext = useCallback(() => {
     setCapstoneRoundIndex(prev => Math.min(prev + 1, CAPSTONE_ROUNDS.length - 1))
