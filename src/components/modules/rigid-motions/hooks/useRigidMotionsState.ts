@@ -114,18 +114,18 @@ export function useRigidMotionsState(): RigidMotionsState {
     )
 
     setFeedbackState(result)
-    if (result === 'match') {
-      setShownReveals(prev => {
-        const beatKey = `${guideState}-${stageSuccessCount}`
-        if (prev.has(beatKey)) return prev
-        const next = new Set(prev)
-        next.add(beatKey)
-        return next
-      })
-    }
-  }, [guideState, ghostOffset, flipped, rotationDegrees, rotationDirection, currentRound, stageSuccessCount])
+  }, [guideState, ghostOffset, flipped, rotationDegrees, rotationDirection, currentRound])
 
   const handleNext = useCallback(() => {
+    // Record this beat's reveal as seen before advancing state
+    setShownReveals(prev => {
+      const beatKey = `${guideState}-${stageSuccessCount}`
+      if (prev.has(beatKey)) return prev
+      const next = new Set(prev)
+      next.add(beatKey)
+      return next
+    })
+
     const newSuccessCount = stageSuccessCount + 1
     const stage = guideStateToStage(guideState) ?? 'translate'
     const roundsInStage = getRoundsForStage(stage).length
@@ -189,25 +189,24 @@ export function useRigidMotionsState(): RigidMotionsState {
     if (feedbackState === 'match') return
     const result = validateCapstoneSequence(capstoneSequence, capstoneRound.targetVertices)
     setFeedbackState(result)
-    if (result === 'match') {
-      setShownReveals(prev => {
-        const key = capstoneRound.id
-        if (prev.has(key)) return prev
-        const next = new Set(prev)
-        next.add(key)
-        return next
-      })
-    }
     if (result === 'match' && capstoneRoundIndex === CAPSTONE_ROUNDS.length - 1) {
       setShowCelebration(true)
     }
   }, [capstoneSequence, capstoneRound, capstoneRoundIndex, feedbackState])
 
   const handleCapstoneNext = useCallback(() => {
+    // Record this capstone round's reveal as seen before advancing
+    setShownReveals(prev => {
+      const key = capstoneRound.id
+      if (prev.has(key)) return prev
+      const next = new Set(prev)
+      next.add(key)
+      return next
+    })
     setCapstoneRoundIndex(prev => Math.min(prev + 1, CAPSTONE_ROUNDS.length - 1))
     setCapstoneSequence([])
     setFeedbackState('idle')
-  }, [])
+  }, [capstoneRound])
 
   return {
     ghostOffset,
