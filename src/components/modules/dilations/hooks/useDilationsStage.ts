@@ -103,6 +103,9 @@ export function stageReducer(state: StageState, action: StageAction): StageState
 
     case 'RESET_SEQUENCE':
       return { ...state, sequenceSteps: [] }
+
+    default:
+      return state
   }
 }
 
