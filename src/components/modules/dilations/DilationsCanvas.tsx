@@ -106,7 +106,7 @@ export interface DilationsCanvasProps {
   children?: React.ReactNode
 }
 
-export function DilationsCanvas({ children }: DilationsCanvasProps) {
+export function DilationsCanvas({ children, coordinatesVisible: _coordinatesVisible, angleLabelsVisible: _angleLabelsVisible }: DilationsCanvasProps) {
   return (
     <Canvas
       orthographic
