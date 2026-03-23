@@ -59,5 +59,12 @@ export function interpolateReveal(
         return [r * Math.cos(angle), r * Math.sin(angle)]
       })
     }
+
+    default:
+      // 'dilate' and any future types — fall back to linear lerp
+      return fromVerts.map(([x, y], i) => [
+        x + (toVerts[i][0] - x) * t,
+        y + (toVerts[i][1] - y) * t,
+      ])
   }
 }

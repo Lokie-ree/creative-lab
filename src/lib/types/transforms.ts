@@ -2,9 +2,10 @@
 // Shared transformation types — imported by both rigid-motions module and celebration components.
 // GuideState, FeedbackState, Round stay in rigid-motions/types.ts (no outside consumers).
 
-export type TransformationType = 'translate' | 'reflect' | 'rotate'
+export type TransformationType = 'translate' | 'reflect' | 'rotate' | 'dilate'
 
 export type TranslationParams = { type: 'translate'; dx: number; dy: number }
 export type ReflectionParams  = { type: 'reflect'; axis: 'x' | 'y' }
 export type RotationParams    = { type: 'rotate'; degrees: 90 | 180 | 270; direction: 'cw' | 'ccw' }
-export type TransformationParams = TranslationParams | ReflectionParams | RotationParams
+export type DilationParams    = { type: 'dilate'; k: number }
+export type TransformationParams = TranslationParams | ReflectionParams | RotationParams | DilationParams

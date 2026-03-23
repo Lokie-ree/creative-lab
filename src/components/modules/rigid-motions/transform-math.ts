@@ -86,6 +86,11 @@ export function applyTransform(
       }
       return vertices.map(fn)
     }
+
+    default: {
+      const _unhandled = params as TransformationParams
+      throw new Error(`Unsupported transform type in rigid-motions: ${_unhandled.type}`)
+    }
   }
 }
 

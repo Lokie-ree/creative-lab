@@ -113,9 +113,11 @@ export function formatCoordinateRule(params: TransformationParams): string {
     return params.axis === 'y' ? '(x, y) → (−x, y)' : '(x, y) → (x, −y)'
   }
   // rotate
-  if (params.degrees === 90 && params.direction === 'cw')  return '(x, y) → (y, −x)'
-  if (params.degrees === 180)                               return '(x, y) → (−x, −y)'
-  if (params.degrees === 90 && params.direction === 'ccw') return '(x, y) → (−y, x)'
+  if (params.type === 'rotate') {
+    if (params.degrees === 90 && params.direction === 'cw')  return '(x, y) → (y, −x)'
+    if (params.degrees === 180)                               return '(x, y) → (−x, −y)'
+    if (params.degrees === 90 && params.direction === 'ccw') return '(x, y) → (−y, x)'
+  }
   return '(x, y) → (?)'
 }
 
