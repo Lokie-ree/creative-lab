@@ -9,8 +9,13 @@ import {
   triangleAngles,
   pointsMatch,
   trianglesMatch,
+  translatePoint,
+  reflectPoint,
+  rotatePoint,
+  composeTransformations,
+  composeTriangle,
 } from '../utils/math'
-import type { Vec2, Triangle } from '../utils/types'
+import type { Vec2, Triangle, TransformStep } from '../utils/types'
 import { CANONICAL_TRIANGLE } from '../utils/constants'
 
 const A: Vec2 = { x: 1, y: 1 }
@@ -142,5 +147,95 @@ describe('trianglesMatch', () => {
   it('returns false when one vertex is off', () => {
     const shifted: Triangle = { ...CANONICAL_TRIANGLE, a: { x: 5, y: 5 } }
     expect(trianglesMatch(CANONICAL_TRIANGLE, shifted, 0.5)).toBe(false)
+  })
+})
+
+describe('translatePoint', () => {
+  it('translates a point by (dx, dy)', () => {
+    expect(translatePoint({ x: 1, y: 2 }, 3, -1)).toEqual({ x: 4, y: 1 })
+  })
+})
+
+describe('reflectPoint', () => {
+  it('reflects over x-axis', () => {
+    expect(reflectPoint({ x: 2, y: 3 }, 'x')).toEqual({ x: 2, y: -3 })
+  })
+
+  it('reflects over y-axis', () => {
+    expect(reflectPoint({ x: 2, y: 3 }, 'y')).toEqual({ x: -2, y: 3 })
+  })
+})
+
+describe('rotatePoint', () => {
+  it('rotates 90° CCW', () => {
+    const result = rotatePoint({ x: 1, y: 0 }, 90)
+    expect(result.x).toBeCloseTo(0)
+    expect(result.y).toBeCloseTo(1)
+  })
+
+  it('rotates 180°', () => {
+    const result = rotatePoint({ x: 3, y: 4 }, 180)
+    expect(result.x).toBeCloseTo(-3)
+    expect(result.y).toBeCloseTo(-4)
+  })
+})
+
+describe('composeTransformations', () => {
+  it('applies translate then dilate', () => {
+    const steps: TransformStep[] = [
+      { type: 'translate', params: { dx: 1, dy: 1 } },
+      { type: 'dilate', params: { k: 2 } },
+    ]
+    // (1,1) → translate(1,1) → (2,2) → dilate(2) → (4,4)
+    const result = composeTransformations(steps, { x: 1, y: 1 })
+    expect(result).toEqual({ x: 4, y: 4 })
+  })
+
+  it('applies dilate then translate', () => {
+    const steps: TransformStep[] = [
+      { type: 'dilate', params: { k: 2 } },
+      { type: 'translate', params: { dx: 1, dy: 1 } },
+    ]
+    // (1,1) → dilate(2) → (2,2) → translate(1,1) → (3,3)
+    const result = composeTransformations(steps, { x: 1, y: 1 })
+    expect(result).toEqual({ x: 3, y: 3 })
+  })
+
+  it('applies reflect-y then dilate', () => {
+    const steps: TransformStep[] = [
+      { type: 'reflect', params: { axis: 'y' } },
+      { type: 'dilate', params: { k: 3 } },
+    ]
+    // (2,4) → reflect-y → (-2,4) → dilate(3) → (-6,12)
+    const result = composeTransformations(steps, { x: 2, y: 4 })
+    expect(result).toEqual({ x: -6, y: 12 })
+  })
+
+  it('applies rotate 90° then dilate', () => {
+    const steps: TransformStep[] = [
+      { type: 'rotate', params: { angleDeg: 90 } },
+      { type: 'dilate', params: { k: 2 } },
+    ]
+    // (1,0) → rotate 90° CCW → (0,1) → dilate(2) → (0,2)
+    const result = composeTransformations(steps, { x: 1, y: 0 })
+    expect(result.x).toBeCloseTo(0)
+    expect(result.y).toBeCloseTo(2)
+  })
+
+  it('handles empty sequence (identity)', () => {
+    const result = composeTransformations([], { x: 3, y: 5 })
+    expect(result).toEqual({ x: 3, y: 5 })
+  })
+})
+
+describe('composeTriangle', () => {
+  it('applies a sequence to all three vertices', () => {
+    const steps: TransformStep[] = [
+      { type: 'dilate', params: { k: 2 } },
+    ]
+    const result = composeTriangle(steps, CANONICAL_TRIANGLE)
+    expect(result.a).toEqual({ x: 2, y: 2 })
+    expect(result.b).toEqual({ x: 8, y: 4 })
+    expect(result.c).toEqual({ x: 4, y: 8 })
   })
 })
