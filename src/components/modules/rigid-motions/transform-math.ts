@@ -87,9 +87,13 @@ export function applyTransform(
       return vertices.map(fn)
     }
 
+    case 'dilate':
+      // Dilation is not a rigid motion — rigid-motions module should never receive this type.
+      throw new Error(`Dilation is not supported in rigid-motions: use the dilations module`)
+
     default: {
-      const _unhandled = params as TransformationParams
-      throw new Error(`Unsupported transform type in rigid-motions: ${_unhandled.type}`)
+      const _exhaustive: never = params
+      throw new Error(`Unsupported transform type in rigid-motions: ${(_exhaustive as TransformationParams).type}`)
     }
   }
 }
