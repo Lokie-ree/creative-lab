@@ -5,6 +5,10 @@ import {
   sideLength,
   triangleSideLengths,
   sideRatio,
+  angleDeg,
+  triangleAngles,
+  pointsMatch,
+  trianglesMatch,
 } from '../utils/math'
 import type { Vec2, Triangle } from '../utils/types'
 import { CANONICAL_TRIANGLE } from '../utils/constants'
@@ -73,5 +77,70 @@ describe('sideRatio', () => {
 
   it('returns 0.5 for halved side', () => {
     expect(sideRatio(4, 2)).toBe(0.5)
+  })
+})
+
+describe('angleDeg', () => {
+  it('computes 90° for a right angle', () => {
+    const vertex: Vec2 = { x: 0, y: 0 }
+    const a: Vec2 = { x: 1, y: 0 }
+    const b: Vec2 = { x: 0, y: 1 }
+    expect(angleDeg(a, vertex, b)).toBe(90)
+  })
+
+  it('computes 180° for a straight line', () => {
+    const vertex: Vec2 = { x: 0, y: 0 }
+    const a: Vec2 = { x: 1, y: 0 }
+    const b: Vec2 = { x: -1, y: 0 }
+    expect(angleDeg(a, vertex, b)).toBe(180)
+  })
+
+  it('computes 60° for equilateral triangle vertex', () => {
+    const vertex: Vec2 = { x: 0, y: 0 }
+    const a: Vec2 = { x: 1, y: 0 }
+    const b: Vec2 = { x: 0.5, y: Math.sqrt(3) / 2 }
+    expect(angleDeg(a, vertex, b)).toBe(60)
+  })
+})
+
+describe('triangleAngles', () => {
+  it('angles sum to approximately 180 for canonical triangle', () => {
+    const [a, b, c] = triangleAngles(CANONICAL_TRIANGLE)
+    // Angles are rounded integers; sum may be off by ±1 due to rounding
+    expect(Math.abs(a + b + c - 180)).toBeLessThanOrEqual(1)
+  })
+
+  it('angles are preserved under dilation', () => {
+    const dilated = dilateTriangle(CANONICAL_TRIANGLE, 3)
+    const [a1, b1, c1] = triangleAngles(CANONICAL_TRIANGLE)
+    const [a2, b2, c2] = triangleAngles(dilated)
+    expect(a2).toBe(a1)
+    expect(b2).toBe(b1)
+    expect(c2).toBe(c1)
+  })
+})
+
+describe('pointsMatch', () => {
+  it('returns true for exact match', () => {
+    expect(pointsMatch({ x: 1, y: 2 }, { x: 1, y: 2 }, 0.5)).toBe(true)
+  })
+
+  it('returns true within tolerance', () => {
+    expect(pointsMatch({ x: 1, y: 2 }, { x: 1.3, y: 2.3 }, 0.75)).toBe(true)
+  })
+
+  it('returns false beyond tolerance', () => {
+    expect(pointsMatch({ x: 1, y: 2 }, { x: 3, y: 4 }, 0.75)).toBe(false)
+  })
+})
+
+describe('trianglesMatch', () => {
+  it('returns true for identical triangles', () => {
+    expect(trianglesMatch(CANONICAL_TRIANGLE, CANONICAL_TRIANGLE, 0.1)).toBe(true)
+  })
+
+  it('returns false when one vertex is off', () => {
+    const shifted: Triangle = { ...CANONICAL_TRIANGLE, a: { x: 5, y: 5 } }
+    expect(trianglesMatch(CANONICAL_TRIANGLE, shifted, 0.5)).toBe(false)
   })
 })
