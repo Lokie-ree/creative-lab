@@ -1,5 +1,5 @@
 // src/components/modules/dilations/components/GhostTriangle.tsx
-import { useRef, useState, useMemo, useCallback } from 'react'
+import { useRef, useState, useMemo, useCallback, useEffect } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
 import type { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -59,6 +59,7 @@ export function GhostTriangle({ vertices, scale, onDrop, disabled }: GhostTriang
   const { camera, gl } = useThree()
   const lineLoopRef = useRef<THREE.LineLoop>(null)
   const dragging = useRef(false)
+  const cleanupDragRef = useRef<(() => void) | null>(null)
   const raycaster = useMemo(() => new THREE.Raycaster(), [])
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), [])
 
@@ -103,10 +104,15 @@ export function GhostTriangle({ vertices, scale, onDrop, disabled }: GhostTriang
       onDrop(snapped)
       window.removeEventListener('pointermove', handleMove)
       window.removeEventListener('pointerup', handleUp)
+      cleanupDragRef.current = null
     }
 
     window.addEventListener('pointermove', handleMove)
     window.addEventListener('pointerup', handleUp)
+    cleanupDragRef.current = () => {
+      window.removeEventListener('pointermove', handleMove)
+      window.removeEventListener('pointerup', handleUp)
+    }
   }, [disabled, getWorldPoint, onDrop])
 
   useFrame(() => {
@@ -125,6 +131,17 @@ export function GhostTriangle({ vertices, scale, onDrop, disabled }: GhostTriang
     () => buildTriangleGeometries(positioned),
     [positioned]
   )
+
+  useEffect(() => {
+    return () => {
+      fillGeo.dispose()
+      outlineGeo.dispose()
+    }
+  }, [fillGeo, outlineGeo])
+
+  useEffect(() => {
+    return () => { cleanupDragRef.current?.() }
+  }, [])
 
   return (
     <group>
