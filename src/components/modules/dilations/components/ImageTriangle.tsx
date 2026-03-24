@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import type { Triangle, Vec2 } from '../utils/types'
 import { SpriteLabel } from './SpriteLabel'
@@ -58,7 +58,14 @@ export function ImageTriangle({
     }
   }, [a, b, c])
 
-  const c2 = useMemo(() => centroid(vertices), [vertices])
+  useEffect(() => {
+    return () => {
+      fillGeo.dispose()
+      outlineGeo.dispose()
+    }
+  }, [fillGeo, outlineGeo])
+
+  const c2 = useMemo(() => centroid(vertices), [a, b, c])
 
   // Early return AFTER all hooks
   if (!visible) return null
