@@ -2,7 +2,6 @@
 import { useMemo } from 'react'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { CANONICAL_TRIANGLE } from './utils/constants'
 
 // World range: x ∈ [-2, 14], y ∈ [-2, 14] — accommodates k=3 dilation of canonical triangle
 const WORLD_MIN = -2
@@ -66,39 +65,6 @@ function CoordinateGrid() {
   )
 }
 
-function PreImageTriangle() {
-  const { fillGeometry, outlineLine } = useMemo(() => {
-    const { a, b, c } = CANONICAL_TRIANGLE
-    const shape = new THREE.Shape()
-    shape.moveTo(a.x, a.y)
-    shape.lineTo(b.x, b.y)
-    shape.lineTo(c.x, c.y)
-    shape.closePath()
-    const outlinePts = [
-      new THREE.Vector3(a.x, a.y, 0),
-      new THREE.Vector3(b.x, b.y, 0),
-      new THREE.Vector3(c.x, c.y, 0),
-      new THREE.Vector3(a.x, a.y, 0),
-    ]
-    const outlineGeometry = new THREE.BufferGeometry().setFromPoints(outlinePts)
-    const outlineMaterial = new THREE.LineBasicMaterial({ color: '#b8b0a4', transparent: true, opacity: 0.6 })
-    const line = new THREE.Line(outlineGeometry, outlineMaterial)
-    line.position.set(0, 0, 0.03)
-    return {
-      fillGeometry: new THREE.ShapeGeometry(shape),
-      outlineLine: line,
-    }
-  }, [])
-
-  return (
-    <group>
-      <mesh geometry={fillGeometry} position={[0, 0, 0.02]}>
-        <meshBasicMaterial color="#b8b0a4" transparent opacity={0.15} />
-      </mesh>
-      <primitive object={outlineLine} />
-    </group>
-  )
-}
 
 export interface DilationsCanvasProps {
   coordinatesVisible: boolean
@@ -117,7 +83,6 @@ export function DilationsCanvas({ children, coordinatesVisible: _coordinatesVisi
     >
       <CameraSetup />
       <CoordinateGrid />
-      <PreImageTriangle />
       {children}
     </Canvas>
   )
