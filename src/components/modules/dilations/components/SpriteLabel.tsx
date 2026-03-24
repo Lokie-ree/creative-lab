@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import * as THREE from 'three'
 import type { Vec2 } from '../utils/types'
 
@@ -38,6 +38,10 @@ export function SpriteLabel({
     tex.needsUpdate = true
     return tex
   }, [text, color])
+
+  useEffect(() => {
+    return () => { texture.dispose() }
+  }, [texture])
 
   const aspect = texture.image
     ? (texture.image as HTMLCanvasElement).width / (texture.image as HTMLCanvasElement).height
