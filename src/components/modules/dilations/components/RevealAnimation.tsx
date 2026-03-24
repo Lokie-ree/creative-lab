@@ -38,6 +38,7 @@ export function RevealAnimation({
   // Imperative refs — geometry lives here, not in JSX (M1 ImageShape pattern)
   const meshRef = useRef<THREE.Mesh>(null)
   const outlineRef = useRef<THREE.LineLoop>(null)
+  const fillGeoRef = useRef<THREE.ShapeGeometry | null>(null)
   const outlineGeo = useRef(new THREE.BufferGeometry())
   const rayGeos = useRef([
     new THREE.BufferGeometry(),
@@ -66,13 +67,15 @@ export function RevealAnimation({
 
   // Build geometries and attach to scene objects on mount
   useEffect(() => {
-    // Triangle fill — create ShapeGeometry inline (no ref needed; assigned once and done)
+    // Triangle fill — create ShapeGeometry and store for cleanup
     const shape = new THREE.Shape()
     shape.moveTo(a.x, a.y)
     shape.lineTo(b.x, b.y)
     shape.lineTo(c.x, c.y)
     shape.closePath()
-    if (meshRef.current) meshRef.current.geometry = new THREE.ShapeGeometry(shape)
+    const fillGeo = new THREE.ShapeGeometry(shape)
+    fillGeoRef.current = fillGeo
+    if (meshRef.current) meshRef.current.geometry = fillGeo
 
     // Outline (3 pts — lineLoop closes automatically; ref needed for useFrame opacity mutation)
     const outlinePts = [
@@ -92,6 +95,23 @@ export function RevealAnimation({
       rayGeos.current[i].setFromPoints(pts)
       if (rayLines[i]) rayLines[i].geometry = rayGeos.current[i]
     })
+
+    // Cleanup: dispose all geometries on unmount
+    return () => {
+      if (fillGeoRef.current) fillGeoRef.current.dispose()
+      outlineGeo.current.dispose()
+      rayGeos.current.forEach(g => g.dispose())
+      // Dispose ray line materials
+      rayLines.forEach(line => {
+        if (line.material) {
+          if (Array.isArray(line.material)) {
+            line.material.forEach(m => m.dispose())
+          } else {
+            line.material.dispose()
+          }
+        }
+      })
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
