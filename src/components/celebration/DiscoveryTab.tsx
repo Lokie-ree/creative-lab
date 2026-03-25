@@ -17,8 +17,10 @@ function TransformChip({ params }: { params: TransformationParams }) {
     label = `Translate ${dx}, ${dy}`
   } else if (params.type === 'reflect') {
     label = `Reflect over ${params.axis.toUpperCase()}-axis`
-  } else {
+  } else if (params.type === 'rotate') {
     label = `Rotate ${params.degrees}° ${params.direction.toUpperCase()}`
+  } else {
+    label = `Dilate k=${params.k}`
   }
   return (
     <span className="inline-flex items-center px-2 py-0.5 border border-[var(--lab-border)] rounded text-sm lab-data-font text-[var(--lab-text)]">

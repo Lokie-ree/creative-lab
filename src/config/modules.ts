@@ -39,6 +39,16 @@ export const MODULES: ModuleConfig[] = [
     component: () => import('@/components/modules/rigid-motions/InstrumentModule'),
   },
   {
+    id: 'dilations',
+    title: 'Dilations & Similarity',
+    domain: 'Geometry',
+    description: 'What stays the same when a shape grows?',
+    order: 3,
+    courseId: 'geometry',
+    component: () => import('@/components/modules/dilations/DilationsModule'),
+    comingSoon: true,
+  },
+  {
     id: 'vector-transformations',
     title: 'Vector Transformations',
     domain: 'Linear Algebra',
