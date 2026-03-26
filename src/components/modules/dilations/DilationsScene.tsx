@@ -8,25 +8,33 @@ import { SpriteLabel } from './components/SpriteLabel'
 const WORLD_MIN = -2
 const WORLD_MAX = 14
 const WORLD_SIZE = WORLD_MAX - WORLD_MIN  // 16
-const WORLD_CENTER_X = 4
-const WORLD_CENTER_Y = 4
+// Geometric center of the world grid — ensures the constrained viewport dimension
+// maps exactly to [WORLD_MIN, WORLD_MAX] with no blank canvas margins.
+const WORLD_CENTER_X = (WORLD_MIN + WORLD_MAX) / 2  // = 6
+const WORLD_CENTER_Y = (WORLD_MIN + WORLD_MAX) / 2  // = 6
 
 function CameraSetup() {
   const { camera, size } = useThree()
   useFrame(() => {
     if (!(camera instanceof THREE.OrthographicCamera)) return
-    const zoom = Math.min(size.width, size.height) / WORLD_SIZE
-    const halfW = size.width / 2 / zoom
-    const halfH = size.height / 2 / zoom
+    // Scale: pixels per world unit, constrained by the shorter viewport dimension
+    const scale = Math.min(size.width, size.height) / WORLD_SIZE
+    // Frustum bounds in world units, centered on WORLD_CENTER
+    const worldW = size.width / scale
+    const worldH = size.height / scale
+    const left = WORLD_CENTER_X - worldW / 2
+    const right = WORLD_CENTER_X + worldW / 2
+    const top = WORLD_CENTER_Y + worldH / 2
+    const bottom = WORLD_CENTER_Y - worldH / 2
     const changed =
-      Math.abs(camera.zoom - zoom) > 0.001 ||
-      Math.abs(camera.left - (WORLD_CENTER_X - halfW)) > 0.01
+      Math.abs(camera.left - left) > 0.01 ||
+      Math.abs(camera.right - right) > 0.01
     if (changed) {
-      camera.zoom = zoom
-      camera.left = WORLD_CENTER_X - halfW
-      camera.right = WORLD_CENTER_X + halfW
-      camera.top = WORLD_CENTER_Y + halfH
-      camera.bottom = WORLD_CENTER_Y - halfH
+      camera.zoom = 1
+      camera.left = left
+      camera.right = right
+      camera.top = top
+      camera.bottom = bottom
       camera.updateProjectionMatrix()
     }
   })
