@@ -1,4 +1,4 @@
-// src/components/modules/rigid-motions/Layout.tsx
+// src/components/modules/dilations/Layout.tsx
 import { type ReactNode } from 'react'
 
 interface ModuleLayoutProps {

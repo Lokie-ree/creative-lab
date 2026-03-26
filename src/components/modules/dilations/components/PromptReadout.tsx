@@ -1,4 +1,4 @@
-// src/components/modules/rigid-motions/components/PromptReadout.tsx
+// src/components/modules/dilations/components/PromptReadout.tsx
 import { useRef, useEffect } from 'react'
 import { fadeInReadout } from '@/lib/animation/presets'
 
