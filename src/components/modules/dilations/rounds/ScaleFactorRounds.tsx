@@ -10,23 +10,9 @@ import { RevealAnimation } from '../components/RevealAnimation'
 import { RayLines } from '../components/RayLines'
 import { RatioAnnotations } from '../components/RatioAnnotations'
 import { AngleMarks } from '../components/AngleMarks'
-import { ScaleFactorDisplay } from '../components/ScaleFactorDisplay'
 import { CANONICAL_TRIANGLE, ROUND_CONFIGS, PREDICTION_TOLERANCE } from '../utils/constants'
 import { dilateTriangle } from '../utils/math'
 import type { Vec2 } from '../utils/types'
-
-// ─── ScaleFactorHUD ──────────────────────────────────────────────────────────
-
-export function ScaleFactorHUD({ state }: { state: StageState }) {
-  const config = ROUND_CONFIGS[state.currentRound]
-  if (config.scaleFactor == null) return null
-
-  return (
-    <div className="absolute top-12 left-3 pointer-events-none">
-      <ScaleFactorDisplay k={config.scaleFactor} />
-    </div>
-  )
-}
 
 // ─── PredictionRoundScene (dilate-k2, dilate-k3) ─────────────────────────────
 
