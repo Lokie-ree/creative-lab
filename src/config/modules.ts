@@ -46,7 +46,7 @@ export const MODULES: ModuleConfig[] = [
     order: 3,
     courseId: 'geometry',
     component: () => import('@/components/modules/dilations/DilationsModule'),
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     id: 'vector-transformations',
