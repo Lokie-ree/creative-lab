@@ -154,6 +154,48 @@ function PropertiesRoundScene({
   )
 }
 
+// ─── DilationSummaryScene (dilate-summary) ────────────────────────────────────
+
+const SUMMARY_SCALE_FACTORS = [2, 3, 0.5] as const
+
+function DilationSummaryScene({
+  roundState,
+  dispatch,
+}: {
+  roundState: string
+  dispatch: Dispatch<StageAction>
+}) {
+  const images = useMemo(
+    () => SUMMARY_SCALE_FACTORS.map(k => dilateTriangle(CANONICAL_TRIANGLE, k)),
+    [],
+  )
+
+  // auto-complete: active → completion after images finish appearing (~600ms)
+  useEffect(() => {
+    if (roundState !== 'active') return
+    const timer = setTimeout(() => {
+      dispatch({ type: 'COMPLETE_ROUND' })
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [roundState, dispatch])
+
+  const showImages = roundState === 'active' || roundState === 'completion'
+
+  return (
+    <>
+      <PreImageTriangle vertices={CANONICAL_TRIANGLE} />
+      {showImages && images.map((img, i) => (
+        <ImageTriangle
+          key={i}
+          vertices={img}
+          visible={true}
+          opacity={0.25}
+        />
+      ))}
+    </>
+  )
+}
+
 // ─── ScaleFactorScene ─────────────────────────────────────────────────────────
 
 export function ScaleFactorScene({
@@ -170,7 +212,12 @@ export function ScaleFactorScene({
     return <PropertiesRoundScene roundState={roundState} dispatch={dispatch} />
   }
 
-  // Prediction rounds: dilate-k2, dilate-k3
+  if (currentRound === 'dilate-summary') {
+    return <DilationSummaryScene roundState={roundState} dispatch={dispatch} />
+  }
+
+  // Prediction rounds: dilate-k2, dilate-k3, dilate-k-half
+  // All use the same PredictionRoundScene parameterized by scale
   const scale = config.scaleFactor ?? 2
   return (
     <PredictionRoundScene
