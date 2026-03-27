@@ -20,6 +20,36 @@ export const PHASE_INTROS: Record<PhaseId, string> = {
   'aa-capstone':  "Two angles are enough to determine similarity. Let's see why.",
 }
 
+export interface EarnedReveal {
+  text: string
+  notation?: string
+  notationStyle?: 'rule' | 'congruence'
+}
+
+export const EARNED_REVEALS: Partial<Record<RoundId, EarnedReveal>> = {
+  'dilate-k2': {
+    text: 'Every point moved twice as far from the origin. Distances doubled — angles held.',
+    notation: '(x, y) → (2x, 2y)',
+    notationStyle: 'rule',
+  },
+  'dilate-k2-properties': {
+    text: 'The shape grew but the angles stayed the same. Dilation preserves shape — just not size.',
+  },
+  'dilate-k3': {
+    text: 'k = 3 stretched it further, but the center is still the origin. Larger k, larger distance.',
+    notation: '(x, y) → (3x, 3y)',
+    notationStyle: 'rule',
+  },
+  'dilate-k-half': {
+    text: 'k < 1 pulls toward the center. Dilation can shrink as well as grow.',
+    notation: '(x, y) → (½x, ½y)',
+    notationStyle: 'rule',
+  },
+  'dilate-summary': {
+    text: 'k > 1 enlarges. 0 < k < 1 reduces. The center is fixed. Angles always preserved.',
+  },
+}
+
 // Partial — Phase 2–4 entries added when those phases are built
 export const ROUND_PROMPTS: Partial<Record<RoundId, string>> = {
   'dilate-k2':                 'Where will the image triangle appear when k = 2?',

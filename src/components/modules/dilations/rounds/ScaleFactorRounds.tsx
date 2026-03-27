@@ -20,10 +20,14 @@ function PredictionRoundScene({
   scale,
   roundState,
   dispatch,
+  ghostExternalPosition,
+  onGhostPositionChange,
 }: {
   scale: number
   roundState: string
   dispatch: Dispatch<StageAction>
+  ghostExternalPosition?: { x: number; y: number } | null
+  onGhostPositionChange?: (pos: { x: number; y: number }) => void
 }) {
   const targetTriangle = useMemo(
     () => dilateTriangle(CANONICAL_TRIANGLE, scale),
@@ -60,6 +64,8 @@ function PredictionRoundScene({
           scale={scale}
           onDrop={handleGhostDrop}
           disabled={ghostDisabled}
+          externalPosition={ghostExternalPosition}
+          onPositionChange={onGhostPositionChange}
         />
       )}
       {showReveal && (
@@ -104,16 +110,8 @@ function PropertiesRoundScene({
     [imageTriangle]
   )
 
-  // Auto-progress: entry → active after short delay
-  useEffect(() => {
-    if (roundState !== 'entry') return
-    const timer = setTimeout(() => {
-      dispatch({ type: 'SET_ROUND_STATE', state: 'active' })
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [roundState, dispatch])
-
   // Auto-complete: active → completion after annotations animate in (~1.4s total)
+  // Student initiates active state by pressing CONTINUE (no auto-advance from entry)
   useEffect(() => {
     if (roundState !== 'active') return
     const timer = setTimeout(() => {
@@ -154,14 +152,60 @@ function PropertiesRoundScene({
   )
 }
 
+// ─── DilationSummaryScene (dilate-summary) ────────────────────────────────────
+
+const SUMMARY_SCALE_FACTORS = [2, 3, 0.5] as const
+
+function DilationSummaryScene({
+  roundState,
+  dispatch,
+}: {
+  roundState: string
+  dispatch: Dispatch<StageAction>
+}) {
+  const images = useMemo(
+    () => SUMMARY_SCALE_FACTORS.map(k => dilateTriangle(CANONICAL_TRIANGLE, k)),
+    [],
+  )
+
+  // auto-complete: active → completion after images finish appearing (~600ms)
+  useEffect(() => {
+    if (roundState !== 'active') return
+    const timer = setTimeout(() => {
+      dispatch({ type: 'COMPLETE_ROUND' })
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [roundState, dispatch])
+
+  const showImages = roundState === 'active' || roundState === 'completion'
+
+  return (
+    <>
+      <PreImageTriangle vertices={CANONICAL_TRIANGLE} />
+      {showImages && images.map((img, i) => (
+        <ImageTriangle
+          key={i}
+          vertices={img}
+          visible={true}
+          opacity={0.25}
+        />
+      ))}
+    </>
+  )
+}
+
 // ─── ScaleFactorScene ─────────────────────────────────────────────────────────
 
 export function ScaleFactorScene({
   state,
   dispatch,
+  ghostExternalPosition,
+  onGhostPositionChange,
 }: {
   state: StageState
   dispatch: Dispatch<StageAction>
+  ghostExternalPosition?: { x: number; y: number } | null
+  onGhostPositionChange?: (pos: { x: number; y: number }) => void
 }) {
   const { currentRound, roundState } = state
   const config = ROUND_CONFIGS[currentRound]
@@ -170,13 +214,20 @@ export function ScaleFactorScene({
     return <PropertiesRoundScene roundState={roundState} dispatch={dispatch} />
   }
 
-  // Prediction rounds: dilate-k2, dilate-k3
+  if (currentRound === 'dilate-summary') {
+    return <DilationSummaryScene roundState={roundState} dispatch={dispatch} />
+  }
+
+  // Prediction rounds: dilate-k2, dilate-k3, dilate-k-half
+  // All use the same PredictionRoundScene parameterized by scale
   const scale = config.scaleFactor ?? 2
   return (
     <PredictionRoundScene
       scale={scale}
       roundState={roundState}
       dispatch={dispatch}
+      ghostExternalPosition={ghostExternalPosition}
+      onGhostPositionChange={onGhostPositionChange}
     />
   )
 }

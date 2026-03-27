@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import type { Triangle, Vec2 } from '../utils/types'
 import { SpriteLabel } from './SpriteLabel'
+import { useDilationsSceneContext } from '../DilationsSceneContext'
 
 const IMAGE_COLOR = '#7cc87c'
 const PRIME_LABELS = ["A'", "B'", "C'"] as const
@@ -31,12 +32,16 @@ export function ImageTriangle({
   vertices,
   visible,
   opacity = 0.18,
-  showCoordinates = false,
-  showAngles = false,
+  showCoordinates,
+  showAngles,
   coordinateLabels,
   angleLabels,
 }: ImageTriangleProps) {
   // HOOKS FIRST — all useMemo calls must appear before any early return (Rules of Hooks)
+  const { coordinatesVisible, angleLabelsVisible } = useDilationsSceneContext()
+  // Explicit prop wins; context is the fallback
+  const effectiveShowCoords = showCoordinates ?? coordinatesVisible
+  const effectiveShowAngles = showAngles ?? angleLabelsVisible
   const { a, b, c } = vertices
   const verts = [a, b, c] as const
 
@@ -91,7 +96,7 @@ export function ImageTriangle({
           />
         )
       })}
-      {showCoordinates && verts.map((v, i) => {
+      {effectiveShowCoords && verts.map((v, i) => {
         const label = coordinateLabels?.[i] ?? `(${v.x}, ${v.y})`
         const off = labelOffset(v, c2, 1.1)
         return (
@@ -105,7 +110,7 @@ export function ImageTriangle({
           />
         )
       })}
-      {showAngles && angleLabels && verts.map((v, i) => {
+      {effectiveShowAngles && angleLabels && verts.map((v, i) => {
         const off = labelOffset(v, c2, 0.85)
         return (
           <SpriteLabel

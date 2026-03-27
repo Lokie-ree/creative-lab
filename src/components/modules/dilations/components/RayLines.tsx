@@ -5,7 +5,8 @@ import * as THREE from 'three'
 import gsap from 'gsap'
 import type { Triangle } from '../utils/types'
 
-const RAY_COLOR = '#3e3a34'  // subtle, darker than ghost
+// --lab-screw-border (#4a4844) — the defined darkest neutral in the design system
+const RAY_COLOR = '#4a4844'
 const ORIGIN = { x: 0, y: 0 }
 
 export interface RayLinesProps {

@@ -3,6 +3,7 @@ import { useEffect, useMemo } from 'react'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { SpriteLabel } from './components/SpriteLabel'
+import { DilationsSceneCtx } from './DilationsSceneContext'
 
 // World range: x ∈ [-2, 14], y ∈ [-2, 14] — accommodates k=3 dilation of canonical triangle
 const WORLD_MIN = -2
@@ -28,7 +29,9 @@ function CameraSetup() {
     const bottom = WORLD_CENTER_Y - worldH / 2
     const changed =
       Math.abs(camera.left - left) > 0.01 ||
-      Math.abs(camera.right - right) > 0.01
+      Math.abs(camera.right - right) > 0.01 ||
+      Math.abs(camera.top - top) > 0.01 ||
+      Math.abs(camera.bottom - bottom) > 0.01
     if (changed) {
       camera.zoom = 1
       camera.left = left
@@ -42,7 +45,7 @@ function CameraSetup() {
 }
 
 function CoordinateGrid() {
-  const { gridGeometry, axisGeometry, circleGeometry } = useMemo(() => {
+  const { gridGeometry, axisGeometry } = useMemo(() => {
     const gridPts: THREE.Vector3[] = []
     const axisPts: THREE.Vector3[] = []
     for (let i = WORLD_MIN; i <= WORLD_MAX; i++) {
@@ -54,7 +57,7 @@ function CoordinateGrid() {
     return {
       gridGeometry: new THREE.BufferGeometry().setFromPoints(gridPts),
       axisGeometry: new THREE.BufferGeometry().setFromPoints(axisPts),
-      circleGeometry: new THREE.CircleGeometry(0.12, 16),
+      // circleGeometry omitted — inline JSX <circleGeometry> on origin marker is managed by Three.js
     }
   }, [])
 
@@ -62,19 +65,20 @@ function CoordinateGrid() {
     return () => {
       gridGeometry.dispose()
       axisGeometry.dispose()
-      circleGeometry.dispose()
     }
-  }, [gridGeometry, axisGeometry, circleGeometry])
+  }, [gridGeometry, axisGeometry])
 
   return (
     <group>
+      {/* Grid lines: slightly darker than --lab-bg (#1e1d1c), intentionally subtle */}
       <lineSegments geometry={gridGeometry}>
         <lineBasicMaterial color="#28251f" transparent opacity={0.35} />
       </lineSegments>
+      {/* Axis lines: matches --lab-border equivalent */}
       <lineSegments geometry={axisGeometry}>
         <lineBasicMaterial color="#3e3a34" transparent opacity={0.55} />
       </lineSegments>
-      {/* Origin marker */}
+      {/* Origin marker: --lab-accent (#7cc87c) */}
       <mesh position={[0, 0, 0.01]}>
         <circleGeometry args={[0.12, 16]} />
         <meshBasicMaterial color="#7cc87c" />
@@ -164,8 +168,8 @@ export interface DilationsSceneProps {
 
 export function DilationsScene({
   children,
-  coordinatesVisible: _coordinatesVisible,
-  angleLabelsVisible: _angleLabelsVisible,
+  coordinatesVisible,
+  angleLabelsVisible,
   onContextLost,
   onContextRestored,
 }: DilationsSceneProps) {
@@ -177,11 +181,13 @@ export function DilationsScene({
       gl={{ powerPreference: 'high-performance', antialias: true }}
       style={{ width: '100%', height: '100%' }}
     >
-      <ContextRecovery onContextLost={onContextLost} onContextRestored={onContextRestored} />
-      <CameraSetup />
-      <CoordinateGrid />
-      <AxisLabels />
-      {children}
+      <DilationsSceneCtx.Provider value={{ coordinatesVisible, angleLabelsVisible }}>
+        <ContextRecovery onContextLost={onContextLost} onContextRestored={onContextRestored} />
+        <CameraSetup />
+        <CoordinateGrid />
+        <AxisLabels />
+        {children}
+      </DilationsSceneCtx.Provider>
     </Canvas>
   )
 }

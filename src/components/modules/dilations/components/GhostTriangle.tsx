@@ -53,9 +53,16 @@ export interface GhostTriangleProps {
   scale: number
   onDrop: (position: Vec2) => void
   disabled: boolean
+  /** If provided, overrides internal drag position. Used for keyboard nudging. */
+  externalPosition?: Vec2 | null
+  /** Called on every position change during drag (for keyboard nudge sync). */
+  onPositionChange?: (position: Vec2) => void
 }
 
-export function GhostTriangle({ vertices, scale, onDrop, disabled }: GhostTriangleProps) {
+export function GhostTriangle({
+  vertices, scale, onDrop, disabled,
+  externalPosition, onPositionChange,
+}: GhostTriangleProps) {
   const { camera, gl } = useThree()
   const lineLoopRef = useRef<THREE.LineLoop>(null)
   const dragging = useRef(false)
@@ -92,7 +99,9 @@ export function GhostTriangle({ vertices, scale, onDrop, disabled }: GhostTriang
     const handleMove = (ev: PointerEvent) => {
       if (!dragging.current) return
       const p = getWorldPoint(ev.clientX, ev.clientY)
-      setCenterPos({ x: snap(p.x), y: snap(p.y) })
+      const snapped = { x: snap(p.x), y: snap(p.y) }
+      setCenterPos(snapped)
+      onPositionChange?.(snapped)
     }
 
     const handleUp = (ev: PointerEvent) => {
@@ -113,14 +122,14 @@ export function GhostTriangle({ vertices, scale, onDrop, disabled }: GhostTriang
       window.removeEventListener('pointermove', handleMove)
       window.removeEventListener('pointerup', handleUp)
     }
-  }, [disabled, getWorldPoint, onDrop])
+  }, [disabled, getWorldPoint, onDrop, onPositionChange])
 
   useFrame(() => {
     lineLoopRef.current?.computeLineDistances()
   })
 
-  // If no position yet, render at centroid of dilated shape (pre-placed guide)
-  const displayCenter = centerPos ?? triangleCentroid(dilateTriangle(vertices, scale))
+  // externalPosition (keyboard nudge) wins; otherwise use drag position; fallback to pre-image centroid
+  const displayCenter = externalPosition ?? centerPos ?? triangleCentroid(vertices)
 
   const positioned = useMemo(() =>
     translateTriangle(scaledShape, displayCenter.x, displayCenter.y),
