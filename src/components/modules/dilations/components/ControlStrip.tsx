@@ -6,9 +6,10 @@ import { ROUND_CONFIGS } from '../utils/constants'
 interface ControlStripProps {
   state: StageState
   dispatch: Dispatch<StageAction>
+  onAdvance?: () => void
 }
 
-export function ControlStrip({ state, dispatch }: ControlStripProps) {
+export function ControlStrip({ state, dispatch, onAdvance }: ControlStripProps) {
   const { roundState, currentRound } = state
   const config = ROUND_CONFIGS[currentRound]
 
@@ -51,12 +52,12 @@ export function ControlStrip({ state, dispatch }: ControlStripProps) {
     }
   }
 
-  // Completion — advance to next round
+  // Completion — advance to next round (prefer onAdvance for reveal tracking)
   if (roundState === 'completion') {
     return (
       <button
         type="button"
-        onClick={() => dispatch({ type: 'ADVANCE_ROUND' })}
+        onClick={() => onAdvance ? onAdvance() : dispatch({ type: 'ADVANCE_ROUND' })}
         className="min-h-[44px] min-w-[44px] bg-(--lab-accent) px-4 lab-silk lab-display-font tracking-[0.1em] text-(--lab-bg) transition-opacity duration-150 hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--lab-accent)"
       >
         NEXT

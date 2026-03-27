@@ -1,5 +1,6 @@
 // src/components/modules/dilations/DilationsModule.tsx
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { ChevronLeft } from 'lucide-react'
 import type { ModuleProps } from '@/config/modules'
 import { useDilationsStage } from './hooks/useDilationsStage'
@@ -9,7 +10,8 @@ import { PromptReadout } from './components/PromptReadout'
 import { ControlStrip } from './components/ControlStrip'
 import { ScaleFactorDisplay } from './components/ScaleFactorDisplay'
 import { ScaleFactorScene } from './rounds/ScaleFactorRounds'
-import { PHASE_LABELS, PHASE_INTROS, ROUND_PROMPTS } from './dilations-copy'
+import { PHASE_LABELS, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
+import type { EarnedReveal } from './dilations-copy'
 import { ROUND_CONFIGS } from './utils/constants'
 
 export default function DilationsModule({ onBack }: ModuleProps) {
@@ -20,8 +22,23 @@ export default function DilationsModule({ onBack }: ModuleProps) {
 
   const isScaleFactorPhase = phase === 'scale-factor'
 
+  // ── Earned reveal state ──────────────────────────────────────────────────
+  const [shownReveals, setShownReveals] = useState<Set<string>>(new Set())
+  const revealKey = currentRound
+  const earnedReveal: EarnedReveal | undefined = EARNED_REVEALS[currentRound]
+  const isFirstReveal = roundState === 'completion' && !!earnedReveal && !shownReveals.has(revealKey)
+
+  // Record reveal on NEXT, then advance
+  const handleAdvance = useCallback(() => {
+    if (earnedReveal && !shownReveals.has(revealKey)) {
+      setShownReveals(prev => new Set([...prev, revealKey]))
+    }
+    dispatch({ type: 'ADVANCE_ROUND' })
+  }, [earnedReveal, shownReveals, revealKey, dispatch])
+
   // ── Prompt label derivation ──────────────────────────────────────────────
   const promptLabel = (() => {
+    if (isFirstReveal) return 'Discovered'
     if (roundState === 'entry') return PHASE_LABELS[phase]
     if (roundState === 'reveal') return 'Discovered'
     if (roundState === 'completion') return 'Complete'
@@ -30,12 +47,15 @@ export default function DilationsModule({ onBack }: ModuleProps) {
 
   // ── Prompt text derivation ───────────────────────────────────────────────
   const promptText = (() => {
+    if (isFirstReveal && earnedReveal) return earnedReveal.text
     if (roundState === 'entry') return PHASE_INTROS[phase] || config.label
     return ROUND_PROMPTS[currentRound] ?? config.label
   })()
 
-  // ── Amber: phase entry with non-empty intro copy ─────────────────────────
-  const amber = roundState === 'entry' && PHASE_INTROS[phase] !== ''
+  // ── Amber: earned reveal or phase entry with non-empty intro copy ────────
+  const amber = isFirstReveal || (roundState === 'entry' && PHASE_INTROS[phase] !== '')
+  const notation = isFirstReveal ? earnedReveal?.notation : undefined
+  const notationStyle = isFirstReveal ? earnedReveal?.notationStyle : undefined
 
   // ── Formula readout: scale factor in Phase 1 ────────────────────────────
   const formulaReadout = isScaleFactorPhase && config.scaleFactor != null
@@ -71,11 +91,25 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           label={promptLabel}
           text={promptText}
           amber={amber}
+          notation={notation}
+          notationStyle={notationStyle}
         />
       }
       formulaReadout={formulaReadout}
       visualization={
         <>
+          <AnimatePresence>
+            {isFirstReveal && (
+              <motion.div
+                key={revealKey}
+                className="pointer-events-none absolute inset-0 z-10 border-2 border-(--lab-accent)"
+                initial={{ opacity: 0.7 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              />
+            )}
+          </AnimatePresence>
+
           <DilationsScene
             coordinatesVisible={state.coordinatesVisible}
             angleLabelsVisible={state.angleLabelsVisible}
@@ -108,7 +142,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
         </>
       }
       controls={
-        <ControlStrip state={state} dispatch={dispatch} />
+        <ControlStrip state={state} dispatch={dispatch} onAdvance={handleAdvance} />
       }
     />
   )
