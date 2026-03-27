@@ -119,8 +119,8 @@ export function GhostTriangle({ vertices, scale, onDrop, disabled }: GhostTriang
     lineLoopRef.current?.computeLineDistances()
   })
 
-  // If no position yet, render at centroid of dilated shape (pre-placed guide)
-  const displayCenter = centerPos ?? triangleCentroid(dilateTriangle(vertices, scale))
+  // If no position yet, start at pre-image centroid so the student must drag to their prediction
+  const displayCenter = centerPos ?? triangleCentroid(vertices)
 
   const positioned = useMemo(() =>
     translateTriangle(scaledShape, displayCenter.x, displayCenter.y),

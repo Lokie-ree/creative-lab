@@ -44,7 +44,7 @@ function CameraSetup() {
 }
 
 function CoordinateGrid() {
-  const { gridGeometry, axisGeometry, circleGeometry } = useMemo(() => {
+  const { gridGeometry, axisGeometry } = useMemo(() => {
     const gridPts: THREE.Vector3[] = []
     const axisPts: THREE.Vector3[] = []
     for (let i = WORLD_MIN; i <= WORLD_MAX; i++) {
@@ -56,7 +56,7 @@ function CoordinateGrid() {
     return {
       gridGeometry: new THREE.BufferGeometry().setFromPoints(gridPts),
       axisGeometry: new THREE.BufferGeometry().setFromPoints(axisPts),
-      circleGeometry: new THREE.CircleGeometry(0.12, 16),
+      // circleGeometry omitted — inline JSX <circleGeometry> on origin marker is managed by Three.js
     }
   }, [])
 
@@ -64,9 +64,8 @@ function CoordinateGrid() {
     return () => {
       gridGeometry.dispose()
       axisGeometry.dispose()
-      circleGeometry.dispose()
     }
-  }, [gridGeometry, axisGeometry, circleGeometry])
+  }, [gridGeometry, axisGeometry])
 
   return (
     <group>
