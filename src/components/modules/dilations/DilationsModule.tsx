@@ -14,6 +14,7 @@ import { PHASE_LABELS, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dil
 import type { EarnedReveal } from './dilations-copy'
 import { ROUND_CONFIGS } from './utils/constants'
 import type { PhaseId } from './utils/types'
+import { useAccessibility } from '@/lib/skeleton/useAccessibility'
 
 const PHASE_SEQUENCE: PhaseId[] = ['scale-factor', 'coordinate', 'similarity', 'aa-capstone']
 
@@ -24,6 +25,9 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   const [contextLost, setContextLost] = useState(false)
 
   const isScaleFactorPhase = phase === 'scale-factor'
+
+  // ── Accessibility ────────────────────────────────────────────────────────
+  const { announce } = useAccessibility()
 
   // ── Keyboard nudge state ─────────────────────────────────────────────────
   const [nudgePosition, setNudgePosition] = useState<{ x: number; y: number } | null>(null)
@@ -68,6 +72,13 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   const revealKey = currentRound
   const earnedReveal: EarnedReveal | undefined = EARNED_REVEALS[currentRound]
   const isFirstReveal = roundState === 'completion' && !!earnedReveal && !shownReveals.has(revealKey)
+
+  // Announce earned reveals for screen readers + haptic on first reveal
+  useEffect(() => {
+    if (!isFirstReveal) return
+    announce('Discovered! ' + (earnedReveal?.text ?? ''), 'assertive')
+    navigator.vibrate?.(80)
+  }, [isFirstReveal]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Record reveal on NEXT, then advance
   const handleAdvance = useCallback(() => {
