@@ -1,8 +1,26 @@
 // src/components/modules/dilations/DilationsScene.tsx
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, createContext, useContext } from 'react'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { SpriteLabel } from './components/SpriteLabel'
+
+// ─── Scene visibility context ─────────────────────────────────────────────────
+// Allows scene children (round components) to read coordinatesVisible /
+// angleLabelsVisible without explicit prop-drilling through each scene component.
+
+interface DilationsSceneContext {
+  coordinatesVisible: boolean
+  angleLabelsVisible: boolean
+}
+
+const DilationsSceneCtx = createContext<DilationsSceneContext>({
+  coordinatesVisible: false,
+  angleLabelsVisible: false,
+})
+
+export function useDilationsSceneContext() {
+  return useContext(DilationsSceneCtx)
+}
 
 // World range: x ∈ [-2, 14], y ∈ [-2, 14] — accommodates k=3 dilation of canonical triangle
 const WORLD_MIN = -2
@@ -167,8 +185,8 @@ export interface DilationsSceneProps {
 
 export function DilationsScene({
   children,
-  coordinatesVisible: _coordinatesVisible,
-  angleLabelsVisible: _angleLabelsVisible,
+  coordinatesVisible,
+  angleLabelsVisible,
   onContextLost,
   onContextRestored,
 }: DilationsSceneProps) {
@@ -180,11 +198,13 @@ export function DilationsScene({
       gl={{ powerPreference: 'high-performance', antialias: true }}
       style={{ width: '100%', height: '100%' }}
     >
-      <ContextRecovery onContextLost={onContextLost} onContextRestored={onContextRestored} />
-      <CameraSetup />
-      <CoordinateGrid />
-      <AxisLabels />
-      {children}
+      <DilationsSceneCtx.Provider value={{ coordinatesVisible, angleLabelsVisible }}>
+        <ContextRecovery onContextLost={onContextLost} onContextRestored={onContextRestored} />
+        <CameraSetup />
+        <CoordinateGrid />
+        <AxisLabels />
+        {children}
+      </DilationsSceneCtx.Provider>
     </Canvas>
   )
 }
