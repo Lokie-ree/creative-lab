@@ -28,7 +28,9 @@ function CameraSetup() {
     const bottom = WORLD_CENTER_Y - worldH / 2
     const changed =
       Math.abs(camera.left - left) > 0.01 ||
-      Math.abs(camera.right - right) > 0.01
+      Math.abs(camera.right - right) > 0.01 ||
+      Math.abs(camera.top - top) > 0.01 ||
+      Math.abs(camera.bottom - bottom) > 0.01
     if (changed) {
       camera.zoom = 1
       camera.left = left
