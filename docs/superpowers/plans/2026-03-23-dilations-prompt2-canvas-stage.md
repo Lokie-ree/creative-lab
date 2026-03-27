@@ -1,6 +1,9 @@
+## Status: Complete
+> Implemented 2026-03-23. Merged as part of PR #47 (dilations prompts 1–4).
+
 # Dilations Prompt 2: Canvas + Stage Machine Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build the R3F canvas shell, stage machine, and HUD overlay for the Dilations module — no round-specific logic yet, just the infrastructure all later prompts plug into.
 
@@ -111,7 +114,7 @@ export function useDilationsStage() {
 
 Export the reducer separately as `stageReducer` so tests can call it directly without React.
 
-- [ ] **Step 1: Write failing tests** — create `src/components/modules/dilations/__tests__/useDilationsStage.test.ts`
+- [x] **Step 1: Write failing tests** — create `src/components/modules/dilations/__tests__/useDilationsStage.test.ts`
 
 ```typescript
 // src/components/modules/dilations/__tests__/useDilationsStage.test.ts
@@ -301,7 +304,7 @@ describe('stageReducer', () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 pnpm vitest run src/components/modules/dilations/__tests__/useDilationsStage.test.ts
@@ -309,7 +312,7 @@ pnpm vitest run src/components/modules/dilations/__tests__/useDilationsStage.tes
 
 Expected: FAIL — `stageReducer` is not defined.
 
-- [ ] **Step 3: Implement `useDilationsStage.ts`**
+- [x] **Step 3: Implement `useDilationsStage.ts`**
 
 Create `src/components/modules/dilations/hooks/useDilationsStage.ts`:
 
@@ -428,7 +431,7 @@ export function useDilationsStage() {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 pnpm vitest run src/components/modules/dilations/__tests__/useDilationsStage.test.ts
@@ -436,7 +439,7 @@ pnpm vitest run src/components/modules/dilations/__tests__/useDilationsStage.tes
 
 Expected: All tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/modules/dilations/hooks/useDilationsStage.ts \
@@ -624,9 +627,9 @@ export function DilationsCanvas({ children }: DilationsCanvasProps) {
 
 **No unit tests for canvas** — R3F components require a WebGL context, not testable in jsdom. Verify visually in the browser.
 
-- [ ] **Step 1: Implement `DilationsCanvas.tsx`** (code above)
+- [x] **Step 1: Implement `DilationsCanvas.tsx`** (code above)
 
-- [ ] **Step 2: TypeScript check (not full build)**
+- [x] **Step 2: TypeScript check (not full build)**
 
 ```bash
 pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
@@ -634,7 +637,7 @@ pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
 
 Expected: No errors from `DilationsCanvas.tsx`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/DilationsCanvas.tsx
@@ -727,7 +730,7 @@ Design tokens:
 - Text: `text-(--lab-text)` / `text-(--lab-text-muted)`
 - Buttons: follow `lab-silk lab-display-font` pattern, accent color for active
 
-- [ ] **Step 1: Implement `DilationsHUD.tsx`**
+- [x] **Step 1: Implement `DilationsHUD.tsx`**
 
 ```typescript
 // src/components/modules/dilations/DilationsHUD.tsx
@@ -864,7 +867,7 @@ export function DilationsHUD({ state, dispatch }: DilationsHUDProps) {
 }
 ```
 
-- [ ] **Step 2: TypeScript check**
+- [x] **Step 2: TypeScript check**
 
 ```bash
 pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
@@ -872,7 +875,7 @@ pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
 
 Expected: No errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/DilationsHUD.tsx
@@ -931,9 +934,9 @@ export default function DilationsModule({ onBack }: ModuleProps) {
 
 Note: `onComplete` is part of `ModuleProps` but is not yet called — completion handling comes in a later prompt when the capstone is built.
 
-- [ ] **Step 1: Update `DilationsModule.tsx`** (code above)
+- [x] **Step 1: Update `DilationsModule.tsx`** (code above)
 
-- [ ] **Step 2: TypeScript check**
+- [x] **Step 2: TypeScript check**
 
 ```bash
 pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
@@ -941,7 +944,7 @@ pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
 
 Expected: No errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/DilationsModule.tsx
@@ -952,7 +955,7 @@ git commit -m "feat(dilations): wire DilationsModule — canvas + HUD + stage ma
 
 ## Task 5: Final Verification
 
-- [ ] **Step 1: Run all dilations tests**
+- [x] **Step 1: Run all dilations tests**
 
 ```bash
 pnpm vitest run src/components/modules/dilations
@@ -960,7 +963,7 @@ pnpm vitest run src/components/modules/dilations
 
 Expected: All tests pass (32 math tests + stage machine tests).
 
-- [ ] **Step 2: Run M1 tests (ensure no regressions)**
+- [x] **Step 2: Run M1 tests (ensure no regressions)**
 
 ```bash
 pnpm vitest run src/components/modules/rigid-motions
@@ -968,7 +971,7 @@ pnpm vitest run src/components/modules/rigid-motions
 
 Expected: All M1 tests still pass.
 
-- [ ] **Step 3: Full build**
+- [x] **Step 3: Full build**
 
 ```bash
 pnpm build
@@ -976,7 +979,7 @@ pnpm build
 
 Expected: No TypeScript errors, no build failures.
 
-- [ ] **Step 4: Commit if clean**
+- [x] **Step 4: Commit if clean**
 
 If all clean, no additional commit needed (previous task commits cover the work). If any cleanup fixes are needed, commit them:
 

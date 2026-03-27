@@ -1,6 +1,9 @@
+## Status: Complete
+> Implemented 2026-03-23. Merged as part of PR #47 (dilations prompts 1–4).
+
 # Dilations Module — Prompt 1: Foundation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build the math utilities, type definitions, and constants that every subsequent Dilations prompt depends on. Also extend the shared transform types with `DilationParams` for the 3-module geometry arc.
 
@@ -21,7 +24,7 @@
 - Modify: `src/components/modules/rigid-motions/transform-math.ts` (add default case to prevent build break)
 - Test: `src/components/modules/rigid-motions/scene/__tests__/transform-math.test.ts` (verify no breakage)
 
-- [ ] **Step 1: Add DilationParams to shared types**
+- [x] **Step 1: Add DilationParams to shared types**
 
 In `src/lib/types/transforms.ts`, add `'dilate'` to `TransformationType`, add `DilationParams`, and extend `TransformationParams` union:
 
@@ -35,7 +38,7 @@ export type DilationParams    = { type: 'dilate'; k: number }
 export type TransformationParams = TranslationParams | ReflectionParams | RotationParams | DilationParams
 ```
 
-- [ ] **Step 2: Add default case to M1's applyTransform**
+- [x] **Step 2: Add default case to M1's applyTransform**
 
 `strict: true` enables `noImplicitReturns`. M1's `applyTransform` switch in `src/components/modules/rigid-motions/transform-math.ts` has no default case — adding `'dilate'` to the union makes the switch non-exhaustive and will fail `tsc -b` with "Not all code paths return a value."
 
@@ -52,17 +55,17 @@ Add a default case after the `'rotate'` case (line 88 of transform-math.ts):
 
 This is a proper exhaustive check — if a future type is added to the union but not handled here, TypeScript catches it at compile time.
 
-- [ ] **Step 3: Run existing M1 transform-math tests to verify no breakage**
+- [x] **Step 3: Run existing M1 transform-math tests to verify no breakage**
 
 Run: `pnpm vitest run src/components/modules/rigid-motions/scene/__tests__/transform-math.test.ts`
 Expected: All existing tests PASS. M1 never creates a `DilationParams`, so the default case is unreachable in practice.
 
-- [ ] **Step 4: Run full build to verify no type errors**
+- [x] **Step 4: Run full build to verify no type errors**
 
 Run: `pnpm build`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/types/transforms.ts src/components/modules/rigid-motions/transform-math.ts
@@ -82,11 +85,11 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 **Files:**
 - Create: `src/components/modules/dilations/utils/types.ts`
 
-- [ ] **Step 1: Create the dilations directory structure**
+- [x] **Step 1: Create the dilations directory structure**
 
 Run: `mkdir -p src/components/modules/dilations/utils`
 
-- [ ] **Step 2: Write type definitions**
+- [x] **Step 2: Write type definitions**
 
 Create `src/components/modules/dilations/utils/types.ts`:
 
@@ -157,12 +160,12 @@ export type CapstonePair = SimilarityPair & {
 }
 ```
 
-- [ ] **Step 3: Verify types compile**
+- [x] **Step 3: Verify types compile**
 
 Run: `pnpm build`
 Expected: PASS (types-only file, no runtime code).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/modules/dilations/utils/types.ts
@@ -181,7 +184,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 **Files:**
 - Create: `src/components/modules/dilations/utils/constants.ts`
 
-- [ ] **Step 1: Write constants file**
+- [x] **Step 1: Write constants file**
 
 Create `src/components/modules/dilations/utils/constants.ts`:
 
@@ -228,12 +231,12 @@ export const ROUND_CONFIGS: Record<RoundId, RoundConfig> = {
 }
 ```
 
-- [ ] **Step 2: Verify it compiles**
+- [x] **Step 2: Verify it compiles**
 
 Run: `pnpm build`
 Expected: PASS.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/utils/constants.ts
@@ -253,7 +256,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 - Create: `src/components/modules/dilations/utils/math.ts`
 - Create: `src/components/modules/dilations/__tests__/math.test.ts`
 
-- [ ] **Step 1: Write failing tests for core dilation functions**
+- [x] **Step 1: Write failing tests for core dilation functions**
 
 Create `src/components/modules/dilations/__tests__/math.test.ts`:
 
@@ -337,12 +340,12 @@ describe('sideRatio', () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `pnpm vitest run src/components/modules/dilations/__tests__/math.test.ts`
 Expected: FAIL — module `../utils/math` does not exist.
 
-- [ ] **Step 3: Implement core dilation functions**
+- [x] **Step 3: Implement core dilation functions**
 
 Create `src/components/modules/dilations/utils/math.ts`:
 
@@ -416,12 +419,12 @@ export function rotatePoint(p: Vec2, angleDeg: number): Vec2 {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pnpm vitest run src/components/modules/dilations/__tests__/math.test.ts`
 Expected: All PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/modules/dilations/utils/math.ts src/components/modules/dilations/__tests__/math.test.ts
@@ -441,7 +444,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 - Modify: `src/components/modules/dilations/utils/math.ts`
 - Modify: `src/components/modules/dilations/__tests__/math.test.ts`
 
-- [ ] **Step 1: Write failing tests for angle and matching functions**
+- [x] **Step 1: Write failing tests for angle and matching functions**
 
 Append to `src/components/modules/dilations/__tests__/math.test.ts`:
 
@@ -519,12 +522,12 @@ describe('trianglesMatch', () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `pnpm vitest run src/components/modules/dilations/__tests__/math.test.ts`
 Expected: FAIL — `angleDeg`, `triangleAngles`, `pointsMatch`, `trianglesMatch` not found.
 
-- [ ] **Step 3: Implement angle and matching functions**
+- [x] **Step 3: Implement angle and matching functions**
 
 Append to `src/components/modules/dilations/utils/math.ts`:
 
@@ -565,12 +568,12 @@ export function trianglesMatch(a: Triangle, b: Triangle, tolerance: number): boo
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pnpm vitest run src/components/modules/dilations/__tests__/math.test.ts`
 Expected: All PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/modules/dilations/utils/math.ts src/components/modules/dilations/__tests__/math.test.ts
@@ -590,7 +593,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 - Modify: `src/components/modules/dilations/utils/math.ts`
 - Modify: `src/components/modules/dilations/__tests__/math.test.ts`
 
-- [ ] **Step 1: Write failing tests for composition functions**
+- [x] **Step 1: Write failing tests for composition functions**
 
 Append to `src/components/modules/dilations/__tests__/math.test.ts`:
 
@@ -696,12 +699,12 @@ describe('composeTriangle', () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `pnpm vitest run src/components/modules/dilations/__tests__/math.test.ts`
 Expected: FAIL — `composeTransformations`, `composeTriangle` not found.
 
-- [ ] **Step 3: Implement composition functions**
+- [x] **Step 3: Implement composition functions**
 
 Append to `src/components/modules/dilations/utils/math.ts`:
 
@@ -747,12 +750,12 @@ export function composeTriangle(steps: TransformStep[], t: Triangle): Triangle {
 
 Note: Move the `import type { TransformStep }` to the top of the file alongside the existing `Vec2, Triangle` import.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pnpm vitest run src/components/modules/dilations/__tests__/math.test.ts`
 Expected: All PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/modules/dilations/utils/math.ts src/components/modules/dilations/__tests__/math.test.ts
@@ -772,7 +775,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 **Files:**
 - Modify: `src/config/modules.ts`
 
-- [ ] **Step 1: Add dilations module config**
+- [x] **Step 1: Add dilations module config**
 
 Add to `MODULES` array in `src/config/modules.ts`, after the `rigid-motions` entry:
 
@@ -791,12 +794,12 @@ Add to `MODULES` array in `src/config/modules.ts`, after the `rigid-motions` ent
 
 Note: `comingSoon: true` — the component doesn't exist yet. This registers the module so it appears in the course hub. The lazy import will only resolve when a student clicks into it (which they can't with `comingSoon`).
 
-- [ ] **Step 2: Verify build**
+- [x] **Step 2: Verify build**
 
 Run: `pnpm build`
 Expected: PASS. `comingSoon` modules are never loaded — the dynamic import path is not resolved at build time.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/config/modules.ts
@@ -812,17 +815,17 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 
 ### Task 8: Final Verification
 
-- [ ] **Step 1: Run all dilations tests**
+- [x] **Step 1: Run all dilations tests**
 
 Run: `pnpm vitest run src/components/modules/dilations`
 Expected: All tests PASS.
 
-- [ ] **Step 2: Run full M1 test suite to confirm no regression**
+- [x] **Step 2: Run full M1 test suite to confirm no regression**
 
 Run: `pnpm vitest run src/components/modules/rigid-motions`
 Expected: All tests PASS.
 
-- [ ] **Step 3: Run full build**
+- [x] **Step 3: Run full build**
 
 Run: `pnpm build`
 Expected: PASS with no type errors.

@@ -1,6 +1,9 @@
+## Status: Complete
+> Implemented 2026-03-23. Merged as part of PR #47 (dilations prompts 1–4).
+
 # Dilations Prompt 3: Shared Interaction Primitives Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build the six shared primitives (SpriteLabel, GhostTriangle, usePredictReveal, RevealAnimation, PreImageTriangle, ImageTriangle) that all round-specific components in Prompts 4–8 will compose together.
 
@@ -123,9 +126,9 @@ export function SpriteLabel({
 }
 ```
 
-- [ ] **Step 1: Create `SpriteLabel.tsx`** (code above)
+- [x] **Step 1: Create `SpriteLabel.tsx`** (code above)
 
-- [ ] **Step 2: TypeScript check**
+- [x] **Step 2: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -20
@@ -133,7 +136,7 @@ cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --no
 
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/SpriteLabel.tsx
@@ -216,7 +219,7 @@ export function predictRevealReducer(state: PRState, action: PRAction): PRState 
 
 The hook uses `useReducer` with `predictRevealReducer` internally, computing `targetCentroid` from `targetTriangle` in `commitPrediction`.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```typescript
 // src/components/modules/dilations/__tests__/usePredictReveal.test.ts
@@ -313,7 +316,7 @@ describe('predictRevealReducer', () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 pnpm vitest run src/components/modules/dilations/__tests__/usePredictReveal.test.ts
@@ -321,7 +324,7 @@ pnpm vitest run src/components/modules/dilations/__tests__/usePredictReveal.test
 
 Expected: FAIL — `predictRevealReducer` not found.
 
-- [ ] **Step 3: Implement `usePredictReveal.ts`**
+- [x] **Step 3: Implement `usePredictReveal.ts`**
 
 ```typescript
 // src/components/modules/dilations/hooks/usePredictReveal.ts
@@ -419,7 +422,7 @@ export function usePredictReveal(targetTriangle: Triangle, tolerance: number) {
 
 Actually, simplify: use just `default: return state` since all PR action types are covered. The `never` trick for exhaustiveness is only needed when the return type might widen. Since all cases have explicit returns and `default: return state` is unreachable, this is fine.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 pnpm vitest run src/components/modules/dilations/__tests__/usePredictReveal.test.ts
@@ -427,7 +430,7 @@ pnpm vitest run src/components/modules/dilations/__tests__/usePredictReveal.test
 
 Expected: All tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/modules/dilations/hooks/usePredictReveal.ts \
@@ -636,9 +639,9 @@ export function GhostTriangle({ vertices, scale, onDrop, disabled }: GhostTriang
 
 **Implementer note:** The `onPointerDown` type cast is needed because R3F pointer events use `ThreeEvent<PointerEvent>` which differs from the Three.js `THREE.Event` type. Import `type ThreeEvent` from `@react-three/fiber` and use it instead for cleaner typing.
 
-- [ ] **Step 1: Implement `GhostTriangle.tsx`** (code above, clean up types as needed)
+- [x] **Step 1: Implement `GhostTriangle.tsx`** (code above, clean up types as needed)
 
-- [ ] **Step 2: TypeScript check**
+- [x] **Step 2: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
@@ -646,7 +649,7 @@ cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --no
 
 Expected: no errors. If there are ThreeEvent type issues, import `type ThreeEvent` from `@react-three/fiber` and use `(e: ThreeEvent<PointerEvent>) => void` for `onPointerDown`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/GhostTriangle.tsx
@@ -907,11 +910,11 @@ export function ImageTriangle({
 
 **Implementer note — hooks order:** The code above already has the correct structure: all `useMemo` calls run unconditionally, `if (!visible) return null` comes after. Do not move the early return before any hook calls — that violates React's Rules of Hooks and will crash at runtime.
 
-- [ ] **Step 1: Implement `PreImageTriangle.tsx`**
+- [x] **Step 1: Implement `PreImageTriangle.tsx`**
 
-- [ ] **Step 2: Implement `ImageTriangle.tsx`** (hooks are already in the correct order above; do not add an early return before them)
+- [x] **Step 2: Implement `ImageTriangle.tsx`** (hooks are already in the correct order above; do not add an early return before them)
 
-- [ ] **Step 3: TypeScript check**
+- [x] **Step 3: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
@@ -921,7 +924,7 @@ Expected: no errors. Watch for:
 - `coordinateLabels` as tuple `[string, string, string]` must be exactly 3 — check array access patterns
 - `<lineLoop>` and `<lineBasicMaterial>` are intrinsic R3F elements — no import needed, they map to Three.js `LineLoop` / `LineBasicMaterial`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/PreImageTriangle.tsx \
@@ -1115,15 +1118,15 @@ export function RevealAnimation({
 }
 ```
 
-- [ ] **Step 1: Implement `RevealAnimation.tsx`** — follow M1's `ImageShape.tsx` GSAP+imperative pattern closely
+- [x] **Step 1: Implement `RevealAnimation.tsx`** — follow M1's `ImageShape.tsx` GSAP+imperative pattern closely
 
-- [ ] **Step 2: TypeScript check**
+- [x] **Step 2: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/RevealAnimation.tsx
@@ -1134,7 +1137,7 @@ git commit -m "feat(dilations): add RevealAnimation — GSAP fade-in with option
 
 ## Task 6: Final Verification
 
-- [ ] **Step 1: Run all dilations tests**
+- [x] **Step 1: Run all dilations tests**
 
 ```bash
 pnpm vitest run src/components/modules/dilations
@@ -1142,7 +1145,7 @@ pnpm vitest run src/components/modules/dilations
 
 Expected: 32 math tests + 23 stage machine tests + usePredictReveal tests — all pass.
 
-- [ ] **Step 2: Run M1 regression check**
+- [x] **Step 2: Run M1 regression check**
 
 ```bash
 pnpm vitest run src/components/modules/rigid-motions
@@ -1150,7 +1153,7 @@ pnpm vitest run src/components/modules/rigid-motions
 
 Expected: 179 tests pass.
 
-- [ ] **Step 3: Full build**
+- [x] **Step 3: Full build**
 
 ```bash
 pnpm build
@@ -1158,7 +1161,7 @@ pnpm build
 
 Expected: Clean. Zero TypeScript errors.
 
-- [ ] **Step 4: Commit if any cleanup needed**
+- [x] **Step 4: Commit if any cleanup needed**
 
 ```bash
 git add <files>

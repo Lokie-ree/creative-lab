@@ -1,6 +1,9 @@
 # Dilations Layout Refinement Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+## Status: Complete
+Implemented 2026-03-26. PR #48.
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Align the Dilations module layout and scene with the Rigid Motions reference implementation — introducing `ModuleLayout`, proper slot-based composition, `PromptReadout`, `ControlStrip`, `DilationsScene` rename, CoordinateGrid fixes, and camera center shift.
 
@@ -36,7 +39,7 @@ Copy constants currently live inside `DilationsHUD.tsx`. This task moves them to
 - Create: `src/components/modules/dilations/dilations-copy.ts`
 - Create: `src/components/modules/dilations/__tests__/dilations-copy.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/components/modules/dilations/__tests__/dilations-copy.test.ts`:
 
@@ -96,7 +99,7 @@ describe('ROUND_PROMPTS', () => {
 })
 ```
 
-- [ ] **Step 2: Run the test to confirm it fails**
+- [x] **Step 2: Run the test to confirm it fails**
 
 ```bash
 pnpm vitest run src/components/modules/dilations/__tests__/dilations-copy.test.ts
@@ -104,7 +107,7 @@ pnpm vitest run src/components/modules/dilations/__tests__/dilations-copy.test.t
 
 Expected: FAIL — `dilations-copy` module not found.
 
-- [ ] **Step 3: Create `dilations-copy.ts`**
+- [x] **Step 3: Create `dilations-copy.ts`**
 
 Copy the constants verbatim from `DilationsHUD.tsx` (lines 6–36), then delete them from `DilationsHUD.tsx`. The copy constants in `DilationsHUD.tsx` are `PHASE_LABELS`, `PHASE_INTROS`, and `ROUND_PROMPTS`.
 
@@ -141,7 +144,7 @@ export const ROUND_PROMPTS: Partial<Record<RoundId, string>> = {
 }
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 ```bash
 pnpm vitest run src/components/modules/dilations/__tests__/dilations-copy.test.ts
@@ -149,7 +152,7 @@ pnpm vitest run src/components/modules/dilations/__tests__/dilations-copy.test.t
 
 Expected: PASS — 5 tests passing.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/modules/dilations/dilations-copy.ts src/components/modules/dilations/__tests__/dilations-copy.test.ts
@@ -165,13 +168,13 @@ Copy `rigid-motions/Layout.tsx` verbatim into the dilations module. No logic cha
 **Files:**
 - Create: `src/components/modules/dilations/Layout.tsx`
 
-- [ ] **Step 1: Copy the file**
+- [x] **Step 1: Copy the file**
 
 Copy the full contents of `src/components/modules/rigid-motions/Layout.tsx` into `src/components/modules/dilations/Layout.tsx`.
 
 The file exports `ModuleLayout` — no path aliases or cross-module imports, so the copy works as-is.
 
-- [ ] **Step 2: Verify TypeScript accepts it**
+- [x] **Step 2: Verify TypeScript accepts it**
 
 ```bash
 pnpm build
@@ -179,7 +182,7 @@ pnpm build
 
 Expected: build still passes (new file adds no new consumers yet).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/Layout.tsx
@@ -195,13 +198,13 @@ Copy `rigid-motions/components/PromptReadout.tsx` verbatim into `dilations/compo
 **Files:**
 - Create: `src/components/modules/dilations/components/PromptReadout.tsx`
 
-- [ ] **Step 1: Copy the file**
+- [x] **Step 1: Copy the file**
 
 Copy the full contents of `src/components/modules/rigid-motions/components/PromptReadout.tsx` into `src/components/modules/dilations/components/PromptReadout.tsx`.
 
 The only import is `fadeInReadout` from `@/lib/animation/presets` — this path alias works in both modules.
 
-- [ ] **Step 2: Verify TypeScript accepts it**
+- [x] **Step 2: Verify TypeScript accepts it**
 
 ```bash
 pnpm build
@@ -209,7 +212,7 @@ pnpm build
 
 Expected: build still passes.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/PromptReadout.tsx
@@ -225,7 +228,7 @@ New component. Renders a single primary button determined by `roundState` and `R
 **Files:**
 - Create: `src/components/modules/dilations/components/ControlStrip.tsx`
 
-- [ ] **Step 1: Create `ControlStrip.tsx`**
+- [x] **Step 1: Create `ControlStrip.tsx`**
 
 ```typescript
 // src/components/modules/dilations/components/ControlStrip.tsx
@@ -299,7 +302,7 @@ export function ControlStrip({ state, dispatch }: ControlStripProps) {
 }
 ```
 
-- [ ] **Step 2: Verify TypeScript accepts it**
+- [x] **Step 2: Verify TypeScript accepts it**
 
 ```bash
 pnpm build
@@ -307,7 +310,7 @@ pnpm build
 
 Expected: build passes (new component, not yet consumed).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/ControlStrip.tsx
@@ -324,7 +327,7 @@ Three changes in one commit: rename, CoordinateGrid geometry disposal, SpriteLab
 - Create: `src/components/modules/dilations/DilationsScene.tsx`
 - Delete: `src/components/modules/dilations/DilationsCanvas.tsx`
 
-- [ ] **Step 1: Create `DilationsScene.tsx`**
+- [x] **Step 1: Create `DilationsScene.tsx`**
 
 Copy `DilationsCanvas.tsx` in full, rename the component and export, then apply the three fixes below.
 
@@ -434,7 +437,7 @@ export function DilationsScene({ children, coordinatesVisible: _coordinatesVisib
 }
 ```
 
-- [ ] **Step 2: Verify TypeScript accepts it**
+- [x] **Step 2: Verify TypeScript accepts it**
 
 ```bash
 pnpm build
@@ -442,13 +445,13 @@ pnpm build
 
 Expected: build **fails** with a TypeScript error about the stale `DilationsCanvas` import in `DilationsModule.tsx`. This is expected — do NOT try to fix it here. Proceed directly to Task 6 without committing. Tasks 5 and 6 are committed together in Task 6 Step 3.
 
-- [ ] **Step 3: Delete `DilationsCanvas.tsx`**
+- [x] **Step 3: Delete `DilationsCanvas.tsx`**
 
 ```bash
 rm src/components/modules/dilations/DilationsCanvas.tsx
 ```
 
-- [ ] **Step 4: Start Task 6 immediately** — do not commit yet. The build is broken until Task 6 rewrites `DilationsModule.tsx`. Both tasks are committed together at Task 6 Step 3.
+- [x] **Step 4: Start Task 6 immediately** — do not commit yet. The build is broken until Task 6 rewrites `DilationsModule.tsx`. Both tasks are committed together at Task 6 Step 3.
 
 ---
 
@@ -459,7 +462,7 @@ Replace the raw flex layout and absolute overlays with `ModuleLayout`. This is t
 **Files:**
 - Modify: `src/components/modules/dilations/DilationsModule.tsx`
 
-- [ ] **Step 1: Rewrite `DilationsModule.tsx`**
+- [x] **Step 1: Rewrite `DilationsModule.tsx`**
 
 ```typescript
 // src/components/modules/dilations/DilationsModule.tsx
@@ -649,7 +652,7 @@ Also add the missing import in `DilationsScene.tsx`:
 import { useThree } from '@react-three/fiber'
 ```
 
-- [ ] **Step 2: Verify TypeScript accepts it**
+- [x] **Step 2: Verify TypeScript accepts it**
 
 ```bash
 pnpm build
@@ -657,7 +660,7 @@ pnpm build
 
 Expected: TypeScript may flag missing `onContextLost`/`onContextRestored` props on `DilationsSceneProps` if not yet added — add them now if needed. Build should pass once props are in sync.
 
-- [ ] **Step 3: Commit Tasks 5 + 6 together** (since Task 5 deleted `DilationsCanvas.tsx` which this task's import change resolves)
+- [x] **Step 3: Commit Tasks 5 + 6 together** (since Task 5 deleted `DilationsCanvas.tsx` which this task's import change resolves)
 
 ```bash
 git add src/components/modules/dilations/DilationsScene.tsx
@@ -674,7 +677,7 @@ git commit -m "feat(dilations): wire ModuleLayout — rename DilationsScene, fix
 - Delete: `src/components/modules/dilations/DilationsHUD.tsx`
 - Modify: `src/components/modules/dilations/rounds/ScaleFactorRounds.tsx`
 
-- [ ] **Step 1: Verify `DilationsHUD.tsx` is no longer imported anywhere**
+- [x] **Step 1: Verify `DilationsHUD.tsx` is no longer imported anywhere**
 
 ```bash
 grep -r "DilationsHUD" src/
@@ -682,19 +685,19 @@ grep -r "DilationsHUD" src/
 
 Expected: no results (the import was removed in Task 6). If any remain, remove them before deleting the file.
 
-- [ ] **Step 2: Delete `DilationsHUD.tsx`**
+- [x] **Step 2: Delete `DilationsHUD.tsx`**
 
 ```bash
 git rm src/components/modules/dilations/DilationsHUD.tsx
 ```
 
-- [ ] **Step 3: Remove `ScaleFactorHUD` from `ScaleFactorRounds.tsx`**
+- [x] **Step 3: Remove `ScaleFactorHUD` from `ScaleFactorRounds.tsx`**
 
 In `ScaleFactorRounds.tsx`, delete the entire `ScaleFactorHUD` block (lines 18–29 — the `// ─── ScaleFactorHUD` comment and the exported function). The `ScaleFactorDisplay` import on line 13 stays (it's still used by the `formulaReadout` slot via `DilationsModule.tsx`).
 
 After deletion, `ScaleFactorRounds.tsx` exports only: `ScaleFactorScene`.
 
-- [ ] **Step 4: Verify `ScaleFactorHUD` is no longer imported anywhere**
+- [x] **Step 4: Verify `ScaleFactorHUD` is no longer imported anywhere**
 
 ```bash
 grep -r "ScaleFactorHUD" src/
@@ -702,7 +705,7 @@ grep -r "ScaleFactorHUD" src/
 
 Expected: no results.
 
-- [ ] **Step 5: Full build**
+- [x] **Step 5: Full build**
 
 ```bash
 pnpm build
@@ -710,7 +713,7 @@ pnpm build
 
 Expected: PASS with zero TypeScript errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/modules/dilations/rounds/ScaleFactorRounds.tsx
@@ -722,7 +725,7 @@ git commit -m "chore(dilations): delete DilationsHUD, remove ScaleFactorHUD expo
 
 ## Task 8: Final verification
 
-- [ ] **Step 1: Run all dilations tests**
+- [x] **Step 1: Run all dilations tests**
 
 ```bash
 pnpm vitest run src/components/modules/dilations
@@ -730,7 +733,7 @@ pnpm vitest run src/components/modules/dilations
 
 Expected: all tests pass (existing 3 test files + new `dilations-copy.test.ts` = 4 files).
 
-- [ ] **Step 2: Full production build**
+- [x] **Step 2: Full production build**
 
 ```bash
 pnpm build
@@ -738,7 +741,7 @@ pnpm build
 
 Expected: PASS — zero TypeScript errors, zero unused locals.
 
-- [ ] **Step 3: Start dev server and verify the module visually**
+- [x] **Step 3: Start dev server and verify the module visually**
 
 ```bash
 pnpm dev
@@ -753,7 +756,7 @@ Open `http://localhost:5173`, navigate to the Dilations module. Verify:
 - Portrait: controls panel below scene, capped at 60dvh
 - Landscape: scene left (flex-3), controls panel right (flex-2)
 
-- [ ] **Step 4: Final commit (if any cleanup needed after visual review)**
+- [x] **Step 4: Final commit (if any cleanup needed after visual review)**
 
 ```bash
 git add -p
