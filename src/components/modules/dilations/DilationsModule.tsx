@@ -1,5 +1,5 @@
 // src/components/modules/dilations/DilationsModule.tsx
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ChevronLeft } from 'lucide-react'
 import type { ModuleProps } from '@/config/modules'
@@ -24,6 +24,44 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   const [contextLost, setContextLost] = useState(false)
 
   const isScaleFactorPhase = phase === 'scale-factor'
+
+  // ── Keyboard nudge state ─────────────────────────────────────────────────
+  const [nudgePosition, setNudgePosition] = useState<{ x: number; y: number } | null>(null)
+
+  const handleGhostPositionChange = useCallback((pos: { x: number; y: number }) => {
+    setNudgePosition(pos)
+  }, [])
+
+  // Reset nudge on round change
+  useEffect(() => {
+    setNudgePosition(null)
+  }, [currentRound])
+
+  // Arrow key nudging — only active in ghost-drag rounds during active/prediction states
+  const isNudgeActive =
+    config.hasGhostDrag &&
+    (roundState === 'active' || roundState === 'prediction')
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!isNudgeActive) return
+    const step = e.shiftKey ? 0.25 : 0.5
+    let dx = 0, dy = 0
+    if (e.key === 'ArrowLeft')       dx = -step
+    else if (e.key === 'ArrowRight') dx = step
+    else if (e.key === 'ArrowUp')    dy = step
+    else if (e.key === 'ArrowDown')  dy = -step
+    else return
+    e.preventDefault()
+    // CANONICAL_TRIANGLE centroid: ((1+4+2)/3, (1+2+4)/3)
+    const base = nudgePosition ?? { x: 7 / 3, y: 7 / 3 }
+    const snapped = { x: Math.round((base.x + dx) * 2) / 2, y: Math.round((base.y + dy) * 2) / 2 }
+    setNudgePosition(snapped)
+  }, [isNudgeActive, nudgePosition])
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown])
 
   // ── Earned reveal state ──────────────────────────────────────────────────
   const [shownReveals, setShownReveals] = useState<Set<string>>(new Set())
@@ -144,6 +182,8 @@ export default function DilationsModule({ onBack }: ModuleProps) {
                 key={currentRound}
                 state={state}
                 dispatch={dispatch}
+                ghostExternalPosition={nudgePosition}
+                onGhostPositionChange={handleGhostPositionChange}
               />
             )}
           </DilationsScene>

@@ -20,10 +20,14 @@ function PredictionRoundScene({
   scale,
   roundState,
   dispatch,
+  ghostExternalPosition,
+  onGhostPositionChange,
 }: {
   scale: number
   roundState: string
   dispatch: Dispatch<StageAction>
+  ghostExternalPosition?: { x: number; y: number } | null
+  onGhostPositionChange?: (pos: { x: number; y: number }) => void
 }) {
   const targetTriangle = useMemo(
     () => dilateTriangle(CANONICAL_TRIANGLE, scale),
@@ -60,6 +64,8 @@ function PredictionRoundScene({
           scale={scale}
           onDrop={handleGhostDrop}
           disabled={ghostDisabled}
+          externalPosition={ghostExternalPosition}
+          onPositionChange={onGhostPositionChange}
         />
       )}
       {showReveal && (
@@ -193,9 +199,13 @@ function DilationSummaryScene({
 export function ScaleFactorScene({
   state,
   dispatch,
+  ghostExternalPosition,
+  onGhostPositionChange,
 }: {
   state: StageState
   dispatch: Dispatch<StageAction>
+  ghostExternalPosition?: { x: number; y: number } | null
+  onGhostPositionChange?: (pos: { x: number; y: number }) => void
 }) {
   const { currentRound, roundState } = state
   const config = ROUND_CONFIGS[currentRound]
@@ -216,6 +226,8 @@ export function ScaleFactorScene({
       scale={scale}
       roundState={roundState}
       dispatch={dispatch}
+      ghostExternalPosition={ghostExternalPosition}
+      onGhostPositionChange={onGhostPositionChange}
     />
   )
 }
