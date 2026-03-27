@@ -13,6 +13,9 @@ import { ScaleFactorScene } from './rounds/ScaleFactorRounds'
 import { PHASE_LABELS, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
 import type { EarnedReveal } from './dilations-copy'
 import { ROUND_CONFIGS } from './utils/constants'
+import type { PhaseId } from './utils/types'
+
+const PHASE_SEQUENCE: PhaseId[] = ['scale-factor', 'coordinate', 'similarity', 'aa-capstone']
 
 export default function DilationsModule({ onBack }: ModuleProps) {
   const { state, dispatch } = useDilationsStage()
@@ -79,7 +82,27 @@ export default function DilationsModule({ onBack }: ModuleProps) {
             Dilations & Similarity
           </span>
 
-          <div className="flex-1" />
+          <div
+            className="flex flex-1 items-center justify-center gap-1.5"
+            aria-label={`Phase ${PHASE_SEQUENCE.indexOf(phase) + 1} of ${PHASE_SEQUENCE.length}`}
+          >
+            {PHASE_SEQUENCE.map((p, i) => {
+              const phaseIndex = PHASE_SEQUENCE.indexOf(phase)
+              return (
+                <span
+                  key={p}
+                  className={[
+                    'h-[7px] w-[7px] rounded-full border transition-colors duration-150',
+                    i < phaseIndex
+                      ? 'bg-(--lab-success) border-(--lab-led-completed-border)'
+                      : i === phaseIndex
+                        ? 'bg-(--lab-accent) border-(--lab-accent-muted)'
+                        : 'bg-transparent border-(--lab-ghost)/40',
+                  ].join(' ')}
+                />
+              )
+            })}
+          </div>
 
           <span className="shrink-0 lab-silk lab-display-font text-[9px] tracking-[0.15em] text-(--lab-text-muted)">
             {PHASE_LABELS[phase]}
