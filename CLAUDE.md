@@ -128,7 +128,7 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 ## Current State
 
-**Last updated:** March 19, 2026
+**Last updated:** March 27, 2026
 
 ### App framing
 The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IVLA STEM Club" with a `DotGrid` canvas background (interactive dot field with mouse proximity) and a `RotatingText` tagline ("Where we build / discover / explore / prove"). No personal name in the student-facing UI.
@@ -138,6 +138,7 @@ The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IV
 - **vector-transformations** — Implemented. Linear algebra; matrix transformations on vectors.
 - **phase-portraits** — Placeholder/coming-soon.
 - **rigid-motions** — **Complete (all 4 phases + ISTE visibility sprint).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). ISTE visibility sprint (March 2026) added: phase labels (`PHASE_LABELS`), `synthesis-reveal` guide state (9th state, passive reveal between Phase 3 and capstone), 12 beat-indexed earned reveals (`EARNED_REVEALS` / `RevealBeat`), coordinate rule notation in `PromptReadout`, congruence language in celebration. Target: ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
+- **dilations** — **Phase 1 Complete (solidification sprint, PR #49).** Grade 8 Geometry; 8.G.A.3–5. Predict-and-reveal loop across 5 scale-factor rounds (`dilate-k2`, `dilate-k2-properties`, `dilate-k3`, `dilate-k-half`, `dilate-summary`). Earned reveals, keyboard nudge, phase progress LEDs, scene visibility context for Phase 2. See [`src/components/modules/dilations/ARCHITECTURE.md`](./src/components/modules/dilations/ARCHITECTURE.md).
 
 ### PWA / Offline
 `vite-plugin-pwa` added with Workbox `generateSW` mode. Pre-caches all JS/CSS/HTML/woff2 assets (17 entries, ~3MB including Three.js chunk). Google Fonts cached via `CacheFirst`. App fully functional offline after first load. Config in `vite.config.ts`.
@@ -150,7 +151,7 @@ The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IV
 - `Navigation.tsx` uses `from-[var(--lab-bg)]/70` gradient and lab text tokens.
 
 ### Module skeleton
-Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, useAccessibility, useErrorRecovery, useModuleAnalytics). Not yet consumed by any module — rigid-motions built its own `useRigidMotionsState` hook directly.
+Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallengeAssist, useAccessibility, useErrorRecovery, useModuleAnalytics). `useAccessibility` now consumed by DilationsModule (screen reader announcements + haptic). Other hooks not yet used — rigid-motions built its own `useRigidMotionsState` hook directly.
 
 ### Rigid Motions — architecture notes
 - **Standards:** 8.G.A.1, 8.G.A.2, 8.G.A.3 (Grade 8 Geometry)
@@ -159,6 +160,13 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 - **ISTE visibility sprint spec:** `docs/superpowers/specs/` — beat-indexed reveals, synthesis-reveal, phase labels
 - **Shared types:** `TransformationParams` and related types live in `src/lib/types/transforms.ts` — imported by celebration components and rigid-motions module alike
 - **Roadmap:** First module in three-module Grade 8 Geometry progression: (1) Rigid Motions ✓, (2) Dilations & Similarity, (3) Pythagorean Theorem
+
+### Dilations — architecture notes
+- **Standards:** 8.G.A.3 (dilations), 8.G.A.4 (similar figures), 8.G.A.5 (AA criterion)
+- **Architecture doc:** [`src/components/modules/dilations/ARCHITECTURE.md`](./src/components/modules/dilations/ARCHITECTURE.md) — as-built reference
+- **Build order:** `docs/modules/dilations/build-order-prompts.md` — 14-round sequence across 4 phases
+- **Phase 1 complete:** All 5 scale-factor rounds implemented + solidification sprint (PR #49)
+- **Next:** Phase 2 (coordinate rounds) — `coord-k2`, `coord-k-half`, `coord-k-third`
 
 ## Outstanding Work
 
@@ -174,8 +182,6 @@ See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and fi
 ### Pedagogy
 
 - **PED-01: Capstone entry copy reveals non-commutativity too early** — "try reversing the order" should only trigger after a miss, not as the entry prompt. Split `PROMPT_TEXT` into neutral entry + post-miss hint. Files: `rigid-motions-copy.ts`, `useRigidMotionsState.ts`.
-- ~~**PED-02: Capstone completion copy alignment**~~ — **Resolved (March 2026).** `CAPSTONE_COMPLETION_COPY` updated with ≅ language; keys verified against `capstone-utils.ts`.
-- ~~**PED-03: Earned reveal pacing**~~ — **Substantially addressed by ISTE visibility sprint.** All 12 reveal beats are now specific to what the student just demonstrated; beat-indexed by `${guideState}-${stageSuccessCount}`. Congruence language added to celebration.
 - **`coordinate-reveal` stage is a passive reveal** — Student presses CONTINUE without earning the formula. `synthesis-reveal` (added in sprint) is a similar pause state but after coordinate predict rounds. The original concern about `coordinate-reveal` bridge copy remains open.
 - **ALD alignment audit** — Phase labels (`PHASE_02`, `PHASE_03`, `PHASE_04`) and `synthesis-reveal` pause state added in sprint help clarify progression, but a formal audit of each transition against ALDs has not been done.
 - **SW-02: Unit circle mobile portrait decision** — Deliberate choice needed: hide to give wave more canvas, or keep and accept smaller wave area. Observe student sessions, then document the decision.
@@ -184,10 +190,9 @@ See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and fi
 ### Feature ideas — Rigid Motions (not yet scheduled)
 - **Per-vertex color-coded rotation arcs** — All three `RotationArcs` arcs are `#7a746a`. Color each arc to match its vertex and pulse on alignment. Requires 3 vertex color constants, per-arc alignment detection, GSAP pulse.
 
-### Next module: Dilations & Similarity
-- Grade 8 Geometry progression — follows Rigid Motions
-- Use `module-planning-pipeline` skill to generate the design spec
-- Follow the rigid-motions file structure as reference implementation
+### Next: Dilations Phase 2 (coordinate rounds)
+- `coord-k2`, `coord-k-half`, `coord-k-third` — build-order prompts 5–7
+- See `docs/modules/dilations/build-order-prompts.md`
 
 ### Sinewaves — lower-priority polish
 - **Resize distortion:** Scene layout may desync with Canvas on viewport resize.
@@ -217,6 +222,7 @@ See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRA
 | Vision, audience, principles | [VISION.md](./VISION.md) |
 | Sinewaves architecture | [src/components/modules/sinewaves/ARCHITECTURE.md](./src/components/modules/sinewaves/ARCHITECTURE.md) |
 | Rigid Motions architecture | [src/components/modules/rigid-motions/ARCHITECTURE.md](./src/components/modules/rigid-motions/ARCHITECTURE.md) |
+| Dilations architecture | [src/components/modules/dilations/ARCHITECTURE.md](./src/components/modules/dilations/ARCHITECTURE.md) |
 | Module skeleton infrastructure | [src/lib/skeleton/README.md](./src/lib/skeleton/README.md) |
 | Design critiques, HUD direction | `docs/design/` |
 | Professional artifacts (resume, ISTE storyboards, module planning) | `docs/professional/` |

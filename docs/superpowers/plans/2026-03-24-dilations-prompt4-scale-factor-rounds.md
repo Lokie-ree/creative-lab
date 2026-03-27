@@ -1,6 +1,9 @@
+## Status: Complete
+> Implemented 2026-03-24. Merged as part of PR #47 (dilations prompts 1–4).
+
 # Dilations Prompt 4: Scale Factor Exploration Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Implement rounds `dilate-k2`, `dilate-k2-properties`, and `dilate-k3` — the first three rounds of Phase 1 (Scale Factor Exploration). Delivers all visual scaffolding (RayLines, RatioAnnotations, AngleMarks, ScaleFactorDisplay) and the round orchestration that wires them together into the stage machine.
 
@@ -98,15 +101,15 @@ export function ScaleFactorDisplay({ k }: ScaleFactorDisplayProps) {
 }
 ```
 
-- [ ] **Step 1: Create `ScaleFactorDisplay.tsx`**
+- [x] **Step 1: Create `ScaleFactorDisplay.tsx`**
 
-- [ ] **Step 2: TypeScript check**
+- [x] **Step 2: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -20
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/ScaleFactorDisplay.tsx
@@ -246,17 +249,17 @@ export function RayLines({ preImage: _preImage, image, visible, animating }: Ray
 - `computeLineDistances()` must be called after every geometry update and once after initial setup — `LineDashedMaterial` won't render dashes without it.
 - `rayLines` is created with references to `rayGeos.current` so no orphaned geometries exist.
 
-- [ ] **Step 1: Read `src/components/modules/rigid-motions/scene/ImageShape.tsx`** (reference for GSAP+imperative pattern)
+- [x] **Step 1: Read `src/components/modules/rigid-motions/scene/ImageShape.tsx`** (reference for GSAP+imperative pattern)
 
-- [ ] **Step 2: Implement `RayLines.tsx`** (code above, adjust as needed for TypeScript)
+- [x] **Step 2: Implement `RayLines.tsx`** (code above, adjust as needed for TypeScript)
 
-- [ ] **Step 3: TypeScript check**
+- [x] **Step 3: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/RayLines.tsx
@@ -357,15 +360,15 @@ export function RatioAnnotations({ preImage, ratio, visible, animating }: RatioA
 }
 ```
 
-- [ ] **Step 1: Implement `RatioAnnotations.tsx`**
+- [x] **Step 1: Implement `RatioAnnotations.tsx`**
 
-- [ ] **Step 2: TypeScript check**
+- [x] **Step 2: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/RatioAnnotations.tsx
@@ -513,15 +516,15 @@ export function AngleMarks({ triangles, visible, animating }: AngleMarksProps) {
 - `computeLineDistances()` is NOT needed for `LineBasicMaterial` (only for `LineDashedMaterial`)
 - Opacity is driven via `markLines` array in `useFrame` — no refs needed
 
-- [ ] **Step 1: Implement `AngleMarks.tsx`**
+- [x] **Step 1: Implement `AngleMarks.tsx`**
 
-- [ ] **Step 2: TypeScript check**
+- [x] **Step 2: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/modules/dilations/components/AngleMarks.tsx
@@ -775,17 +778,17 @@ export function ScaleFactorScene({
 }
 ```
 
-- [ ] **Step 1: Create `src/components/modules/dilations/rounds/` directory structure** (create the file — the directory is created automatically)
+- [x] **Step 1: Create `src/components/modules/dilations/rounds/` directory structure** (create the file — the directory is created automatically)
 
-- [ ] **Step 2: Implement `ScaleFactorRounds.tsx`** (code above, use simplified ghost visibility logic)
+- [x] **Step 2: Implement `ScaleFactorRounds.tsx`** (code above, use simplified ghost visibility logic)
 
-- [ ] **Step 3: TypeScript check**
+- [x] **Step 3: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/modules/dilations/rounds/ScaleFactorRounds.tsx
@@ -874,17 +877,17 @@ export default function DilationsModule({ onBack }: ModuleProps) {
 }
 ```
 
-- [ ] **Step 1: Read current `DilationsCanvas.tsx`** and remove the inline `PreImageTriangle` function + its render call
+- [x] **Step 1: Read current `DilationsCanvas.tsx`** and remove the inline `PreImageTriangle` function + its render call
 
-- [ ] **Step 2: Rewrite `DilationsModule.tsx`** per the spec above
+- [x] **Step 2: Rewrite `DilationsModule.tsx`** per the spec above
 
-- [ ] **Step 3: TypeScript check**
+- [x] **Step 3: TypeScript check**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm exec tsc --noEmit --project tsconfig.app.json 2>&1 | head -30
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/modules/dilations/DilationsCanvas.tsx \
@@ -898,7 +901,7 @@ git commit -m "feat(dilations): wire ScaleFactorRounds into module — remove ca
 
 **Full build + tests.**
 
-- [ ] **Step 1: Run all dilations tests**
+- [x] **Step 1: Run all dilations tests**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm vitest run src/components/modules/dilations 2>&1 | tail -20
@@ -906,7 +909,7 @@ cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm vitest run sr
 
 Expected: All tests pass (65+ from Prompts 1–3; no new tests in Prompt 4).
 
-- [ ] **Step 2: Run full production build**
+- [x] **Step 2: Run full production build**
 
 ```bash
 cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm build 2>&1 | tail -30
@@ -914,7 +917,7 @@ cd "C:\Users\rplap\OneDrive\Desktop\personal\creative-lab" && pnpm build 2>&1 | 
 
 Expected: `tsc -b` + Vite build succeed with zero errors.
 
-- [ ] **Step 3: Final commit if any fixes applied**
+- [x] **Step 3: Final commit if any fixes applied**
 
 If TypeScript errors were found and fixed in Steps 1–2, commit them now:
 
