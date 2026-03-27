@@ -3,6 +3,7 @@ import {
   PHASE_LABELS,
   PHASE_INTROS,
   ROUND_PROMPTS,
+  EARNED_REVEALS,
 } from '../dilations-copy'
 import type { PhaseId, RoundId } from '../utils/types'
 
@@ -49,5 +50,22 @@ describe('ROUND_PROMPTS', () => {
       expect(ROUND_PROMPTS[r]).toBeDefined()
       expect(typeof ROUND_PROMPTS[r]).toBe('string')
     })
+  })
+})
+
+describe('EARNED_REVEALS', () => {
+  const phase1Rounds: RoundId[] = [
+    'dilate-k2', 'dilate-k2-properties', 'dilate-k3', 'dilate-k-half', 'dilate-summary',
+  ]
+  it('has an entry for every Phase 1 round', () => {
+    for (const id of phase1Rounds) {
+      expect(EARNED_REVEALS[id]).toBeDefined()
+      expect(typeof EARNED_REVEALS[id]?.text).toBe('string')
+    }
+  })
+  it('notation entries that exist are non-empty strings', () => {
+    for (const entry of Object.values(EARNED_REVEALS)) {
+      if (entry?.notation) expect(entry.notation.length).toBeGreaterThan(0)
+    }
   })
 })
