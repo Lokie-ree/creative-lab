@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import type { Triangle, Vec2 } from '../utils/types'
 import { SpriteLabel } from './SpriteLabel'
-import { useDilationsSceneContext } from '../DilationsScene'
+import { useDilationsSceneContext } from '../DilationsSceneContext'
 
 const PRE_COLOR = '#b8b0a4'
 const VERTEX_LABELS = ['A', 'B', 'C'] as const

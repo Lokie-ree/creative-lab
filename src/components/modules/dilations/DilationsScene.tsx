@@ -1,26 +1,9 @@
 // src/components/modules/dilations/DilationsScene.tsx
-import { useEffect, useMemo, createContext, useContext } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { SpriteLabel } from './components/SpriteLabel'
-
-// ─── Scene visibility context ─────────────────────────────────────────────────
-// Allows scene children (round components) to read coordinatesVisible /
-// angleLabelsVisible without explicit prop-drilling through each scene component.
-
-interface DilationsSceneContext {
-  coordinatesVisible: boolean
-  angleLabelsVisible: boolean
-}
-
-const DilationsSceneCtx = createContext<DilationsSceneContext>({
-  coordinatesVisible: false,
-  angleLabelsVisible: false,
-})
-
-export function useDilationsSceneContext() {
-  return useContext(DilationsSceneCtx)
-}
+import { DilationsSceneCtx } from './DilationsSceneContext'
 
 // World range: x ∈ [-2, 14], y ∈ [-2, 14] — accommodates k=3 dilation of canonical triangle
 const WORLD_MIN = -2

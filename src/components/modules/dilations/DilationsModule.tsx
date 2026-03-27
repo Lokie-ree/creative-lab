@@ -36,10 +36,12 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     setNudgePosition(pos)
   }, [])
 
-  // Reset nudge on round change
+  // Reset nudge on round change — setState in useEffect is intentional here
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setNudgePosition(null)
   }, [currentRound])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Arrow key nudging — only active in ghost-drag rounds during active/prediction states
   const isNudgeActive =
