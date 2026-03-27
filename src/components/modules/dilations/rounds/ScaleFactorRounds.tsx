@@ -104,16 +104,8 @@ function PropertiesRoundScene({
     [imageTriangle]
   )
 
-  // Auto-progress: entry → active after short delay
-  useEffect(() => {
-    if (roundState !== 'entry') return
-    const timer = setTimeout(() => {
-      dispatch({ type: 'SET_ROUND_STATE', state: 'active' })
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [roundState, dispatch])
-
   // Auto-complete: active → completion after annotations animate in (~1.4s total)
+  // Student initiates active state by pressing CONTINUE (no auto-advance from entry)
   useEffect(() => {
     if (roundState !== 'active') return
     const timer = setTimeout(() => {
