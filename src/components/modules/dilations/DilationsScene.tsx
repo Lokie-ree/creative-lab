@@ -69,13 +69,15 @@ function CoordinateGrid() {
 
   return (
     <group>
+      {/* Grid lines: slightly darker than --lab-bg (#1e1d1c), intentionally subtle */}
       <lineSegments geometry={gridGeometry}>
         <lineBasicMaterial color="#28251f" transparent opacity={0.35} />
       </lineSegments>
+      {/* Axis lines: matches --lab-border equivalent */}
       <lineSegments geometry={axisGeometry}>
         <lineBasicMaterial color="#3e3a34" transparent opacity={0.55} />
       </lineSegments>
-      {/* Origin marker */}
+      {/* Origin marker: --lab-accent (#7cc87c) */}
       <mesh position={[0, 0, 0.01]}>
         <circleGeometry args={[0.12, 16]} />
         <meshBasicMaterial color="#7cc87c" />
