@@ -154,3 +154,12 @@ export function composeTriangle(steps: TransformStep[], t: Triangle): Triangle {
     c: composeTransformations(steps, t.c),
   }
 }
+
+// ---------------------------------------------------------------------------
+// Coordinate formatting
+// ---------------------------------------------------------------------------
+
+/** Format a dilated coordinate for display: (k * value), rounded to 2dp, trailing zeros stripped */
+export function formatCoord(k: number, value: number): string {
+  return (k * value).toFixed(2).replace(/\.?0+$/, '')
+}
