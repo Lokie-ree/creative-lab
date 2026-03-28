@@ -10,6 +10,8 @@ import { PromptReadout } from './components/PromptReadout'
 import { ControlStrip } from './components/ControlStrip'
 import { ScaleFactorDisplay } from './components/ScaleFactorDisplay'
 import { ScaleFactorScene } from './rounds/ScaleFactorRounds'
+import { CoordinateScene } from './rounds/CoordinateRounds'
+import { CoordinateReadout } from './components/CoordinateReadout'
 import { PHASE_LABELS, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
 import type { EarnedReveal } from './dilations-copy'
 import { ROUND_CONFIGS } from './utils/constants'
@@ -25,6 +27,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   const [contextLost, setContextLost] = useState(false)
 
   const isScaleFactorPhase = phase === 'scale-factor'
+  const isCoordinatePhase = phase === 'coordinate'
 
   // ── Accessibility ────────────────────────────────────────────────────────
   const { announce } = useAccessibility()
@@ -111,10 +114,22 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   const notation = isFirstReveal ? earnedReveal?.notation : undefined
   const notationStyle = isFirstReveal ? earnedReveal?.notationStyle : undefined
 
-  // ── Formula readout: scale factor in Phase 1 ────────────────────────────
-  const formulaReadout = isScaleFactorPhase && config.scaleFactor != null
-    ? <div className="px-5 py-2 md:px-4"><ScaleFactorDisplay k={config.scaleFactor} /></div>
-    : null
+  // ── Formula readout: scale factor in Phase 1, coordinate rule in Phase 2 ──
+  const formulaReadout = (() => {
+    if (isScaleFactorPhase && config.scaleFactor != null) {
+      return <div className="px-5 py-2 md:px-4"><ScaleFactorDisplay k={config.scaleFactor} /></div>
+    }
+    if (isCoordinatePhase && config.scaleFactor != null) {
+      return (
+        <CoordinateReadout
+          scaleFactor={config.scaleFactor}
+          roundState={roundState}
+          isGeneralized={currentRound === 'coord-k-third'}
+        />
+      )
+    }
+    return null
+  })()
 
   return (
     <ModuleLayout
@@ -192,6 +207,15 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           >
             {isScaleFactorPhase && (
               <ScaleFactorScene
+                key={currentRound}
+                state={state}
+                dispatch={dispatch}
+                ghostExternalPosition={nudgePosition}
+                onGhostPositionChange={handleGhostPositionChange}
+              />
+            )}
+            {isCoordinatePhase && (
+              <CoordinateScene
                 key={currentRound}
                 state={state}
                 dispatch={dispatch}
