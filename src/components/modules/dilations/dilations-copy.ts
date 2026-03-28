@@ -48,6 +48,21 @@ export const EARNED_REVEALS: Partial<Record<RoundId, EarnedReveal>> = {
   'dilate-summary': {
     text: 'k > 1 enlarges. 0 < k < 1 reduces. The center is fixed. Angles always preserved.',
   },
+  'coord-k2': {
+    text: 'Every coordinate multiplied by 2.',
+    notation: '(x, y) → (2x, 2y)',
+    notationStyle: 'rule',
+  },
+  'coord-k-half': {
+    text: 'Same rule — multiply by k — even for fractions.',
+    notation: '(x, y) → (½x, ½y)',
+    notationStyle: 'rule',
+  },
+  'coord-k-third': {
+    text: 'The pattern: multiply each coordinate by k.',
+    notation: '(x, y) → (kx, ky)',
+    notationStyle: 'rule',
+  },
 }
 
 // Partial — Phase 2–4 entries added when those phases are built
@@ -57,4 +72,7 @@ export const ROUND_PROMPTS: Partial<Record<RoundId, string>> = {
   'dilate-k3':                 'Predict the image for k = 3.',
   'dilate-k-half':             'What happens when k is less than 1?',
   'dilate-summary':            'What have you discovered about scale factors?',
+  'coord-k2':     "Now let's look at the coordinates. Where will A', B', and C' land when k = 2?",
+  'coord-k-half': "k = ½ again — but now predict the exact coordinates.",
+  'coord-k-third': "k = ⅓. Can you predict the coordinates before checking?",
 }

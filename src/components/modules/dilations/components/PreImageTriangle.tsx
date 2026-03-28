@@ -24,6 +24,7 @@ export interface PreImageTriangleProps {
   showAngles?: boolean
   coordinateLabels?: [string, string, string]  // override auto "(x, y)" format
   angleLabels?: [number, number, number]       // degrees at A, B, C
+  suppressInlineCoords?: boolean
 }
 
 export function PreImageTriangle({
@@ -32,6 +33,7 @@ export function PreImageTriangle({
   showAngles,
   coordinateLabels,
   angleLabels,
+  suppressInlineCoords,
 }: PreImageTriangleProps) {
   const { coordinatesVisible, angleLabelsVisible } = useDilationsSceneContext()
   // Explicit prop wins; context is the fallback
@@ -88,7 +90,7 @@ export function PreImageTriangle({
           />
         )
       })}
-      {effectiveShowCoords && verts.map((v, i) => {
+      {effectiveShowCoords && !suppressInlineCoords && verts.map((v, i) => {
         const label = coordinateLabels?.[i] ?? `(${v.x}, ${v.y})`
         const off = labelOffset(v, c2, 1.1)
         return (

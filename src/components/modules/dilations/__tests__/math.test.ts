@@ -14,6 +14,7 @@ import {
   rotatePoint,
   composeTransformations,
   composeTriangle,
+  formatCoord,
 } from '../utils/math'
 import type { Vec2, Triangle, TransformStep } from '../utils/types'
 import { CANONICAL_TRIANGLE } from '../utils/constants'
@@ -237,5 +238,21 @@ describe('composeTriangle', () => {
     expect(result.a).toEqual({ x: 2, y: 2 })
     expect(result.b).toEqual({ x: 8, y: 4 })
     expect(result.c).toEqual({ x: 4, y: 8 })
+  })
+})
+
+describe('formatCoord', () => {
+  it('strips trailing zeros from integers', () => {
+    expect(formatCoord(2, 1)).toBe('2')
+    expect(formatCoord(2, 4)).toBe('8')
+  })
+  it('strips trailing zero from halves', () => {
+    expect(formatCoord(0.5, 1)).toBe('0.5')
+    expect(formatCoord(0.5, 4)).toBe('2')
+  })
+  it('rounds thirds to 2 decimal places', () => {
+    expect(formatCoord(0.333, 1)).toBe('0.33')
+    expect(formatCoord(0.333, 4)).toBe('1.33')
+    expect(formatCoord(0.333, 2)).toBe('0.67')
   })
 })
