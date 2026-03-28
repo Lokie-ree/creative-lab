@@ -33,7 +33,7 @@ The formula strip becomes the "coordinate workspace" in Phase 2:
 |---|---|---|
 | coord-k2 | `k = 2` | `A(1,1)→A'(2,2)  B(4,2)→B'(8,4)  C(2,4)→C'(4,8)` + `(x,y)→(2x,2y)` |
 | coord-k-half | `k = ½` | `A(1,1)→A'(0.5,0.5)  B(4,2)→B'(2,1)  C(2,4)→C'(1,2)` + `(x,y)→(½x,½y)` |
-| coord-k-third | `k = ⅓` | `A(1,1)→A'(⅓,⅓)  B(4,2)→B'(1⅓,⅔)  C(2,4)→C'(⅔,1⅓)` + `(x,y)→(kx,ky)` in amber |
+| coord-k-third | `k = ⅓` | `A(1,1)→A'(0.33,0.33)  B(4,2)→B'(1.33,0.67)  C(2,4)→C'(0.67,1.33)` + `(x,y)→(kx,ky)` in amber |
 
 ### Label reveal: simultaneous
 
@@ -95,9 +95,9 @@ Reuses the imperative GhostTriangle from PR #51 (useRef + useFrame, zero re-rend
 
 - **`dilations-copy.ts`** — Add `ROUND_PROMPTS` entries for coord-k2, coord-k-half, coord-k-third. Add `EARNED_REVEALS` entries for all three rounds.
 
-- **`PreImageTriangle.tsx`** — When `coordinatesVisible` is true, show vertex letters only (A, B, C) without inline coordinate values. The current implementation shows `A(1,1)` — change to just `A` when Phase 2+ is active. Coordinate values move to the formula strip.
+- **`PreImageTriangle.tsx`** — Add a `suppressInlineCoords` prop (default `false`). When `true`, the `effectiveShowCoords` block (lines 91–104) is skipped — vertex letters still render, but the `(x, y)` coordinate labels do not. `CoordinateRounds.tsx` passes `suppressInlineCoords={true}` because coordinate values live in the formula strip, not the scene. The existing `coordinatesVisible` context flag remains unchanged (it still gates Phase 2+ features generally).
 
-- **`ImageTriangle.tsx`** — Same change: vertex letters only (A', B', C') when `coordinatesVisible` is true. No inline coordinate values.
+- **`ImageTriangle.tsx`** — Same `suppressInlineCoords` prop, same behavior. Vertex letters (A', B', C') render; inline coordinate labels suppressed.
 
 ### Unchanged (reused as-is)
 
@@ -135,6 +135,30 @@ Pre-image fill (0.02) → ghost (0.05) → image fill (0.07) → labels (0.08–
 ## State Machine
 
 No changes to `useDilationsStage`. The coordinate rounds are already fully configured in `ROUND_CONFIGS` with `coordinatesVisible: true`, `hasGhostDrag: true`, and correct scale factors. The `coordinatesVisible` flag flips to `true` on entering coord-k2 via the existing one-way OR logic and never resets.
+
+---
+
+## Coordinate Formatting
+
+All coordinate values in the formula strip are displayed as **rounded decimals to 2 decimal places**, not exact fractions. Examples:
+
+- k=2: `A'(2, 2)`, `B'(8, 4)`, `C'(4, 8)` — clean integers
+- k=0.5: `A'(0.5, 0.5)`, `B'(2, 1)`, `C'(1, 2)` — clean halves
+- k=0.333: `A'(0.33, 0.33)`, `B'(1.33, 0.67)`, `C'(0.67, 1.33)` — rounded
+
+Rationale: Exact rational arithmetic (⅓, 1⅓) would require a fraction library or manual formatting for display only. Rounded decimals are sufficient — students see the pattern `multiply by k` regardless of display precision. The coordinate rule `(x, y) → (⅓x, ⅓y)` uses the fraction symbol in the rule text, but vertex coordinate values are decimal.
+
+Implementation: `(k * coord).toFixed(2).replace(/\.?0+$/, '')` — strips trailing zeros so `2.00` displays as `2` and `0.50` displays as `0.5`.
+
+---
+
+## Implementation Notes
+
+- **CoordinateRounds.tsx** should duplicate the `PredictionRoundScene` pattern from `ScaleFactorRounds.tsx`, not import it. Per project convention: no premature sharing between phases until all are complete.
+- **Phase progress LEDs** already work for Phase 2 — the existing `StatusStrip` reads from `ROUND_SEQUENCE` and `currentRound`, which includes the coordinate round IDs. No changes needed.
+- **Screen reader announcements** for earned reveals already work via `useAccessibility`. The coordinate table in the formula strip is standard HTML in the `formulaReadout` slot — inherently accessible. No additional ARIA work needed.
+- **Prediction tolerance** remains `PREDICTION_TOLERANCE = 0.75`. For k=⅓, the image centroid is at ~(0.78, 0.78). The ghost starts at the pre-image centroid (~2.33, 2.33), so the student must move it significantly toward the origin. 0.75 units of tolerance is adequate — the image is small but the required movement is large enough to demonstrate understanding.
+- **Earned reveal copy split:** `text` field contains the prose, `notation` field contains the formula in data font. Example: `{ text: "The pattern: multiply each coordinate by k.", notation: "(x, y) → (kx, ky)", notationStyle: "rule" }`.
 
 ---
 
