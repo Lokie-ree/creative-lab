@@ -53,6 +53,35 @@ describe('ROUND_PROMPTS', () => {
   })
 })
 
+describe('Phase 2 copy', () => {
+  const phase2Rounds: RoundId[] = ['coord-k2', 'coord-k-half', 'coord-k-third']
+
+  it('ROUND_PROMPTS has entries for all Phase 2 rounds', () => {
+    phase2Rounds.forEach(r => {
+      expect(ROUND_PROMPTS[r]).toBeDefined()
+      expect(typeof ROUND_PROMPTS[r]).toBe('string')
+    })
+  })
+
+  it('EARNED_REVEALS has entries for all Phase 2 rounds', () => {
+    phase2Rounds.forEach(r => {
+      expect(EARNED_REVEALS[r]).toBeDefined()
+      expect(typeof EARNED_REVEALS[r]?.text).toBe('string')
+    })
+  })
+
+  it('coord-k2 and coord-k-half earned reveals have notation', () => {
+    expect(EARNED_REVEALS['coord-k2']?.notation).toBeDefined()
+    expect(EARNED_REVEALS['coord-k-half']?.notation).toBeDefined()
+  })
+
+  it('coord-k-third earned reveal has notation with generalized rule', () => {
+    const reveal = EARNED_REVEALS['coord-k-third']
+    expect(reveal?.notation).toContain('kx')
+    expect(reveal?.notation).toContain('ky')
+  })
+})
+
 describe('EARNED_REVEALS', () => {
   const phase1Rounds: RoundId[] = [
     'dilate-k2', 'dilate-k2-properties', 'dilate-k3', 'dilate-k-half', 'dilate-summary',
