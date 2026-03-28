@@ -26,6 +26,7 @@ export interface ImageTriangleProps {
   showAngles?: boolean
   coordinateLabels?: [string, string, string]
   angleLabels?: [number, number, number]
+  suppressInlineCoords?: boolean
 }
 
 export function ImageTriangle({
@@ -36,6 +37,7 @@ export function ImageTriangle({
   showAngles,
   coordinateLabels,
   angleLabels,
+  suppressInlineCoords,
 }: ImageTriangleProps) {
   // HOOKS FIRST — all useMemo calls must appear before any early return (Rules of Hooks)
   const { coordinatesVisible, angleLabelsVisible } = useDilationsSceneContext()
@@ -96,7 +98,7 @@ export function ImageTriangle({
           />
         )
       })}
-      {effectiveShowCoords && verts.map((v, i) => {
+      {effectiveShowCoords && !suppressInlineCoords && verts.map((v, i) => {
         const label = coordinateLabels?.[i] ?? `(${v.x}, ${v.y})`
         const off = labelOffset(v, c2, 1.1)
         return (
