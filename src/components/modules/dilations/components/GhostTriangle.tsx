@@ -1,5 +1,5 @@
 // src/components/modules/dilations/components/GhostTriangle.tsx
-import { useRef, useState, useMemo, useCallback, useEffect } from 'react'
+import { useRef, useMemo, useCallback, useEffect } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
 import type { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -64,20 +64,35 @@ export function GhostTriangle({
   externalPosition, onPositionChange,
 }: GhostTriangleProps) {
   const { camera, gl } = useThree()
+  const groupRef = useRef<THREE.Group>(null)
   const lineLoopRef = useRef<THREE.LineLoop>(null)
   const dragging = useRef(false)
   const cleanupDragRef = useRef<(() => void) | null>(null)
   const raycaster = useMemo(() => new THREE.Raycaster(), [])
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), [])
 
-  // scaledShape is the dilated triangle centered at origin
+  // scaledShape is the dilated triangle centered at origin — built once per scale change
   const scaledShape = useMemo(() => {
     const dilated = dilateTriangle(vertices, scale)
     const c = triangleCentroid(dilated)
     return translateTriangle(dilated, -c.x, -c.y)
   }, [vertices, scale])
 
-  const [centerPos, setCenterPos] = useState<Vec2 | null>(null)
+  // Geometry built once from origin-centered scaledShape — never rebuilt during drag
+  const { fillGeo, outlineGeo } = useMemo(
+    () => buildTriangleGeometries(scaledShape),
+    [scaledShape]
+  )
+
+  useEffect(() => {
+    return () => {
+      fillGeo.dispose()
+      outlineGeo.dispose()
+    }
+  }, [fillGeo, outlineGeo])
+
+  // Drag position stored as ref — updates group position imperatively in useFrame (zero re-renders)
+  const centerPosRef = useRef<Vec2>(triangleCentroid(vertices))
 
   const getWorldPoint = useCallback((clientX: number, clientY: number): Vec2 => {
     const rect = gl.domElement.getBoundingClientRect()
@@ -100,8 +115,8 @@ export function GhostTriangle({
       if (!dragging.current) return
       const p = getWorldPoint(ev.clientX, ev.clientY)
       const snapped = { x: snap(p.x), y: snap(p.y) }
-      setCenterPos(snapped)
-      onPositionChange?.(snapped)
+      // Imperative ref update — no React re-render
+      centerPosRef.current = snapped
     }
 
     const handleUp = (ev: PointerEvent) => {
@@ -109,8 +124,10 @@ export function GhostTriangle({
       dragging.current = false
       const p = getWorldPoint(ev.clientX, ev.clientY)
       const snapped = { x: snap(p.x), y: snap(p.y) }
-      setCenterPos(snapped)
+      centerPosRef.current = snapped
       onDrop(snapped)
+      // Sync keyboard nudge state on drop only (not per-move)
+      onPositionChange?.(snapped)
       window.removeEventListener('pointermove', handleMove)
       window.removeEventListener('pointerup', handleUp)
       cleanupDragRef.current = null
@@ -124,36 +141,26 @@ export function GhostTriangle({
     }
   }, [disabled, getWorldPoint, onDrop, onPositionChange])
 
+  // Sync externalPosition (keyboard nudge) to centerPosRef so useFrame stays consistent
+  useEffect(() => {
+    if (externalPosition != null) {
+      centerPosRef.current = externalPosition
+    }
+  }, [externalPosition])
+
   useFrame(() => {
+    // externalPosition wins during keyboard nudge; otherwise use drag ref
+    const pos = externalPosition ?? centerPosRef.current
+    groupRef.current?.position.set(pos.x, pos.y, 0)
     lineLoopRef.current?.computeLineDistances()
   })
-
-  // externalPosition (keyboard nudge) wins; otherwise use drag position; fallback to pre-image centroid
-  const displayCenter = externalPosition ?? centerPos ?? triangleCentroid(vertices)
-
-  const positioned = useMemo(() =>
-    translateTriangle(scaledShape, displayCenter.x, displayCenter.y),
-    [scaledShape, displayCenter]
-  )
-
-  const { fillGeo, outlineGeo } = useMemo(
-    () => buildTriangleGeometries(positioned),
-    [positioned]
-  )
-
-  useEffect(() => {
-    return () => {
-      fillGeo.dispose()
-      outlineGeo.dispose()
-    }
-  }, [fillGeo, outlineGeo])
 
   useEffect(() => {
     return () => { cleanupDragRef.current?.() }
   }, [])
 
   return (
-    <group>
+    <group ref={groupRef}>
       {/* Invisible drag capture plane — only rendered when NOT disabled.
           IMPORTANT: omit entirely when disabled so it doesn't block pointer events
           from sibling R3F components (e.g., during reveal/completion states). */}
@@ -167,7 +174,7 @@ export function GhostTriangle({
         </mesh>
       )}
 
-      {/* Ghost fill */}
+      {/* Ghost fill — geometry at origin, group position drives location */}
       <mesh geometry={fillGeo} position={[0, 0, 0.05]}>
         <meshBasicMaterial color={GHOST_COLOR} transparent opacity={disabled ? 0.1 : 0.25} />
       </mesh>

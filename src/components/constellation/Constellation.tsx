@@ -85,7 +85,7 @@ export function Constellation({
       </div>
 
       {/* Content area — centered in remaining height */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4">
+      <div className="flex flex-1 flex-col items-center px-4 pt-[10dvh] [@media(orientation:landscape)]:pt-[6dvh]">
         <div className="text-center mb-12">
           <h1 className="lab-display-font text-2xl md:text-3xl font-semibold text-(--lab-text) mb-2">
             {course.name}

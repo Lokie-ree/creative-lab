@@ -55,7 +55,7 @@ export function ModuleLayout({
         )}
 
         {/* ── VISUALIZATION ──────────────────────────── */}
-        <main className="flex-1 min-h-[40dvh] relative overflow-hidden [@media(orientation:landscape)]:flex-1 [@media(orientation:landscape)]:min-h-0 [@media(orientation:landscape)]:min-w-0">
+        <main className="relative overflow-hidden [@media(orientation:portrait)]:aspect-square [@media(orientation:portrait)]:w-full [@media(orientation:portrait)]:shrink-0 [@media(orientation:landscape)]:flex-1 [@media(orientation:landscape)]:min-h-0 [@media(orientation:landscape)]:min-w-0">
           {visualization}
         </main>
 
@@ -63,7 +63,7 @@ export function ModuleLayout({
             Portrait:  bottom strip; no height cap (formula + one button = always short)
             Landscape: right column, fixed w-72 — no wasted space on wide screens
         ── */}
-        <div className="shrink-0 border-t border-(--lab-border) [@media(orientation:landscape)]:w-72 [@media(orientation:landscape)]:shrink-0 [@media(orientation:landscape)]:min-w-0 [@media(orientation:landscape)]:border-t-0 [@media(orientation:landscape)]:border-l [@media(orientation:landscape)]:flex [@media(orientation:landscape)]:flex-col">
+        <div className="flex-1 min-h-0 border-t border-(--lab-border) [@media(orientation:landscape)]:flex-none [@media(orientation:landscape)]:w-72 [@media(orientation:landscape)]:min-w-0 [@media(orientation:landscape)]:border-t-0 [@media(orientation:landscape)]:border-l [@media(orientation:landscape)]:flex [@media(orientation:landscape)]:flex-col">
 
           {/* Landscape prompt — top of panel, visible only in landscape */}
           {prompt && (

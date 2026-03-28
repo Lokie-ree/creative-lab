@@ -5,9 +5,13 @@ import * as THREE from 'three'
 import { SpriteLabel } from './components/SpriteLabel'
 import { DilationsSceneCtx } from './DilationsSceneContext'
 
-// World range: x ∈ [-2, 14], y ∈ [-2, 14] — accommodates k=3 dilation of canonical triangle
+// World range: x ∈ [-2, 14], y ∈ [-2, 14]. Grid lines extend beyond range to fill viewport.
 const WORLD_MIN = -2
 const WORLD_MAX = 14
+// Grid lines draw beyond WORLD_MIN/WORLD_MAX so portrait viewports have no blank margins.
+// Three.js clips at the camera frustum — no extra draw cost beyond geometry setup (done once).
+const GRID_DRAW_MIN = -20
+const GRID_DRAW_MAX = 30
 const WORLD_SIZE = WORLD_MAX - WORLD_MIN  // 16
 // Geometric center of the world grid — ensures the constrained viewport dimension
 // maps exactly to [WORLD_MIN, WORLD_MAX] with no blank canvas margins.
@@ -48,11 +52,11 @@ function CoordinateGrid() {
   const { gridGeometry, axisGeometry } = useMemo(() => {
     const gridPts: THREE.Vector3[] = []
     const axisPts: THREE.Vector3[] = []
-    for (let i = WORLD_MIN; i <= WORLD_MAX; i++) {
+    for (let i = GRID_DRAW_MIN; i <= GRID_DRAW_MAX; i++) {
       const isAxis = i === 0
       const target = isAxis ? axisPts : gridPts
-      target.push(new THREE.Vector3(i, WORLD_MIN, 0), new THREE.Vector3(i, WORLD_MAX, 0))
-      target.push(new THREE.Vector3(WORLD_MIN, i, 0), new THREE.Vector3(WORLD_MAX, i, 0))
+      target.push(new THREE.Vector3(i, GRID_DRAW_MIN, 0), new THREE.Vector3(i, GRID_DRAW_MAX, 0))
+      target.push(new THREE.Vector3(GRID_DRAW_MIN, i, 0), new THREE.Vector3(GRID_DRAW_MAX, i, 0))
     }
     return {
       gridGeometry: new THREE.BufferGeometry().setFromPoints(gridPts),
