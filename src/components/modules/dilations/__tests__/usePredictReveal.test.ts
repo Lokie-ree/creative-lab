@@ -1,6 +1,6 @@
 // src/components/modules/dilations/__tests__/usePredictReveal.test.ts
 import { describe, it, expect } from 'vitest'
-import { predictRevealReducer } from '../hooks/usePredictReveal'
+import { predictRevealReducer, computeAccuracy } from '../hooks/usePredictReveal'
 import type { PRState, PRAction } from '../hooks/usePredictReveal'
 
 const INITIAL: PRState = {
@@ -88,5 +88,26 @@ describe('predictRevealReducer', () => {
       const s = dispatch(full, { type: 'RESET' })
       expect(s).toEqual(INITIAL)
     })
+  })
+})
+
+describe('computeAccuracy', () => {
+  const target = { x: 4, y: 4 }
+  const tolerance = 0.75  // PREDICTION_TOLERANCE from constants
+
+  it('returns exact when distance <= tolerance * 0.5', () => {
+    expect(computeAccuracy({ x: 4.3, y: 4 }, target, tolerance)).toBe('exact')
+  })
+
+  it('returns close when distance > tolerance * 0.5 and <= tolerance', () => {
+    expect(computeAccuracy({ x: 4.6, y: 4 }, target, tolerance)).toBe('close')
+  })
+
+  it('returns miss when distance > tolerance', () => {
+    expect(computeAccuracy({ x: 6, y: 4 }, target, tolerance)).toBe('miss')
+  })
+
+  it('returns exact at distance 0', () => {
+    expect(computeAccuracy(target, target, tolerance)).toBe('exact')
   })
 })
