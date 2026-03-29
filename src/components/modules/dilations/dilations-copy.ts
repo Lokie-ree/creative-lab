@@ -12,6 +12,13 @@ export const PHASE_LABELS: Record<PhaseId, string> = {
   'aa-capstone':  'PHASE 4 — AA Criterion',
 }
 
+export const PHASE_NAMES: Record<PhaseId, string> = {
+  'scale-factor': 'Scale Factor',
+  'coordinate':   'Coordinate Rule',
+  'similarity':   'Similarity',
+  'aa-capstone':  'AA Criterion',
+}
+
 // Empty string = no entry pause on first phase load
 export const PHASE_INTROS: Record<PhaseId, string> = {
   'scale-factor': '',
@@ -29,21 +36,15 @@ export interface EarnedReveal {
 export const EARNED_REVEALS: Partial<Record<RoundId, EarnedReveal>> = {
   'dilate-k2': {
     text: 'Every point moved twice as far from the origin. Distances doubled — angles held.',
-    notation: '(x, y) → (2x, 2y)',
-    notationStyle: 'rule',
   },
   'dilate-k2-properties': {
     text: 'The shape grew but the angles stayed the same. Dilation preserves shape — just not size.',
   },
   'dilate-k3': {
     text: 'k = 3 stretched it further, but the center is still the origin. Larger k, larger distance.',
-    notation: '(x, y) → (3x, 3y)',
-    notationStyle: 'rule',
   },
   'dilate-k-half': {
     text: 'k < 1 pulls toward the center. Dilation can shrink as well as grow.',
-    notation: '(x, y) → (½x, ½y)',
-    notationStyle: 'rule',
   },
   'dilate-summary': {
     text: 'k > 1 enlarges. 0 < k < 1 reduces. The center is fixed. Angles always preserved.',
