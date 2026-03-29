@@ -100,6 +100,35 @@ export function translatePoint(p: Vec2, dx: number, dy: number): Vec2 {
   return { x: p.x + dx, y: p.y + dy }
 }
 
+/** Translate all 3 vertices of a triangle by (dx, dy) */
+export function translateTriangle(t: Triangle, dx: number, dy: number): Triangle {
+  return {
+    a: translatePoint(t.a, dx, dy),
+    b: translatePoint(t.b, dx, dy),
+    c: translatePoint(t.c, dx, dy),
+  }
+}
+
+/** Centroid of a triangle */
+export function triangleCentroid(t: Triangle): Vec2 {
+  return {
+    x: (t.a.x + t.b.x + t.c.x) / 3,
+    y: (t.a.y + t.b.y + t.c.y) / 3,
+  }
+}
+
+/**
+ * Compute the world-space vertices of the ghost triangle.
+ * Mirrors GhostTriangle's internal scaledShape + group position logic:
+ * dilate vertices by k → center at origin → translate to centroid position.
+ */
+export function ghostVerticesToWorld(vertices: Triangle, k: number, centroid: Vec2): Triangle {
+  const dilated = dilateTriangle(vertices, k)
+  const c = triangleCentroid(dilated)
+  const originCentered = translateTriangle(dilated, -c.x, -c.y)
+  return translateTriangle(originCentered, centroid.x, centroid.y)
+}
+
 /** Reflect over x-axis: (x, y) → (x, -y). Over y-axis: (x, y) → (-x, y). */
 export function reflectPoint(p: Vec2, axis: 'x' | 'y'): Vec2 {
   return axis === 'x' ? { x: p.x, y: -p.y } : { x: -p.x, y: p.y }

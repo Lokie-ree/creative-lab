@@ -15,6 +15,9 @@ import {
   composeTransformations,
   composeTriangle,
   formatCoord,
+  translateTriangle,
+  triangleCentroid,
+  ghostVerticesToWorld,
 } from '../utils/math'
 import type { Vec2, Triangle, TransformStep } from '../utils/types'
 import { CANONICAL_TRIANGLE } from '../utils/constants'
@@ -254,5 +257,45 @@ describe('formatCoord', () => {
     expect(formatCoord(0.333, 1)).toBe('0.33')
     expect(formatCoord(0.333, 4)).toBe('1.33')
     expect(formatCoord(0.333, 2)).toBe('0.67')
+  })
+})
+
+describe('translateTriangle', () => {
+  it('shifts all vertices by dx, dy', () => {
+    const t = { a: { x: 0, y: 0 }, b: { x: 2, y: 0 }, c: { x: 1, y: 2 } }
+    const result = translateTriangle(t, 3, -1)
+    expect(result).toEqual({
+      a: { x: 3, y: -1 },
+      b: { x: 5, y: -1 },
+      c: { x: 4, y: 1 },
+    })
+  })
+})
+
+describe('triangleCentroid', () => {
+  it('returns the centroid of CANONICAL_TRIANGLE', () => {
+    // A(1,1) B(4,2) C(2,4) → centroid (7/3, 7/3)
+    const c = triangleCentroid(CANONICAL_TRIANGLE)
+    expect(c.x).toBeCloseTo(7 / 3, 5)
+    expect(c.y).toBeCloseTo(7 / 3, 5)
+  })
+})
+
+describe('ghostVerticesToWorld', () => {
+  it('places ghost centroid at the given world position', () => {
+    const center = { x: 2, y: 3 }
+    const result = ghostVerticesToWorld(CANONICAL_TRIANGLE, 2, center)
+    const cx = (result.a.x + result.b.x + result.c.x) / 3
+    const cy = (result.a.y + result.b.y + result.c.y) / 3
+    expect(cx).toBeCloseTo(2, 5)
+    expect(cy).toBeCloseTo(3, 5)
+  })
+
+  it('scales vertices by k relative to the image centroid', () => {
+    // For k=1 (identity), ghost centroid at canonical centroid: vertices match canonical
+    const center = { x: 7 / 3, y: 7 / 3 }
+    const result = ghostVerticesToWorld(CANONICAL_TRIANGLE, 1, center)
+    expect(result.a.x).toBeCloseTo(1, 5)
+    expect(result.a.y).toBeCloseTo(1, 5)
   })
 })
