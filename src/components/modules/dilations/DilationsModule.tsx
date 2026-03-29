@@ -12,7 +12,7 @@ import { ScaleFactorDisplay } from './components/ScaleFactorDisplay'
 import { ScaleFactorScene } from './rounds/ScaleFactorRounds'
 import { CoordinateScene } from './rounds/CoordinateRounds'
 import { CoordinateReadout } from './components/CoordinateReadout'
-import { PHASE_LABELS, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
+import { PHASE_NAMES, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
 import type { EarnedReveal } from './dilations-copy'
 import { ROUND_CONFIGS } from './utils/constants'
 import type { PhaseId } from './utils/types'
@@ -96,7 +96,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   // ── Prompt label derivation ──────────────────────────────────────────────
   const promptLabel = (() => {
     if (isFirstReveal) return 'Discovered'
-    if (roundState === 'entry') return PHASE_LABELS[phase]
+    if (roundState === 'entry') return 'Dilations'
     if (roundState === 'reveal') return 'Discovered'
     if (roundState === 'completion') return 'Complete'
     return 'Predict'
@@ -171,7 +171,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           </div>
 
           <span className="shrink-0 lab-silk lab-display-font text-[9px] tracking-[0.15em] text-(--lab-text-muted)">
-            {PHASE_LABELS[phase]}
+            {PHASE_NAMES[phase]}
           </span>
         </div>
       }
