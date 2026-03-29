@@ -7,14 +7,14 @@
 import { useCallback, useMemo } from 'react'
 import type { Dispatch } from 'react'
 import type { StageState, StageAction } from '../hooks/useDilationsStage'
-import { usePredictReveal } from '../hooks/usePredictReveal'
+import { usePredictReveal, computeAccuracy, type Accuracy } from '../hooks/usePredictReveal'
 import { PreImageTriangle } from '../components/PreImageTriangle'
 import { ImageTriangle } from '../components/ImageTriangle'
 import { GhostTriangle } from '../components/GhostTriangle'
 import { RevealAnimation } from '../components/RevealAnimation'
 import { RayLines } from '../components/RayLines'
 import { CANONICAL_TRIANGLE, ROUND_CONFIGS, PREDICTION_TOLERANCE } from '../utils/constants'
-import { dilateTriangle } from '../utils/math'
+import { dilateTriangle, triangleCentroid } from '../utils/math'
 import type { Vec2 } from '../utils/types'
 
 function CoordinatePredictionScene({
@@ -23,12 +23,14 @@ function CoordinatePredictionScene({
   dispatch,
   ghostExternalPosition,
   onGhostPositionChange,
+  onAccuracy,
 }: {
   scale: number
   roundState: string
   dispatch: Dispatch<StageAction>
   ghostExternalPosition?: { x: number; y: number } | null
   onGhostPositionChange?: (pos: { x: number; y: number }) => void
+  onAccuracy?: (a: Accuracy) => void
 }) {
   const targetTriangle = useMemo(
     () => dilateTriangle(CANONICAL_TRIANGLE, scale),
@@ -44,13 +46,15 @@ function CoordinatePredictionScene({
     placeGhost(pos)
     commitPrediction()
     dispatch({ type: 'COMMIT_PREDICTION' })
-  }, [placeGhost, commitPrediction, dispatch])
+    const tc = triangleCentroid(targetTriangle)
+    onAccuracy?.(computeAccuracy(pos, tc, PREDICTION_TOLERANCE))
+  }, [placeGhost, commitPrediction, dispatch, onAccuracy, targetTriangle])
 
   const handleRevealComplete = useCallback(() => {
     dispatch({ type: 'COMPLETE_ROUND' })
   }, [dispatch])
 
-  const showGhost = roundState !== 'completion'
+  const showGhost = roundState !== 'completion' && roundState !== 'entry'
   const ghostDisabled = roundState === 'reveal'
   const showReveal = roundState === 'reveal'
   const showImage = roundState === 'completion'
@@ -97,11 +101,13 @@ export function CoordinateScene({
   dispatch,
   ghostExternalPosition,
   onGhostPositionChange,
+  onAccuracy,
 }: {
   state: StageState
   dispatch: Dispatch<StageAction>
   ghostExternalPosition?: { x: number; y: number } | null
   onGhostPositionChange?: (pos: { x: number; y: number }) => void
+  onAccuracy?: (a: Accuracy) => void
 }) {
   const { currentRound, roundState } = state
   const config = ROUND_CONFIGS[currentRound]
@@ -114,6 +120,7 @@ export function CoordinateScene({
       dispatch={dispatch}
       ghostExternalPosition={ghostExternalPosition}
       onGhostPositionChange={onGhostPositionChange}
+      onAccuracy={onAccuracy}
     />
   )
 }

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ChevronLeft } from 'lucide-react'
 import type { ModuleProps } from '@/config/modules'
 import { useDilationsStage } from './hooks/useDilationsStage'
+import type { Accuracy } from './hooks/usePredictReveal'
 import { DilationsScene } from './DilationsScene'
 import { ModuleLayout } from './Layout'
 import { PromptReadout } from './components/PromptReadout'
@@ -12,7 +13,9 @@ import { ScaleFactorDisplay } from './components/ScaleFactorDisplay'
 import { ScaleFactorScene } from './rounds/ScaleFactorRounds'
 import { CoordinateScene } from './rounds/CoordinateRounds'
 import { CoordinateReadout } from './components/CoordinateReadout'
-import { PHASE_LABELS, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
+import { PHASE_NAMES, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
+import { ghostVerticesToWorld } from './utils/math'
+import { CANONICAL_TRIANGLE } from './utils/constants'
 import type { EarnedReveal } from './dilations-copy'
 import { ROUND_CONFIGS } from './utils/constants'
 import type { PhaseId } from './utils/types'
@@ -46,6 +49,18 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   }, [currentRound])
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  const [predictionAccuracy, setPredictionAccuracy] = useState<Accuracy | null>(null)
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setPredictionAccuracy(null)
+  }, [currentRound])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const handleAccuracy = useCallback((a: Accuracy) => {
+    setPredictionAccuracy(a)
+  }, [])
+
   // Arrow key nudging — only active in ghost-drag rounds during active/prediction states
   const isNudgeActive =
     config.hasGhostDrag &&
@@ -62,7 +77,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     else return
     e.preventDefault()
     // CANONICAL_TRIANGLE centroid: ((1+4+2)/3, (1+2+4)/3)
-    const base = nudgePosition ?? { x: 7 / 3, y: 7 / 3 }
+    const base = nudgePosition ?? { x: 0, y: -0.5 }
     const snapped = { x: Math.round((base.x + dx) * 2) / 2, y: Math.round((base.y + dy) * 2) / 2 }
     setNudgePosition(snapped)
   }, [isNudgeActive, nudgePosition])
@@ -96,9 +111,15 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   // ── Prompt label derivation ──────────────────────────────────────────────
   const promptLabel = (() => {
     if (isFirstReveal) return 'Discovered'
-    if (roundState === 'entry') return PHASE_LABELS[phase]
+    if (roundState === 'entry') return 'Dilations'
     if (roundState === 'reveal') return 'Discovered'
     if (roundState === 'completion') return 'Complete'
+    if (roundState === 'prediction') {
+      if (predictionAccuracy === 'exact') return 'Exact!'
+      if (predictionAccuracy === 'close') return 'Close!'
+      if (predictionAccuracy === 'miss') return 'Good try'
+      return 'Predict'
+    }
     return 'Predict'
   })()
 
@@ -110,7 +131,9 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   })()
 
   // ── Amber: earned reveal or phase entry with non-empty intro copy ────────
-  const amber = isFirstReveal || (roundState === 'entry' && PHASE_INTROS[phase] !== '')
+  const amber = isFirstReveal
+    || (roundState === 'entry' && PHASE_INTROS[phase] !== '')
+    || (roundState === 'prediction' && (predictionAccuracy === 'exact' || predictionAccuracy === 'close'))
   const notation = isFirstReveal ? earnedReveal?.notation : undefined
   const notationStyle = isFirstReveal ? earnedReveal?.notationStyle : undefined
 
@@ -120,11 +143,16 @@ export default function DilationsModule({ onBack }: ModuleProps) {
       return <div className="px-5 py-2 md:px-4"><ScaleFactorDisplay k={config.scaleFactor} /></div>
     }
     if (isCoordinatePhase && config.scaleFactor != null) {
+      const predictedVertices =
+        roundState === 'prediction' && nudgePosition != null
+          ? ghostVerticesToWorld(CANONICAL_TRIANGLE, config.scaleFactor, nudgePosition)
+          : undefined
       return (
         <CoordinateReadout
           scaleFactor={config.scaleFactor}
           roundState={roundState}
           isGeneralized={currentRound === 'coord-k-third'}
+          predictedVertices={predictedVertices}
         />
       )
     }
@@ -171,7 +199,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           </div>
 
           <span className="shrink-0 lab-silk lab-display-font text-[9px] tracking-[0.15em] text-(--lab-text-muted)">
-            {PHASE_LABELS[phase]}
+            {PHASE_NAMES[phase]}
           </span>
         </div>
       }
@@ -212,6 +240,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
                 dispatch={dispatch}
                 ghostExternalPosition={nudgePosition}
                 onGhostPositionChange={handleGhostPositionChange}
+                onAccuracy={handleAccuracy}
               />
             )}
             {isCoordinatePhase && (
@@ -221,6 +250,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
                 dispatch={dispatch}
                 ghostExternalPosition={nudgePosition}
                 onGhostPositionChange={handleGhostPositionChange}
+                onAccuracy={handleAccuracy}
               />
             )}
           </DilationsScene>

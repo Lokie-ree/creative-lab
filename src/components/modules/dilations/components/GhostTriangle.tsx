@@ -4,7 +4,7 @@ import { useThree, useFrame } from '@react-three/fiber'
 import type { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { Triangle, Vec2 } from '../utils/types'
-import { dilateTriangle } from '../utils/math'
+import { dilateTriangle, translateTriangle, triangleCentroid } from '../utils/math'
 
 const GHOST_COLOR = '#7a746a'
 
@@ -12,20 +12,6 @@ function snap(v: number): number {
   return Math.round(v * 2) / 2
 }
 
-function triangleCentroid(t: Triangle): Vec2 {
-  return {
-    x: (t.a.x + t.b.x + t.c.x) / 3,
-    y: (t.a.y + t.b.y + t.c.y) / 3,
-  }
-}
-
-function translateTriangle(t: Triangle, dx: number, dy: number): Triangle {
-  return {
-    a: { x: t.a.x + dx, y: t.a.y + dy },
-    b: { x: t.b.x + dx, y: t.b.y + dy },
-    c: { x: t.c.x + dx, y: t.c.y + dy },
-  }
-}
 
 function buildTriangleGeometries(t: Triangle) {
   const { a, b, c } = t
@@ -67,6 +53,8 @@ export function GhostTriangle({
   const groupRef = useRef<THREE.Group>(null)
   const lineLoopRef = useRef<THREE.LineLoop>(null)
   const dragging = useRef(false)
+  const dragStartWorld = useRef<Vec2>({ x: 0, y: 0 })
+  const centerAtDragStart = useRef<Vec2>({ x: 0, y: 0 })
   const cleanupDragRef = useRef<(() => void) | null>(null)
   const raycaster = useMemo(() => new THREE.Raycaster(), [])
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), [])
@@ -92,7 +80,7 @@ export function GhostTriangle({
   }, [fillGeo, outlineGeo])
 
   // Drag position stored as ref — updates group position imperatively in useFrame (zero re-renders)
-  const centerPosRef = useRef<Vec2>(triangleCentroid(vertices))
+  const centerPosRef = useRef<Vec2>({ x: 0, y: -0.5 })
 
   const getWorldPoint = useCallback((clientX: number, clientY: number): Vec2 => {
     const rect = gl.domElement.getBoundingClientRect()
@@ -111,11 +99,18 @@ export function GhostTriangle({
     e.stopPropagation()
     dragging.current = true
 
+    const startWorld = getWorldPoint(e.nativeEvent.clientX, e.nativeEvent.clientY)
+    dragStartWorld.current = startWorld
+    centerAtDragStart.current = externalPosition ?? centerPosRef.current
+
     const handleMove = (ev: PointerEvent) => {
       if (!dragging.current) return
       const p = getWorldPoint(ev.clientX, ev.clientY)
-      const snapped = { x: snap(p.x), y: snap(p.y) }
-      // Imperative ref update — no React re-render
+      const newCenter = {
+        x: centerAtDragStart.current.x + (p.x - dragStartWorld.current.x),
+        y: centerAtDragStart.current.y + (p.y - dragStartWorld.current.y),
+      }
+      const snapped = { x: snap(newCenter.x), y: snap(newCenter.y) }
       centerPosRef.current = snapped
     }
 
@@ -123,10 +118,13 @@ export function GhostTriangle({
       if (!dragging.current) return
       dragging.current = false
       const p = getWorldPoint(ev.clientX, ev.clientY)
-      const snapped = { x: snap(p.x), y: snap(p.y) }
+      const newCenter = {
+        x: centerAtDragStart.current.x + (p.x - dragStartWorld.current.x),
+        y: centerAtDragStart.current.y + (p.y - dragStartWorld.current.y),
+      }
+      const snapped = { x: snap(newCenter.x), y: snap(newCenter.y) }
       centerPosRef.current = snapped
       onDrop(snapped)
-      // Sync keyboard nudge state on drop only (not per-move)
       onPositionChange?.(snapped)
       window.removeEventListener('pointermove', handleMove)
       window.removeEventListener('pointerup', handleUp)
@@ -139,7 +137,7 @@ export function GhostTriangle({
       window.removeEventListener('pointermove', handleMove)
       window.removeEventListener('pointerup', handleUp)
     }
-  }, [disabled, getWorldPoint, onDrop, onPositionChange])
+  }, [disabled, getWorldPoint, onDrop, onPositionChange, externalPosition])
 
   // Sync externalPosition (keyboard nudge) to centerPosRef so useFrame stays consistent
   useEffect(() => {

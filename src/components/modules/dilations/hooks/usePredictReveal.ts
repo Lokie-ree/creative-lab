@@ -27,6 +27,11 @@ function dist(a: Vec2, b: Vec2): number {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 }
 
+export function computeAccuracy(ghostPos: Vec2, targetCentroid: Vec2, tolerance: number): Accuracy {
+  const d = Math.sqrt((ghostPos.x - targetCentroid.x) ** 2 + (ghostPos.y - targetCentroid.y) ** 2)
+  return d <= tolerance * 0.5 ? 'exact' : d <= tolerance ? 'close' : 'miss'
+}
+
 export function predictRevealReducer(state: PRState, action: PRAction): PRState {
   switch (action.type) {
     case 'PLACE_GHOST':
