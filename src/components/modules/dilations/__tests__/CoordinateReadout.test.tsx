@@ -26,6 +26,25 @@ describe('CoordinateReadout', () => {
     expect(screen.getByText(/\(x, y\)\s*→\s*\(2x, 2y\)/)).toBeTruthy()
   })
 
+  it('shows predicted coordinates in ghost color after ghost drop', () => {
+    const predictedVertices = {
+      a: { x: 2, y: 2 },
+      b: { x: 4, y: 4 },
+      c: { x: 4, y: 8 },
+    }
+    render(
+      <CoordinateReadout
+        {...defaultProps}
+        roundState="prediction"
+        predictedVertices={predictedVertices}
+      />
+    )
+    // Should show pre-image coords
+    expect(screen.getByText(/A\(1, 1\)/)).toBeTruthy()
+    // Should show predicted image coords (ghost-colored prime notation)
+    expect(screen.getByText(/A.\(2, 2\)/)).toBeTruthy()
+  })
+
   it('shows generalized rule in amber for coord-k-third', () => {
     render(
       <CoordinateReadout

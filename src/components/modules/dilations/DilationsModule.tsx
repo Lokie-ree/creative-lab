@@ -14,6 +14,8 @@ import { ScaleFactorScene } from './rounds/ScaleFactorRounds'
 import { CoordinateScene } from './rounds/CoordinateRounds'
 import { CoordinateReadout } from './components/CoordinateReadout'
 import { PHASE_NAMES, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
+import { ghostVerticesToWorld } from './utils/math'
+import { CANONICAL_TRIANGLE } from './utils/constants'
 import type { EarnedReveal } from './dilations-copy'
 import { ROUND_CONFIGS } from './utils/constants'
 import type { PhaseId } from './utils/types'
@@ -75,7 +77,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     else return
     e.preventDefault()
     // CANONICAL_TRIANGLE centroid: ((1+4+2)/3, (1+2+4)/3)
-    const base = nudgePosition ?? { x: 7 / 3, y: 7 / 3 }
+    const base = nudgePosition ?? { x: 0, y: -0.5 }
     const snapped = { x: Math.round((base.x + dx) * 2) / 2, y: Math.round((base.y + dy) * 2) / 2 }
     setNudgePosition(snapped)
   }, [isNudgeActive, nudgePosition])
@@ -141,11 +143,16 @@ export default function DilationsModule({ onBack }: ModuleProps) {
       return <div className="px-5 py-2 md:px-4"><ScaleFactorDisplay k={config.scaleFactor} /></div>
     }
     if (isCoordinatePhase && config.scaleFactor != null) {
+      const predictedVertices =
+        roundState === 'prediction' && nudgePosition != null
+          ? ghostVerticesToWorld(CANONICAL_TRIANGLE, config.scaleFactor, nudgePosition)
+          : undefined
       return (
         <CoordinateReadout
           scaleFactor={config.scaleFactor}
           roundState={roundState}
           isGeneralized={currentRound === 'coord-k-third'}
+          predictedVertices={predictedVertices}
         />
       )
     }
