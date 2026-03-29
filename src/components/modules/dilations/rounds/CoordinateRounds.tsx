@@ -50,7 +50,7 @@ function CoordinatePredictionScene({
     dispatch({ type: 'COMPLETE_ROUND' })
   }, [dispatch])
 
-  const showGhost = roundState !== 'completion'
+  const showGhost = roundState !== 'completion' && roundState !== 'entry'
   const ghostDisabled = roundState === 'reveal'
   const showReveal = roundState === 'reveal'
   const showImage = roundState === 'completion'

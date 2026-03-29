@@ -49,7 +49,7 @@ function PredictionRoundScene({
   }, [dispatch])
 
   // Ghost: visible in all states except completion; disabled only during reveal
-  const showGhost = roundState !== 'completion'
+  const showGhost = roundState !== 'completion' && roundState !== 'entry'
   const ghostDisabled = roundState === 'reveal'
   const showReveal = roundState === 'reveal'
   const showImage = roundState === 'completion'
