@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ChevronLeft } from 'lucide-react'
 import type { ModuleProps } from '@/config/modules'
 import { useDilationsStage } from './hooks/useDilationsStage'
+import type { Accuracy } from './hooks/usePredictReveal'
 import { DilationsScene } from './DilationsScene'
 import { ModuleLayout } from './Layout'
 import { PromptReadout } from './components/PromptReadout'
@@ -45,6 +46,18 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     setNudgePosition(null)
   }, [currentRound])
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  const [predictionAccuracy, setPredictionAccuracy] = useState<Accuracy | null>(null)
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setPredictionAccuracy(null)
+  }, [currentRound])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const handleAccuracy = useCallback((a: Accuracy) => {
+    setPredictionAccuracy(a)
+  }, [])
 
   // Arrow key nudging — only active in ghost-drag rounds during active/prediction states
   const isNudgeActive =
@@ -99,6 +112,11 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     if (roundState === 'entry') return 'Dilations'
     if (roundState === 'reveal') return 'Discovered'
     if (roundState === 'completion') return 'Complete'
+    if (roundState === 'prediction') {
+      if (predictionAccuracy === 'exact') return 'Exact!'
+      if (predictionAccuracy === 'close') return 'Close!'
+      return 'Good try'
+    }
     return 'Predict'
   })()
 
@@ -110,7 +128,9 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   })()
 
   // ── Amber: earned reveal or phase entry with non-empty intro copy ────────
-  const amber = isFirstReveal || (roundState === 'entry' && PHASE_INTROS[phase] !== '')
+  const amber = isFirstReveal
+    || (roundState === 'entry' && PHASE_INTROS[phase] !== '')
+    || (roundState === 'prediction' && (predictionAccuracy === 'exact' || predictionAccuracy === 'close'))
   const notation = isFirstReveal ? earnedReveal?.notation : undefined
   const notationStyle = isFirstReveal ? earnedReveal?.notationStyle : undefined
 
@@ -212,6 +232,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
                 dispatch={dispatch}
                 ghostExternalPosition={nudgePosition}
                 onGhostPositionChange={handleGhostPositionChange}
+                onAccuracy={handleAccuracy}
               />
             )}
             {isCoordinatePhase && (
@@ -221,6 +242,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
                 dispatch={dispatch}
                 ghostExternalPosition={nudgePosition}
                 onGhostPositionChange={handleGhostPositionChange}
+                onAccuracy={handleAccuracy}
               />
             )}
           </DilationsScene>

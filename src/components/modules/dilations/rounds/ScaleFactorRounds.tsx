@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import type { Dispatch } from 'react'
 import type { StageState, StageAction } from '../hooks/useDilationsStage'
-import { usePredictReveal } from '../hooks/usePredictReveal'
+import { usePredictReveal, computeAccuracy, type Accuracy } from '../hooks/usePredictReveal'
 import { PreImageTriangle } from '../components/PreImageTriangle'
 import { ImageTriangle } from '../components/ImageTriangle'
 import { GhostTriangle } from '../components/GhostTriangle'
@@ -11,7 +11,7 @@ import { RayLines } from '../components/RayLines'
 import { RatioAnnotations } from '../components/RatioAnnotations'
 import { AngleMarks } from '../components/AngleMarks'
 import { CANONICAL_TRIANGLE, ROUND_CONFIGS, PREDICTION_TOLERANCE } from '../utils/constants'
-import { dilateTriangle } from '../utils/math'
+import { dilateTriangle, triangleCentroid } from '../utils/math'
 import type { Vec2 } from '../utils/types'
 
 // ─── PredictionRoundScene (dilate-k2, dilate-k3) ─────────────────────────────
@@ -22,27 +22,29 @@ function PredictionRoundScene({
   dispatch,
   ghostExternalPosition,
   onGhostPositionChange,
+  onAccuracy,
 }: {
   scale: number
   roundState: string
   dispatch: Dispatch<StageAction>
   ghostExternalPosition?: { x: number; y: number } | null
   onGhostPositionChange?: (pos: { x: number; y: number }) => void
+  onAccuracy?: (a: Accuracy) => void
 }) {
   const targetTriangle = useMemo(
     () => dilateTriangle(CANONICAL_TRIANGLE, scale),
     [scale]
   )
 
-  // accuracy from usePredictReveal is intentionally unused here —
-  // accuracy feedback (exact/close/miss) is deferred to a future prompt.
   const { placeGhost, commitPrediction } = usePredictReveal(targetTriangle, PREDICTION_TOLERANCE)
 
   const handleGhostDrop = useCallback((pos: Vec2) => {
     placeGhost(pos)
     commitPrediction()
     dispatch({ type: 'COMMIT_PREDICTION' })
-  }, [placeGhost, commitPrediction, dispatch])
+    const tc = triangleCentroid(targetTriangle)
+    onAccuracy?.(computeAccuracy(pos, tc, PREDICTION_TOLERANCE))
+  }, [placeGhost, commitPrediction, dispatch, onAccuracy, targetTriangle])
 
   const handleRevealComplete = useCallback(() => {
     dispatch({ type: 'COMPLETE_ROUND' })
@@ -201,11 +203,13 @@ export function ScaleFactorScene({
   dispatch,
   ghostExternalPosition,
   onGhostPositionChange,
+  onAccuracy,
 }: {
   state: StageState
   dispatch: Dispatch<StageAction>
   ghostExternalPosition?: { x: number; y: number } | null
   onGhostPositionChange?: (pos: { x: number; y: number }) => void
+  onAccuracy?: (a: Accuracy) => void
 }) {
   const { currentRound, roundState } = state
   const config = ROUND_CONFIGS[currentRound]
@@ -228,6 +232,7 @@ export function ScaleFactorScene({
       dispatch={dispatch}
       ghostExternalPosition={ghostExternalPosition}
       onGhostPositionChange={onGhostPositionChange}
+      onAccuracy={onAccuracy}
     />
   )
 }
