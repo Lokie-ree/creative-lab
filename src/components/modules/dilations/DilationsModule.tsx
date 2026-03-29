@@ -115,7 +115,8 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     if (roundState === 'prediction') {
       if (predictionAccuracy === 'exact') return 'Exact!'
       if (predictionAccuracy === 'close') return 'Close!'
-      return 'Good try'
+      if (predictionAccuracy === 'miss') return 'Good try'
+      return 'Predict'
     }
     return 'Predict'
   })()
