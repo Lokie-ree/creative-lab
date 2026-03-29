@@ -183,7 +183,7 @@ export function DilationsScene({
       camera={{ position: [0, 0, 10] }}
       dpr={[1, 1.5]}
       gl={{ powerPreference: 'high-performance', antialias: true }}
-      style={{ width: '100%', height: '100%' }}
+      style={{ width: '100%', height: '100%', touchAction: 'none' }}
     >
       <DilationsSceneCtx.Provider value={{ coordinatesVisible, angleLabelsVisible }}>
         <ContextRecovery onContextLost={onContextLost} onContextRestored={onContextRestored} />

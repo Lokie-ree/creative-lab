@@ -106,12 +106,12 @@ export function GhostTriangle({
     const handleMove = (ev: PointerEvent) => {
       if (!dragging.current) return
       const p = getWorldPoint(ev.clientX, ev.clientY)
-      const newCenter = {
+      // No snap during drag — full floating-point resolution for 60fps smoothness.
+      // Snap applied only on release (handleUp).
+      centerPosRef.current = {
         x: centerAtDragStart.current.x + (p.x - dragStartWorld.current.x),
         y: centerAtDragStart.current.y + (p.y - dragStartWorld.current.y),
       }
-      const snapped = { x: snap(newCenter.x), y: snap(newCenter.y) }
-      centerPosRef.current = snapped
     }
 
     const handleUp = (ev: PointerEvent) => {
@@ -158,13 +158,14 @@ export function GhostTriangle({
   }, [])
 
   return (
-    <group ref={groupRef}>
-      {/* Invisible drag capture plane — only rendered when NOT disabled.
-          IMPORTANT: omit entirely when disabled so it doesn't block pointer events
-          from sibling R3F components (e.g., during reveal/completion states). */}
+    <>
+      {/* Drag capture plane — scene-level sibling (NOT inside ghost group).
+          Fixed at world origin so hit-testing works regardless of ghost position.
+          200×200 covers the entire canvas. Omitted when disabled so it doesn't
+          block pointer events from reveal/completion siblings. */}
       {!disabled && (
         <mesh
-          position={[0, 0, -0.1]}
+          position={[0, 0, -0.2]}
           onPointerDown={handlePointerDown}
         >
           <planeGeometry args={[200, 200]} />
@@ -172,21 +173,24 @@ export function GhostTriangle({
         </mesh>
       )}
 
-      {/* Ghost fill — geometry at origin, group position drives location */}
-      <mesh geometry={fillGeo} position={[0, 0, 0.05]}>
-        <meshBasicMaterial color={GHOST_COLOR} transparent opacity={disabled ? 0.1 : 0.25} />
-      </mesh>
+      {/* Ghost visuals — purely visual, no pointer handlers */}
+      <group ref={groupRef}>
+        {/* Ghost fill — geometry at origin, group position drives location */}
+        <mesh geometry={fillGeo} position={[0, 0, 0.05]}>
+          <meshBasicMaterial color={GHOST_COLOR} transparent opacity={disabled ? 0.1 : 0.25} />
+        </mesh>
 
-      {/* Ghost outline */}
-      <lineLoop ref={lineLoopRef} geometry={outlineGeo} position={[0, 0, 0.06]}>
-        <lineDashedMaterial
-          color={GHOST_COLOR}
-          dashSize={0.25}
-          gapSize={0.15}
-          transparent
-          opacity={disabled ? 0.3 : 0.8}
-        />
-      </lineLoop>
-    </group>
+        {/* Ghost outline */}
+        <lineLoop ref={lineLoopRef} geometry={outlineGeo} position={[0, 0, 0.06]}>
+          <lineDashedMaterial
+            color={GHOST_COLOR}
+            dashSize={0.25}
+            gapSize={0.15}
+            transparent
+            opacity={disabled ? 0.3 : 0.8}
+          />
+        </lineLoop>
+      </group>
+    </>
   )
 }
