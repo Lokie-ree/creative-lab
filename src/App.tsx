@@ -39,6 +39,7 @@ function DynamicModule({ moduleId, onComplete, isVisible, onBack }: DynamicModul
 
     // Load the module component
     moduleConfig.component()
+      .catch(() => moduleConfig.component())  // retry once on transient failure
       .then(module => {
         startTransition(() => {
           setLoadedModule(() => module.default)
