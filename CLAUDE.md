@@ -128,7 +128,7 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 ## Current State
 
-**Last updated:** March 27, 2026
+**Last updated:** March 30, 2026
 
 ### App framing
 The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IVLA STEM Club" with a `DotGrid` canvas background (interactive dot field with mouse proximity) and a `RotatingText` tagline ("Where we build / discover / explore / prove"). No personal name in the student-facing UI.
@@ -138,7 +138,7 @@ The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IV
 - **vector-transformations** — Implemented. Linear algebra; matrix transformations on vectors.
 - **phase-portraits** — Placeholder/coming-soon.
 - **rigid-motions** — **Complete (all 4 phases + ISTE visibility sprint).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). ISTE visibility sprint (March 2026) added: phase labels (`PHASE_LABELS`), `synthesis-reveal` guide state (9th state, passive reveal between Phase 3 and capstone), 12 beat-indexed earned reveals (`EARNED_REVEALS` / `RevealBeat`), coordinate rule notation in `PromptReadout`, congruence language in celebration. Target: ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
-- **dilations** — **Phase 1 Complete (solidification sprint, PR #49).** Grade 8 Geometry; 8.G.A.3–5. Predict-and-reveal loop across 5 scale-factor rounds (`dilate-k2`, `dilate-k2-properties`, `dilate-k3`, `dilate-k-half`, `dilate-summary`). Earned reveals, keyboard nudge, phase progress LEDs, scene visibility context for Phase 2. See [`src/components/modules/dilations/ARCHITECTURE.md`](./src/components/modules/dilations/ARCHITECTURE.md).
+- **dilations** — **Phases 1 & 2 Complete + solidified (PRs #47–#54).** Grade 8 Geometry; 8.G.A.3–5. Phase 1: predict-and-reveal across 5 scale-factor rounds, earned reveals, keyboard nudge, phase progress LEDs. Phase 2: coordinate rule rounds with formula strip, predicted vertex display. Solidification: delta-based drag (60fps), scene-level capture plane, `touchAction:none`, accuracy feedback (Exact!/Close!/Good try), module load retry. Phase 3 (similarity) next. See [`src/components/modules/dilations/ARCHITECTURE.md`](./src/components/modules/dilations/ARCHITECTURE.md).
 
 ### PWA / Offline
 `vite-plugin-pwa` added with Workbox `generateSW` mode. Pre-caches all JS/CSS/HTML/woff2 assets (17 entries, ~3MB including Three.js chunk). Google Fonts cached via `CacheFirst`. App fully functional offline after first load. Config in `vite.config.ts`.
@@ -165,8 +165,8 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 - **Standards:** 8.G.A.3 (dilations), 8.G.A.4 (similar figures), 8.G.A.5 (AA criterion)
 - **Architecture doc:** [`src/components/modules/dilations/ARCHITECTURE.md`](./src/components/modules/dilations/ARCHITECTURE.md) — as-built reference
 - **Build order:** `docs/modules/dilations/build-order-prompts.md` — 14-round sequence across 4 phases
-- **Phase 1 complete:** All 5 scale-factor rounds implemented + solidification sprint (PR #49)
-- **Next:** Phase 2 (coordinate rounds) — `coord-k2`, `coord-k-half`, `coord-k-third`
+- **Phases 1 & 2 complete:** Scale-factor rounds (PRs #47–#49), coordinate rounds (PRs #51–#52), solidification + drag polish (PRs #53–#54)
+- **Next:** Phase 3 (similarity rounds) — `similarity-guided`, `similarity-rigid-dilation`, `similarity-inverse`; requires new `SequenceBuilder` component
 
 ## Outstanding Work
 
@@ -190,8 +190,9 @@ See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and fi
 ### Feature ideas — Rigid Motions (not yet scheduled)
 - **Per-vertex color-coded rotation arcs** — All three `RotationArcs` arcs are `#7a746a`. Color each arc to match its vertex and pulse on alignment. Requires 3 vertex color constants, per-arc alignment detection, GSAP pulse.
 
-### Next: Dilations Phase 2 (coordinate rounds)
-- `coord-k2`, `coord-k-half`, `coord-k-third` — build-order prompts 5–7
+### Next: Dilations Phase 3 (similarity rounds)
+- `similarity-guided`, `similarity-rigid-dilation`, `similarity-inverse` — build-order prompt 7
+- Requires new `SequenceBuilder` HTML component + `SequencePreview` R3F component + `similarityTasks.ts`
 - See `docs/modules/dilations/build-order-prompts.md`
 
 ### Sinewaves — lower-priority polish

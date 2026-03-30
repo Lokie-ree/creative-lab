@@ -1,6 +1,10 @@
+## Status: Complete
+
+> Implemented via PRs #53 (7 solidification items) and #54 (3 drag quality fixes). Merged 2026-03-29/30.
+
 # Dilations Pre-Phase 3 Solidification — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Fix four bugs and three UX gaps in Dilations Phases 1 & 2 to reach a polished baseline before building Phase 3.
 
@@ -31,7 +35,7 @@
 
 ## Task 1: Create feature branch
 
-- [ ] **Create and switch to feature branch**
+- [x] **Create and switch to feature branch**
   ```bash
   git checkout -b feat/dilations-pre-phase3-solidification
   ```
@@ -45,7 +49,7 @@
 
 These are pure data changes — no logic, no tests needed.
 
-- [ ] **Remove `notation` and `notationStyle` from Phase 1 earned reveals**
+- [x] **Remove `notation` and `notationStyle` from Phase 1 earned reveals**
 
   In `EARNED_REVEALS`, update the three Phase 1 entries to remove `notation` and `notationStyle`. The `text` field is unchanged. Final state for each:
 
@@ -63,7 +67,7 @@ These are pure data changes — no logic, no tests needed.
 
   `dilate-k2-properties` and `dilate-summary` have no `notation` already — leave them alone. Phase 2 entries (`coord-k2`, `coord-k-half`, `coord-k-third`) keep their notation — leave those alone too.
 
-- [ ] **Add `PHASE_NAMES` export after `PHASE_LABELS`**
+- [x] **Add `PHASE_NAMES` export after `PHASE_LABELS`**
 
   ```ts
   export const PHASE_NAMES: Record<PhaseId, string> = {
@@ -76,13 +80,13 @@ These are pure data changes — no logic, no tests needed.
 
   `PhaseId` is already imported from `./utils/types` at line 6 — no new import needed.
 
-- [ ] **Verify build passes**
+- [x] **Verify build passes**
   ```bash
   pnpm build
   ```
   Expected: no TypeScript errors. The `notation` and `notationStyle` fields are optional (`?:`) in `EarnedReveal`, so removing them is safe.
 
-- [ ] **Commit**
+- [x] **Commit**
   ```bash
   git add src/components/modules/dilations/dilations-copy.ts
   git commit -m "feat(dilations): remove Phase 1 coordinate notation; add PHASE_NAMES map"
@@ -95,7 +99,7 @@ These are pure data changes — no logic, no tests needed.
 **Files:**
 - Modify: `src/components/modules/dilations/DilationsModule.tsx`
 
-- [ ] **Add `PHASE_NAMES` to the import line**
+- [x] **Add `PHASE_NAMES` to the import line**
 
   Line 15 currently imports `PHASE_LABELS`, `PHASE_INTROS`, `ROUND_PROMPTS`, `EARNED_REVEALS`. Add `PHASE_NAMES`:
 
@@ -103,7 +107,7 @@ These are pure data changes — no logic, no tests needed.
   import { PHASE_LABELS, PHASE_NAMES, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
   ```
 
-- [ ] **Update prompt label for `entry` state**
+- [x] **Update prompt label for `entry` state**
 
   In the `promptLabel` IIFE (around line 97–103), change:
   ```ts
@@ -114,7 +118,7 @@ These are pure data changes — no logic, no tests needed.
   if (roundState === 'entry') return 'Dilations'
   ```
 
-- [ ] **Update status strip right-edge label**
+- [x] **Update status strip right-edge label**
 
   In the JSX (around line 173–175), change:
   ```tsx
@@ -131,12 +135,12 @@ These are pure data changes — no logic, no tests needed.
 
   `PHASE_LABELS` is now unused — it was only referenced in the two places just replaced. **Remove it from the import line.** TypeScript `noUnusedLocals` will fail the build if it remains.
 
-- [ ] **Verify build passes**
+- [x] **Verify build passes**
   ```bash
   pnpm build
   ```
 
-- [ ] **Commit**
+- [x] **Commit**
   ```bash
   git add src/components/modules/dilations/DilationsModule.tsx
   git commit -m "feat(dilations): clean up status strip phase label and entry prompt label"
@@ -149,7 +153,7 @@ These are pure data changes — no logic, no tests needed.
 **Files:**
 - Modify: `src/App.tsx`
 
-- [ ] **Replace the load call in `DynamicModule`**
+- [x] **Replace the load call in `DynamicModule`**
 
   Find the `useEffect` in `DynamicModule` (lines ~32–52). The current pattern:
   ```ts
@@ -184,12 +188,12 @@ These are pure data changes — no logic, no tests needed.
 
   The `startTransition` wrapper on the success path is intentional — keep it exactly as shown.
 
-- [ ] **Verify build passes**
+- [x] **Verify build passes**
   ```bash
   pnpm build
   ```
 
-- [ ] **Commit**
+- [x] **Commit**
   ```bash
   git add src/App.tsx
   git commit -m "fix(app): silent retry on module chunk load failure"
@@ -205,7 +209,7 @@ These are pure data changes — no logic, no tests needed.
 
 These utilities are used by later tasks. Write and test them first.
 
-- [ ] **Write failing tests for the three new functions**
+- [x] **Write failing tests for the three new functions**
 
   Create `src/components/modules/dilations/__tests__/math.test.ts`:
 
@@ -256,13 +260,13 @@ These utilities are used by later tasks. Write and test them first.
   })
   ```
 
-- [ ] **Run tests to verify they fail**
+- [x] **Run tests to verify they fail**
   ```bash
   pnpm vitest run src/components/modules/dilations/__tests__/math.test.ts
   ```
   Expected: 4 failures (functions not yet exported)
 
-- [ ] **Add `translateTriangle`, `triangleCentroid`, and `ghostVerticesToWorld` to `math.ts`**
+- [x] **Add `translateTriangle`, `triangleCentroid`, and `ghostVerticesToWorld` to `math.ts`**
 
   Add after the existing `translatePoint` function (around line 102):
 
@@ -297,18 +301,18 @@ These utilities are used by later tasks. Write and test them first.
   }
   ```
 
-- [ ] **Run tests to verify they pass**
+- [x] **Run tests to verify they pass**
   ```bash
   pnpm vitest run src/components/modules/dilations/__tests__/math.test.ts
   ```
   Expected: 4 passing
 
-- [ ] **Verify build passes**
+- [x] **Verify build passes**
   ```bash
   pnpm build
   ```
 
-- [ ] **Commit**
+- [x] **Commit**
   ```bash
   git add src/components/modules/dilations/utils/math.ts src/components/modules/dilations/__tests__/math.test.ts
   git commit -m "feat(dilations): add translateTriangle, triangleCentroid, ghostVerticesToWorld to math.ts"
@@ -321,7 +325,7 @@ These utilities are used by later tasks. Write and test them first.
 **Files:**
 - Modify: `src/components/modules/dilations/components/GhostTriangle.tsx`
 
-- [ ] **Add `dragStartWorld` and `centerAtDragStart` refs**
+- [x] **Add `dragStartWorld` and `centerAtDragStart` refs**
 
   After the existing `dragging` ref (around line 69), add:
   ```ts
@@ -329,7 +333,7 @@ These utilities are used by later tasks. Write and test them first.
   const centerAtDragStart = useRef<Vec2>({ x: 0, y: 0 })
   ```
 
-- [ ] **Change the initial value of `centerPosRef`**
+- [x] **Change the initial value of `centerPosRef`**
 
   Line 95 currently:
   ```ts
@@ -342,7 +346,7 @@ These utilities are used by later tasks. Write and test them first.
 
   The local `triangleCentroid` function at the top of the file can be removed if it's no longer used anywhere in the file. Check before deleting.
 
-- [ ] **Update `handlePointerDown` to record delta baseline**
+- [x] **Update `handlePointerDown` to record delta baseline**
 
   In `handlePointerDown`, after `dragging.current = true`, record the drag baseline. The baseline for `centerAtDragStart` must use `externalPosition ?? centerPosRef.current` (not just `centerPosRef.current`) — this matters when the user keyboard-nudged the ghost before dragging:
 
@@ -395,18 +399,18 @@ These utilities are used by later tasks. Write and test them first.
 
   Note: `externalPosition` is now in the dependency array.
 
-- [ ] **Remove the local `translateTriangle` function** if it exists in this file (it should now come from `math.ts`). Check whether `GhostTriangle.tsx` uses `translateTriangle` — it does, in the `scaledShape` computation. Update the import to pull from `../utils/math`:
+- [x] **Remove the local `translateTriangle` function** if it exists in this file (it should now come from `math.ts`). Check whether `GhostTriangle.tsx` uses `translateTriangle` — it does, in the `scaledShape` computation. Update the import to pull from `../utils/math`:
   ```ts
   import { dilateTriangle, translateTriangle, triangleCentroid } from '../utils/math'
   ```
   Remove the local definitions of `translateTriangle` and `triangleCentroid` from the top of the file.
 
-- [ ] **Verify build passes**
+- [x] **Verify build passes**
   ```bash
   pnpm build
   ```
 
-- [ ] **Commit**
+- [x] **Commit**
   ```bash
   git add src/components/modules/dilations/components/GhostTriangle.tsx
   git commit -m "fix(dilations): delta-based drag in GhostTriangle; neutral initial position"
@@ -420,7 +424,7 @@ These utilities are used by later tasks. Write and test them first.
 - Modify: `src/components/modules/dilations/rounds/ScaleFactorRounds.tsx`
 - Modify: `src/components/modules/dilations/rounds/CoordinateRounds.tsx`
 
-- [ ] **Update `showGhost` condition in `PredictionRoundScene`** (`ScaleFactorRounds.tsx` line ~52)
+- [x] **Update `showGhost` condition in `PredictionRoundScene`** (`ScaleFactorRounds.tsx` line ~52)
 
   Change:
   ```ts
@@ -431,19 +435,19 @@ These utilities are used by later tasks. Write and test them first.
   const showGhost = roundState !== 'completion' && roundState !== 'entry'
   ```
 
-- [ ] **Update `showGhost` condition in `CoordinatePredictionScene`** (`CoordinateRounds.tsx` line ~53)
+- [x] **Update `showGhost` condition in `CoordinatePredictionScene`** (`CoordinateRounds.tsx` line ~53)
 
   Same change:
   ```ts
   const showGhost = roundState !== 'completion' && roundState !== 'entry'
   ```
 
-- [ ] **Verify build passes**
+- [x] **Verify build passes**
   ```bash
   pnpm build
   ```
 
-- [ ] **Commit**
+- [x] **Commit**
   ```bash
   git add src/components/modules/dilations/rounds/ScaleFactorRounds.tsx src/components/modules/dilations/rounds/CoordinateRounds.tsx
   git commit -m "fix(dilations): hide ghost during entry state to prevent pre-image overlap"
@@ -457,7 +461,7 @@ These utilities are used by later tasks. Write and test them first.
 - Modify: `src/components/modules/dilations/hooks/usePredictReveal.ts`
 - Test: `src/components/modules/dilations/__tests__/usePredictReveal.test.ts` (create)
 
-- [ ] **Write failing tests for `computeAccuracy`**
+- [x] **Write failing tests for `computeAccuracy`**
 
   Create `src/components/modules/dilations/__tests__/usePredictReveal.test.ts`:
 
@@ -487,13 +491,13 @@ These utilities are used by later tasks. Write and test them first.
   })
   ```
 
-- [ ] **Run tests to verify they fail**
+- [x] **Run tests to verify they fail**
   ```bash
   pnpm vitest run src/components/modules/dilations/__tests__/usePredictReveal.test.ts
   ```
   Expected: 4 failures
 
-- [ ] **Export `computeAccuracy` from `usePredictReveal.ts`**
+- [x] **Export `computeAccuracy` from `usePredictReveal.ts`**
 
   Add before the `predictRevealReducer` function:
 
@@ -506,18 +510,18 @@ These utilities are used by later tasks. Write and test them first.
 
   The existing private `dist` function in the file can be simplified to call `computeAccuracy`, or kept as-is. Either way, no breaking change.
 
-- [ ] **Run tests to verify they pass**
+- [x] **Run tests to verify they pass**
   ```bash
   pnpm vitest run src/components/modules/dilations/__tests__/usePredictReveal.test.ts
   ```
   Expected: 4 passing
 
-- [ ] **Verify build passes**
+- [x] **Verify build passes**
   ```bash
   pnpm build
   ```
 
-- [ ] **Commit**
+- [x] **Commit**
   ```bash
   git add src/components/modules/dilations/hooks/usePredictReveal.ts src/components/modules/dilations/__tests__/usePredictReveal.test.ts
   git commit -m "feat(dilations): export computeAccuracy helper from usePredictReveal"
@@ -534,7 +538,7 @@ These utilities are used by later tasks. Write and test them first.
 
 ### Round scenes
 
-- [ ] **Add `onAccuracy` to `PredictionRoundScene` props and call site** (`ScaleFactorRounds.tsx`)
+- [x] **Add `onAccuracy` to `PredictionRoundScene` props and call site** (`ScaleFactorRounds.tsx`)
 
   Add to the props interface:
   ```ts
@@ -564,13 +568,13 @@ These utilities are used by later tasks. Write and test them first.
   - Add `onAccuracy?: (a: Accuracy) => void` to `ScaleFactorScene` props
   - Pass it down to `PredictionRoundScene` (the non-properties, non-summary rounds)
 
-- [ ] **Same change in `CoordinatePredictionScene` / `CoordinateScene`** (`CoordinateRounds.tsx`)
+- [x] **Same change in `CoordinatePredictionScene` / `CoordinateScene`** (`CoordinateRounds.tsx`)
 
   Identical pattern — add `onAccuracy` prop, import `computeAccuracy` and `Accuracy`, call in `handleGhostDrop`, propagate through `CoordinateScene`.
 
 ### DilationsModule
 
-- [ ] **Add `predictionAccuracy` state and reset effect**
+- [x] **Add `predictionAccuracy` state and reset effect**
 
   After the `nudgePosition` state:
   ```ts
@@ -591,7 +595,7 @@ These utilities are used by later tasks. Write and test them first.
   /* eslint-enable react-hooks/set-state-in-effect */
   ```
 
-- [ ] **Wire `onAccuracy` into both scene components**
+- [x] **Wire `onAccuracy` into both scene components**
 
   ```ts
   const handleAccuracy = useCallback((a: Accuracy) => {
@@ -611,7 +615,7 @@ These utilities are used by later tasks. Write and test them first.
   />
   ```
 
-- [ ] **Update `promptLabel` for prediction state**
+- [x] **Update `promptLabel` for prediction state**
 
   In the `promptLabel` IIFE, add a case before the fallback `return 'Predict'`:
   ```ts
@@ -622,7 +626,7 @@ These utilities are used by later tasks. Write and test them first.
   }
   ```
 
-- [ ] **Update `amber` flag to include accurate predictions**
+- [x] **Update `amber` flag to include accurate predictions**
 
   Current:
   ```ts
@@ -635,12 +639,12 @@ These utilities are used by later tasks. Write and test them first.
     || (roundState === 'prediction' && (predictionAccuracy === 'exact' || predictionAccuracy === 'close'))
   ```
 
-- [ ] **Verify build passes**
+- [x] **Verify build passes**
   ```bash
   pnpm build
   ```
 
-- [ ] **Commit**
+- [x] **Commit**
   ```bash
   git add src/components/modules/dilations/rounds/ScaleFactorRounds.tsx \
           src/components/modules/dilations/rounds/CoordinateRounds.tsx \
@@ -659,7 +663,7 @@ These utilities are used by later tasks. Write and test them first.
 
 ### CoordinateReadout
 
-- [ ] **Add `predictedVertices` prop and prediction display mode**
+- [x] **Add `predictedVertices` prop and prediction display mode**
 
   Current props interface:
   ```ts
@@ -757,7 +761,7 @@ These utilities are used by later tasks. Write and test them first.
   }
   ```
 
-- [ ] **Add prediction-state test to `CoordinateReadout.test.tsx`**
+- [x] **Add prediction-state test to `CoordinateReadout.test.tsx`**
 
   Open `src/components/modules/dilations/__tests__/CoordinateReadout.test.tsx` and add:
 
@@ -799,7 +803,7 @@ These utilities are used by later tasks. Write and test them first.
 
   Check existing imports in the test file — add whatever is missing (e.g. `render`, `screen` from `@testing-library/react`).
 
-- [ ] **Run tests**
+- [x] **Run tests**
   ```bash
   pnpm vitest run src/components/modules/dilations/__tests__/CoordinateReadout.test.tsx
   ```
@@ -807,7 +811,7 @@ These utilities are used by later tasks. Write and test them first.
 
 ### DilationsModule
 
-- [ ] **Import `ghostVerticesToWorld` and compute predicted vertices**
+- [x] **Import `ghostVerticesToWorld` and compute predicted vertices**
 
   Add to imports:
   ```ts
@@ -836,7 +840,7 @@ These utilities are used by later tasks. Write and test them first.
   }
   ```
 
-- [ ] **Update keyboard nudge fallback default**
+- [x] **Update keyboard nudge fallback default**
 
   Line ~65 in `DilationsModule.tsx`:
   ```ts
@@ -849,12 +853,12 @@ These utilities are used by later tasks. Write and test them first.
 
   This keeps the keyboard nudge base consistent with the ghost's new initial render position.
 
-- [ ] **Verify build passes**
+- [x] **Verify build passes**
   ```bash
   pnpm build
   ```
 
-- [ ] **Commit**
+- [x] **Commit**
   ```bash
   git add src/components/modules/dilations/components/CoordinateReadout.tsx \
           src/components/modules/dilations/DilationsModule.tsx \
@@ -866,34 +870,34 @@ These utilities are used by later tasks. Write and test them first.
 
 ## Task 11: Final verification
 
-- [ ] **Run all dilations tests**
+- [x] **Run all dilations tests**
   ```bash
   pnpm vitest run src/components/modules/dilations
   ```
   Expected: all passing
 
-- [ ] **Run full build**
+- [x] **Run full build**
   ```bash
   pnpm build
   ```
   Expected: no TypeScript errors, no lint errors
 
-- [ ] **Manual smoke test in dev server**
+- [x] **Manual smoke test in dev server**
   ```bash
   pnpm dev
   ```
   Check each item:
-  - [ ] Phase 1 earned reveals: no `(x,y) →` notation
-  - [ ] Status strip: shows "Scale Factor" (not "PHASE 1 — Scale Factor")
-  - [ ] Entry state prompt label: shows "Dilations" (not "PHASE 1 — Scale Factor")
-  - [ ] Ghost hidden during entry, appears after CONTINUE
-  - [ ] Ghost appears at bottom-left of scene (near origin), not on pre-image
-  - [ ] Dragging feels smooth — shape stays under finger from wherever grabbed
-  - [ ] After dropping ghost: prompt shows "Exact!" / "Close!" / "Good try" with appropriate amber
-  - [ ] Phase 2, after dropping ghost: formula strip shows "PREDICTED" row with ghost coordinates
-  - [ ] Phase 2, after REVEAL: formula strip shows actual coordinates in green + rule as before
+  - [x] Phase 1 earned reveals: no `(x,y) →` notation
+  - [x] Status strip: shows "Scale Factor" (not "PHASE 1 — Scale Factor")
+  - [x] Entry state prompt label: shows "Dilations" (not "PHASE 1 — Scale Factor")
+  - [x] Ghost hidden during entry, appears after CONTINUE
+  - [x] Ghost appears at bottom-left of scene (near origin), not on pre-image
+  - [x] Dragging feels smooth — shape stays under finger from wherever grabbed
+  - [x] After dropping ghost: prompt shows "Exact!" / "Close!" / "Good try" with appropriate amber
+  - [x] Phase 2, after dropping ghost: formula strip shows "PREDICTED" row with ghost coordinates
+  - [x] Phase 2, after REVEAL: formula strip shows actual coordinates in green + rule as before
 
-- [ ] **Create PR**
+- [x] **Create PR**
   ```bash
   gh pr create --title "feat(dilations): pre-Phase 3 solidification (7 items)" \
     --body "Closes 7 polish items before Phase 3 build. See spec: docs/superpowers/specs/2026-03-29-dilations-pre-phase3-solidification-design.md"

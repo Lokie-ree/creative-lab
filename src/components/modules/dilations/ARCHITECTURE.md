@@ -121,12 +121,14 @@ Same scalene triangle as M1 (Rigid Motions). Centroid: (7/3, 7/3) ≈ (2.33, 2.3
 
 ### Ghost drag (Phase 1–2)
 
-1. `GhostTriangle` owns internal drag position (`centerPos` useState)
-2. Starts at pre-image centroid — student must drag to prediction
-3. `onPositionChange` callback syncs external `nudgePosition` state in `DilationsModule`
-4. `externalPosition` prop overrides internal position (keyboard nudge)
-5. On `onDrop`: calls `COMMIT_PREDICTION` dispatch → `active → prediction`
-6. `disabled` prop omits the capture plane entirely (no pointer capture during reveal/completion)
+1. **Scene-level capture plane** — `GhostTriangle` renders a 200×200 invisible mesh as a scene sibling (not a child of the ghost group) at z=−0.2. This means any tap on the canvas starts a drag — the student does not need to hit the ghost outline.
+2. **Delta-based drag** — `handlePointerDown` snapshots `dragStartWorld` + `centerAtDragStart` (= `externalPosition ?? centerPosRef.current`). `handleMove` computes `newCenter = baseline + delta` with no snapping (60fps smooth). `handleUp` applies snap(0.5) on commit.
+3. Ghost starts at `(0, −0.5)` — offset from pre-image, hidden during `entry` state.
+4. `onPositionChange` callback syncs external `nudgePosition` state in `DilationsModule`
+5. `externalPosition` prop overrides internal position (keyboard nudge); used as baseline for subsequent drag
+6. On `onDrop`: calls `COMMIT_PREDICTION` dispatch → `active → prediction`
+7. `disabled` omits the capture plane entirely (no pointer capture during reveal/completion)
+8. `touchAction: 'none'` on the Canvas element eliminates mobile scroll disambiguation delay
 
 ### Keyboard nudge
 
@@ -199,7 +201,7 @@ interface EarnedReveal {
 
 Rounds are implemented in phase order. Reference: `docs/modules/dilations/build-order-prompts.md`
 
-- **Phase 1 (scale-factor):** Complete as of solidification sprint (March 2026)
-- **Phase 2 (coordinate):** Next — coord-k2, coord-k-half, coord-k-third
-- **Phase 3 (similarity):** Requires SequenceBuilder component (not yet built)
+- **Phase 1 (scale-factor):** ✓ Complete — PRs #47–#49
+- **Phase 2 (coordinate):** ✓ Complete — PRs #51–#52; solidification + drag polish PRs #53–#54
+- **Phase 3 (similarity):** Next — `similarity-guided`, `similarity-rigid-dilation`, `similarity-inverse`. Requires `SequenceBuilder.tsx` (HTML), `SequencePreview.tsx` (R3F), `similarityTasks.ts`
 - **Phase 4 (aa-capstone):** Depends on Phase 3 infrastructure
