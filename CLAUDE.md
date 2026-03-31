@@ -59,12 +59,12 @@ src/components/
 ### Navigation Flow
 Hero → Course Hub → Constellation (by course) → Module
 
-Back navigation and Escape Hatch from modules; Celebration modal on completion.
+Back navigation (keyboard Escape) from modules; Celebration modal on completion.
 
 ### Key Patterns
 - **3D inside Canvas, controls outside.** `Scene.tsx` (per module) owns the R3F Canvas; `ControlPanel` and other HTML controls live outside.
 - **Module state flows through App.tsx.** View state (hero vs module), celebration modals, and parameter tracking are managed at the app level, passed down as props. Modules call `onComplete(values)` when done.
-- **Guide-state learning (sinewaves).** Five states: watch → match-amplitude → match-frequency → challenge → free. All controls always visible; only prompts and highlights change. See [sinewaves ARCHITECTURE.md](./src/components/modules/sinewaves/ARCHITECTURE.md).
+- **Predict-and-reveal (geometry modules).** Rigid Motions is the reference implementation for all three Grade 8 geometry modules. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
 - **Adding a module.** Register in `src/config/modules.ts`, lazy-load the component, implement `ModuleProps`.
 
 ## Design System

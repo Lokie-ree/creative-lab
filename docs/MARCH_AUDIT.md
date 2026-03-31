@@ -4,9 +4,9 @@
 
 Cold Start · Cross-Device · Edge Cases · State Integrity · Pedagogical Tuning
 
-Modules: Rigid Motions | Sinewaves
+Modules: Rigid Motions | Dilations | Pythagorean Theorem (Grade 8 Geometry Progression)
 Target: ISTE Live 2026 Conference Hardening
-Date: March 2026
+Last updated: March 30, 2026
 
 > *"The bar is not 'does every edge case work' — it is 'does a stranger succeed on their first attempt.'"*
 
@@ -163,30 +163,6 @@ src/components/modules/rigid-motions/InstrumentModule.tsx (StatusStrip row)
 
 ### Sinewaves — Mobile Issues
 
-#### SW-01: Wave hidden off-screen in landscape
-
-**🟠 P1** — In mobile landscape, only the unit circle renders. The sine wave is clipped or positioned entirely off the right edge of the canvas.
-
-**Current state:** `scene-layout.ts` has a `useIsMobileViewport` hook that detects mobile and centers the wave when the unit circle is hidden. However, the landscape phone case may be slipping through the detection because R3F viewport aspect reports landscape phones as non-mobile. The hook was updated to include a `window.innerWidth < 768` check with a resize listener, but this may not be deployed or may have a sync issue.
-
-**Fix strategy:** Verify that `useIsMobileViewport` returns true for landscape phones (`window.innerWidth < 768` even in landscape). When mobile is detected, the unit circle should be hidden and the wave should be centered. If the detection is correct but the wave is still off-screen, check the `SCENE_LAYOUT.landscape.wave.xRatio` value — it positions the wave at 10% of viewport width, which on a narrow R3F viewport may push it past the visible edge.
-
-**Files:**
-```
-src/components/modules/sinewaves/scene-layout.ts
-src/components/modules/sinewaves/Scene.tsx
-```
-
----
-
-#### SW-02: Unit circle mobile portrait decision
-
-**🔵 PED** — Deliberate design decision needed: hide the unit circle on mobile portrait to give the wave more canvas, or keep it and accept smaller wave area. Currently hidden on mobile. Document the decision once confirmed with student signal.
-
-**Action:** Observe student sessions. If students on phones engage with the wave effectively without the unit circle, confirm the decision and document it in CLAUDE.md. If they seem confused about the circular relationship, consider a toggle or a brief intro animation.
-
----
-
 ### Journey & Navigation — Cross-Device
 
 #### NAV-01: Full navigation path on each device class
@@ -328,28 +304,19 @@ src/components/modules/rigid-motions/hooks/useRigidMotionsState.ts
 
 ### Sinewaves
 
-#### PED-04: Commitment before feedback (deferred)
-
-**🔵 PED** — Sinewaves can currently be completed by slider-sweeping without deep understanding. Rigid Motions requires spatial commitment (drag the ghost, then CHECK) before feedback. The pattern to generalize: commitment before feedback.
-
-**Decision:** Do not retrofit this pattern onto Sinewaves until Dilations and Pythagorean Theorem modules are built. After three modules, the generalized interaction pattern will be clearer. Document this as a known design debt, not a bug.
-
----
-
 ## Execution Checklist
 
 Work through items in priority order. Check the box when resolved and note the commit hash or PR number.
 
 | ✓ | ID | Description | Priority | Commit |
 |---|---|---|---|---|
-| ☐ | STATE-01 | DiscoveryTab celebration modal state leak | 🔴 P0 | |
-| ☐ | RM-01 | Landscape capstone scene too small | 🟠 P1 | |
-| ☐ | RM-02 | SequenceBuilder cramped in landscape | 🟠 P1 | |
-| ☐ | RM-03 | Portrait SequenceBuilder dominates viewport | 🟠 P1 | |
-| ☐ | SW-01 | Wave hidden off-screen in landscape | 🟠 P1 | |
-| ☐ | STATE-02 | Escape during GSAP reveal animation | 🟠 P1 | |
-| ☐ | STATE-03 | Back-navigation mid-sequence in capstone | 🟠 P1 | |
-| ☐ | NAV-01 | Full navigation path on each device class | 🟠 P1 | |
+| ✅ | STATE-01 | DiscoveryTab celebration modal state leak | 🔴 P0 | resolved by March 17, 2026 |
+| ✅ | RM-01 | Landscape capstone scene too small | 🟠 P1 | resolved by March 17, 2026 |
+| ✅ | RM-02 | SequenceBuilder cramped in landscape | 🟠 P1 | resolved by March 17, 2026 |
+| ✅ | RM-03 | Portrait SequenceBuilder dominates viewport | 🟠 P1 | resolved by March 17, 2026 |
+| ✅ | STATE-02 | Escape during GSAP reveal animation | 🟠 P1 | resolved by March 17, 2026 |
+| ✅ | STATE-03 | Back-navigation mid-sequence in capstone | 🟠 P1 | resolved by March 17, 2026 |
+| ✅ | NAV-01 | Full navigation path on each device class | 🟠 P1 | resolved by March 17, 2026 |
 | ☐ | RM-04 | Missing coordinate labels on mobile capstone | 🟡 P2 | |
 | ☐ | RM-05 | Status strip dots missing on capstone | 🟡 P2 | |
 | ☐ | STATE-04 | Viewport resize during module interaction | 🟡 P2 | |
@@ -358,8 +325,6 @@ Work through items in priority order. Check the box when resolved and note the c
 | ☐ | PED-01 | Capstone entry copy reveals too early | 🔵 PED | |
 | ☐ | PED-02 | Capstone completion copy alignment | 🔵 PED | |
 | ☐ | PED-03 | Earned reveal pacing across phases | 🔵 PED | |
-| ☐ | SW-02 | Unit circle mobile portrait decision | 🔵 PED | |
-| ☐ | PED-04 | Commitment before feedback (deferred) | 🔵 PED | |
 | | | **Pass 1 — Live Observation** | | |
 | ☐ | OBS-01 | Cold start: first interaction < 15s | 🔵 PED | |
 | ☐ | OBS-02 | Navigation: Hero → module without confusion | 🔵 PED | |
@@ -368,6 +333,189 @@ Work through items in priority order. Check the box when resolved and note the c
 | ☐ | OBS-05 | Capstone: task change understood | 🔵 PED | |
 | ☐ | OBS-06 | Non-commutativity discovered organically | 🔵 PED | |
 | ☐ | OBS-07 | "That's sick" moment observed | 🔵 PED | |
+
+---
+
+## Automated Browser Audit — Rigid Motions Full UX Walk
+
+**Date:** March 29, 2026
+**Method:** Playwright CLI, keyboard-nudge navigation (arrow keys), desktop viewport (767×720)
+**Console errors:** 0 errors, 0 warnings across 51 total messages (zero WebGL context loss)
+
+### Summary
+
+All 9 guide states traversed in sequence. Every state transition, reveal beat, formula strip update, and capstone sequence validated. The module is clean on the happy path at desktop resolution.
+
+### State-by-state results
+
+| State | Step | Result | Verified |
+|---|---|---|---|
+| `predict-translate` | 1 of 9 | ✓ Match | Beat-0: "Same distances. Same angles." Beat-1: `(x, y) → (x − 3, y − 4)` |
+| `predict-reflect` | 2 of 9 | ✓ Match | FLIP `[pressed]` state visible. Beat-1: `(x, y) → (x, −y)` |
+| `predict-rotate` | 3 of 9 | ✓ Match | 90°/180°/270° + CW/CCW controls. Beat-1: `(x, y) → (−x, −y)` for 180° |
+| `coordinate-reveal` | 4 of 9 | ✓ | Ghost hidden, FormulaReadout with vertex substitutions `A(-3,-2)→A′(-2,3)`, CONTINUE only |
+| `predict-with-coordinates-translate` | 5 of 9 | ✓ Match | Live ghost vertices update in formula strip while nudging |
+| `predict-with-coordinates-reflect` | 6 of 9 | ✓ Match | FLIP present, ReflectionAxisTicks suppressed (Phase 3 correct) |
+| `predict-with-coordinates-rotate` | 7 of 9 | ✓ Match | RotationArcs persist into Phase 3 (Level 5 moment confirmed) |
+| `synthesis-reveal` | — | ✓ | Phase label shows "PHASE 04 · CAPSTONE", "Synthesis" label, full congruence copy |
+| `capstone-1` | — | ✓ Match | SequenceBuilder, dx/dy spinners, PreviewGhost tracks sequence live |
+| `capstone-2` | — | ✓ Match | Two-step Reflect→Translate sequence validated |
+| `capstone-3` | — | ✓ Match | Translate→Rotate 90° CW; CelebrationModal fires automatically |
+| CelebrationModal | — | ✓ | Sequence chips "Translate -2, +1" → "Rotate 90° CW", completion copy, Behind This tab |
+
+### Control visibility confirmed correct per state
+
+| State | FLIP | ROTATION | CHECK | CONTINUE | SequenceBuilder |
+|---|---|---|---|---|---|
+| `predict-translate` | — | — | ✓ | — | — |
+| `predict-reflect` | ✓ | — | ✓ | — | — |
+| `predict-rotate` | — | ✓ | ✓ | — | — |
+| `coordinate-reveal` | — | — | — | ✓ | — |
+| `predict-with-coordinates-*` | per type | per type | ✓ | — | — |
+| `synthesis-reveal` | — | — | — | ✓ | — |
+| `capstone` | — | — | — | — | ✓ |
+
+### Observations
+
+**RM-05 (status strip dots) — partial clarification:** The step counter ("Step X of 9") is absent in `synthesis-reveal` and all capstone states. This appears intentional — the capstone is a different modality — but the step counter disappearing at state 8 without a visual replacement means there is no progress indicator for the last two states. Worth confirming this is deliberate.
+
+**PED-01 confirmed live:** Capstone-3 entry prompt reads "Two steps again. If your first attempt misses, try reversing the order." — the non-commutativity hint is present at entry, before any miss. This is the open PED-01 item. The hint was visible in the accessibility tree, confirming it renders for all users, not just those who have missed.
+
+**Phase label transition at synthesis-reveal:** The status strip jumps from "PHASE 03 · COORDINATE LAYER" to "PHASE 04 · CAPSTONE" at `synthesis-reveal`, before the student has reached the capstone. This is technically correct (synthesis-reveal is the bridge), but a student reading the strip during synthesis-reveal sees "PHASE 04" before they've built anything. Low priority, but worth noting.
+
+**FormulaReadout live-update confirmed:** In `predict-with-coordinates-translate`, the formula strip shows ghost vertex coordinates (`A′(0,-5) B′(4,-4) C′(1,-2)`) that update as the ghost is nudged, then switches to confirmed actual vertices after match. This is the correct behavior and was verified working.
+
+**CelebrationModal sequence chips:** The Discovery tab correctly shows the student's completed sequence as labeled chips with the exact sequence used (Translate -2, +1 → Rotate 90° CW), not a generic completion message. STATE-01 (DiscoveryTab state leak) does not reproduce on the happy path — the sequence is non-empty when the modal opens.
+
+### Automation notes for future runs
+
+The keyboard nudge (arrow keys, 1-unit steps) is the most reliable automation path for this module. Mouse drag on the R3F canvas is unreliable in Playwright because the DragPlane captures pointer events and the delta-based drag requires precise mousedown position on the ghost. For future automated runs:
+
+- Use arrow keys to position the ghost at integer-aligned offsets
+- Ghost starts at offset `[3, -3]` after Reset; target offsets are exact integers from the round definitions
+- `playwright-cli run-code` with an async IIFE is required for multi-step sequences (the `&&`-chained command syntax doesn't support loops)
+- Ref IDs change between state transitions — always re-snapshot before clicking
+
+---
+
+## Dilations — Patterns from Rigid Motions Audit
+
+Patterns observed during the audit, cross-referenced against the Dilations codebase.
+
+### Already adopted in Dilations
+
+| Pattern | RM source | Dilations status |
+|---|---|---|
+| Arrow-key nudge (1-unit / Shift 0.1-unit) | `InstrumentModule.tsx:149–165` | ✓ Present — `DilationsModule.tsx:69–88`, uses 0.5/0.25 steps |
+| `shownReveals` Set — record in NEXT, not CHECK | `useRigidMotionsState.ts` | ✓ Present — `handleAdvance` in `DilationsModule.tsx:104–109` |
+| `promptLabel` IIFE derivation | `InstrumentModule.tsx:135–143` | ✓ Present — `DilationsModule.tsx:112–124` |
+| `amber` flag for warm-colored prompt | `InstrumentModule.tsx` | ✓ Present — `DilationsModule.tsx:134–136` |
+| `SpriteLabel` (canvas texture, no troika) | `scene-primitives.tsx` | ✓ Present — `dilations/components/SpriteLabel.tsx` |
+| Phase LED progress dots | `InstrumentModule.tsx` status strip | ✓ Present — `DilationsModule.tsx:183–198` |
+| `useAccessibility` screen reader announce | `InstrumentModule.tsx` | ✓ Present — `DilationsModule.tsx:36` |
+| Live formula strip with ghost vertex predictions | RM does not have this | ✓ Dilations does this better — `CoordinateReadout` shows "PREDICTED" row while dragging in Phase 2 |
+
+### Patterns to adopt in Dilations Phase 3+
+
+| Pattern | RM source | Gap |
+|---|---|---|
+| **Beat-indexed reveals** (`${guideState}-${beatIndex}`) | `EARNED_REVEALS` in `rigid-motions-copy.ts` | Dilations uses round-keyed reveals (one per round). For Phase 3 coordinate rounds, RM's beat-0 (spatial insight) / beat-1 (congruence notation) structure is the right model. When Phase 3 requires 2 successes per stage, add beat-indexed entries to `EARNED_REVEALS`. |
+| **`synthesis-reveal` pause state** | `guide-state.ts` state 8 | Dilations has no bridge state between Phase 3 and Phase 4. Add a synthesis pause before the AA Criterion capstone — mirrors RM's synthesis-reveal exactly. |
+| **`formatCoordinateRule` extracted to copy file** | `rigid-motions-copy.ts:106–122` | Dilations computes coordinate rules inline in `CoordinateReadout`. Extract to a named function in `dilations-copy.ts` for Phase 3 generalization. |
+| **Per-round capstone entry prompts** | `CAPSTONE_PROMPT_TEXT` in `rigid-motions-copy.ts` | Dilations will need this when Phase 4 (AA Criterion) is built — separate entry prompts per capstone round. |
+| **`completedSequence` threading to CelebrationModal** | `InstrumentModule.tsx:onComplete` → `App.tsx` → `DiscoveryTab` | Dilations calls `onComplete({})` with no meta. When Phase 4 is built, thread the student's discovered values (k, coordinate rule, similarity ratio) to the Discovery tab. |
+| **`ContextRecovery` WebGL guard component** | `RigidMotionsScene.tsx` | Dilations has `contextLost` state but no dedicated recovery component. Align with RM's `ContextRecovery` pattern for `webglcontextlost` / `webglcontextrestored`. |
+
+---
+
+## Dilations — Touch Drag Root Cause Analysis
+
+**Date:** March 29, 2026 | **Resolved:** PR #53 + PR #54
+**Finding:** Ghost dragging in Dilations feels less smooth than Rigid Motions on both touch and desktop. Three concrete causes identified by reading both implementations side by side. All three resolved.
+
+### ~~Issue 1: Drag capture plane is inside the ghost group — not at scene level~~
+
+**✅ RESOLVED** — `GhostTriangle.tsx` now renders a `200×200` scene-level sibling mesh at world origin (`position={[0, 0, -0.2]}`), not inside the ghost group. Touch anywhere on the canvas starts the drag.
+
+~~**🟠 P1 — touch miss on fat-finger input**~~
+
+**RM:** A single `DragPlane` component is a scene-level sibling mesh (`planeGeometry args={[18, 18]}`) at `z = -0.5`. The ghost itself has no pointer handlers. You can tap anywhere on the canvas to start dragging.
+
+**Dilations:** The drag capture plane is a child of `GhostTriangle`'s group — it moves with the ghost. `handlePointerDown` is on the ghost's own mesh, so R3F's hit-testing must intersect the ghost triangle before drag starts. On touch, a finger that lands outside the ghost outline misses entirely and does nothing.
+
+**Fix:** Extract the drag plane out of `GhostTriangle` to the scene level (in `ScaleFactorRounds.tsx` / `CoordinateRounds.tsx`). `GhostTriangle` becomes purely visual; a sibling component owns pointer events and passes world position back via `externalPosition`.
+
+**Files:**
+```
+src/components/modules/dilations/components/GhostTriangle.tsx
+src/components/modules/dilations/rounds/ScaleFactorRounds.tsx
+src/components/modules/dilations/rounds/CoordinateRounds.tsx
+```
+
+---
+
+### ~~Issue 2: Snap applied on every `pointermove`, not just `pointerup`~~
+
+**✅ RESOLVED** — `handleMove` uses raw float coordinates; `snap()` applied only in `handleUp` on release.
+
+~~**🟡 P2 — visible stutter during drag**~~
+
+**RM:** `handleWindowMove` computes the raw delta and calls `onGhostMove(clampOffset(rawOffset))` — no snapping during drag. The ghost moves at full floating-point resolution while the finger is down.
+
+**Dilations:** `handleMove` calls `snap()` on every `pointermove` event, rounding to the nearest 0.5 world unit at 60fps. At ~40px/world-unit zoom, a 0.5-unit snap = 20px jumps. The ghost visibly stutters as it crosses each 0.5-unit boundary.
+
+```typescript
+// Dilations — snaps on every move (causes stutter)
+const snapped = { x: snap(newCenter.x), y: snap(newCenter.y) }
+centerPosRef.current = snapped
+
+// RM — no snap during drag, raw float
+onGhostMove(clampOffset(rawOffset))
+```
+
+**Fix:** Remove `snap()` from `handleMove` in `GhostTriangle.tsx`. Keep snap only in `handleUp` (commit on release) and in the keyboard nudge path (which already snaps correctly).
+
+**Files:**
+```
+src/components/modules/dilations/components/GhostTriangle.tsx (handleMove)
+```
+
+---
+
+### ~~Issue 3: `touchAction: 'none'` missing from the Canvas~~
+
+**✅ RESOLVED** — `DilationsScene.tsx` Canvas `style` now includes `touchAction: 'none'`.
+
+~~**🟠 P1 — drag lag and scroll competition on mobile**~~
+
+**RM Canvas:**
+```tsx
+style={{ touchAction: 'none', ... }}
+```
+
+**Dilations Canvas (`DilationsScene.tsx`):**
+```tsx
+style={{ width: '100%', height: '100%' }}   // touchAction missing
+```
+
+Without `touchAction: 'none'`, the browser competes with pointer event listeners on touch devices — it may scroll the page instead of firing `pointermove`, or delay the first `pointermove` by the browser's touch disambiguation timeout (~300ms on some Android browsers). This is the primary reason drag feels laggy on mobile even when it works on desktop.
+
+**Fix:** Add `touchAction: 'none'` to the Canvas `style` prop in `DilationsScene.tsx`.
+
+**Files:**
+```
+src/components/modules/dilations/DilationsScene.tsx (Canvas style prop)
+```
+
+---
+
+### Summary
+
+| Issue | Severity | Root cause | Status |
+|---|---|---|---|
+| Drag capture plane inside ghost group | 🟠 P1 | Touch misses outside ghost outline | ✅ Resolved — PR #54 |
+| Snap on every `pointermove` | 🟡 P2 | 20px stutter at 0.5-unit boundaries | ✅ Resolved — PR #54 |
+| `touchAction: 'none'` missing | 🟠 P1 | Browser scroll competes with drag on mobile | ✅ Resolved — PR #53 |
 
 ---
 
