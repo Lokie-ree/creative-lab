@@ -14,7 +14,7 @@ import { ScaleFactorScene } from './rounds/ScaleFactorRounds'
 import { CoordinateScene } from './rounds/CoordinateRounds'
 import { CoordinateReadout } from './components/CoordinateReadout'
 import { PHASE_NAMES, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
-import { ghostVerticesToWorld } from './utils/math'
+import { ghostVerticesToWorld, triangleCentroid } from './utils/math'
 import { CANONICAL_TRIANGLE } from './utils/constants'
 import type { EarnedReveal } from './dilations-copy'
 import { ROUND_CONFIGS } from './utils/constants'
@@ -76,8 +76,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     else if (e.key === 'ArrowDown')  dy = -step
     else return
     e.preventDefault()
-    // CANONICAL_TRIANGLE centroid: ((1+4+2)/3, (1+2+4)/3)
-    const base = nudgePosition ?? { x: 0, y: -0.5 }
+    const base = nudgePosition ?? triangleCentroid(CANONICAL_TRIANGLE)
     const snapped = { x: Math.round((base.x + dx) * 2) / 2, y: Math.round((base.y + dy) * 2) / 2 }
     setNudgePosition(snapped)
   }, [isNudgeActive, nudgePosition])
