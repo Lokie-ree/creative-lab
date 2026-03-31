@@ -56,6 +56,8 @@ export function GhostTriangle({
   const dragStartWorld = useRef<Vec2>({ x: 0, y: 0 })
   const centerAtDragStart = useRef<Vec2>({ x: 0, y: 0 })
   const cleanupDragRef = useRef<(() => void) | null>(null)
+  // True after drag ends until externalPosition syncs — prevents stale-prop jump
+  const postDragRef = useRef(false)
   const raycaster = useMemo(() => new THREE.Raycaster(), [])
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), [])
 
@@ -79,8 +81,9 @@ export function GhostTriangle({
     }
   }, [fillGeo, outlineGeo])
 
-  // Drag position stored as ref — updates group position imperatively in useFrame (zero re-renders)
-  const centerPosRef = useRef<Vec2>({ x: 0, y: -0.5 })
+  // Drag position — start at preimage centroid (same pedagogical anchor as M1 ghost at offset 0)
+  const initialCenter = useMemo(() => triangleCentroid(vertices), [vertices])
+  const centerPosRef = useRef<Vec2>(initialCenter)
 
   const getWorldPoint = useCallback((clientX: number, clientY: number): Vec2 => {
     const rect = gl.domElement.getBoundingClientRect()
@@ -117,6 +120,7 @@ export function GhostTriangle({
     const handleUp = (ev: PointerEvent) => {
       if (!dragging.current) return
       dragging.current = false
+      postDragRef.current = true  // hold on centerPosRef until externalPosition syncs
       const p = getWorldPoint(ev.clientX, ev.clientY)
       const newCenter = {
         x: centerAtDragStart.current.x + (p.x - dragStartWorld.current.x),
@@ -143,12 +147,13 @@ export function GhostTriangle({
   useEffect(() => {
     if (externalPosition != null) {
       centerPosRef.current = externalPosition
+      postDragRef.current = false  // externalPosition has caught up — safe to use it again
     }
   }, [externalPosition])
 
   useFrame(() => {
     // externalPosition wins during keyboard nudge; otherwise use drag ref
-    const pos = externalPosition ?? centerPosRef.current
+    const pos = (dragging.current || postDragRef.current) ? centerPosRef.current : (externalPosition ?? centerPosRef.current)
     groupRef.current?.position.set(pos.x, pos.y, 0)
     lineLoopRef.current?.computeLineDistances()
   })

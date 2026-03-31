@@ -1,6 +1,6 @@
 # Design — Current Direction
 
-**Last updated:** February 23, 2026
+**Last updated:** March 30, 2026
 
 This folder holds design specs and audits for creative-lab. Below is the current direction, implementation status, and outstanding work.
 
@@ -53,7 +53,7 @@ Scientific instrument ("oscilloscope, not slideshow"). Everything always visible
 - **Controls:** TRACE (play/pause), RESET, SPEED (0.5x / 1x / 2x). Grid lines, silk-screen labels, StatusStrip.
 - **Architecture:** `InstrumentModule.tsx` orchestrates state; `Scene.tsx` owns R3F Canvas
 - **Reference:** `src/components/modules/sinewaves/ARCHITECTURE.md`
-- **Visual reference:** For layout and component treatment, see sinewaves in codebase; panel screws are intentionally omitted. For **new modules**, use `mockups/RigidMotions.jsx` as the mockup exemplar.
+- **Visual reference:** For layout and component treatment, see sinewaves in codebase; panel screws are intentionally omitted.
 
 *Specs:* [SINEWAVES-REFACTOR-SPEC.md](./SINEWAVES-REFACTOR-SPEC.md); implementation plans in [archive/](../archive/) (2026-02-05 instrument refactor, 2026-02-10 Eurorack reskin).
 
@@ -65,23 +65,23 @@ Linear algebra module — matrix transformations on 2D vectors. Progressive unlo
 
 Single `Module.tsx` with "Coming Soon" message.
 
-### Rigid Motions — DESIGNED, NOT STARTED (next build)
+### Rigid Motions — COMPLETE
 
-Grade 8 Geometry module (8.G.A.1–3) — translations, reflections, rotations, congruence. "Predict & Reveal" interaction pattern (student drags ghost shape to predicted position, animation confirms/corrects). Scalene triangle as the single shape family across all stages. Distinct from sinewaves' continuous-parameter instrument.
+Grade 8 Geometry (8.G.A.1–3). All 4 phases shipped + ISTE visibility sprint (March 2026). **Reference implementation for the geometry progression.** See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md).
 
-- **Guide states:** predict-translate → predict-reflect → predict-rotate → coordinate-reveal → predict-with-coordinates → capstone
-- **ALD progression:** L3 (spatial reasoning, no coordinates) → L4 (coordinate rules activate) → L5 (inverse task: identify the sequence)
-- **Controls:** Discrete (shadcn toggle/toggle-group) rather than continuous sliders; capstone uses a two-slot sequence builder
-- **Design spec (v2):** [plans/2026-02-19-rigid-motions-design-spec.md](../plans/2026-02-19-rigid-motions-design-spec.md) — **implementation-ready**
-- **Mockup:** `mockups/RigidMotions.jsx` — exemplar; validated against spec
-- **Not yet in `modules.ts`.** Listed in `courses.ts` (Geometry course, `moduleIds: ['rigid-motions']`). Add the `modules.ts` entry as the first step of implementation.
-- **Part of:** Three-module Grade 8 geometry progression (Rigid Motions → Dilations & Similarity → Pythagorean Theorem)
+### Dilations — PHASES 1 & 2 COMPLETE
+
+Grade 8 Geometry (8.G.A.3–5). Phase 1: predict-and-reveal across 5 scale-factor rounds. Phase 2: coordinate rule rounds with formula strip and predicted vertex display. Drag fully solidified (scene-level capture plane, delta-based, `touchAction:none`). Phase 3 (similarity rounds) next. See [`src/components/modules/dilations/ARCHITECTURE.md`](../../src/components/modules/dilations/ARCHITECTURE.md).
+
+### Pythagorean Theorem — NOT STARTED
+
+Third module in the Grade 8 geometry progression.
 
 ---
 
-## Implementation notes (Sinewaves)
+## Implementation notes
 
-For layout density, status strip, readout treatment, and controls: see sinewaves implementation and `mockups/RigidMotions.jsx` (mockup exemplar).
+**Reference implementation for geometry modules:** Rigid Motions. See `src/components/modules/rigid-motions/ARCHITECTURE.md` for guide states, drag pattern, formula strip, and celebration modal wiring.
 
 **Panel screws:** Decorative corner screws were removed from `Layout.tsx` in commit `7257ce5`. The design direction omits them. Do not re-add.
 
@@ -93,7 +93,11 @@ For layout density, status strip, readout treatment, and controls: see sinewaves
 
 ### Rigid Motions — Complete
 
-All 4 phases shipped. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md) for as-built documentation.
+All 4 phases shipped + ISTE visibility sprint. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md).
+
+### Dilations — Phase 3 next
+
+Phases 1 & 2 complete. Next: `similarity-guided`, `similarity-rigid-dilation`, `similarity-inverse` rounds. See [`docs/modules/dilations/build-order-prompts.md`](../modules/dilations/build-order-prompts.md).
 
 ### Sinewaves — lower-priority polish
 
