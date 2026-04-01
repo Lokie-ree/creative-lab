@@ -13,7 +13,7 @@ function buildArcGeo(vertex: { x: number; y: number }, a: { x: number; y: number
   const angle1 = Math.atan2(a.y - vertex.y, a.x - vertex.x)
   const angle2 = Math.atan2(b.y - vertex.y, b.x - vertex.x)
   // Normalize to [0, 2π] and take the shorter arc
-  let start = angle1
+  const start = angle1
   let end = angle2
   let diff = end - start
   // Normalize diff to (-π, π]
@@ -44,6 +44,7 @@ export function AngleMarks({ triangles, visible, animating }: AngleMarksProps) {
   const opacityRef = useRef({ v: animating ? 0 : 1 })
 
   // Build all arc line objects in useMemo — not recreated per render
+  /* eslint-disable react-hooks/refs -- reads initial ref value for Three.js material opacity */
   const markLines = useMemo(() => {
     const lines: THREE.Line[] = []
     for (const tri of triangles) {
@@ -64,8 +65,8 @@ export function AngleMarks({ triangles, visible, animating }: AngleMarksProps) {
       }
     }
     return lines
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [triangles])
+  /* eslint-enable react-hooks/refs */
 
   // GSAP fade-in
   useEffect(() => {

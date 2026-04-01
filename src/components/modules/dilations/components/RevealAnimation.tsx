@@ -62,7 +62,6 @@ export function RevealAnimation({
       line.position.z = 0.03
       return line
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showRays])
 
   // Build geometries and attach to scene objects on mount
@@ -97,10 +96,13 @@ export function RevealAnimation({
     })
 
     // Cleanup: dispose all geometries on unmount
+    const fillGeoSnapshot = fillGeoRef.current
+    const outlineGeoSnapshot = outlineGeo.current
+    const rayGeoSnapshots = [...rayGeos.current]
     return () => {
-      if (fillGeoRef.current) fillGeoRef.current.dispose()
-      outlineGeo.current.dispose()
-      rayGeos.current.forEach(g => g.dispose())
+      if (fillGeoSnapshot) fillGeoSnapshot.dispose()
+      outlineGeoSnapshot.dispose()
+      rayGeoSnapshots.forEach(g => g.dispose())
       // Dispose ray line materials
       rayLines.forEach(line => {
         if (line.material) {

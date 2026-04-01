@@ -18,6 +18,7 @@ const WORLD_SIZE = WORLD_MAX - WORLD_MIN  // 16
 const WORLD_CENTER_X = (WORLD_MIN + WORLD_MAX) / 2  // = 6
 const WORLD_CENTER_Y = (WORLD_MIN + WORLD_MAX) / 2  // = 6
 
+/* eslint-disable react-hooks/immutability -- Three.js camera is mutable by design */
 function CameraSetup() {
   const { camera, size } = useThree()
   useFrame(() => {
@@ -47,6 +48,7 @@ function CameraSetup() {
   })
   return null
 }
+/* eslint-enable react-hooks/immutability */
 
 function CoordinateGrid() {
   const { gridGeometry, axisGeometry } = useMemo(() => {
