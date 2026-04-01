@@ -41,7 +41,6 @@ export function SequencePreview({ steps, preImage, visible }: SequencePreviewPro
 
   const composed = useMemo(
     () => composeTriangle(steps, preImage),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [steps, preImage]
   )
 
