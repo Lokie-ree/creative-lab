@@ -20,6 +20,7 @@ export function RatioAnnotations({ preImage, ratio, visible, animating }: RatioA
   // SpriteLabel has no opacity prop — gate visibility with state + setTimeout
   const [show, setShow] = useState(!animating)
 
+  /* eslint-disable react-hooks/set-state-in-effect -- timer-based delayed reveal; setState is intentional */
   useEffect(() => {
     if (!visible) { setShow(false); return }
     if (!animating) { setShow(true); return }
@@ -27,6 +28,7 @@ export function RatioAnnotations({ preImage, ratio, visible, animating }: RatioA
     const timer = setTimeout(() => setShow(true), 500)  // 0.5s delay after rays settle
     return () => clearTimeout(timer)
   }, [visible, animating])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const { a, b, c } = preImage
   const sides = useMemo(() => [

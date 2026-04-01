@@ -72,7 +72,7 @@ export function ImageTriangle({
     }
   }, [fillGeo, outlineGeo])
 
-  const c2 = useMemo(() => centroid(vertices), [a, b, c])
+  const c2 = useMemo(() => centroid(vertices), [vertices])
 
   // Early return AFTER all hooks
   if (!visible) return null

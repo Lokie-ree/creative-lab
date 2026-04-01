@@ -16,7 +16,7 @@ export interface RayLinesProps {
   animating: boolean   // true during reveal, false during completion (full length, static)
 }
 
-export function RayLines({ preImage: _preImage, image, visible, animating }: RayLinesProps) {
+export function RayLines({ image, visible, animating }: RayLinesProps) {
   // ALL hooks first — Rules of Hooks: no early returns before hook calls
   const { a: ia, b: ib, c: ic } = image
   const endpoints = [ia, ib, ic] as const
@@ -38,7 +38,6 @@ export function RayLines({ preImage: _preImage, image, visible, animating }: Ray
         new THREE.LineDashedMaterial({ color: RAY_COLOR, dashSize: 0.15, gapSize: 0.1, transparent: true, opacity: 0.6 })
       )
     ),
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   [])
 
   // Build ray geometries on mount — 2 pts each (origin → endpoint)

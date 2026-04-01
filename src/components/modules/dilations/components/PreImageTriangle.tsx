@@ -67,7 +67,7 @@ export function PreImageTriangle({
     }
   }, [fillGeo, outlineGeo])
 
-  const c2 = useMemo(() => centroid(vertices), [a, b, c])
+  const c2 = useMemo(() => centroid(vertices), [vertices])
 
   return (
     <group>
