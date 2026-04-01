@@ -14,6 +14,7 @@ import { ScaleFactorScene } from './rounds/ScaleFactorRounds'
 import { CoordinateScene } from './rounds/CoordinateRounds'
 import { SimilarityScene } from './rounds/SimilarityRounds'
 import { SequenceBuilder } from './components/SequenceBuilder'
+import { SimilarityDefinition } from './components/SimilarityDefinition'
 import { CoordinateReadout } from './components/CoordinateReadout'
 import { PHASE_NAMES, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
 import { ghostVerticesToWorld, triangleCentroid, composeTriangle, trianglesMatch } from './utils/math'
@@ -304,6 +305,11 @@ export default function DilationsModule({ onBack }: ModuleProps) {
               />
             )}
           </DilationsScene>
+
+          <SimilarityDefinition
+            visible={isFirstReveal && currentRound === 'similarity-inverse'}
+            onContinue={handleAdvance}
+          />
 
           {contextLost && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-(--lab-bg)/90 z-10">
