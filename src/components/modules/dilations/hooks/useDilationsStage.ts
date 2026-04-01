@@ -22,6 +22,7 @@ export type StageAction =
   | { type: 'COMPLETE_ROUND' }
   | { type: 'ADVANCE_ROUND' }
   | { type: 'ADD_SEQUENCE_STEP'; step: TransformStep }
+  | { type: 'UPDATE_SEQUENCE_STEP'; index: number; step: TransformStep }
   | { type: 'REMOVE_SEQUENCE_STEP'; index: number }
   | { type: 'REORDER_SEQUENCE_STEP'; from: number; to: number }
   | { type: 'CHECK_SEQUENCE' }
@@ -87,6 +88,16 @@ export function stageReducer(state: StageState, action: StageAction): StageState
 
     case 'ADD_SEQUENCE_STEP':
       return { ...state, sequenceSteps: [...state.sequenceSteps, action.step] }
+
+    case 'UPDATE_SEQUENCE_STEP': {
+      const steps = [...state.sequenceSteps]
+      steps[action.index] = action.step
+      return {
+        ...state,
+        sequenceSteps: steps,
+        roundState: state.roundState === 'prediction' ? 'active' : state.roundState,
+      }
+    }
 
     case 'REMOVE_SEQUENCE_STEP':
       return {
