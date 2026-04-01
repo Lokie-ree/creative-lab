@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest'
 import { stageReducer } from '../hooks/useDilationsStage'
 import type { StageState, StageAction } from '../hooks/useDilationsStage'
+import type { TransformStep } from '../utils/types'
 import { ROUND_SEQUENCE } from '../utils/constants'
 
 const initialState: StageState = {
@@ -173,6 +174,40 @@ describe('stageReducer', () => {
       const s = { ...initialState, sequenceSteps: [step] }
       const next = dispatch(s, { type: 'RESET_SEQUENCE' })
       expect(next.sequenceSteps).toHaveLength(0)
+    })
+
+    it('UPDATE_SEQUENCE_STEP replaces step at index', () => {
+      const step1: TransformStep = { type: 'translate', params: { dx: 1, dy: 1 } }
+      const step2: TransformStep = { type: 'dilate', params: { k: 2 } }
+      const updated: TransformStep = { type: 'translate', params: { dx: 3, dy: 0 } }
+
+      let state = stageReducer(initialState, { type: 'ADD_SEQUENCE_STEP', step: step1 })
+      state = stageReducer(state, { type: 'ADD_SEQUENCE_STEP', step: step2 })
+      state = stageReducer(state, { type: 'UPDATE_SEQUENCE_STEP', index: 0, step: updated })
+
+      expect(state.sequenceSteps).toEqual([updated, step2])
+    })
+
+    it('UPDATE_SEQUENCE_STEP resets prediction to active', () => {
+      const step: TransformStep = { type: 'translate', params: { dx: 1, dy: 1 } }
+      const updated: TransformStep = { type: 'translate', params: { dx: 2, dy: 2 } }
+
+      let state = stageReducer(initialState, { type: 'ADD_SEQUENCE_STEP', step })
+      state = stageReducer(state, { type: 'SET_ROUND_STATE', state: 'prediction' })
+      state = stageReducer(state, { type: 'UPDATE_SEQUENCE_STEP', index: 0, step: updated })
+
+      expect(state.roundState).toBe('active')
+    })
+
+    it('UPDATE_SEQUENCE_STEP preserves non-prediction roundState', () => {
+      const step: TransformStep = { type: 'translate', params: { dx: 1, dy: 1 } }
+      const updated: TransformStep = { type: 'translate', params: { dx: 2, dy: 2 } }
+
+      let state = stageReducer(initialState, { type: 'ADD_SEQUENCE_STEP', step })
+      // roundState defaults to 'entry' from initialState
+      state = stageReducer(state, { type: 'UPDATE_SEQUENCE_STEP', index: 0, step: updated })
+
+      expect(state.roundState).toBe('entry')
     })
   })
 
