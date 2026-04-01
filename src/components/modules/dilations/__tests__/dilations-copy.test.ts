@@ -98,3 +98,23 @@ describe('EARNED_REVEALS', () => {
     }
   })
 })
+
+describe('Phase 3 copy', () => {
+  const phase3Rounds: RoundId[] = ['similarity-guided', 'similarity-rigid-dilation', 'similarity-inverse']
+
+  it('ROUND_PROMPTS has entries for all Phase 3 rounds', () => {
+    phase3Rounds.forEach(r => {
+      expect(ROUND_PROMPTS[r]).toBeDefined()
+      expect(typeof ROUND_PROMPTS[r]).toBe('string')
+    })
+  })
+
+  it('EARNED_REVEALS has entry for similarity-inverse', () => {
+    expect(EARNED_REVEALS['similarity-inverse']).toBeDefined()
+    expect(typeof EARNED_REVEALS['similarity-inverse']?.text).toBe('string')
+  })
+
+  it('similarity-inverse earned reveal text mentions "similar"', () => {
+    expect(EARNED_REVEALS['similarity-inverse']!.text).toContain('similar')
+  })
+})

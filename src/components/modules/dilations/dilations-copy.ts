@@ -64,6 +64,9 @@ export const EARNED_REVEALS: Partial<Record<RoundId, EarnedReveal>> = {
     notation: '(x, y) → (kx, ky)',
     notationStyle: 'rule',
   },
+  'similarity-inverse': {
+    text: 'Two figures are similar if there exists a sequence of rigid motions and a dilation that maps one onto the other.',
+  },
 }
 
 // Partial — Phase 2–4 entries added when those phases are built
@@ -76,4 +79,7 @@ export const ROUND_PROMPTS: Partial<Record<RoundId, string>> = {
   'coord-k2':     "Now let's look at the coordinates. Where will A', B', and C' land when k = 2?",
   'coord-k-half': "k = ½ again — but now predict the exact coordinates.",
   'coord-k-third': "k = ⅓. Can you predict the coordinates before checking?",
+  'similarity-guided':          'These look alike but aren\u2019t the same size. Try: translate, then dilate.',
+  'similarity-rigid-dilation':  'Translation won\u2019t work this time. What else from Module 1 can you use?',
+  'similarity-inverse':         'Your turn. Find the sequence.',
 }
