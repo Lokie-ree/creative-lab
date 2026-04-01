@@ -52,13 +52,3 @@ export type TransformStep = {
   params: TranslateStepParams | ReflectStepParams | RotateStepParams | DilateStepParams
 }
 
-export type SimilarityPair = {
-  preImage: Triangle
-  target: Triangle
-  isSimilar: boolean
-  validSequences?: TransformStep[][]
-}
-
-export type CapstonePair = SimilarityPair & {
-  angleLabels: { a: number; b: number; c: number }[]
-}

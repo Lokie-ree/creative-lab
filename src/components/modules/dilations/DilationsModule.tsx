@@ -12,13 +12,16 @@ import { ControlStrip } from './components/ControlStrip'
 import { ScaleFactorDisplay } from './components/ScaleFactorDisplay'
 import { ScaleFactorScene } from './rounds/ScaleFactorRounds'
 import { CoordinateScene } from './rounds/CoordinateRounds'
+import { SimilarityScene } from './rounds/SimilarityRounds'
+import { SequenceBuilder } from './components/SequenceBuilder'
+import { SimilarityDefinition } from './components/SimilarityDefinition'
 import { CoordinateReadout } from './components/CoordinateReadout'
 import { PHASE_NAMES, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
-import { ghostVerticesToWorld, triangleCentroid } from './utils/math'
-import { CANONICAL_TRIANGLE } from './utils/constants'
+import { ghostVerticesToWorld, triangleCentroid, composeTriangle, trianglesMatch } from './utils/math'
+import { CANONICAL_TRIANGLE, PREDICTION_TOLERANCE, ROUND_CONFIGS } from './utils/constants'
+import { SIMILARITY_TASKS } from './utils/similarityTasks'
 import type { EarnedReveal } from './dilations-copy'
-import { ROUND_CONFIGS } from './utils/constants'
-import type { PhaseId } from './utils/types'
+import type { PhaseId, TransformStep } from './utils/types'
 import { useAccessibility } from '@/lib/skeleton/useAccessibility'
 
 const PHASE_SEQUENCE: PhaseId[] = ['scale-factor', 'coordinate', 'similarity', 'aa-capstone']
@@ -31,6 +34,11 @@ export default function DilationsModule({ onBack }: ModuleProps) {
 
   const isScaleFactorPhase = phase === 'scale-factor'
   const isCoordinatePhase = phase === 'coordinate'
+  const isSimilarityPhase = phase === 'similarity'
+
+  const currentTask = isSimilarityPhase
+    ? SIMILARITY_TASKS.find(t => t.id === currentRound)
+    : undefined
 
   // ── Accessibility ────────────────────────────────────────────────────────
   const { announce } = useAccessibility()
@@ -50,16 +58,52 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const [predictionAccuracy, setPredictionAccuracy] = useState<Accuracy | null>(null)
+  const [similarityFeedback, setSimilarityFeedback] = useState<'idle' | 'match' | 'miss'>('idle')
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setPredictionAccuracy(null)
+    setSimilarityFeedback('idle')
   }, [currentRound])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleAccuracy = useCallback((a: Accuracy) => {
     setPredictionAccuracy(a)
   }, [])
+
+  // ── Similarity sequence callbacks ────────────────────────────────────────
+  const handleAddStep = useCallback((step: TransformStep) => {
+    dispatch({ type: 'ADD_SEQUENCE_STEP', step })
+  }, [dispatch])
+
+  const handleUpdateStep = useCallback((index: number, step: TransformStep) => {
+    dispatch({ type: 'UPDATE_SEQUENCE_STEP', index, step })
+    setSimilarityFeedback('idle')
+  }, [dispatch])
+
+  const handleRemoveStep = useCallback((index: number) => {
+    dispatch({ type: 'REMOVE_SEQUENCE_STEP', index })
+    setSimilarityFeedback('idle')
+  }, [dispatch])
+
+  const handleResetSequence = useCallback(() => {
+    dispatch({ type: 'RESET_SEQUENCE' })
+    setSimilarityFeedback('idle')
+  }, [dispatch])
+
+  const handleCheckSimilarity = useCallback(() => {
+    if (!currentTask) return
+    const composed = composeTriangle(state.sequenceSteps, currentTask.preImage)
+    const match = trianglesMatch(composed, currentTask.target, PREDICTION_TOLERANCE)
+    if (match) {
+      setSimilarityFeedback('match')
+      dispatch({ type: 'COMPLETE_ROUND' })
+      announce('Match! Sequence maps pre-image to target.', 'assertive')
+    } else {
+      setSimilarityFeedback('miss')
+      announce('Not a match. Try adjusting your steps.', 'polite')
+    }
+  }, [currentTask, state.sequenceSteps, dispatch, announce])
 
   // Arrow key nudging — only active in ghost-drag rounds during active/prediction states
   const isNudgeActive =
@@ -252,7 +296,20 @@ export default function DilationsModule({ onBack }: ModuleProps) {
                 onAccuracy={handleAccuracy}
               />
             )}
+            {isSimilarityPhase && currentTask && (
+              <SimilarityScene
+                key={currentRound}
+                state={state}
+                dispatch={dispatch}
+                task={currentTask}
+              />
+            )}
           </DilationsScene>
+
+          <SimilarityDefinition
+            visible={isFirstReveal && currentRound === 'similarity-inverse'}
+            onContinue={handleAdvance}
+          />
 
           {contextLost && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-(--lab-bg)/90 z-10">
@@ -271,7 +328,27 @@ export default function DilationsModule({ onBack }: ModuleProps) {
         </>
       }
       controls={
-        <ControlStrip state={state} dispatch={dispatch} onAdvance={handleAdvance} />
+        isSimilarityPhase && currentTask && roundState !== 'entry' ? (
+          <SequenceBuilder
+            steps={state.sequenceSteps}
+            maxSteps={currentTask.maxSteps}
+            kLocked={true}
+            lockedK={2}
+            feedbackState={similarityFeedback}
+            guidance={roundState === 'active' ? currentTask.guidance : undefined}
+            onAddStep={handleAddStep}
+            onUpdateStep={handleUpdateStep}
+            onRemoveStep={handleRemoveStep}
+            onCheckSequence={handleCheckSimilarity}
+            onNext={() => {
+              handleAdvance()
+              setSimilarityFeedback('idle')
+            }}
+            onReset={handleResetSequence}
+          />
+        ) : (
+          <ControlStrip state={state} dispatch={dispatch} onAdvance={handleAdvance} />
+        )
       }
     />
   )
