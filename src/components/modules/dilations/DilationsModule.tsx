@@ -196,6 +196,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           roundState={roundState}
           isGeneralized={currentRound === 'coord-k-third'}
           predictedVertices={predictedVertices}
+          isFirstReveal={isFirstReveal}
         />
       )
     }
