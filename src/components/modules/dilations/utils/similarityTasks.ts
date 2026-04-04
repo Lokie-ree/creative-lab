@@ -18,7 +18,6 @@ export type SimilarityTask = {
   preImage: Triangle
   target: Triangle
   maxSteps: number
-  guidance?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -42,7 +41,6 @@ const SIMILARITY_GUIDED: SimilarityTask = {
     c: { x: 6, y: 10 },
   },
   maxSteps: 3,
-  guidance: 'These look alike but aren\u2019t the same size. Try: translate, then dilate.',
 }
 
 // ---------------------------------------------------------------------------
@@ -69,7 +67,6 @@ const SIMILARITY_RIGID_DILATION: SimilarityTask = {
     c: { x: 4, y: 8 },
   },
   maxSteps: 3,
-  guidance: 'Translation won\u2019t work this time. What else from Module 1 can you use?',
 }
 
 // ---------------------------------------------------------------------------

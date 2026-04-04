@@ -38,9 +38,11 @@ export interface AngleMarksProps {
   triangles: readonly Triangle[]
   visible: boolean
   animating: boolean
+  /** Override arc color. Defaults to '#7a746a' (lab-ghost). */
+  color?: string
 }
 
-export function AngleMarks({ triangles, visible, animating }: AngleMarksProps) {
+export function AngleMarks({ triangles, visible, animating, color }: AngleMarksProps) {
   const opacityRef = useRef({ v: animating ? 0 : 1 })
 
   // Build all arc line objects in useMemo — not recreated per render
@@ -57,7 +59,7 @@ export function AngleMarks({ triangles, visible, animating }: AngleMarksProps) {
       for (const { v, adj1, adj2 } of vertices) {
         const geo = buildArcGeo(v, adj1, adj2)
         const mat = new THREE.LineBasicMaterial({
-          color: MARK_COLOR,
+          color: color ?? MARK_COLOR,
           transparent: true,
           opacity: opacityRef.current.v,
         })
@@ -65,7 +67,7 @@ export function AngleMarks({ triangles, visible, animating }: AngleMarksProps) {
       }
     }
     return lines
-  }, [triangles])
+  }, [triangles, color])
   /* eslint-enable react-hooks/refs */
 
   // GSAP fade-in

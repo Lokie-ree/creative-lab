@@ -56,4 +56,19 @@ describe('CoordinateReadout', () => {
     const rule = screen.getByText(/\(x, y\)\s*→\s*\(kx, ky\)/)
     expect(rule).toBeTruthy()
   })
+
+  it('suppresses rule line when isFirstReveal is true', () => {
+    render(
+      <CoordinateReadout
+        scaleFactor={2}
+        roundState="completion"
+        isGeneralized={false}
+        isFirstReveal={true}
+      />
+    )
+    // coordinate table still shows
+    expect(screen.getByText(/A\(1, 1\)/)).toBeTruthy()
+    // rule line is suppressed
+    expect(screen.queryByText(/\(x, y\)\s*→\s*\(2x, 2y\)/)).toBeNull()
+  })
 })

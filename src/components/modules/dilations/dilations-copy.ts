@@ -33,6 +33,9 @@ export interface EarnedReveal {
   notationStyle?: 'rule' | 'congruence'
 }
 
+export const DEFAULT_SIMILARITY_MATCH_COPY =
+  'A sequence of rigid motions and a dilation maps the pre-image onto the target.'
+
 export const EARNED_REVEALS: Partial<Record<RoundId, EarnedReveal>> = {
   'dilate-k2': {
     text: 'Every point moved twice as far from the origin. Distances doubled — angles held.',

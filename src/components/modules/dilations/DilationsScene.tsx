@@ -5,33 +5,25 @@ import * as THREE from 'three'
 import { SpriteLabel } from './components/SpriteLabel'
 import { DilationsSceneCtx } from './DilationsSceneContext'
 
-// World range: x ∈ [-2, 14], y ∈ [-2, 14]. Grid lines extend beyond range to fill viewport.
-const WORLD_MIN = -2
-const WORLD_MAX = 14
-// Grid lines draw beyond WORLD_MIN/WORLD_MAX so portrait viewports have no blank margins.
+// Grid lines draw beyond visible range so portrait viewports have no blank margins.
 // Three.js clips at the camera frustum — no extra draw cost beyond geometry setup (done once).
 const GRID_DRAW_MIN = -20
 const GRID_DRAW_MAX = 30
-const WORLD_SIZE = WORLD_MAX - WORLD_MIN  // 16
-// Geometric center of the world grid — ensures the constrained viewport dimension
-// maps exactly to [WORLD_MIN, WORLD_MAX] with no blank canvas margins.
-const WORLD_CENTER_X = (WORLD_MIN + WORLD_MAX) / 2  // = 6
-const WORLD_CENTER_Y = (WORLD_MIN + WORLD_MAX) / 2  // = 6
 
 /* eslint-disable react-hooks/immutability -- Three.js camera is mutable by design */
-function CameraSetup() {
+function CameraSetup({ worldSize }: { worldSize: number }) {
   const { camera, size } = useThree()
+  // center: (5,5) for worldSize=20 [-5,15], (6,6) for worldSize=16 [-2,14]
+  const worldCenter = worldSize === 20 ? 5 : 6
   useFrame(() => {
     if (!(camera instanceof THREE.OrthographicCamera)) return
-    // Scale: pixels per world unit, constrained by the shorter viewport dimension
-    const scale = Math.min(size.width, size.height) / WORLD_SIZE
-    // Frustum bounds in world units, centered on WORLD_CENTER
+    const scale = Math.min(size.width, size.height) / worldSize
     const worldW = size.width / scale
     const worldH = size.height / scale
-    const left = WORLD_CENTER_X - worldW / 2
-    const right = WORLD_CENTER_X + worldW / 2
-    const top = WORLD_CENTER_Y + worldH / 2
-    const bottom = WORLD_CENTER_Y - worldH / 2
+    const left   = worldCenter - worldW / 2
+    const right  = worldCenter + worldW / 2
+    const top    = worldCenter + worldH / 2
+    const bottom = worldCenter - worldH / 2
     const changed =
       Math.abs(camera.left - left) > 0.01 ||
       Math.abs(camera.right - right) > 0.01 ||
@@ -39,10 +31,8 @@ function CameraSetup() {
       Math.abs(camera.bottom - bottom) > 0.01
     if (changed) {
       camera.zoom = 1
-      camera.left = left
-      camera.right = right
-      camera.top = top
-      camera.bottom = bottom
+      camera.left = left; camera.right = right
+      camera.top = top; camera.bottom = bottom
       camera.updateProjectionMatrix()
     }
   })
@@ -93,38 +83,16 @@ function CoordinateGrid() {
   )
 }
 
-const AXIS_LABEL_INTEGERS = [2, 4, 6, 8, 10, 12]
-
-function AxisLabels() {
+function AxisLabels({ integers }: { integers: readonly number[] }) {
   return (
     <>
-      {AXIS_LABEL_INTEGERS.map(n => (
-        <SpriteLabel
-          key={`x-${n}`}
-          text={String(n)}
-          position={{ x: n, y: -0.6 }}
-          zLayer={0.05}
-          color="#7a746a"
-          planeWidth={0.55}
-        />
+      {integers.map(n => (
+        <SpriteLabel key={`x-${n}`} text={String(n)} position={{ x: n, y: -0.6 }} zLayer={0.05} color="#7a746a" planeWidth={n < 0 ? 0.7 : 0.55} />
       ))}
-      {AXIS_LABEL_INTEGERS.map(n => (
-        <SpriteLabel
-          key={`y-${n}`}
-          text={String(n)}
-          position={{ x: -0.6, y: n }}
-          zLayer={0.05}
-          color="#7a746a"
-          planeWidth={0.55}
-        />
+      {integers.map(n => (
+        <SpriteLabel key={`y-${n}`} text={String(n)} position={{ x: -0.6, y: n }} zLayer={0.05} color="#7a746a" planeWidth={n < 0 ? 0.7 : 0.55} />
       ))}
-      <SpriteLabel
-        text="0"
-        position={{ x: -0.5, y: -0.5 }}
-        zLayer={0.05}
-        color="#7a746a"
-        planeWidth={0.45}
-      />
+      <SpriteLabel text="0" position={{ x: -0.5, y: -0.5 }} zLayer={0.05} color="#7a746a" planeWidth={0.45} />
     </>
   )
 }
@@ -167,6 +135,7 @@ function ContextRecovery({
 export interface DilationsSceneProps {
   coordinatesVisible: boolean
   angleLabelsVisible: boolean
+  worldSize?: number    // defaults to 16
   children?: React.ReactNode
   onContextLost?: () => void
   onContextRestored?: () => void
@@ -176,9 +145,15 @@ export function DilationsScene({
   children,
   coordinatesVisible,
   angleLabelsVisible,
+  worldSize,
   onContextLost,
   onContextRestored,
 }: DilationsSceneProps) {
+  const ws = worldSize ?? 16
+  const axisIntegers: readonly number[] = ws === 20
+    ? [-4, -2, 0, 2, 4, 6, 8, 10, 12, 14]
+    : [2, 4, 6, 8, 10, 12]
+
   return (
     <Canvas
       orthographic
@@ -189,9 +164,9 @@ export function DilationsScene({
     >
       <DilationsSceneCtx.Provider value={{ coordinatesVisible, angleLabelsVisible }}>
         <ContextRecovery onContextLost={onContextLost} onContextRestored={onContextRestored} />
-        <CameraSetup />
+        <CameraSetup worldSize={ws} />
         <CoordinateGrid />
-        <AxisLabels />
+        <AxisLabels integers={axisIntegers} />
         {children}
       </DilationsSceneCtx.Provider>
     </Canvas>

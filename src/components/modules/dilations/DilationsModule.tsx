@@ -121,7 +121,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     else return
     e.preventDefault()
     const base = nudgePosition ?? triangleCentroid(CANONICAL_TRIANGLE)
-    const snapped = { x: Math.round((base.x + dx) * 2) / 2, y: Math.round((base.y + dy) * 2) / 2 }
+    const snapped = { x: Math.round((base.x + dx) * 4) / 4, y: Math.round((base.y + dy) * 4) / 4 }
     setNudgePosition(snapped)
   }, [isNudgeActive, nudgePosition])
 
@@ -187,7 +187,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     }
     if (isCoordinatePhase && config.scaleFactor != null) {
       const predictedVertices =
-        roundState === 'prediction' && nudgePosition != null
+        (roundState === 'active' || roundState === 'prediction') && nudgePosition != null
           ? ghostVerticesToWorld(CANONICAL_TRIANGLE, config.scaleFactor, nudgePosition)
           : undefined
       return (
@@ -196,6 +196,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           roundState={roundState}
           isGeneralized={currentRound === 'coord-k-third'}
           predictedVertices={predictedVertices}
+          isFirstReveal={isFirstReveal}
         />
       )
     }
@@ -253,6 +254,11 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           amber={amber}
           notation={notation}
           notationStyle={notationStyle}
+          trailingText={
+            roundState === 'prediction' && predictionAccuracy === 'miss'
+              ? 'Try repositioning before revealing.'
+              : undefined
+          }
         />
       }
       formulaReadout={formulaReadout}
@@ -273,6 +279,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           <DilationsScene
             coordinatesVisible={state.coordinatesVisible}
             angleLabelsVisible={state.angleLabelsVisible}
+            worldSize={isSimilarityPhase ? 20 : 16}
             onContextLost={() => setContextLost(true)}
             onContextRestored={() => setContextLost(false)}
           >
@@ -335,7 +342,6 @@ export default function DilationsModule({ onBack }: ModuleProps) {
             kLocked={true}
             lockedK={2}
             feedbackState={similarityFeedback}
-            guidance={roundState === 'active' ? currentTask.guidance : undefined}
             onAddStep={handleAddStep}
             onUpdateStep={handleUpdateStep}
             onRemoveStep={handleRemoveStep}

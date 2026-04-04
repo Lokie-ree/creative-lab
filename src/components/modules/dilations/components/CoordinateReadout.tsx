@@ -9,6 +9,8 @@ export interface CoordinateReadoutProps {
   isGeneralized: boolean
   /** Ghost world-space vertices after student drops prediction. Shows predicted coords in ghost color. */
   predictedVertices?: Triangle
+  /** When true, suppresses the rule line (PromptReadout shows notation instead). */
+  isFirstReveal?: boolean
 }
 
 const VERTEX_NAMES = ['A', 'B', 'C'] as const
@@ -32,6 +34,7 @@ export function CoordinateReadout({
   roundState,
   isGeneralized,
   predictedVertices,
+  isFirstReveal,
 }: CoordinateReadoutProps) {
   const isAfterReveal = roundState === 'reveal' || roundState === 'completion'
 
@@ -87,15 +90,17 @@ export function CoordinateReadout({
         ))}
       </div>
 
-      {/* Coordinate rule */}
-      <div
-        className={[
-          'lab-data-font text-sm font-semibold border-t border-(--lab-border) pt-1.5',
-          isGeneralized ? 'text-(--lab-earned)' : 'text-(--lab-accent)',
-        ].join(' ')}
-      >
-        {coordinateRule(scaleFactor, isGeneralized)}
-      </div>
+      {/* Coordinate rule — suppressed on first reveal since PromptReadout shows notation */}
+      {!isFirstReveal && (
+        <div
+          className={[
+            'lab-data-font text-sm font-semibold border-t border-(--lab-border) pt-1.5',
+            isGeneralized ? 'text-(--lab-earned)' : 'text-(--lab-accent)',
+          ].join(' ')}
+        >
+          {coordinateRule(scaleFactor, isGeneralized)}
+        </div>
+      )}
     </div>
   )
 }
