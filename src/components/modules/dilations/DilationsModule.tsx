@@ -279,6 +279,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           <DilationsScene
             coordinatesVisible={state.coordinatesVisible}
             angleLabelsVisible={state.angleLabelsVisible}
+            worldSize={isSimilarityPhase ? 20 : 16}
             onContextLost={() => setContextLost(true)}
             onContextRestored={() => setContextLost(false)}
           >
