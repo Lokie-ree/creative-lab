@@ -121,7 +121,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     else return
     e.preventDefault()
     const base = nudgePosition ?? triangleCentroid(CANONICAL_TRIANGLE)
-    const snapped = { x: Math.round((base.x + dx) * 2) / 2, y: Math.round((base.y + dy) * 2) / 2 }
+    const snapped = { x: Math.round((base.x + dx) * 4) / 4, y: Math.round((base.y + dy) * 4) / 4 }
     setNudgePosition(snapped)
   }, [isNudgeActive, nudgePosition])
 

@@ -9,7 +9,7 @@ import { dilateTriangle, translateTriangle, triangleCentroid } from '../utils/ma
 const GHOST_COLOR = '#7a746a'
 
 function snap(v: number): number {
-  return Math.round(v * 2) / 2
+  return Math.round(v * 4) / 4
 }
 
 
