@@ -254,6 +254,11 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           amber={amber}
           notation={notation}
           notationStyle={notationStyle}
+          trailingText={
+            roundState === 'prediction' && predictionAccuracy === 'miss'
+              ? 'Try repositioning before revealing.'
+              : undefined
+          }
         />
       }
       formulaReadout={formulaReadout}
