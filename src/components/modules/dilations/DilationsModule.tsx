@@ -341,7 +341,6 @@ export default function DilationsModule({ onBack }: ModuleProps) {
             kLocked={true}
             lockedK={2}
             feedbackState={similarityFeedback}
-            guidance={roundState === 'active' ? currentTask.guidance : undefined}
             onAddStep={handleAddStep}
             onUpdateStep={handleUpdateStep}
             onRemoveStep={handleRemoveStep}

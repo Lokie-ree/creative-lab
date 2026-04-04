@@ -73,7 +73,7 @@ describe('similarityTasks — target reachability', () => {
     }
   })
 
-  it('all targets have integer coordinates within viewport [-2, 14]', () => {
+  it('all targets have integer coordinates within Phase 1/2 viewport range', () => {
     for (const task of SIMILARITY_TASKS) {
       for (const v of [task.target.a, task.target.b, task.target.c]) {
         expect(Number.isInteger(v.x)).toBe(true)
