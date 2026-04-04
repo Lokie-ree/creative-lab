@@ -187,7 +187,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
     }
     if (isCoordinatePhase && config.scaleFactor != null) {
       const predictedVertices =
-        roundState === 'prediction' && nudgePosition != null
+        (roundState === 'active' || roundState === 'prediction') && nudgePosition != null
           ? ghostVerticesToWorld(CANONICAL_TRIANGLE, config.scaleFactor, nudgePosition)
           : undefined
       return (
