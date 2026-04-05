@@ -1,5 +1,8 @@
 # Dilations Phase 3 Polish & Phase 1/2 Fixes — Implementation Plan
 
+## Status: Complete
+> Implemented 2026-04-04. Merged as PR #58 (chip rail SequenceBuilder, angle marks, camera expansion, snap precision, live coord drag, earned reveals, miss nudge copy) and PR #60 (Phase 4 spec/plan + similarity earned reveals + Phase 3 live coord during drag).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Fix 8 identified issues across Dilations Phases 1–3: snap precision, live coordinate updates, coordinate rule duplication, miss nudge copy, guidance deduplication, angle marks, camera expansion, and a full SequenceBuilder chip-rail rewrite.

@@ -1,5 +1,8 @@
 # Dilations Mobile Stabilization Plan
 
+## Status: Complete
+> Implemented 2026-03-27. Merged as PR #52 (mobile stabilization) and PRs #53–#54 (solidification + drag quality fixes).
+
 > **For agentic workers:** Use `superpowers:executing-plans` or `superpowers:subagent-driven-development` to implement this plan task-by-task.
 
 **Branch:** `feat/dilations-mobile-stabilization`
