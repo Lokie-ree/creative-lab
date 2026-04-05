@@ -4,7 +4,7 @@
 **Module:** Dilations & Similarity (M2, Grade 8 Geometry)  
 **Phase:** 4 — AA Criterion  
 **Rounds:** `aa-discover`, `aa-confirm`, `capstone-final`  
-**ALD Target:** L5 (advanced)  
+**ALD Target:** L4→L5 (`aa-discover` builds to L4; `capstone-final` reaches L5)  
 **Status:** Approved for implementation
 
 ---
@@ -123,7 +123,7 @@ ADVANCE_SUB_PAIR: { subPairIndex: prev + 1, anglesRevealed: false }
 - Entry sub-pair 1: "Look at the angles. What do you notice?"
 - After reveal sub-pair 1: "All three angle pairs match. What does that tell you?"
 - Entry sub-pair 2: "What about this pair? Do all three need to match?"
-- After reveal sub-pair 2: "Only two pairs match — and they're still similar."
+- After reveal sub-pair 2: "Only two pairs match — and they're still similar. That's the pattern."
 
 #### Earned Reveal (completion)
 
@@ -176,7 +176,7 @@ One pair of NON-similar triangles. All three angle pairs are different (no accid
 
 #### Prompt Copy
 
-- Entry: "Are these similar? Use the angles or the sequence builder to check."
+- Entry: "Check the angles. Then decide." (SequenceBuilder remains available as secondary path but copy leads with the angle evidence — most students will reveal → see no colors → NOT SIMILAR without building a sequence, which is correct transfer from aa-discover)
 - After reveal with no matches: "No angle pairs match."
 - Completion: "AA works both ways. Non-matching angles = not similar."
 
@@ -204,12 +204,14 @@ Pair 1 (Similar): translate + dilate
 
 Pair 2 (Not Similar): angles differ, no valid sequence
   isSimilar: false
-  maxSteps: 0  // SequenceBuilder still available; won't succeed
+  maxSteps: 2  // NOT 0 — see note below
 
 Pair 3 (Similar): reflect or rotate + dilate (more complex)
   isSimilar: true
   maxSteps: 3
 ```
+
+**⚠ maxSteps for not-similar pairs must NOT be 0.** `SequenceBuilder` renders a chip rail initialized with 1 draft slot. If `maxSteps: 0`, the `canAdd` condition (`slots.length < maxSteps`) is false from the start and the `+` button never renders — but the draft chip still renders with `DEFAULT_SLOT`, creating a rail with an unremovable empty slot and no way to add steps. This is an untested edge case that will likely look broken. Set `maxSteps: 2` for not-similar pairs so the chip rail behaves normally; the student can try building a sequence (it will fail CHECK), which is the intended productive struggle path.
 
 Exact triangle coordinates defined in `aaTasks.ts`. Constraints: fit within 20-unit world, distinct from Phase 3 task triangles, each pair visually distinguishable.
 
