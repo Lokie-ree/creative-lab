@@ -55,16 +55,22 @@ As-built reference for the Dilations module (M2). Follows Rigid Motions (M1) as 
 
 ### `RoundState` lifecycle
 
+**Ghost-drag rounds (Phase 1–2):**
 ```
 entry → active → prediction → reveal → completion
-                     ↑ (ghost-drag commits to prediction)
-                     ↑ (sequence builder CHECK → prediction)
+                     ↑ (ghost drop commits to prediction)
+```
+
+**Sequence-builder rounds (Phase 3–4):**
+```
+entry → active → completion
+                     ↑ (CHECK validates sequence; miss stays in active)
 ```
 
 - `entry`: CONTINUE button shown; phase intro copy displayed
-- `active`: Student interacts (ghost drag, annotations animating)
-- `prediction`: Ghost dropped / sequence submitted; REVEAL button shown (ghost-drag rounds)
-- `reveal`: RevealAnimation plays; no controls shown
+- `active`: Student interacts (ghost drag or sequence builder)
+- `prediction`: Ghost dropped; REVEAL button shown (ghost-drag rounds only)
+- `reveal`: RevealAnimation plays; no controls shown (ghost-drag rounds only)
 - `completion`: Round done; NEXT button shown; earned reveal displayed
 
 ### Actions
@@ -78,7 +84,7 @@ entry → active → prediction → reveal → completion
 | `TRIGGER_REVEAL` | `prediction → reveal` |
 | `COMPLETE_ROUND` | `* → completion` |
 | `SET_GHOST_POSITION` | Stores position; if in `entry`, transitions to `active` |
-| `ADD/REMOVE/REORDER_SEQUENCE_STEP` | Sequence builder mutations |
+| `ADD/UPDATE/REMOVE_SEQUENCE_STEP` | Sequence builder mutations |
 | `CHECK_SEQUENCE` | `active → prediction` |
 | `RESET_SEQUENCE` | Clears `sequenceSteps` |
 
@@ -91,7 +97,7 @@ entry → active → prediction → reveal → completion
 `CameraSetup` runs in `useFrame`. Orthographic camera with dynamic frustum:
 
 - **World range:** x ∈ [-2, 14], y ∈ [-2, 14] (accommodates k=3 dilation of canonical triangle)
-- **Fit constraint:** shorter viewport dimension maps to `WORLD_SIZE` (16 world units)
+- **Fit constraint:** shorter viewport dimension maps to `WORLD_SIZE` (16 world units for Phases 1–2; 20 for Phases 3–4 via `worldSize` prop on `DilationsScene`)
 - **Center:** (6, 6) — geometric center of the grid
 
 ### Z-layer ordering
@@ -122,7 +128,7 @@ Same scalene triangle as M1 (Rigid Motions). Centroid: (7/3, 7/3) ≈ (2.33, 2.3
 ### Ghost drag (Phase 1–2)
 
 1. **Scene-level capture plane** — `GhostTriangle` renders a 200×200 invisible mesh as a scene sibling (not a child of the ghost group) at z=−0.2. This means any tap on the canvas starts a drag — the student does not need to hit the ghost outline.
-2. **Delta-based drag** — `handlePointerDown` snapshots `dragStartWorld` + `centerAtDragStart` (= `externalPosition ?? centerPosRef.current`). `handleMove` computes `newCenter = baseline + delta` with no snapping (60fps smooth). `handleUp` applies snap(0.5) on commit.
+2. **Delta-based drag** — `handlePointerDown` snapshots `dragStartWorld` + `centerAtDragStart` (= `externalPosition ?? centerPosRef.current`). `handleMove` computes `newCenter = baseline + delta` with no snapping (60fps smooth) and fires `onPositionChange` for live coord readout. `handleUp` applies snap(0.25) on commit.
 3. Ghost starts at `(0, −0.5)` — offset from pre-image, hidden during `entry` state.
 4. `onPositionChange` callback syncs external `nudgePosition` state in `DilationsModule`
 5. `externalPosition` prop overrides internal position (keyboard nudge); used as baseline for subsequent drag
@@ -138,7 +144,14 @@ Same scalene triangle as M1 (Rigid Motions). Centroid: (7/3, 7/3) ≈ (2.33, 2.3
 
 ### SequenceBuilder (Phase 3–4)
 
-Not yet built. `hasSequenceBuilder: true` rounds will use a drag-to-compose interface.
+Chip rail design — compact horizontal chips with inline step editor.
+
+- **Chips:** Each step renders as a compact chip (e.g. `T +1,+1` → `Dil ×2`). Tapping a chip opens an inline editor below the rail.
+- **Editor:** Shows transform type grid/sliders for that step. DONE closes the editor (explicit commit — matches module's action-then-advance pattern).
+- **Capacity:** Variable length, capped at `maxSteps` per round (2 for most; 3 for `similarity-inverse` and capstone pair 3).
+- **No drag-to-reorder:** Students clear and rebuild — non-commutativity is discovered by trying different orderings.
+- **`kLocked` prop:** Dilate step shows a read-only k=2 display when locked (Phase 3 always dilates by 2).
+- **CHECK / RESET / NEXT:** CHECK validates the composed sequence against the target triangle (centroid distance ≤ tolerance). Miss stays in `active`; match transitions to `completion`.
 
 ---
 
@@ -159,7 +172,7 @@ Geometry created once in `useMemo`, attached in `useEffect`, mutated by GSAP/`us
 
 Mirrors M1's pattern:
 
-- `EARNED_REVEALS: Partial<Record<RoundId, EarnedReveal>>` — one entry per Phase 1 round
+- `EARNED_REVEALS: Partial<Record<RoundId, EarnedReveal>>` — one entry per round across all phases
 - `revealKey = currentRound` — one reveal per round (not beat-indexed within a round)
 - `shownReveals: Set<string>` — persists across rounds in the session; never re-shows
 - `isFirstReveal = roundState === 'completion' && !!earnedReveal && !shownReveals.has(revealKey)`
@@ -190,7 +203,7 @@ interface EarnedReveal {
 ## Key Constraints
 
 - **One-way visibility flags:** `coordinatesVisible` and `angleLabelsVisible` only flip `true` in `startRound()`. They represent permanent unlock milestones.
-- **Ghost snap resolution:** 0.5 world units (fine: 0.25 with Shift). Prevents off-grid predictions.
+- **Ghost snap resolution:** 0.25 world units on drop. Prevents off-grid predictions.
 - **`CANONICAL_TRIANGLE`:** A(1,1) B(4,2) C(2,4) — hardcoded, never changes. All dilated images derived from this.
 - **No `<primitive object={new THREE.X()}>` in JSX:** All geometries created outside render, in `useMemo` or `useRef`. Dispose in `useEffect` cleanup.
 - **No drei `<Text>` or `<Html>`:** SpriteLabel (CanvasTexture → PlaneGeometry) pattern used for all in-scene text.
@@ -203,5 +216,5 @@ Rounds are implemented in phase order. Reference: `docs/modules/dilations/build-
 
 - **Phase 1 (scale-factor):** ✓ Complete — PRs #47–#49
 - **Phase 2 (coordinate):** ✓ Complete — PRs #51–#52; solidification + drag polish PRs #53–#54
-- **Phase 3 (similarity):** Next — `similarity-guided`, `similarity-rigid-dilation`, `similarity-inverse`. Requires `SequenceBuilder.tsx` (HTML), `SequencePreview.tsx` (R3F), `similarityTasks.ts`
-- **Phase 4 (aa-capstone):** Depends on Phase 3 infrastructure
+- **Phase 3 (similarity):** ✓ Complete — PR #56 (similarity sequences), PR #58 (polish: chip rail SequenceBuilder, angle marks, camera expansion, snap precision, live coord drag, earned reveals)
+- **Phase 4 (aa-capstone):** Next — `aa-discover`, `aa-confirm`, `capstone-final`. Spec: `docs/superpowers/specs/2026-04-04-dilations-phase4-aa-capstone-design.md`. Plan: `docs/superpowers/plans/2026-04-04-dilations-phase4-aa-capstone.md`
