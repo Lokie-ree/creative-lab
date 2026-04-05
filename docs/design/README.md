@@ -1,6 +1,6 @@
 # Design — Current Direction
 
-**Last updated:** March 30, 2026
+**Last updated:** April 5, 2026
 
 This folder holds design specs and audits for creative-lab. Below is the current direction, implementation status, and outstanding work.
 
@@ -69,9 +69,9 @@ Single `Module.tsx` with "Coming Soon" message.
 
 Grade 8 Geometry (8.G.A.1–3). All 4 phases shipped + ISTE visibility sprint (March 2026). **Reference implementation for the geometry progression.** See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md).
 
-### Dilations — PHASES 1 & 2 COMPLETE
+### Dilations — PHASES 1–3 COMPLETE
 
-Grade 8 Geometry (8.G.A.3–5). Phase 1: predict-and-reveal across 5 scale-factor rounds. Phase 2: coordinate rule rounds with formula strip and predicted vertex display. Drag fully solidified (scene-level capture plane, delta-based, `touchAction:none`). Phase 3 (similarity rounds) next. See [`src/components/modules/dilations/ARCHITECTURE.md`](../../src/components/modules/dilations/ARCHITECTURE.md).
+Grade 8 Geometry (8.G.A.3–5). Phase 1: predict-and-reveal across 5 scale-factor rounds. Phase 2: coordinate rule rounds with formula strip. Phase 3: similarity sequences via chip-rail SequenceBuilder (3 rounds). Phase 4 (AA Capstone) next. See [`src/components/modules/dilations/ARCHITECTURE.md`](../../src/components/modules/dilations/ARCHITECTURE.md).
 
 ### Pythagorean Theorem — NOT STARTED
 
@@ -95,9 +95,9 @@ Third module in the Grade 8 geometry progression.
 
 All 4 phases shipped + ISTE visibility sprint. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md).
 
-### Dilations — Phase 3 next
+### Dilations — Phase 4 next
 
-Phases 1 & 2 complete. Next: `similarity-guided`, `similarity-rigid-dilation`, `similarity-inverse` rounds. See [`docs/modules/dilations/build-order-prompts.md`](../modules/dilations/build-order-prompts.md).
+Phases 1–3 complete. Next: `aa-discover`, `aa-confirm`, `capstone-final` rounds (AA Criterion). Plan: [`docs/superpowers/plans/2026-04-04-dilations-phase4-aa-capstone.md`](../superpowers/plans/2026-04-04-dilations-phase4-aa-capstone.md).
 
 ### Sinewaves — lower-priority polish
 

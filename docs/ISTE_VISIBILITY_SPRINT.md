@@ -1,5 +1,8 @@
 # ISTE Visibility Sprint
 
+## Status: Complete
+> Implemented 2026-03-19. Merged as part of the ISTE hardening sprint (phase labels, synthesis-reveal guide state, 12 beat-indexed earned reveals, coordinate rule notation, congruence language in celebration).
+
 **Goal:** Make the pedagogical architecture legible to an educator observing the app for 3–5 minutes — without requiring the lab guide.
 
 **Constraint:** Copy and small UI changes only. No new phases, no new interactions, no architectural changes.

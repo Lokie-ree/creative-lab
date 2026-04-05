@@ -1,5 +1,8 @@
 # Dilations Phase 3 — Similarity Sequences Implementation Plan
 
+## Status: Complete
+> Implemented 2026-03-31. Merged as PR #56 (similarity sequences: 3 rounds, SequenceBuilder, SequencePreview, similarityTasks.ts).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build 3 similarity rounds where students compose rigid motions + dilation via a SequenceBuilder to map similar figures.
