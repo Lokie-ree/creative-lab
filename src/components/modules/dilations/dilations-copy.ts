@@ -67,6 +67,12 @@ export const EARNED_REVEALS: Partial<Record<RoundId, EarnedReveal>> = {
     notation: '(x, y) → (kx, ky)',
     notationStyle: 'rule',
   },
+  'similarity-guided': {
+    text: 'Translate, then dilate — together they map the pre-image onto the target. Different size, same shape.',
+  },
+  'similarity-rigid-dilation': {
+    text: 'A rigid motion and a dilation together work too. Similarity holds regardless of orientation.',
+  },
   'similarity-inverse': {
     text: 'Two figures are similar if there exists a sequence of rigid motions and a dilation that maps one onto the other.',
   },

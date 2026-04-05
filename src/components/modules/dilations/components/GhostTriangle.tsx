@@ -115,6 +115,8 @@ export function GhostTriangle({
         x: centerAtDragStart.current.x + (p.x - dragStartWorld.current.x),
         y: centerAtDragStart.current.y + (p.y - dragStartWorld.current.y),
       }
+      // Notify live position so coordinate readout updates during drag (not just on drop)
+      onPositionChange?.(centerPosRef.current)
     }
 
     const handleUp = (ev: PointerEvent) => {
