@@ -11,6 +11,10 @@ export type StageState = {
   angleLabelsVisible: boolean
   ghostPosition: Vec2 | null
   sequenceSteps: TransformStep[]
+  anglesRevealed: boolean
+  subPairIndex: 0 | 1
+  capstonePairIndex: number
+  capstonePairResults: ('pending' | 'similar' | 'not-similar')[]
 }
 
 export type StageAction =
@@ -27,6 +31,10 @@ export type StageAction =
   | { type: 'REORDER_SEQUENCE_STEP'; from: number; to: number }
   | { type: 'CHECK_SEQUENCE' }
   | { type: 'RESET_SEQUENCE' }
+  | { type: 'REVEAL_ANGLES' }
+  | { type: 'ADVANCE_SUB_PAIR' }
+  | { type: 'DECLARE_NOT_SIMILAR' }
+  | { type: 'COMPLETE_CAPSTONE_PAIR'; result: 'similar' | 'not-similar' }
 
 const initialState: StageState = {
   currentRound: 'dilate-k2',
@@ -36,6 +44,10 @@ const initialState: StageState = {
   angleLabelsVisible: false,
   ghostPosition: null,
   sequenceSteps: [],
+  anglesRevealed: false,
+  subPairIndex: 0,
+  capstonePairIndex: 0,
+  capstonePairResults: ['pending', 'pending', 'pending'],
 }
 
 function startRound(state: StageState, round: RoundId): StageState {
@@ -49,6 +61,8 @@ function startRound(state: StageState, round: RoundId): StageState {
     angleLabelsVisible: state.angleLabelsVisible || config.angleLabelsVisible,
     ghostPosition: null,
     sequenceSteps: [],
+    anglesRevealed: false,
+    subPairIndex: 0,
   }
 }
 
@@ -114,6 +128,29 @@ export function stageReducer(state: StageState, action: StageAction): StageState
 
     case 'RESET_SEQUENCE':
       return { ...state, sequenceSteps: [] }
+
+    case 'REVEAL_ANGLES':
+      return { ...state, anglesRevealed: true }
+
+    case 'ADVANCE_SUB_PAIR':
+      return { ...state, subPairIndex: (state.subPairIndex + 1) as 0 | 1, anglesRevealed: false }
+
+    case 'DECLARE_NOT_SIMILAR':
+      return { ...state, roundState: 'completion' }
+
+    case 'COMPLETE_CAPSTONE_PAIR': {
+      const newResults = [...state.capstonePairResults] as StageState['capstonePairResults']
+      newResults[state.capstonePairIndex] = action.result
+      const newIndex = state.capstonePairIndex + 1
+      const allDone = newIndex >= 3
+      return {
+        ...state,
+        capstonePairResults: newResults,
+        capstonePairIndex: newIndex,
+        anglesRevealed: false,
+        roundState: allDone ? 'completion' : state.roundState,
+      }
+    }
 
     default:
       return state

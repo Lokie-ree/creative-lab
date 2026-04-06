@@ -13,6 +13,10 @@ const initialState: StageState = {
   angleLabelsVisible: false,
   ghostPosition: null,
   sequenceSteps: [],
+  anglesRevealed: false,
+  subPairIndex: 0,
+  capstonePairIndex: 0,
+  capstonePairResults: ['pending', 'pending', 'pending'],
 }
 
 function dispatch(state: StageState, action: StageAction): StageState {
@@ -215,6 +219,59 @@ describe('stageReducer', () => {
     it('phase updates on START_ROUND', () => {
       const s = dispatch(initialState, { type: 'START_ROUND', round: 'similarity-guided' })
       expect(s.phase).toBe('similarity')
+    })
+  })
+
+  describe('Phase 4 state fields', () => {
+    it('initial state has anglesRevealed: false', () => {
+      expect(initialState.anglesRevealed).toBe(false)
+    })
+
+    it('initial state has subPairIndex: 0', () => {
+      expect(initialState.subPairIndex).toBe(0)
+    })
+
+    it('initial capstonePairIndex is 0', () => {
+      expect(initialState.capstonePairIndex).toBe(0)
+    })
+  })
+
+  describe('REVEAL_ANGLES', () => {
+    it('sets anglesRevealed to true', () => {
+      const next = dispatch(initialState, { type: 'REVEAL_ANGLES' })
+      expect(next.anglesRevealed).toBe(true)
+    })
+  })
+
+  describe('ADVANCE_SUB_PAIR', () => {
+    it('increments subPairIndex and resets anglesRevealed', () => {
+      let s = dispatch(initialState, { type: 'REVEAL_ANGLES' })
+      s = dispatch(s, { type: 'ADVANCE_SUB_PAIR' })
+      expect(s.subPairIndex).toBe(1)
+      expect(s.anglesRevealed).toBe(false)
+    })
+  })
+
+  describe('DECLARE_NOT_SIMILAR', () => {
+    it('sets roundState to completion regardless of prior state', () => {
+      const next = dispatch(initialState, { type: 'DECLARE_NOT_SIMILAR' })
+      expect(next.roundState).toBe('completion')
+    })
+  })
+
+  describe('COMPLETE_CAPSTONE_PAIR', () => {
+    it('records result and increments capstonePairIndex', () => {
+      const next = dispatch(initialState, { type: 'COMPLETE_CAPSTONE_PAIR', result: 'similar' })
+      expect(next.capstonePairResults[0]).toBe('similar')
+      expect(next.capstonePairIndex).toBe(1)
+      expect(next.anglesRevealed).toBe(false)
+    })
+
+    it('sets roundState completion when all 3 pairs done', () => {
+      let s = dispatch(initialState, { type: 'COMPLETE_CAPSTONE_PAIR', result: 'similar' })
+      s = dispatch(s, { type: 'COMPLETE_CAPSTONE_PAIR', result: 'not-similar' })
+      s = dispatch(s, { type: 'COMPLETE_CAPSTONE_PAIR', result: 'similar' })
+      expect(s.roundState).toBe('completion')
     })
   })
 })
