@@ -112,12 +112,13 @@ function SingleAngleLabel({
 // AngleLabels — renders all 3 labels for one triangle
 // ---------------------------------------------------------------------------
 
-/** Offset multiplier: pushes label slightly outside the triangle at each vertex. */
-function labelOffset(vertex: { x: number; y: number }, centroid: { x: number; y: number }, d = 0.8) {
+/** Offset multiplier: pushes label slightly inside the triangle at each vertex. */
+function labelOffset(vertex: { x: number; y: number }, centroid: { x: number; y: number }, d = 0.7) {
   const dx = vertex.x - centroid.x
   const dy = vertex.y - centroid.y
   const len = Math.sqrt(dx * dx + dy * dy) || 1
-  return [vertex.x + (dx / len) * d, vertex.y + (dy / len) * d, 0.1] as [number, number, number]
+  // Negative: move FROM vertex TOWARD centroid (inside the triangle)
+  return [vertex.x - (dx / len) * d, vertex.y - (dy / len) * d, 0.1] as [number, number, number]
 }
 
 interface AngleLabelsProps {

@@ -513,7 +513,6 @@ export default function DilationsModule({ onBack, onComplete }: ModuleProps) {
             dispatch={dispatch}
             pairs={CAPSTONE_PAIRS}
             onRevealAngles={handleRevealAngles}
-            onDeclareNotSimilar={handleDeclareNotSimilar}
             onAllComplete={() => setShowCelebration(true)}
           />
         ) : (

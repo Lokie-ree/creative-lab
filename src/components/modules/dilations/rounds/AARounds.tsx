@@ -13,6 +13,7 @@ import { AngleLabels, computeMatchColors } from '../components/AngleLabels'
 import { triangleAngles } from '../utils/math'
 import type { Triangle } from '../utils/types'
 import type { AADiscoverSubPair, CapstonePair } from '../utils/aaTasks'
+import { SequencePreview } from '../components/SequencePreview'
 
 interface AASceneProps {
   preImage: Triangle
@@ -106,12 +107,20 @@ interface AACapstonePairSceneProps {
 export function AACapstonePairScene({ state, pairs }: AACapstonePairSceneProps) {
   const pair = pairs[state.capstonePairIndex]
   if (!pair) return null
+  const hasSteps = state.sequenceSteps.length > 0
   return (
-    <AAScene
-      preImage={pair.preImage}
-      target={pair.target}
-      revealed={state.anglesRevealed}
-      showMatchCount={3}
-    />
+    <>
+      <AAScene
+        preImage={pair.preImage}
+        target={pair.target}
+        revealed={state.anglesRevealed}
+        showMatchCount={3}
+      />
+      <SequencePreview
+        steps={state.sequenceSteps}
+        preImage={pair.preImage}
+        visible={hasSteps}
+      />
+    </>
   )
 }

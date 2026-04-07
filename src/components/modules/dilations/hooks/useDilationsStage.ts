@@ -148,6 +148,7 @@ export function stageReducer(state: StageState, action: StageAction): StageState
         capstonePairResults: newResults,
         capstonePairIndex: newIndex,
         anglesRevealed: false,
+        sequenceSteps: [],
         roundState: allDone ? 'completion' : state.roundState,
       }
     }

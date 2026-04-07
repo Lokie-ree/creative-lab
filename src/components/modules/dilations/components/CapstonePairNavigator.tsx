@@ -21,7 +21,6 @@ interface CapstonePairNavigatorProps {
   dispatch: Dispatch<StageAction>
   pairs: CapstonePair[]
   onRevealAngles: () => void
-  onDeclareNotSimilar: () => void
   onAllComplete: () => void
 }
 
@@ -30,7 +29,6 @@ export function CapstonePairNavigator({
   dispatch,
   pairs,
   onRevealAngles,
-  onDeclareNotSimilar,
   onAllComplete,
 }: CapstonePairNavigatorProps) {
   const { capstonePairIndex, capstonePairResults, anglesRevealed, sequenceSteps } = state
@@ -133,6 +131,7 @@ export function CapstonePairNavigator({
       {/* Sequence builder */}
       {!pairDone && (
         <SequenceBuilder
+          key={capstonePairIndex}
           steps={sequenceSteps}
           maxSteps={currentPair.maxSteps}
           kLocked={true}
@@ -153,7 +152,6 @@ export function CapstonePairNavigator({
           <button
             type="button"
             onClick={() => {
-              onDeclareNotSimilar()
               dispatch({ type: 'COMPLETE_CAPSTONE_PAIR', result: 'not-similar' })
             }}
             disabled={notSimilarDisabled}

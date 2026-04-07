@@ -74,9 +74,9 @@ export const CAPSTONE_PAIRS: CapstonePair[] = [
   },
   {
     // Pair 3 (similar): 3-4-5 right triangle (90°, 53°, 37°)
-    // Intended sequence: rotate(90°CCW) → translate(+10, 0) → dilate(×2)
-    preImage: { a: { x: 2, y: 5 }, b: { x: 5, y: 5 }, c: { x: 2, y: 9 } },
-    target:   { a: { x: 10, y: 4 }, b: { x: 10, y: 10 }, c: { x: 2, y: 4 } },
+    // Intended sequence: rotate(90°CCW) → translate(+6, 0) → dilate(×2)
+    preImage: { a: { x: 1, y: 2 }, b: { x: 4, y: 2 }, c: { x: 1, y: 6 } },
+    target:   { a: { x: 8, y: 2 }, b: { x: 8, y: 8 }, c: { x: 0, y: 2 } },
     isSimilar: true,
     maxSteps: 3,
   },
