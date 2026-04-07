@@ -27,6 +27,12 @@ pnpm vitest run src/components/modules/rigid-motions  # Single module
 pnpm vitest --browser                                  # Browser/Storybook tests
 ```
 
+## Git Workflow
+
+- **Always create a feature branch before starting work.** Never commit to `main`. If it's unclear which branch to use, ask.
+- **Before creating a PR**, run `git log main..HEAD --oneline` to verify no already-merged commits are included. Rebase to clean up if needed.
+- **Before executing a multi-step plan**, outline the steps and wait for explicit approval. Do not begin implementation until the user confirms.
+
 ## Architecture
 
 ### Tech Stack

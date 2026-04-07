@@ -16,6 +16,9 @@ import { SimilarityScene } from './rounds/SimilarityRounds'
 import { SequenceBuilder } from './components/SequenceBuilder'
 import { SimilarityDefinition } from './components/SimilarityDefinition'
 import { CoordinateReadout } from './components/CoordinateReadout'
+import { AADiscoverScene, AAConfirmScene, AACapstonePairScene } from './rounds/AARounds'
+import { CapstonePairNavigator } from './components/CapstonePairNavigator'
+import { AA_DISCOVER_SUB_PAIRS, AA_CONFIRM_PAIR, CAPSTONE_PAIRS } from './utils/aaTasks'
 import { PHASE_NAMES, PHASE_INTROS, ROUND_PROMPTS, EARNED_REVEALS } from './dilations-copy'
 import { ghostVerticesToWorld, triangleCentroid, composeTriangle, trianglesMatch } from './utils/math'
 import { CANONICAL_TRIANGLE, PREDICTION_TOLERANCE, ROUND_CONFIGS } from './utils/constants'
@@ -23,10 +26,11 @@ import { SIMILARITY_TASKS } from './utils/similarityTasks'
 import type { EarnedReveal } from './dilations-copy'
 import type { PhaseId, TransformStep } from './utils/types'
 import { useAccessibility } from '@/lib/skeleton/useAccessibility'
+import { CelebrationModal } from '@/components/celebration/CelebrationModal'
 
 const PHASE_SEQUENCE: PhaseId[] = ['scale-factor', 'coordinate', 'similarity', 'aa-capstone']
 
-export default function DilationsModule({ onBack }: ModuleProps) {
+export default function DilationsModule({ onBack, onComplete }: ModuleProps) {
   const { state, dispatch } = useDilationsStage()
   const { phase, currentRound, roundState } = state
   const config = ROUND_CONFIGS[currentRound]
@@ -35,13 +39,52 @@ export default function DilationsModule({ onBack }: ModuleProps) {
   const isScaleFactorPhase = phase === 'scale-factor'
   const isCoordinatePhase = phase === 'coordinate'
   const isSimilarityPhase = phase === 'similarity'
+  const isAAPhase = phase === 'aa-capstone'
+  const isAADiscover = isAAPhase && currentRound === 'aa-discover'
+  const isAAConfirm  = isAAPhase && currentRound === 'aa-confirm'
+  const isCapstone   = isAAPhase && currentRound === 'capstone-final'
 
   const currentTask = isSimilarityPhase
     ? SIMILARITY_TASKS.find(t => t.id === currentRound)
     : undefined
 
+  // ── Celebration ──────────────────────────────────────────────────────────
+  const [showCelebration, setShowCelebration] = useState(false)
+
+  useEffect(() => {
+    if (isCapstone && roundState === 'completion') {
+      setShowCelebration(true)
+    }
+  }, [isCapstone, roundState])
+
   // ── Accessibility ────────────────────────────────────────────────────────
   const { announce } = useAccessibility()
+
+  // ── Phase 4 callbacks ────────────────────────────────────────────────────
+  const handleRevealAngles = useCallback(() => {
+    dispatch({ type: 'REVEAL_ANGLES' })
+  }, [dispatch])
+
+  const handleDeclareNotSimilar = useCallback(() => {
+    dispatch({ type: 'DECLARE_NOT_SIMILAR' })
+  }, [dispatch])
+
+  const handleAdvanceSubPair = useCallback(() => {
+    dispatch({ type: 'ADVANCE_SUB_PAIR' })
+  }, [dispatch])
+
+  // aa-discover CONTINUE button appears after a dwell once angles are revealed
+  const [aaContinueVisible, setAAContinueVisible] = useState(false)
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setAAContinueVisible(false)
+    if (state.anglesRevealed && isAADiscover) {
+      const timer = setTimeout(() => setAAContinueVisible(true), 2500)
+      return () => clearTimeout(timer)
+    }
+  }, [state.anglesRevealed, isAADiscover])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // ── Keyboard nudge state ─────────────────────────────────────────────────
   const [nudgePosition, setNudgePosition] = useState<{ x: number; y: number } | null>(null)
@@ -279,7 +322,7 @@ export default function DilationsModule({ onBack }: ModuleProps) {
           <DilationsScene
             coordinatesVisible={state.coordinatesVisible}
             angleLabelsVisible={state.angleLabelsVisible}
-            worldSize={isSimilarityPhase ? 20 : 16}
+            worldSize={isSimilarityPhase || isAAPhase ? 20 : 16}
             onContextLost={() => setContextLost(true)}
             onContextRestored={() => setContextLost(false)}
           >
@@ -311,11 +354,52 @@ export default function DilationsModule({ onBack }: ModuleProps) {
                 task={currentTask}
               />
             )}
+            {isAAPhase && isAADiscover && (
+              <AADiscoverScene
+                key={`${currentRound}-${state.subPairIndex}`}
+                state={state}
+                dispatch={dispatch}
+                subPairs={AA_DISCOVER_SUB_PAIRS}
+              />
+            )}
+            {isAAPhase && isAAConfirm && (
+              <AAConfirmScene
+                key={currentRound}
+                state={state}
+                preImage={AA_CONFIRM_PAIR.preImage}
+                target={AA_CONFIRM_PAIR.target}
+              />
+            )}
+            {isAAPhase && isCapstone && (
+              <AACapstonePairScene
+                key={`capstone-${state.capstonePairIndex}`}
+                state={state}
+                pairs={CAPSTONE_PAIRS}
+              />
+            )}
           </DilationsScene>
 
           <SimilarityDefinition
             visible={isFirstReveal && currentRound === 'similarity-inverse'}
             onContinue={handleAdvance}
+          />
+
+          <CelebrationModal
+            show={showCelebration}
+            values={{ phases: 4, rounds: 14 }}
+            moduleId="dilations"
+            onDismiss={() => {
+              setShowCelebration(false)
+              onComplete({ phases: 4, rounds: 14 })
+            }}
+            onNewChallenge={() => {
+              setShowCelebration(false)
+            }}
+            onNextModule={() => {
+              setShowCelebration(false)
+              onBack?.()
+            }}
+            onOpenProcess={() => {}}
           />
 
           {contextLost && (
@@ -351,6 +435,85 @@ export default function DilationsModule({ onBack }: ModuleProps) {
               setSimilarityFeedback('idle')
             }}
             onReset={handleResetSequence}
+          />
+        ) : isAAPhase && isAADiscover ? (
+          /* aa-discover: REVEAL MATCHES + delayed CONTINUE */
+          <div className="flex flex-col bg-(--lab-bg)">
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-(--lab-border)">
+              {!state.anglesRevealed && (
+                <button
+                  type="button"
+                  onClick={handleRevealAngles}
+                  className="min-h-[44px] px-3 border border-(--lab-earned) lab-silk lab-display-font text-[8px] tracking-[0.1em] text-(--lab-earned) hover:opacity-80 focus:outline-none transition-opacity duration-150"
+                >
+                  REVEAL MATCHES
+                </button>
+              )}
+              {state.anglesRevealed && aaContinueVisible && state.subPairIndex === 0 && (
+                <button
+                  type="button"
+                  onClick={handleAdvanceSubPair}
+                  className="ml-auto min-h-[44px] px-3 border border-(--lab-border) lab-silk lab-display-font text-[8px] tracking-[0.1em] text-(--lab-text) hover:border-(--lab-accent) hover:text-(--lab-accent) focus:outline-none transition-colors duration-150"
+                >
+                  CONTINUE →
+                </button>
+              )}
+              {state.anglesRevealed && aaContinueVisible && state.subPairIndex === 1 && roundState !== 'completion' && (
+                <button
+                  type="button"
+                  onClick={handleAdvance}
+                  className="ml-auto min-h-[44px] px-3 border border-(--lab-border) lab-silk lab-display-font text-[8px] tracking-[0.1em] text-(--lab-text) hover:border-(--lab-accent) hover:text-(--lab-accent) focus:outline-none transition-colors duration-150"
+                >
+                  CONTINUE →
+                </button>
+              )}
+            </div>
+          </div>
+        ) : isAAPhase && isAAConfirm && roundState !== 'completion' ? (
+          /* aa-confirm: REVEAL MATCHES + SequenceBuilder + NOT SIMILAR */
+          <div className="flex flex-col bg-(--lab-bg)">
+            {!state.anglesRevealed && (
+              <div className="flex items-center px-3 py-2 border-b border-(--lab-border)">
+                <button
+                  type="button"
+                  onClick={handleRevealAngles}
+                  className="min-h-[44px] px-3 border border-(--lab-earned) lab-silk lab-display-font text-[8px] tracking-[0.1em] text-(--lab-earned) hover:opacity-80 focus:outline-none transition-opacity duration-150"
+                >
+                  REVEAL MATCHES
+                </button>
+              </div>
+            )}
+            <SequenceBuilder
+              steps={state.sequenceSteps}
+              maxSteps={2}
+              kLocked={true}
+              lockedK={2}
+              feedbackState={similarityFeedback}
+              onAddStep={handleAddStep}
+              onUpdateStep={handleUpdateStep}
+              onRemoveStep={handleRemoveStep}
+              onCheckSequence={handleCheckSimilarity}
+              onNext={handleAdvance}
+              onReset={handleResetSequence}
+            />
+            <div className="flex items-center px-2.5 py-1.5 border-t border-(--lab-border)">
+              <button
+                type="button"
+                onClick={handleDeclareNotSimilar}
+                disabled={!state.anglesRevealed}
+                className="min-h-[44px] px-3 border border-(--lab-ghost) lab-silk lab-display-font text-[8px] tracking-[0.1em] text-(--lab-text-muted) hover:border-(--lab-text) hover:text-(--lab-text) disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none transition-colors duration-150"
+              >
+                NOT SIMILAR
+              </button>
+            </div>
+          </div>
+        ) : isAAPhase && isCapstone ? (
+          <CapstonePairNavigator
+            state={state}
+            dispatch={dispatch}
+            pairs={CAPSTONE_PAIRS}
+            onRevealAngles={handleRevealAngles}
+            onAllComplete={() => setShowCelebration(true)}
           />
         ) : (
           <ControlStrip state={state} dispatch={dispatch} onAdvance={handleAdvance} />

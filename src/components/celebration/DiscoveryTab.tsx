@@ -71,6 +71,59 @@ function RigidMotionsDiscovery({ completedSequence }: { completedSequence: Trans
 }
 
 export function DiscoveryTab({ values, skipped, moduleId, completedSequence }: DiscoveryTabProps) {
+  if (moduleId === 'dilations') {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 border border-(--lab-accent-muted) bg-(--lab-accent)/10 mb-4">
+            <CheckCircle className="w-8 h-8 text-(--lab-accent)" />
+          </div>
+          <h3 className="lab-display-font text-xl font-semibold text-(--lab-text) mb-1">
+            You Proved It
+          </h3>
+          <p className="text-(--lab-text-muted) text-sm">
+            Through exploration, not explanation
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 text-center">
+          {[
+            { value: '4', label: 'Phases' },
+            { value: '14', label: 'Rounds' },
+            { value: '2', label: 'Angles needed' },
+          ].map(({ value, label }) => (
+            <div key={label}>
+              <div className="lab-data-font text-3xl font-semibold text-(--lab-accent) mb-1">
+                {value}
+              </div>
+              <div className="lab-silk lab-display-font text-(--lab-text-muted)">
+                {label}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-(--lab-border) pt-4">
+          <p className="lab-silk lab-display-font text-(--lab-text-muted) mb-2">
+            The coordinate rule you found
+          </p>
+          <p className="lab-data-font text-lg sm:text-xl text-(--lab-accent) text-center">
+            (x, y) → (kx, ky)
+          </p>
+        </div>
+
+        <div className="border-t border-(--lab-border) pt-4">
+          <p className="lab-silk lab-display-font text-(--lab-text-muted) mb-2">
+            The criterion you proved
+          </p>
+          <p className="lab-data-font text-sm sm:text-base text-(--lab-earned) text-center">
+            ∠A = ∠A′ and ∠B = ∠B′ → △ ∼ △
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   // Rigid motions branch — fully isolated; never falls through to sinewaves path
   if (moduleId === 'rigid-motions') {
     if (completedSequence && completedSequence.length > 0) {
