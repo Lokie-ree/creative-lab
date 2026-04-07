@@ -33,6 +33,17 @@ pnpm vitest --browser                                  # Browser/Storybook tests
 - **Before creating a PR**, run `git log main..HEAD --oneline` to verify no already-merged commits are included. Rebase to clean up if needed.
 - **Before executing a multi-step plan**, outline the steps and wait for explicit approval. Do not begin implementation until the user confirms.
 
+## Visual Specs Convention
+
+Before implementing any layout, camera, or container work in a new module, write a spec block in the relevant plan or design doc covering:
+
+- **Container fill:** how the visualization area expands across viewport sizes
+- **Camera / world size:** orthographic frustum, world-unit range, center point
+- **Grid / axis bounds:** what coordinates are visible at each breakpoint
+- **Z-layer map:** which elements occupy which depth layers
+
+This prevents the camera-iteration and ghost-regression patterns that burned sessions in M1 and M2. Spec before first pixel, not after the first wrong render.
+
 ## Architecture
 
 ### Tech Stack
@@ -134,7 +145,7 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 ## Current State
 
-**Last updated:** April 5, 2026
+**Last updated:** April 7, 2026
 
 ### App framing
 The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IVLA STEM Club" with a `DotGrid` canvas background (interactive dot field with mouse proximity) and a `RotatingText` tagline ("Where we build / discover / explore / prove"). No personal name in the student-facing UI.
@@ -144,7 +155,7 @@ The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IV
 - **vector-transformations** — Implemented. Linear algebra; matrix transformations on vectors.
 - **phase-portraits** — Placeholder/coming-soon.
 - **rigid-motions** — **Complete (all 4 phases + ISTE visibility sprint).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). ISTE visibility sprint (March 2026) added: phase labels (`PHASE_LABELS`), `synthesis-reveal` guide state (9th state, passive reveal between Phase 3 and capstone), 12 beat-indexed earned reveals (`EARNED_REVEALS` / `RevealBeat`), coordinate rule notation in `PromptReadout`, congruence language in celebration. Target: ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
-- **dilations** — **Phases 1–3 Complete (PRs #47–#60).** Grade 8 Geometry; 8.G.A.3–5. Phase 1: predict-and-reveal across 5 scale-factor rounds. Phase 2: coordinate rule rounds with formula strip. Phase 3: similarity sequences via chip-rail SequenceBuilder (3 rounds). Phase 4 (AA Capstone) next. See [`src/components/modules/dilations/ARCHITECTURE.md`](./src/components/modules/dilations/ARCHITECTURE.md).
+- **dilations** — **Complete (all 4 phases).** Grade 8 Geometry; 8.G.A.3–5. Phase 1: predict-and-reveal across 5 scale-factor rounds. Phase 2: coordinate rule rounds with formula strip. Phase 3: similarity sequences via chip-rail SequenceBuilder (3 rounds). Phase 4: AA criterion discovery, non-similar confirmation, 3-pair capstone with `CapstonePairNavigator`. See [`src/components/modules/dilations/ARCHITECTURE.md`](./src/components/modules/dilations/ARCHITECTURE.md).
 
 ### PWA / Offline
 `vite-plugin-pwa` added with Workbox `generateSW` mode. Pre-caches all JS/CSS/HTML/woff2 assets (19 entries, ~3MB including Three.js chunk). Google Fonts cached via `CacheFirst`. App fully functional offline after first load. Config in `vite.config.ts`.
@@ -171,8 +182,9 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 - **Standards:** 8.G.A.3 (dilations), 8.G.A.4 (similar figures), 8.G.A.5 (AA criterion)
 - **Architecture doc:** [`src/components/modules/dilations/ARCHITECTURE.md`](./src/components/modules/dilations/ARCHITECTURE.md) — as-built reference
 - **Build order:** `docs/modules/dilations/build-order-prompts.md` — 14-round sequence across 4 phases
-- **Phases 1–3 complete:** Scale-factor rounds (PRs #47–#49), coordinate rounds (PRs #51–#52), solidification + drag polish (PRs #53–#54), similarity sequences (PR #56), Phase 3 polish (PRs #58, #60)
-- **Next:** Phase 4 (AA Capstone) — `aa-discover`, `aa-confirm`, `capstone-final`; spec at `docs/superpowers/specs/2026-04-04-dilations-phase4-aa-capstone-design.md`, plan at `docs/superpowers/plans/2026-04-04-dilations-phase4-aa-capstone.md`
+- **All 4 phases complete:** Scale-factor (PRs #47–#49), coordinate (PRs #51–#52), solidification + drag polish (PRs #53–#54), similarity sequences (PR #56), Phase 3 polish (PRs #58, #60), Phase 4 AA Capstone (branch `feat/dilations-phase4-aa-capstone`)
+- **Spec:** `docs/superpowers/specs/2026-04-04-dilations-phase4-aa-capstone-design.md` (archived)
+- **Plan:** `docs/superpowers/plans/2026-04-04-dilations-phase4-aa-capstone.md` (complete)
 
 ## Outstanding Work
 
@@ -196,11 +208,8 @@ See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and fi
 ### Feature ideas — Rigid Motions (not yet scheduled)
 - **Per-vertex color-coded rotation arcs** — All three `RotationArcs` arcs are `#7a746a`. Color each arc to match its vertex and pulse on alignment. Requires 3 vertex color constants, per-arc alignment detection, GSAP pulse.
 
-### Next: Dilations Phase 4 (AA Capstone)
-- `aa-discover`, `aa-confirm`, `capstone-final` — 3 rounds completing the module
-- Requires `AngleLabels` R3F component, `AARounds` scene, `CapstonePairNavigator` HTML component, state machine extensions, `DiscoveryTab` dilations branch
-- Spec: `docs/superpowers/specs/2026-04-04-dilations-phase4-aa-capstone-design.md`
-- Plan: `docs/superpowers/plans/2026-04-04-dilations-phase4-aa-capstone.md`
+### Next: Pythagorean Theorem (M3)
+Third module in the Grade 8 geometry progression. Not yet spec'd — use `module-planning-pipeline` skill to begin.
 
 ### Sinewaves — lower-priority polish
 - **Resize distortion:** Scene layout may desync with Canvas on viewport resize.
