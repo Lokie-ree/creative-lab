@@ -76,6 +76,14 @@ export const EARNED_REVEALS: Partial<Record<RoundId, EarnedReveal>> = {
   'similarity-inverse': {
     text: 'Two figures are similar if there exists a sequence of rigid motions and a dilation that maps one onto the other.',
   },
+  'aa-discover': {
+    text: 'Two matching angles is enough. If two pairs of angles are equal, the triangles must be similar.',
+    notation: '∠A = ∠A′  and  ∠B = ∠B′  →  △ABC ∼ △A′B′C′',
+    notationStyle: 'rule',
+  },
+  'aa-confirm': {
+    text: 'AA works both ways. If no two angle pairs match, no sequence of transformations can map one onto the other.',
+  },
 }
 
 // Partial — Phase 2–4 entries added when those phases are built
@@ -91,4 +99,7 @@ export const ROUND_PROMPTS: Partial<Record<RoundId, string>> = {
   'similarity-guided':          'These look alike but aren\u2019t the same size. Try: translate, then dilate.',
   'similarity-rigid-dilation':  'Translation won\u2019t work this time. What else from Module 1 can you use?',
   'similarity-inverse':         'Your turn. Find the sequence.',
+  'aa-discover':                'Look at the angles. What do you notice?',
+  'aa-confirm':                 'Check the angles. Then decide.',
+  'capstone-final':             'Final challenge. For each pair — are they similar? If so, build the sequence.',
 }
