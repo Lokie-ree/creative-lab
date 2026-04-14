@@ -1,6 +1,6 @@
 # Design — Current Direction
 
-**Last updated:** April 5, 2026
+**Last updated:** April 14, 2026
 
 This folder holds design specs and audits for creative-lab. Below is the current direction, implementation status, and outstanding work.
 
@@ -69,13 +69,13 @@ Single `Module.tsx` with "Coming Soon" message.
 
 Grade 8 Geometry (8.G.A.1–3). All 4 phases shipped + ISTE visibility sprint (March 2026). **Reference implementation for the geometry progression.** See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md).
 
-### Dilations — PHASES 1–3 COMPLETE
+### Dilations — COMPLETE
 
-Grade 8 Geometry (8.G.A.3–5). Phase 1: predict-and-reveal across 5 scale-factor rounds. Phase 2: coordinate rule rounds with formula strip. Phase 3: similarity sequences via chip-rail SequenceBuilder (3 rounds). Phase 4 (AA Capstone) next. See [`src/components/modules/dilations/ARCHITECTURE.md`](../../src/components/modules/dilations/ARCHITECTURE.md).
+Grade 8 Geometry (8.G.A.3–5). All 4 phases shipped. Phase 1: predict-and-reveal across 5 scale-factor rounds. Phase 2: coordinate rule rounds with formula strip. Phase 3: similarity sequences via chip-rail SequenceBuilder (3 rounds). Phase 4: AA criterion discovery, non-similar confirmation, 3-pair capstone with `CapstonePairNavigator`. See [`src/components/modules/dilations/ARCHITECTURE.md`](../../src/components/modules/dilations/ARCHITECTURE.md).
 
-### Pythagorean Theorem — NOT STARTED
+### Pythagorean Theorem — COMPLETE
 
-Third module in the Grade 8 geometry progression.
+Grade 8 Geometry (8.G.B.7–8). All 4 phases shipped. Phase 1: visual proof via area squares (3 rounds). Phase 2: converse with YES/NO toggle (3 rounds). Phase 3: unknown side solver with ghosted square reveal (4 rounds). Phase 4: coordinate distance with construction line interaction (3 rounds). Formula strip (`a² + b² = c²`) and converse formula earned progressively. See [`src/components/modules/pythagorean-theorem/ARCHITECTURE.md`](../../src/components/modules/pythagorean-theorem/ARCHITECTURE.md).
 
 ---
 
@@ -95,9 +95,9 @@ Third module in the Grade 8 geometry progression.
 
 All 4 phases shipped + ISTE visibility sprint. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](../../src/components/modules/rigid-motions/ARCHITECTURE.md).
 
-### Dilations — Phase 4 next
+### Dilations — Complete
 
-Phases 1–3 complete. Next: `aa-discover`, `aa-confirm`, `capstone-final` rounds (AA Criterion). Plan: [`docs/superpowers/plans/2026-04-04-dilations-phase4-aa-capstone.md`](../superpowers/plans/2026-04-04-dilations-phase4-aa-capstone.md).
+All 4 phases shipped (PRs #47–#63). See [`src/components/modules/dilations/ARCHITECTURE.md`](../../src/components/modules/dilations/ARCHITECTURE.md).
 
 ### Sinewaves — lower-priority polish
 
@@ -139,6 +139,8 @@ The following items from earlier audits are now complete:
 | StatusStrip touch targets (44px minimum) | `3ac0fab` |
 | Vertical centering on CourseHub / Constellation | `397136e` |
 | Navigation.tsx cold palette | `907de66` |
+| Dilations — Phase 4 AA Capstone | PRs #62–#63 |
+| Pythagorean Theorem — all 4 phases | branch `feat/pythagorean-theorem-module` |
 
 Full audit history: see git log.
 
