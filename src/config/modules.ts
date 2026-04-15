@@ -49,6 +49,15 @@ export const MODULES: ModuleConfig[] = [
     comingSoon: false,
   },
   {
+    id: 'pythagorean-theorem',
+    title: 'Pythagorean Theorem',
+    domain: 'Geometry',
+    description: 'Why do the squares fit together perfectly?',
+    order: 4,
+    courseId: 'geometry',
+    component: () => import('@/components/modules/pythagorean-theorem/PythagoreanModule'),
+  },
+  {
     id: 'vector-transformations',
     title: 'Vector Transformations',
     domain: 'Linear Algebra',

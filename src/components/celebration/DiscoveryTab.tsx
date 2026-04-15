@@ -71,6 +71,62 @@ function RigidMotionsDiscovery({ completedSequence }: { completedSequence: Trans
 }
 
 export function DiscoveryTab({ values, skipped, moduleId, completedSequence }: DiscoveryTabProps) {
+  if (moduleId === 'pythagorean-theorem') {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 border border-(--lab-accent-muted) bg-(--lab-accent)/10 mb-4">
+            <CheckCircle className="w-8 h-8 text-(--lab-accent)" />
+          </div>
+          <h3 className="lab-display-font text-xl font-semibold text-(--lab-text) mb-1">
+            You Discovered It
+          </h3>
+          <p className="text-(--lab-text-muted) text-sm">
+            Through exploration, not explanation
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 text-center">
+          {[
+            { value: '4', label: 'Phases' },
+            { value: '13', label: 'Rounds' },
+          ].map(({ value, label }) => (
+            <div key={label}>
+              <div className="lab-data-font text-3xl font-semibold text-(--lab-accent) mb-1">
+                {value}
+              </div>
+              <div className="lab-silk lab-display-font text-(--lab-text-muted)">
+                {label}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-(--lab-border) pt-4">
+          <p className="lab-silk lab-display-font text-(--lab-text-muted) mb-2">
+            The theorem you proved
+          </p>
+          <p className="lab-data-font text-lg sm:text-xl text-(--lab-accent) text-center">
+            a² + b² = c²
+          </p>
+        </div>
+
+        <div className="border-t border-(--lab-border) pt-4">
+          <p className="lab-silk lab-display-font text-(--lab-text-muted) mb-2">
+            The formula you earned
+          </p>
+          <p className="lab-data-font text-sm sm:text-base text-(--lab-earned) text-center">
+            d = √((x₂ − x₁)² + (y₂ − y₁)²)
+          </p>
+        </div>
+
+        <p className="text-center text-(--lab-text-muted) text-sm">
+          You started by counting squares on a triangle. You finished by finding the distance between any two points on a grid — same relationship, new power.
+        </p>
+      </div>
+    )
+  }
+
   if (moduleId === 'dilations') {
     return (
       <div className="space-y-6">

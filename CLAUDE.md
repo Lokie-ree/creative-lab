@@ -145,7 +145,7 @@ Manual chunk splitting in `vite.config.ts`: `three`, `gsap`, `radix`. Heavy 3D c
 
 ## Current State
 
-**Last updated:** April 7, 2026
+**Last updated:** April 14, 2026
 
 ### App framing
 The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IVLA STEM Club" with a `DotGrid` canvas background (interactive dot field with mouse proximity) and a `RotatingText` tagline ("Where we build / discover / explore / prove"). No personal name in the student-facing UI.
@@ -156,6 +156,7 @@ The app is positioned as "IVLA STEM Club" — student-facing. The hero shows "IV
 - **phase-portraits** — Placeholder/coming-soon.
 - **rigid-motions** — **Complete (all 4 phases + ISTE visibility sprint).** Grade 8 Geometry; 8.G.A.1–3. Predict-and-reveal loop (Phase 2), coordinate layer with `FormulaReadout` (Phase 3), two-step sequence builder capstone (Phase 4). ISTE visibility sprint (March 2026) added: phase labels (`PHASE_LABELS`), `synthesis-reveal` guide state (9th state, passive reveal between Phase 3 and capstone), 12 beat-indexed earned reveals (`EARNED_REVEALS` / `RevealBeat`), coordinate rule notation in `PromptReadout`, congruence language in celebration. Target: ISTE Live 2026. See [`src/components/modules/rigid-motions/ARCHITECTURE.md`](./src/components/modules/rigid-motions/ARCHITECTURE.md).
 - **dilations** — **Complete (all 4 phases).** Grade 8 Geometry; 8.G.A.3–5. Phase 1: predict-and-reveal across 5 scale-factor rounds. Phase 2: coordinate rule rounds with formula strip. Phase 3: similarity sequences via chip-rail SequenceBuilder (3 rounds). Phase 4: AA criterion discovery, non-similar confirmation, 3-pair capstone with `CapstonePairNavigator`. See [`src/components/modules/dilations/ARCHITECTURE.md`](./src/components/modules/dilations/ARCHITECTURE.md).
+- **pythagorean-theorem** — **Complete (all 4 phases).** Grade 8 Geometry; 8.G.B.7–8. Phase 1: visual proof via area squares (3 rounds). Phase 2: converse with YES/NO toggle (3 rounds). Phase 3: unknown side solver with ghosted square reveal (4 rounds). Phase 4: coordinate distance with construction line interaction (3 rounds). Formula strip (`a² + b² = c²`) and converse formula earned progressively. See [`src/components/modules/pythagorean-theorem/ARCHITECTURE.md`](./src/components/modules/pythagorean-theorem/ARCHITECTURE.md).
 
 ### PWA / Offline
 `vite-plugin-pwa` added with Workbox `generateSW` mode. Pre-caches all JS/CSS/HTML/woff2 assets (19 entries, ~3MB including Three.js chunk). Google Fonts cached via `CacheFirst`. App fully functional offline after first load. Config in `vite.config.ts`.
@@ -186,6 +187,13 @@ Reusable hooks in `src/lib/skeleton/` (useModuleFlow, useStageUnlock, useChallen
 - **Spec:** `docs/superpowers/specs/2026-04-04-dilations-phase4-aa-capstone-design.md` (archived)
 - **Plan:** `docs/superpowers/plans/2026-04-04-dilations-phase4-aa-capstone.md` (complete)
 
+### Pythagorean Theorem — architecture notes
+- **Standards:** 8.G.B.7 (unknown sides), 8.G.B.8 (coordinate distance)
+- **Architecture doc:** [`src/components/modules/pythagorean-theorem/ARCHITECTURE.md`](./src/components/modules/pythagorean-theorem/ARCHITECTURE.md) — as-built reference
+- **Build order:** `docs/modules/pythagorean-theorem/build-order-prompts.md` — 13-round sequence across 4 phases
+- **All 4 phases complete:** Visual proof (Prompts 1–5), converse (Prompt 6), unknown sides (Prompt 7), coordinate distance (Prompt 8), polish + QA (Prompt 9, branch `feat/pythagorean-theorem-module`)
+- **Roadmap:** Third and final module in Grade 8 Geometry progression: (1) Rigid Motions ✓, (2) Dilations ✓, (3) Pythagorean Theorem ✓
+
 ## Outstanding Work
 
 See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and file references. All P0 and P1 issues resolved as of March 17, 2026; ISTE visibility sprint items resolved March 19, 2026. Summary of remaining work below.
@@ -203,13 +211,13 @@ See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and fi
 - **`coordinate-reveal` stage is a passive reveal** — Student presses CONTINUE without earning the formula. `synthesis-reveal` (added in sprint) is a similar pause state but after coordinate predict rounds. The original concern about `coordinate-reveal` bridge copy remains open.
 - **ALD alignment audit** — Phase labels (`PHASE_02`, `PHASE_03`, `PHASE_04`) and `synthesis-reveal` pause state added in sprint help clarify progression, but a formal audit of each transition against ALDs has not been done.
 - **SW-02: Unit circle mobile portrait decision** — Deliberate choice needed: hide to give wave more canvas, or keep and accept smaller wave area. Observe student sessions, then document the decision.
-- **PED-04: Commitment before feedback (deferred)** — Sinewaves can be completed by slider-sweeping. Do not retrofit until Dilations and Pythagorean Theorem are built; the generalized pattern will be clearer after three modules.
+- **PED-04: Commitment before feedback (unblocked)** — Sinewaves can be completed by slider-sweeping. All three geometry modules are now complete; the generalized pattern is available. Decide whether to retrofit sinewaves or apply only to future modules.
 
 ### Feature ideas — Rigid Motions (not yet scheduled)
 - **Per-vertex color-coded rotation arcs** — All three `RotationArcs` arcs are `#7a746a`. Color each arc to match its vertex and pulse on alignment. Requires 3 vertex color constants, per-arc alignment detection, GSAP pulse.
 
-### Next: Pythagorean Theorem (M3)
-Third module in the Grade 8 geometry progression. Not yet spec'd — use `module-planning-pipeline` skill to begin.
+### Grade 8 Geometry progression — complete
+All three modules (Rigid Motions, Dilations, Pythagorean Theorem) are fully implemented. Next module TBD.
 
 ### Sinewaves — lower-priority polish
 - **Resize distortion:** Scene layout may desync with Canvas on viewport resize.
@@ -240,6 +248,7 @@ See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRA
 | Sinewaves architecture | [src/components/modules/sinewaves/ARCHITECTURE.md](./src/components/modules/sinewaves/ARCHITECTURE.md) |
 | Rigid Motions architecture | [src/components/modules/rigid-motions/ARCHITECTURE.md](./src/components/modules/rigid-motions/ARCHITECTURE.md) |
 | Dilations architecture | [src/components/modules/dilations/ARCHITECTURE.md](./src/components/modules/dilations/ARCHITECTURE.md) |
+| Pythagorean Theorem architecture | [src/components/modules/pythagorean-theorem/ARCHITECTURE.md](./src/components/modules/pythagorean-theorem/ARCHITECTURE.md) |
 | Module skeleton infrastructure | [src/lib/skeleton/README.md](./src/lib/skeleton/README.md) |
 | Design critiques, HUD direction | `docs/design/` |
 | Professional artifacts (resume, ISTE storyboards, module planning) | `docs/professional/` |
