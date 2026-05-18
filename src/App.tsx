@@ -3,14 +3,13 @@ import { AnimatePresence, motion } from "motion/react"
 import { Hero } from "./components/hero/Hero"
 import { ModuleLoader } from "./components/modules/ModuleLoader"
 import { PortfolioProvider } from "@/context/PortfolioContext"
-import { Constellation } from "@/components/constellation/Constellation"
-import { CourseHub } from "@/components/constellation/CourseHub"
+import { ModulePicker } from "@/components/picker/ModulePicker"
 import { getModuleById, type ModuleProps } from "@/config/modules"
 import { CelebrationModal } from "./components/celebration/CelebrationModal"
 import { ProcessDialog } from "./components/dialogs/ProcessDialog"
 import type { TransformationParams } from '@/lib/types/transforms'
 
-type View = "hero" | "courses" | "constellation" | "module"
+type View = "hero" | "picker" | "module"
 type TabId = "discovery" | "behind" | "deeper"
 
 /**
@@ -70,14 +69,7 @@ function DynamicModule({ moduleId, onComplete, isVisible, onBack }: DynamicModul
 function App() {
   // View state
   const [view, setView] = useState<View>("hero")
-  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null)
-  
-  // Transition origin for zoom animation
-  const [transitionOrigin, setTransitionOrigin] = useState<{
-    x: number
-    y: number
-  } | null>(null)
 
   // Completed values from module
   const [completedValues, setCompletedValues] = useState<Record<string, number> | null>(null)
@@ -88,25 +80,12 @@ function App() {
   const [celebrationTab, setCelebrationTab] = useState<TabId>("discovery")
   const [showProcess, setShowProcess] = useState(false)
 
-  // Hero → Courses transition
+  // Hero → Picker transition
   const handleEnter = useCallback(() => {
-    setView("courses")
+    setView("picker")
   }, [])
 
-  // Courses → Constellation transition (with zoom origin tracking)
-  const handleSelectCourse = useCallback((courseId: string, event?: React.MouseEvent) => {
-    if (event) {
-      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
-      setTransitionOrigin({
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      })
-    }
-    setSelectedCourseId(courseId)
-    setView("constellation")
-  }, [])
-
-  // Constellation → Module transition
+  // Picker → Module transition
   const handleSelectModule = useCallback((moduleId: string) => {
     setActiveModuleId(moduleId)
     setView("module")
@@ -123,37 +102,31 @@ function App() {
     []
   )
 
-  // Back to constellation from module
-  const handleBackToConstellation = useCallback(() => {
+  // Back to picker from module
+  const handleBackToPicker = useCallback(() => {
     setShowCelebration(false)
     setCompletedValues(null)
     setCompletedSequence(null)
     setActiveModuleId(null)
-    setView("constellation")
+    setView("picker")
   }, [])
 
-  // Back to courses from constellation
-  const handleBackToCourses = useCallback(() => {
-    setSelectedCourseId(null)
-    setView("courses")
-  }, [])
-
-  // Back to hero from courses
+  // Back to hero from picker
   const handleBackToHero = useCallback(() => {
     setView("hero")
   }, [])
 
-  // Escape key — exit module back to constellation
+  // Escape key — exit module back to picker
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
       if (view !== 'module') return
       if (showCelebration || showProcess) return
-      handleBackToConstellation()
+      handleBackToPicker()
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [view, showCelebration, showProcess, handleBackToConstellation])
+  }, [view, showCelebration, showProcess, handleBackToPicker])
 
   // New challenge from celebration modal
   const handleNewChallenge = useCallback(() => {
@@ -167,26 +140,6 @@ function App() {
   const handleOpenProcess = useCallback(() => {
     setShowProcess(true)
   }, [])
-
-  // Zoom animation variants for course → constellation transition
-  const zoomInVariants = {
-    initial: (origin: { x: number; y: number } | null) => ({
-      opacity: 0,
-      scale: 0.8,
-      transformOrigin: origin ? `${origin.x}px ${origin.y}px` : 'center',
-    }),
-    animate: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] as const },
-    },
-    exit: (origin: { x: number; y: number } | null) => ({
-      opacity: 0,
-      scale: 0.8,
-      transformOrigin: origin ? `${origin.x}px ${origin.y}px` : 'center',
-      transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const },
-    }),
-  }
 
   const fadeVariants = {
     initial: { opacity: 0 },
@@ -211,37 +164,16 @@ function App() {
           </motion.div>
         )}
 
-        {/* Courses View */}
-        {view === "courses" && (
+        {/* Picker View */}
+        {view === "picker" && (
           <motion.div
-            key="courses"
+            key="picker"
             variants={fadeVariants}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            <CourseHub
-              onSelectCourse={handleSelectCourse}
-              onBack={handleBackToHero}
-            />
-          </motion.div>
-        )}
-
-        {/* Constellation View - with zoom transition */}
-        {view === "constellation" && selectedCourseId && (
-          <motion.div
-            key="constellation"
-            custom={transitionOrigin}
-            variants={zoomInVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <Constellation
-              courseId={selectedCourseId}
-              onSelectModule={handleSelectModule}
-              onBack={handleBackToCourses}
-            />
+            <ModulePicker onSelectModule={handleSelectModule} onBack={handleBackToHero} />
           </motion.div>
         )}
 
@@ -259,7 +191,7 @@ function App() {
                 moduleId={activeModuleId}
                 onComplete={handleModuleComplete}
                 isVisible={true}
-                onBack={handleBackToConstellation}
+                onBack={handleBackToPicker}
               />
             </Suspense>
           </motion.div>
@@ -276,7 +208,7 @@ function App() {
         completedSequence={completedSequence}
         onDismiss={() => setShowCelebration(false)}
         onNewChallenge={handleNewChallenge}
-        onNextModule={handleBackToConstellation}
+        onNextModule={handleBackToPicker}
         onOpenProcess={handleOpenProcess}
       />
 
