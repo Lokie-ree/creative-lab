@@ -21,6 +21,7 @@ import {
   formatCoordinateRule,
   CAPSTONE_EARNED_REVEALS,
   CAPSTONE_PROMPT_TEXT,
+  CAPSTONE_POST_MISS_HINT,
   type CapstoneRoundId,
 } from './rigid-motions-copy'
 import { FormulaReadout } from './scene/FormulaReadout'
@@ -123,6 +124,8 @@ export function InstrumentModule({ onComplete, onBack }: ModuleProps) {
       return SYNTHESIS_REVEAL.text
     if (guideState === 'capstone' && feedbackState === 'idle')
       return CAPSTONE_PROMPT_TEXT[capstoneRound.id as CapstoneRoundId]
+    if (guideState === 'capstone' && isMiss)
+      return CAPSTONE_POST_MISS_HINT[capstoneRound.id as CapstoneRoundId] ?? 'Not quite — adjust your position.'
     if (firstMatch) {
       const text = earnedRevealBeat?.text ?? capstoneRevealText
       if (text) return text
