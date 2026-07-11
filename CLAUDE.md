@@ -224,9 +224,6 @@ All three modules (Rigid Motions, Dilations, Pythagorean Theorem) are fully impl
 - **Match-success animation:** `matchSuccessSequence` in `animations.ts` exists but is not wired.
 - **Mobile control spacing:** Control strip uses `gap-2` on mobile which feels cramped.
 
-### Vestigial `color` field in `courses.ts`
-CS course still has `color: '#a855f7'` (purple, off-palette). Field is no longer used in rendering. Remove from the `Course` type or replace when the CS course is built out.
-
 ### Performance audit (medium/low priority)
 See [`VERCEL-REACT-BEST-PRACTICES-AUDIT.md`](./docs/design/VERCEL-REACT-BEST-PRACTICES-AUDIT.md): localStorage versioning, conditional rendering patterns, `useTransition` for module loading.
 
