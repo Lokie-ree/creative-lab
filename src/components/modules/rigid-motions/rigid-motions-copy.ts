@@ -130,13 +130,23 @@ export const CAPSTONE_EARNED_REVEALS: Record<CapstoneRoundId, string> = {
 
 /**
  * Prompt shown when the student first arrives at each capstone round (idle state).
- * Frames the task without giving away the answer.
- * capstone-3 hints at non-commutativity — the module's Level 5 pedagogical moment.
+ * Frames the task without giving away the answer. Neutral for all three rounds —
+ * capstone-3's non-commutativity hint is withheld until a miss (CAPSTONE_POST_MISS_HINT),
+ * so the risk of a wrong-order guess is real before the student is told to reverse it.
  */
 export const CAPSTONE_PROMPT_TEXT: Record<CapstoneRoundId, string> = {
   'capstone-1': "You've proved what each move does. Now build a sequence.",
   'capstone-2': 'This one takes two steps. Build your sequence — the order you choose determines the result.',
-  'capstone-3': 'Two steps again. If your first attempt misses, try reversing the order.',
+  'capstone-3': 'Two steps again.',
+}
+
+/**
+ * Hint shown only after a missed CHECK on a capstone round — never at entry.
+ * capstone-3 is the module's Level 5 pedagogical moment (non-commutativity):
+ * the student must risk a wrong order first, then be told to reverse it.
+ */
+export const CAPSTONE_POST_MISS_HINT: Partial<Record<CapstoneRoundId, string>> = {
+  'capstone-3': 'If your first attempt misses, try reversing the order.',
 }
 
 export const CAPSTONE_COMPLETION_COPY: Record<string, string> = {

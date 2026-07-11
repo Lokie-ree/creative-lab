@@ -206,7 +206,6 @@ See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and fi
 
 ### Pedagogy
 
-- **PED-01: Capstone entry copy reveals non-commutativity too early** — "try reversing the order" should only trigger after a miss, not as the entry prompt. Split `PROMPT_TEXT` into neutral entry + post-miss hint. Files: `rigid-motions-copy.ts`, `useRigidMotionsState.ts`.
 - **`coordinate-reveal` stage is a passive reveal** — Student presses CONTINUE without earning the formula. `synthesis-reveal` (added in sprint) is a similar pause state but after coordinate predict rounds. The original concern about `coordinate-reveal` bridge copy remains open.
 - **ALD alignment audit** — Phase labels (`PHASE_02`, `PHASE_03`, `PHASE_04`) and `synthesis-reveal` pause state added in sprint help clarify progression, but a formal audit of each transition against ALDs has not been done.
 - **SW-02: Unit circle mobile portrait decision** — Deliberate choice needed: hide to give wave more canvas, or keep and accept smaller wave area. Observe student sessions, then document the decision.

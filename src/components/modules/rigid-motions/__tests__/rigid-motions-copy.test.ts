@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatCoordinateRule } from '../rigid-motions-copy'
+import { formatCoordinateRule, CAPSTONE_PROMPT_TEXT, CAPSTONE_POST_MISS_HINT } from '../rigid-motions-copy'
 
 describe('formatCoordinateRule', () => {
   it('formats translation with positive offsets', () => {
@@ -28,5 +28,20 @@ describe('formatCoordinateRule', () => {
 
   it('formats 90° counter-clockwise rotation', () => {
     expect(formatCoordinateRule({ type: 'rotate', degrees: 90, direction: 'ccw' })).toBe('(x, y) → (−y, x)')
+  })
+})
+
+describe('PED-01: capstone-3 non-commutativity hint gating', () => {
+  it('entry copy for capstone-3 does not mention reversing the order', () => {
+    expect(CAPSTONE_PROMPT_TEXT['capstone-3']).not.toMatch(/revers/i)
+  })
+
+  it('post-miss hint for capstone-3 mentions reversing the order', () => {
+    expect(CAPSTONE_POST_MISS_HINT['capstone-3']).toMatch(/revers/i)
+  })
+
+  it('capstone-1 and capstone-2 have no post-miss hint (single-step / order-agnostic-by-design rounds)', () => {
+    expect(CAPSTONE_POST_MISS_HINT['capstone-1']).toBeUndefined()
+    expect(CAPSTONE_POST_MISS_HINT['capstone-2']).toBeUndefined()
   })
 })
