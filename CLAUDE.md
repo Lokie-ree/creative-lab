@@ -200,7 +200,6 @@ See `MARCH_AUDIT.md` for the full audit with root causes, fix strategies, and fi
 
 ### Polish (formerly P2)
 
-- **RM-04: Coordinate values missing next to vertices on mobile capstone** — `coordinatesActive` is plumbed to `CoordinateGrid` but the `_coordinatesActive` parameter is unused. In-scene coordinate annotations (e.g. "(2, 1)" next to each vertex) are not yet implemented. Requires adding `SpriteLabel` calls when `coordinatesActive` is true.
 - **STATE-04: Viewport resize during module interaction** — Canvas and CSS layout may desync on device rotation. Verify both modules handle resize cleanly.
 - **Vertex label sizing** — Prime labels (A′/B′/C′) may clip at `planeWidth={0.55}` on small viewports. Consider zoom-aware dynamic sizing.
 - **Control panel dividers inconsistent** — Standardize with `border-(--lab-border)` scored lines across all button groups in `ControlStrip.tsx`.

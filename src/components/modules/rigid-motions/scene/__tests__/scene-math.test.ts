@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ghostVertices, clampOffset, vertexLabelOffset, ghostVerticesWithFlip, ghostVerticesWithRotation, computeGhostVertices } from '../scene-math'
+import { ghostVertices, clampOffset, vertexLabelOffset, ghostVerticesWithFlip, ghostVerticesWithRotation, computeGhostVertices, formatVertexCoord } from '../scene-math'
 import { PRE_IMAGE_VERTICES, CONTENT_RANGE } from '../../constants'
 
 describe('ghostVertices', () => {
@@ -216,5 +216,23 @@ describe('vertexLabelOffset', () => {
     const result = vertexLabelOffset(vertex, centroid, 0.5)
     expect(result[0]).toBe(2)
     expect(result[1]).toBe(2)
+  })
+})
+
+describe('formatVertexCoord', () => {
+  it('formats positive integer coordinates', () => {
+    expect(formatVertexCoord([2, 1])).toBe('(2, 1)')
+  })
+
+  it('formats negative coordinates with the typographic minus', () => {
+    expect(formatVertexCoord([-3, 4])).toBe('(−3, 4)')
+  })
+
+  it('formats zero without a sign', () => {
+    expect(formatVertexCoord([0, -0])).toBe('(0, 0)')
+  })
+
+  it('rounds fractional free-drag positions to the nearest integer', () => {
+    expect(formatVertexCoord([2.6, -3.4])).toBe('(3, −3)')
   })
 })

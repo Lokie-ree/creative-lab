@@ -13,7 +13,7 @@ import gsap from 'gsap'
 import { interpolateReveal } from '../animations'
 import type { TransformationType, TransformationParams } from '../types'
 import { SpriteLabel } from './scene-primitives'
-import { vertexLabelOffset } from './scene-math'
+import { vertexLabelOffset, formatVertexCoord } from './scene-math'
 import { centroidOf } from '../transform-math'
 
 export interface ImageShapeProps {
@@ -22,6 +22,7 @@ export interface ImageShapeProps {
   type: TransformationType
   params: TransformationParams
   onAnimationComplete: () => void
+  coordinatesActive: boolean
 }
 
 // Build a BufferGeometry triangle (3 verts, indexed)
@@ -68,6 +69,7 @@ export function ImageShape({
   type,
   params,
   onAnimationComplete,
+  coordinatesActive,
 }: ImageShapeProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const outlineRef = useRef<THREE.LineLoop>(null)
@@ -144,6 +146,23 @@ export function ImageShape({
               anchorX="center"
               anchorY="middle"
               planeWidth={0.55}
+            />
+          )
+        })
+      })()}
+      {labelsDone && coordinatesActive && (() => {
+        const centroid = centroidOf(vertices)
+        return vertices.map((v, idx) => {
+          const [lx, ly] = vertexLabelOffset(v, centroid, 0.95)
+          return (
+            <SpriteLabel
+              key={`${IMAGE_VERTEX_LABELS[idx]}-coord`}
+              text={formatVertexCoord(v)}
+              position={[lx, ly, 0.03]}
+              color="#96e496"
+              anchorX="center"
+              anchorY="middle"
+              planeWidth={0.85}
             />
           )
         })

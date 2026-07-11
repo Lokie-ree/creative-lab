@@ -114,3 +114,18 @@ export function vertexLabelOffset(
   if (len === 0) return [vertex[0], vertex[1]]
   return [vertex[0] + (dx / len) * dist, vertex[1] + (dy / len) * dist]
 }
+
+/**
+ * Format a vertex's coordinates for an in-scene annotation, e.g. "(2, 1)" or
+ * "(−3, 4)". Rounds to the nearest integer — matches FormulaReadout's `coord()`
+ * convention, since free-drag positions carry sub-pixel noise that would
+ * otherwise show as visual clutter. Uses the typographic minus (−) to match
+ * formatCoordinateRule in rigid-motions-copy.ts.
+ */
+export function formatVertexCoord(v: [number, number]): string {
+  const fmt = (n: number) => {
+    const r = Math.round(n)
+    return r < 0 ? `−${Math.abs(r)}` : `${r}`
+  }
+  return `(${fmt(v[0])}, ${fmt(v[1])})`
+}
