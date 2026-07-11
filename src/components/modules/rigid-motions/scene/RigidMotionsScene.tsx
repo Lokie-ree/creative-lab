@@ -10,7 +10,7 @@ import {
   CONTENT_RANGE,
 } from '../constants'
 import { centroidOf, applySequence } from '../transform-math'
-import { vertexLabelOffset, clampOffset, computeGhostVertices } from './scene-math'
+import { vertexLabelOffset, clampOffset, computeGhostVertices, formatVertexCoord } from './scene-math'
 import { SpriteLabel, makeTriangleShape } from './scene-primitives'
 import { useRigidMotionsLayout } from './scene-layout'
 import { TranslationVector } from './TranslationVector'
@@ -99,7 +99,7 @@ function CameraSetup() {
 
 // ─── Coordinate grid ──────────────────────────────────────────────────────────
 
-function CoordinateGrid({ coordinatesActive: _coordinatesActive }: { coordinatesActive: boolean }) {
+function CoordinateGrid() {
   const { gridGeometry, axisGeometry } = useMemo(() => {
     const grid: THREE.Vector3[] = []
     const axes: THREE.Vector3[] = []
@@ -163,7 +163,7 @@ function CoordinateGrid({ coordinatesActive: _coordinatesActive }: { coordinates
 
 // ─── Pre-image triangle ───────────────────────────────────────────────────────
 
-function PreImageTriangle() {
+function PreImageTriangle({ coordinatesActive }: { coordinatesActive: boolean }) {
   const verts = PRE_IMAGE_VERTICES
   const centroid = centroidOf(verts)
   const { outlineGeometry, shape } = useMemo(() => {
@@ -197,6 +197,20 @@ function PreImageTriangle() {
           />
         )
       })}
+      {coordinatesActive && verts.map((v, idx) => {
+        const [lx, ly] = vertexLabelOffset(v, centroid, 0.95)
+        return (
+          <SpriteLabel
+            key={`${VERTEX_LABELS[idx]}-coord`}
+            text={formatVertexCoord(v)}
+            position={[lx, ly, 0.03]}
+            color="#7a746a"
+            anchorX="center"
+            anchorY="middle"
+            planeWidth={0.85}
+          />
+        )
+      })}
     </group>
   )
 }
@@ -210,6 +224,7 @@ interface GhostTriangleProps {
   rotationDegrees: 90 | 180 | 270
   rotationDirection: 'cw' | 'ccw'
   reflectionAxis?: 'x' | 'y'
+  coordinatesActive: boolean
 }
 
 function GhostTriangle({
@@ -219,12 +234,14 @@ function GhostTriangle({
   rotationDegrees,
   rotationDirection,
   reflectionAxis,
+  coordinatesActive,
 }: GhostTriangleProps) {
   const verts = useMemo<[number, number][]>(
     () => computeGhostVertices(ghostOffset, guideState, flipped, rotationDegrees, rotationDirection, reflectionAxis),
     [ghostOffset, guideState, flipped, rotationDegrees, rotationDirection, reflectionAxis]
   )
   const lineLoopRef = useRef<THREE.LineLoop>(null)
+  const centroid = useMemo(() => centroidOf(verts), [verts])
 
   const { outlineGeometry, shape } = useMemo(() => {
     const pts = [...verts, verts[0]].map(([x, y]) => new THREE.Vector3(x, y, 0.02))
@@ -245,6 +262,20 @@ function GhostTriangle({
       <lineLoop ref={lineLoopRef} geometry={outlineGeometry}>
         <lineDashedMaterial color="#7cc87c" dashSize={0.3} gapSize={0.18} />
       </lineLoop>
+      {coordinatesActive && verts.map((v, idx) => {
+        const [lx, ly] = vertexLabelOffset(v, centroid, 0.6)
+        return (
+          <SpriteLabel
+            key={`ghost-coord-${idx}`}
+            text={formatVertexCoord(v)}
+            position={[lx, ly, 0.03]}
+            color="#96e496"
+            anchorX="center"
+            anchorY="middle"
+            planeWidth={0.85}
+          />
+        )
+      })}
     </group>
   )
 }
@@ -322,11 +353,13 @@ function DragPlane({ ghostOffset, onGhostMove, onDragChange }: DragPlaneProps) {
 interface CapstoneTargetProps {
   vertices: [number, number][]
   feedbackState: FeedbackState
+  coordinatesActive: boolean
 }
 
 function CapstoneTarget({
   vertices,
   feedbackState,
+  coordinatesActive,
 }: CapstoneTargetProps) {
   const targetOutlineRef = useRef<THREE.LineBasicMaterial>(null)
   const centroid = useMemo(() => centroidOf(vertices as [number, number][]), [vertices])
@@ -373,6 +406,20 @@ function CapstoneTarget({
             anchorX="center"
             anchorY="middle"
             planeWidth={0.65}
+          />
+        )
+      })}
+      {coordinatesActive && (vertices as [number, number][]).map((v, idx) => {
+        const [lx, ly] = vertexLabelOffset(v, centroid, 0.95)
+        return (
+          <SpriteLabel
+            key={`${GHOST_VERTEX_LABELS[idx]}-coord`}
+            text={formatVertexCoord(v)}
+            position={[lx, ly, 0.03]}
+            color={colors.ghost}
+            anchorX="center"
+            anchorY="middle"
+            planeWidth={0.85}
           />
         )
       })}
@@ -425,8 +472,8 @@ function Visualization({
     <>
       <ContextRecovery />
       <CameraSetup />
-      <CoordinateGrid coordinatesActive={coordinatesActive} />
-      <PreImageTriangle />
+      <CoordinateGrid />
+      <PreImageTriangle coordinatesActive={coordinatesActive} />
 
       {showGhost && (
         <GhostTriangle
@@ -436,6 +483,7 @@ function Visualization({
           rotationDegrees={rotationDegrees}
           rotationDirection={rotationDirection}
           reflectionAxis={reflectionAxis}
+          coordinatesActive={coordinatesActive}
         />
       )}
 
@@ -446,15 +494,16 @@ function Visualization({
           type={currentRound.params.type}
           params={currentRound.params}
           onAnimationComplete={onAnimationComplete}
+          coordinatesActive={coordinatesActive}
         />
       )}
 
       {showCapstoneTarget && capstoneTargetVertices && (
-        <CapstoneTarget vertices={capstoneTargetVertices} feedbackState={feedbackState} />
+        <CapstoneTarget vertices={capstoneTargetVertices} feedbackState={feedbackState} coordinatesActive={coordinatesActive} />
       )}
 
       {showPreviewGhost && capstoneSequence && (
-        <PreviewGhost sequence={capstoneSequence} />
+        <PreviewGhost sequence={capstoneSequence} coordinatesActive={coordinatesActive} />
       )}
 
       {showGapLines && (
