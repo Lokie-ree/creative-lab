@@ -68,10 +68,6 @@ src/components/modules/rigid-motions/
     └── capstone-utils.test.ts    # validateCapstoneSequence, applySequence edge cases, non-commutativity
 ```
 
-> **Orphaned file**: `scene/math.ts` exports `snapToGrid` which is no longer imported anywhere.
-> It was planned for `useRigidMotionsState` but removed when the design settled on free-drag (clamped,
-> not snapped). Safe to delete.
-
 **Shared type location**: `TransformationType`, `TranslationParams`, `ReflectionParams`, `RotationParams`, `TransformationParams` live in `src/lib/types/transforms.ts`. Celebration components (`CelebrationModal`, `DiscoveryTab`) import from there. `types.ts` re-exports them for module-internal convenience. `GuideState`, `FeedbackState`, and `Round` remain in `types.ts` — no outside consumers.
 
 ---
