@@ -1,6 +1,6 @@
 ---
 name: writing-clearly-and-concisely
-description: Use when writing or editing any prose humans will read—documentation, commit messages, error messages, UI text, explanations, or reports.
+description: Use when drafting or revising substantial prose — README sections, architecture docs, specs, PR descriptions, guides, or any multi-paragraph explanation — and when the user asks to tighten, shorten, or copyedit existing text ("make this clearer", "too wordy", "reads badly", "tighten this up"). Do NOT use for student-facing module copy (prompts, hints, feedback, celebration text — that is educational-copywriter's domain) or for routine one-line commit messages and code comments.
 ---
 
 # Writing Clearly and Concisely

@@ -1,6 +1,6 @@
 ---
 name: playwright-cli
-description: Use when automating browser interactions—navigating pages, clicking, filling forms, taking screenshots, testing web apps, or extracting data. Applies to creative-lab module testing, demo verification, and any browser automation task.
+description: Command reference for the playwright-cli binary — scripted, headless-capable browser automation. Use when the claude-in-chrome browser tools are unavailable or have failed 2-3 times, when the task needs scriptable automation (batch screenshots, PDF export, request mocking/routing, trace capture, test generation), or when the user names Playwright explicitly. For verifying a visual change in the running app, the visual-verify workflow leads — it prefers claude-in-chrome and falls back to this CLI.
 ---
 
 # Browser Automation (playwright-cli)
