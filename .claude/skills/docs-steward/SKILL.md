@@ -1,6 +1,6 @@
 ---
 name: docs-steward
-description: "This skill should be used when auditing, pruning, updating, or restructuring project documentation. Triggers on requests like 'update the docs', 'is CLAUDE.md current?', 'prune stale docs', 'the docs are out of sync', 'update CLAUDE.md after this change', 'archive this spec', 'what docs need updating?', 'CLAUDE.md is getting chunky', 'clean up before this PR', 'run the docs steward', or any post-implementation cleanup that touches documentation. Also triggers at the end of a build session when the user asks to wrap up, commit, or create a PR."
+description: "Use when auditing, pruning, updating, or restructuring project documentation — 'update the docs', 'is CLAUDE.md current?', 'prune stale docs', 'the docs are out of sync', 'archive this spec', 'what docs need updating?', 'CLAUDE.md is getting chunky', 'run the docs steward' — and as the documentation-sync pass of a session close: after an implementation lands or before a PR is opened, run this to update status fields, check off plan tasks, and sync CLAUDE.md's Current State. This skill owns only the docs slice of a wrap-up; branch, commit, push, and PR mechanics belong to the ship skill."
 ---
 
 # Docs Steward
