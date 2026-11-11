@@ -78,10 +78,13 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
   } = useChallengeMode()
 
   // Celebration & reveal state
-  const [showCelebration, setShowCelebration] = useState(false)
-  const [showReveal, setShowReveal] = useState(false)
-  const [matchedTarget, setMatchedTarget] = useState<ChallengeTarget | null>(null)
-  const [matchedMatrix, setMatchedMatrix] = useState<Matrix2x2 | null>(null)
+  // null = no match; a match pulses ('celebrating') then opens the reveal panel ('revealing')
+  const [match, setMatch] = useState<{
+    phase: 'celebrating' | 'revealing'
+    target: ChallengeTarget
+    matrix: Matrix2x2
+  } | null>(null)
+  const showReveal = match?.phase === 'revealing'
 
   // Exploration time tracking
   const [explorationTime, setExplorationTime] = useState(0)
@@ -183,14 +186,11 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
   // Handle challenge match success
   const handleMatchSuccess = useCallback(
     (target: ChallengeTarget, userMatrix: Matrix2x2) => {
-      setMatchedTarget(target)
-      setMatchedMatrix(userMatrix)
-      setShowCelebration(true)
+      setMatch({ phase: 'celebrating', target, matrix: userMatrix })
 
-      // Show reveal panel after celebration
+      // Show reveal panel after celebration, unless the learner already left the match
       setTimeout(() => {
-        setShowCelebration(false)
-        setShowReveal(true)
+        setMatch((m) => (m?.phase === 'celebrating' ? { ...m, phase: 'revealing' } : m))
       }, 800)
     },
     []
@@ -210,9 +210,7 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
 
   // Handle "Try Another" from reveal panel
   const handleTryAnother = useCallback(() => {
-    setShowReveal(false)
-    setMatchedTarget(null)
-    setMatchedMatrix(null)
+    setMatch(null)
     setMatrix(IDENTITY_MATRIX)
     startNewChallenge()
     idleNudges.resetChallengeTracking()
@@ -220,9 +218,7 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
 
   // Handle "Keep Exploring" from reveal panel
   const handleKeepExploring = useCallback(() => {
-    setShowReveal(false)
-    setMatchedTarget(null)
-    setMatchedMatrix(null)
+    setMatch(null)
     exitChallenge()
     explorationStartRef.current = Date.now()
     setExplorationTime(0)
@@ -302,8 +298,7 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
 
             {/* Celebration pulse */}
             <CelebrationPulse
-              active={showCelebration}
-              onComplete={() => setShowCelebration(false)}
+              active={match?.phase === 'celebrating'}
             />
           </Scene>
         </div>
@@ -341,11 +336,11 @@ export function Module({ isVisible = true, onComplete: _onComplete }: ModuleProp
       />
 
       {/* Reveal panel (modal) */}
-      {matchedTarget && matchedMatrix && (
+      {match && (
         <RevealPanel
-          matrix={matchedMatrix}
-          transformationType={matchedTarget.transformationType}
-          challengeName={matchedTarget.name}
+          matrix={match.matrix}
+          transformationType={match.target.transformationType}
+          challengeName={match.target.name}
           isOpen={showReveal}
           onTryAnother={handleTryAnother}
           onKeepExploring={handleKeepExploring}
